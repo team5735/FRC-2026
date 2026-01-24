@@ -3,24 +3,22 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.FuelLauncherSubsystem;
 
-public class LaunchFuelCommand extends Command{
+public class LaunchFuelCommand extends Command {
 
-   private FuelLauncherSubsystem launcher;    
+    private FuelLauncherSubsystem launcher;
 
-    public LaunchFuelCommand(FuelLauncherSubsystem launcher){ 
-       this.launcher = launcher;
+    public LaunchFuelCommand(FuelLauncherSubsystem launcher) {
+        this.launcher = launcher;
     }
+
     @Override
     public void initialize() {
-      launcher.ActivateVoltage();
+        launcher.activateVoltage();
     }
-    
+
     @Override
     public void end(boolean interrupted) {
-        launcher.DeactivateVoltage();
+        launcher.deactivateVoltage();
     }
 
-
-
-    
 }

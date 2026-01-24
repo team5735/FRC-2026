@@ -4,7 +4,6 @@
 
 package frc.robot.subsystems;
 
-
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -12,17 +11,23 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class FuelLauncherSubsystem extends SubsystemBase {
-  private final TalonFX krakenMotor = new TalonFX(Constants.LAUNCHER_KRAKEN_ID);
-  /** Creates a new ExampleSubsystem. */
-  public FuelLauncherSubsystem() {
-    SmartDashboard.putNumber("shooter_volts", Constants.LAUNCHER_VOLTS);
-  }
+    private final TalonFX krakenMotor = new TalonFX(Constants.LAUNCHER_KRAKEN_ID);
 
-  public void ActivateVoltage() {
-    krakenMotor.setVoltage(SmartDashboard.getNumber("shooter_volts", Constants.LAUNCHER_VOLTS));
-  }
+    /** Creates a new ExampleSubsystem. */
+    public FuelLauncherSubsystem() {
+        SmartDashboard.putNumber("shooter_volts", Constants.LAUNCHER_VOLTS);
+    }
 
-  public void DeactivateVoltage() {
-    krakenMotor.setVoltage(0);
-  }
+    public void activateVoltage() {
+        krakenMotor.setVoltage(SmartDashboard.getNumber("shooter_volts", Constants.LAUNCHER_VOLTS));
+    }
+
+    public void deactivateVoltage() {
+        krakenMotor.setVoltage(0);
+    }
+
+    @Override
+    public void periodic() {
+        SmartDashboard.putNumber("speed_rpm_raw", krakenMotor.getVelocity().getValueAsDouble());
+    }
 }
