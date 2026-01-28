@@ -67,5 +67,4 @@ public class Arc {
     public Rotation2d getThetaEnd() {
         return thetaEnd;
     }
-
 }
