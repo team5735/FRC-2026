@@ -14,11 +14,17 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import frc.robot.util.Arc;
+
 public class ArcNearestPointSwing extends JPanel {
     private static final int WIDTH = 800;
     private static final int HEIGHT = 600;
 
     private Point clickPoint = null;
+
+    private Arc arc = new Arc(new Translation2d(400, 300), 200, Rotation2d.kZero, Rotation2d.kCW_90deg);
 
     // ---------- Drawing ----------
 
@@ -30,55 +36,55 @@ public class ArcNearestPointSwing extends JPanel {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON);
 
-        // Full circle
+        // use the arc object instead
         g2.setColor(Color.DARK_GRAY);
         g2.drawOval(
-                CENTER.x - (int) RADIUS,
-                CENTER.y - (int) RADIUS,
-                (int) (2 * RADIUS),
-                (int) (2 * RADIUS));
+                (int) (arc.getCenter().getX() - arc.getRadius()),
+                (int) (arc.getCenter().getY() - arc.getRadius()),
+                (int) (2 * arc.getRadius()),
+                (int) (2 * arc.getRadius()));
 
         // Arc
         g2.setColor(Color.GREEN);
-        Path2D arc = new Path2D.Double();
-        boolean first = true;
+        Path2D arcPath = new Path2D.Double();
 
         int steps = 200;
         for (int i = 0; i <= steps; i++) {
-            double t = THETA_MIN + (THETA_MAX - THETA_MIN) * i / steps;
-            Point p = pointOnCircle(CENTER, RADIUS, t);
-            if (first) {
-                arc.moveTo(p.x, p.y);
-                first = false;
+            Rotation2d t = arc.getThetaStart()
+                    .plus(arc.getThetaEnd().minus(arc.getThetaStart()).times(i / steps));
+            Translation2d p = new Translation2d(arc.getRadius(), t);
+            if (i == 0) {
+                arcPath.moveTo(p.getX(), p.getY());
             } else {
-                arc.lineTo(p.x, p.y);
+                arcPath.lineTo(p.getX(), p.getY());
             }
         }
-        g2.draw(arc);
+        g2.draw(arcPath);
 
         // Center
         g2.setColor(Color.WHITE);
-        g2.fillOval(CENTER.x - 3, CENTER.y - 3, 6, 6);
+        g2.fillOval((int) arc.getCenter().getX() - 3, (int) arc.getCenter().getY() - 3, 6, 6);
 
-        if (clickPoint != null) {
-            // Click point
-            g2.setColor(Color.BLUE);
-            g2.fillOval(clickPoint.x - 4, clickPoint.y - 4, 8, 8);
-
-            Point closest = nearestPointOnCircleArc(
-                    clickPoint, CENTER, RADIUS, THETA_MIN, THETA_MAX);
-
-            if (closest != null) {
-                // Closest point
-                g2.setColor(Color.RED);
-                g2.fillOval(closest.x - 5, closest.y - 5, 10, 10);
-
-                // Connecting line
-                g2.setColor(Color.YELLOW);
-                g2.drawLine(clickPoint.x, clickPoint.y,
-                        closest.x, closest.y);
-            }
+        if (clickPoint == null) {
+            return;
         }
+
+        // Click point
+        g2.setColor(Color.BLUE);
+        g2.fillOval(clickPoint.x - 4, clickPoint.y - 4, 8, 8);
+
+        Translation2d closest = arc.nearestPointOnArc(new Translation2d(clickPoint.x, clickPoint.y));
+
+        if (closest == null) {
+            return;
+        }
+
+        // Closest point
+        g2.setColor(Color.RED);
+        // Connecting line
+        g2.setColor(Color.YELLOW);
+        g2.drawLine(clickPoint.x, clickPoint.y,
+                (int) closest.getX(), (int) closest.getY());
     }
 
     // ---------- Setup ----------
