@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.constants.Constants;
 import frc.robot.constants.VisionConstants;
 import frc.robot.util.LimelightHelpers;
 import frc.robot.util.NTDoubleSection;
@@ -86,7 +87,7 @@ public class VisionSubsystem extends SubsystemBase {
             return;
         }
 
-        if (estimate.timestampSeconds == lastTimestamp) {
+        if (Math.abs(estimate.timestampSeconds - lastTimestamp) < Constants.TOLERANCE) {
             doubles.set(limelightName + "_status", 5);
             return;
         }
