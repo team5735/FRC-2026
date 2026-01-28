@@ -54,7 +54,7 @@ public class VisionSubsystem extends SubsystemBase {
         }
     }
 
-    private LimelightHelpers.PoseEstimate lastEstimate;
+    private double lastTimestamp;
 
     private LimelightHelpers.PoseEstimate getMt2Estimate(String limelightName) {
         LimelightHelpers.SetRobotOrientation(limelightName, drivetrain.getPigeon2().getYaw().getValueAsDouble(), 0, 0,
@@ -86,11 +86,11 @@ public class VisionSubsystem extends SubsystemBase {
             return;
         }
 
-        if (lastEstimate != null && estimate.pose == lastEstimate.pose) {
+        if (estimate.timestampSeconds == lastTimestamp) {
             doubles.set(limelightName + "_status", 5);
             return;
         }
-        lastEstimate = estimate;
+        lastTimestamp = estimate.timestampSeconds;
 
         if (estimate.tagCount == 1 && estimate.rawFiducials.length == 1) {
             var firstFiducial = estimate.rawFiducials[0];
