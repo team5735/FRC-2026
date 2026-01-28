@@ -13,7 +13,6 @@ import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.path.PathConstraints;
 
-import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -30,6 +29,21 @@ public class CompbotConstants implements DrivetrainConstants {
     @Override
     public PIDConstants getAutoRotConstants() {
         return new PIDConstants(12, 0);
+    }
+
+    @Override
+    public double getRotKs() {
+        return 0.16327;
+    }
+
+    @Override
+    public double getRotKv() {
+        return 0.80246;
+    }
+
+    @Override
+    public double getRotKa() {
+        return 0.185;
     }
 
     @Override
@@ -50,40 +64,10 @@ public class CompbotConstants implements DrivetrainConstants {
     @Override
     public PathConstraints getPathFollowConstraints() {
         return new PathConstraints(
-                MetersPerSecond.of(1),
-                MetersPerSecondPerSecond.of(0.5),
-                DegreesPerSecond.of(60),
-                DegreesPerSecondPerSecond.of(30)); // TODO add and test values
-    }
-
-    @Override
-    public double getSpinKp() {
-        return 0.014687;
-    }
-
-    @Override
-    public double getSpinKi() {
-        return 0;
-    }
-
-    @Override
-    public double getSpinKd() {
-        return 0;
-    }
-
-    @Override
-    public double getSpinKs() {
-        return 0.16327;
-    }
-
-    @Override
-    public double getSpinKv() {
-        return 0.80246;
-    }
-
-    @Override
-    public double getSpinKa() {
-        return 0.185;
+                MetersPerSecond.of(0),
+                MetersPerSecondPerSecond.of(0),
+                DegreesPerSecond.of(0),
+                DegreesPerSecondPerSecond.of(0)); // TODO add and test values
     }
 
     @Override
@@ -93,12 +77,12 @@ public class CompbotConstants implements DrivetrainConstants {
 
     @Override
     public LinearVelocity getSlowSpeed() {
-        return MetersPerSecond.of(0.5);
+        return MetersPerSecond.of(0.6);
     }
 
     @Override
     public AngularVelocity getDefaultRotationalRate() {
-        return DegreesPerSecond.of(80);
+        return DegreesPerSecond.of(180);
     }
 
     @Override
@@ -112,13 +96,13 @@ public class CompbotConstants implements DrivetrainConstants {
     }
 
     @Override
-    public Distance getMaxWheelDistance() {
+    public Distance getDrivetrainWidth() {
         return Inches.of(25);
     }
 
     @Override
     public double getRobotMoiKgxMxM() {
-        return getRobotMass().in(Kilograms) * getMaxWheelDistance().in(Meters) / 2 * getSpinKa()
+        return getRobotMass().in(Kilograms) * getDrivetrainWidth().in(Meters) / 2 * getRotKa()
                 / CompbotTunerConstants.DRIVE_GAINS.kA;
     }
 
@@ -153,9 +137,5 @@ public class CompbotConstants implements DrivetrainConstants {
 
     public Distance getBumperWidth() {
         return Inches.of(3.5); // TODO
-    }
-
-    public Rotation3d getPigeonRotation() {
-        return new Rotation3d(); // TODO: measure
     }
 }
