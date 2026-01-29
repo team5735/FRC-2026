@@ -1,5 +1,9 @@
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Rotations;
+
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 import com.pathplanner.lib.auto.AutoBuilder;
 
@@ -15,7 +19,6 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
-import edu.wpi.first.units.Units;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -136,7 +139,7 @@ public class Telemetry {
 
             builder.addDoubleProperty(
                     "Robot Angle",
-                    () -> RobotContainer.drivetrain.getPigeon2().getYaw().getValue().in(Units.Radians),
+                    () -> RobotContainer.drivetrain.getPigeon2().getYaw().getValue().in(Radians),
                     null);
         }
     };
@@ -220,12 +223,12 @@ public class Telemetry {
         SmartDashboard.putNumber(
                 "rotation_position",
                 MathUtil.inputModulus(
-                        RobotContainer.drivetrain.getPigeon2().getYaw().getValue().in(Units.Radians),
+                        RobotContainer.drivetrain.getPigeon2().getYaw().getValue().in(Radians),
                         -Math.PI, Math.PI));
         SmartDashboard.putNumber(
                 "rotation_velocity",
                 RobotContainer.drivetrain.getPigeon2().getAngularVelocityZWorld().getValue()
-                        .in(Units.RadiansPerSecond));
+                        .in(RadiansPerSecond));
 
         SmartDashboard.putNumber(
                 "FL_steer_setpoint",
@@ -262,7 +265,7 @@ public class Telemetry {
         SmartDashboard.putNumber(
                 "FL_drive_motor_rotations",
                 RobotContainer.drivetrain.getModule(0).getDriveMotor().getRotorPosition().getValue()
-                        .in(Units.Rotations));
+                        .in(Rotations));
 
         /* Telemeterize the pose to a Field2d */
         fieldTypePub.set("Field2d");
