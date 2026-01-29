@@ -3,8 +3,16 @@ package frc.robot.constants;
 import edu.wpi.first.math.geometry.Rotation2d;
 
 public class Constants {
+    public enum DrivetrainType {
+        DEVBOT,
+        COMPBOT
+    }
+
+    public static DrivetrainType DRIVETRAIN_TYPE = DrivetrainType.DEVBOT;
+
     public static final int DRIVE_CONTROLLER_PORT = 0;
     public static final int SUBSYSTEM_CONTROLLER_PORT = 1;
+    public static final int TEST_CONTROLLER_PORT = 2;
 
     public static final double DEADBAND = 0.1;
 

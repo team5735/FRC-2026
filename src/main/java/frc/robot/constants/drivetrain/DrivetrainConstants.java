@@ -11,13 +11,6 @@ import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Mass;
 
 public interface DrivetrainConstants {
-    public enum DrivetrainType {
-        DEVBOT,
-        COMPBOT
-    }
-
-    public static DrivetrainType DRIVETRAIN_TYPE = DrivetrainType.COMPBOT;
-
     public PIDConstants getAutoPosConstants();
 
     public PIDConstants getAutoRotConstants();
