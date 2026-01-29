@@ -1,3 +1,5 @@
+import os
+import datetime
 import argparse
 import random
 
@@ -73,12 +75,22 @@ def main():
         default=0.5,
         help="Snapshot update rate in frames per second (default: 0.5 fps, i.e., 2s per snapshot)"
     )
+
+    parser.add_argument(
+        "--outdir",
+        type=str,
+        default=None,
+        help="Output directory to store snapshots"
+    )
     args = parser.parse_args()
 
     limelight_ip = args.ip
     update_interval = 1.0 / args.fps if args.fps > 0 else 2.0
 
     last_filename = None
+
+    if args.outdir:
+        os.makedirs(args.outdir, exist_ok=True)
 
     try:
         while True:
@@ -99,6 +111,19 @@ def main():
 
             # Display the image in a window
             cv2.imshow("Limelight Live Snapshot", image)
+
+            # save to disk
+            if args.outdir:
+                ts = datetime.datetime.now()
+                tsfn = '%04d_%02d_%02d__%02d_%02d_%02d'%(ts.year,
+                                                         ts.month,
+                                                         ts.day,
+                                                         ts.hour,
+                                                         ts.minute,
+                                                         ts.second)
+                fn = 'snap_%s.png'%tsfn
+                outfn = os.path.join(args.outdir, fn)
+                cv2.imwrite(outfn, image)
 
             # Wait 1 ms to refresh window and check for quit
             if cv2.waitKey(1) & 0xFF == ord('q'):
