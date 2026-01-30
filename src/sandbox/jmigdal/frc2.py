@@ -57,15 +57,14 @@ def draw_point(img, p, label, color=(0, 255, 0)):
         cv2.LINE_AA
     )
 
-def draw_line_with_distance(img, p1, p2, color=(255, 0, 0)):
+def draw_line_with_distance(img, p1, p2, text, color=(255, 0, 0)):
     cv2.line(img, p1, p2, color, 2)
 
-    d = dist(p1, p2)
     mid = ((p1[0] + p2[0]) // 2, (p1[1] + p2[1]) // 2)
 
     cv2.putText(
         img,
-        f"{d:.1f}",
+        text,
         mid,
         cv2.FONT_HERSHEY_SIMPLEX,
         0.5,
@@ -76,7 +75,7 @@ def draw_line_with_distance(img, p1, p2, color=(255, 0, 0)):
 
     cv2.putText(
         img,
-        f"{d:.1f}",
+        text,
         mid,
         cv2.FONT_HERSHEY_SIMPLEX,
         0.5,
@@ -99,13 +98,54 @@ def field_point_to_pixel(x_meters, y_meters, imgw, imgh, ppm, pad_x=0, pad_y=0):
     py = int(pad_y + y_meters * ppm)  # y origin is same in field and image so direct addition
     return (px, py)
 
+def draw_arc(img,
+             pose: Pose2d,
+             radius_m: float,
+             arc_span_deg: float,
+             ppm: float = 100.0,
+             color = [255,255,255],
+             pad_x=0,
+             pad_y=0
+             ):
+    img_h, img_w = img.shape[:2]
+    cx,cy = field_point_to_pixel(pose.X(), pose.Y(), img_w, img_h, ppm, pad_x, pad_y)
+    r_px = int(radius_m * ppm)
+
+    # Heading
+    heading_rad = pose.rotation().radians()
+    heading_deg = r2d(heading_rad)
+    print('heading',heading_deg)
+
+    # Arc angles in WPILib frame
+    start_deg = heading_deg - arc_span_deg / 2
+    end_deg   = heading_deg + arc_span_deg / 2
+
+    # Convert to OpenCV frame (clockwise, Y-down)
+    start_cv = 180-start_deg
+    end_cv   = 180-end_deg
+
+    # OpenCV expects start < end in clockwise space
+    if end_cv < start_cv:
+        start_cv, end_cv = end_cv, start_cv
+
+    cv2.ellipse(
+        img,
+        center=(cx,cy),
+        axes=(r_px, r_px),
+        angle=0.0,            # no ellipse rotation; circle
+        startAngle=start_cv,
+        endAngle=end_cv,
+        color=color,
+        thickness=1,
+        lineType=cv2.LINE_AA,
+    )
 def draw_oriented_rectangle(img,
                             pose: Pose2d,
                             x_len: float,
                             y_len: float,
                             ppm: float = 100.0,
-                            color = [255,255,255],
-                            front_color = [0, 255, 0],
+                            color = (255,255,255),
+                            front_color = (0, 255, 0),
                             pad_x=0,
                             pad_y=0):
     """ draws a rectangle on an image, using field coordinates and meters
@@ -153,10 +193,10 @@ def draw_oriented_rectangle(img,
 
     # Outline
     pts_np = np.array(pts, dtype=np.int32).reshape((-1, 1, 2))
-    cv2.polylines(img, [pts_np], True, (255, 255, 255), 1)
+    cv2.polylines(img, [pts_np], True, color, 1)
 
     # Front edge shows yaw
-    cv2.line(img, pts[0], pts[1], (0, 255, 0), 2)
+    cv2.line(img, pts[0], pts[1], front_color, 2)
 
     return pts
 
@@ -240,7 +280,7 @@ def ntvis1():
 
     # stub robot pose
     if 1:
-        robot_pose = Pose2d(15.0, 1.0, d2r(135)) # upper-left, pointing to lower-right
+        robot_pose = Pose2d(in2m(12*6), in2m(12*9), d2r(30))
         print('stub robot pose',robot_pose)
 
     if 0: # stub april tags
@@ -280,8 +320,13 @@ def ntvis1():
     # pprint.pprint(tag_poses)
     # tag_poses.sort(key=lambda t: dist((t.x,t.y),(robot_pose.x, robot_pose.y)))
 
-    # find nearest tags to robot
-    sorted_tags = sorted(tags, key=lambda t: dist((t.pose.X(),t.pose.Y()),(robot_pose.X(), robot_pose.Y())))
+    # find nearest tags to front of robot
+    a = [robot_pose.X(), robot_pose.Y()]
+    # center of front of bot
+    a[0] += math.cos(robot_pose.rotation().radians())*robot_len_x/2
+    a[1] += math.sin(robot_pose.rotation().radians())*robot_len_x/2
+
+    sorted_tags = sorted(tags, key=lambda t: dist((t.pose.X(),t.pose.Y()),a))
 
     # create viz
     ppm = 100 # pixels per meter
@@ -298,15 +343,17 @@ def ntvis1():
     draw_bot(img, robot_pose, ppm, robot_len_x, robot_len_y, pad_x, pad_y)
 
     # draw lines and distances to 3 nearest tags
-    a = [robot_pose.X(), robot_pose.Y()]
-    a[0] += math.cos(robot_pose.rotation().radians())*robot_len_x/2
-    a[1] += math.sin(robot_pose.rotation().radians())*robot_len_x/2
-    a = field_point_to_pixel(a[0], a[1], width, height, ppm, pad_x, pad_y)
-    draw_point(img, a, "bot")
+    a_px = field_point_to_pixel(a[0], a[1], width, height, ppm, pad_x, pad_y)
+    draw_point(img, a_px, "")
     for tag in sorted_tags[:3]:
-        b = field_point_to_pixel(tag.pose.X(), tag.pose.Y(), width, height, ppm, pad_x, pad_y)
-        draw_point(img, b, "")
-        draw_line_with_distance(img, a, b)
+        b_px = field_point_to_pixel(tag.pose.X(), tag.pose.Y(), width, height, ppm, pad_x, pad_y)
+        draw_point(img, b_px, "")
+        _dist = m2in(dist(a, (tag.pose.X(), tag.pose.Y())))/12.0
+        draw_line_with_distance(img, a_px, b_px, '%.1f\''%_dist)
+
+    hub_center_shooting_arc = Pose2d(in2m(181.56), in2m(158.32), d2r(180))
+    span = 90
+    draw_arc(img, hub_center_shooting_arc, in2m(10*12), span, ppm, pad_x=pad_x, pad_y=pad_y)
 
 
     # ---- display ----
