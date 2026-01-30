@@ -20,35 +20,6 @@ import frc.robot.constants.FieldConstants;
 public class FieldMapTest {
     @Test
     void fieldMapTest() throws Exception {
-        FieldSpec field = FieldFmapReader.readFmap(Path.of("./src/resources/FRC2026_ANDYMARK.fmap"));
-
-        for (FieldAprilTag tag : field.tags()) {
-            Pose3d pose = tag.wpiBluePose();
-            Translation3d t = pose.getTranslation();
-            Rotation3d r = pose.getRotation();
-
-            System.out.printf(
-                    "Tag %d\n" +
-                    "  Size (m): %.3f\n" +
-                    "  Translation (m):\n" +
-                    "    x = %.3f\n" +
-                    "    y = %.3f\n" +
-                    "    z = %.3f\n" +
-                    "  Rotation (deg):\n" +
-                    "    roll  = %.2f\n" +
-                    "    pitch = %.2f\n" +
-                    "    yaw   = %.2f\n\n",
-                    tag.id(),
-                    tag.size().in(Meters),
-                    t.getX(),
-                    t.getY(),
-                    t.getZ(),
-                    Math.toDegrees(r.getX()),
-                    Math.toDegrees(r.getY()),
-                    Math.toDegrees(r.getZ())
-            );
-        }
-
         System.out.printf("Field Center: %s\n",FieldConstants.FIELD_CENTER.toString());
         System.out.printf("\n");
 
@@ -73,11 +44,13 @@ public class FieldMapTest {
         System.out.printf("Blue ramp left: %s\n",FieldConstants.BLUE_RAMP_LEFT_CENTER.toString());
         System.out.printf("Red ramp left: %s\n",FieldConstants.redElement(FieldConstants.BLUE_RAMP_LEFT_CENTER).toString());
 
-        AprilTagFieldLayout atf = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
+        AprilTagFieldLayout atf = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark);
         System.out.printf("april tags:\n");
         for (var a:atf.getTags()){
             System.out.printf("  %s\n",a.toString());
         }
+        System.out.printf("Field length: %f\n",atf.getFieldLength());
+        System.out.printf("Field width: %f\n",atf.getFieldWidth());
 
     }
 }
