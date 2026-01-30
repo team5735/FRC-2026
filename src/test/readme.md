@@ -1,5 +1,5 @@
 # Running Tests
-Run all tests using the `./gradelw` command from the main repo folder: `FRC-2025`
+Run all tests using the `./gradelw` command from the main repo folder: `FRC-2026`
 
 To run all the tests:
 ```

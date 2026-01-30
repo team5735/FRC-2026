@@ -1,17 +1,9 @@
 package frc.constants;
 
-import java.nio.file.Path;
-import java.util.List;
-
 import org.junit.jupiter.api.Test;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Translation3d;
-import static edu.wpi.first.units.Units.Meters;
-
 import frc.robot.constants.FieldConstants;
 
 public class FieldMapTest {
