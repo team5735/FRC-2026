@@ -69,10 +69,26 @@ def draw_line_with_distance(img, p1, p2, color=(255, 0, 0)):
         mid,
         cv2.FONT_HERSHEY_SIMPLEX,
         0.5,
+        [255,255,255],
+        6,
+        cv2.LINE_AA
+    )
+
+    cv2.putText(
+        img,
+        f"{d:.1f}",
+        mid,
+        cv2.FONT_HERSHEY_SIMPLEX,
+        0.5,
         color,
         1,
         cv2.LINE_AA
     )
+
+def field_point_to_pixel(x_meters, y_meters, imgw, imgh, ppm):
+    px = int(imgw - x_meters * ppm)
+    py = int(y_meters * ppm)
+    return (px, py)
 
 def draw_oriented_rectangle(img,
                             pose: Pose2d,
@@ -97,8 +113,7 @@ def draw_oriented_rectangle(img,
     img_h, img_w = img.shape[:2]
 
     # put rectangle center in image
-    cx = int(img_w - pose.x * ppm)
-    cy = int(pose.y * ppm)
+    cx,cy = field_point_to_pixel(pose.X(), pose.Y(), img_w, img_h, ppm)
 
     # 0 == facing left in image
     yaw = pose.rotation().radians()
@@ -120,8 +135,7 @@ def draw_oriented_rectangle(img,
         rx = fx * math.cos(yaw) - fy * math.sin(yaw)
         ry = fx * math.sin(yaw) + fy * math.cos(yaw)
 
-        px = int(cx - rx * ppm)
-        py = int(cy + ry * ppm)
+        px,py = field_point_to_pixel(pose.X()+rx, pose.Y()+ry, img_w, img_h, ppm)
 
         pts.append((px, py))
 
@@ -136,15 +150,15 @@ def draw_oriented_rectangle(img,
 
 
 def draw_bot(image, pose2d, ppm, x_len, y_len):
-    draw_oriented_rectangle(image, pose2d, x_len, y_len, ppm, (255, 255, 255), (0, 255, 0))
+    return draw_oriented_rectangle(image, pose2d, x_len, y_len, ppm, (255, 255, 255), (0, 255, 0))
 
 def draw_tag(
     image,
     tag_id: int,
     pose: Pose2d,
-    pixels_per_meter: float = 100.0,
-    length_m: float = 0.1651, # 6.5 inches
-    width_m: float = 0.08,
+    ppm: float = 100.0,
+    length_m: float = in2m(6.5),
+    width_m: float = in2m(2),
 ):
     """
     Draw an april tag on the field
@@ -152,7 +166,7 @@ def draw_tag(
     """
     img_h, img_w = image.shape[:2]
 
-    pts = draw_oriented_rectangle(image, pose, width_m, length_m, pixels_per_meter, (255, 255, 255), (0, 255, 0))
+    pts = draw_oriented_rectangle(image, pose, width_m, length_m, ppm, (255, 255, 255), (0, 255, 0))
 
     # ID label
     mnx,mxx = min([x[0] for x in pts]), max([x[0] for x in pts])
@@ -169,6 +183,7 @@ def draw_tag(
         1,
         cv2.LINE_AA,
     )
+    return pts
 
 
 # ---- connection callback (optional but useful) ----
@@ -184,6 +199,9 @@ def new_april_tag(id, p3d):
     return t
 
 def ntvis1():
+    robot_len_x = 1 # meters, front-back length
+    robot_len_y = 1 # meters
+
     if 0:
         NetworkTables.addConnectionListener(connection_listener, immediateNotify=True)
 
@@ -211,15 +229,16 @@ def ntvis1():
         robot_pose = Pose2d(15.0, 1.0, d2r(135)) # upper-left, pointing to lower-right
         print('stub robot pose',robot_pose)
 
-    if 1: # stub april tags
+    if 0: # stub april tags
         tags = [
             new_april_tag(1, Pose3d(Translation3d(1.0, 1.0, 0), Rotation3d(0,0,0))),
             new_april_tag(2, Pose3d(Translation3d(2.0, 1.0, 0), Rotation3d(0,0,0))),
             new_april_tag(3, Pose3d(Translation3d(1.0, 2.0, 0), Rotation3d(0,0,0))),
             new_april_tag(4, Pose3d(Translation3d(2.0, 2.0, 0), Rotation3d(0,0,0))),
         ]
+        id2tag = list2dict(tags, key=lambda t:t.ID)
 
-    if 0: # get 2026 tags from json file
+    if 1: # get 2026 tags from json file
         print('getting tags from 2026 file')
         layout = AprilTagFieldLayout.loadField(AprilTagField.k2026RebuiltAndyMark)
         print('field: %sx%s meters'%(layout.getFieldLength(), layout.getFieldWidth()))
@@ -227,9 +246,9 @@ def ntvis1():
         tags = layout.getTags()
         id2tag = list2dict(tags, key=lambda t:t.ID)
         print('tag 10:',id2tag[10].pose)
-        # for tag in layout.getTags():
-        #     print(tag.ID, tag.pose)
-        #     print('  ',p322d(tag.pose))
+        for tag in layout.getTags():
+            print(tag.ID, tag.pose)
+            print('  ',p322d(tag.pose))
 
     if 0: # get tags from network tables
         tags  = table.getNumberArray("Field/pose_score_left", [])
@@ -247,49 +266,34 @@ def ntvis1():
     # pprint.pprint(tag_poses)
     # tag_poses.sort(key=lambda t: dist((t.x,t.y),(robot_pose.x, robot_pose.y)))
 
+    # find nearest tags to robot
     tags.sort(key=lambda t: dist((t.pose.X(),t.pose.Y()),(robot_pose.X(), robot_pose.Y())))
 
-
-    a = (robot_pose.x, robot_pose.y)
-    b = (tags[0].x, tags[0].y)
-    c = (tags[1].x, tags[1].y)
-    d = (tags[2].x, tags[2].y)
-
-    a = (ir(100*a[0]), ir(100*a[1]))
-    b = (ir(100*b[0]), ir(100*b[1]))
-    c = (ir(100*c[0]), ir(100*c[1]))
-    d = (ir(100*d[0]), ir(100*d[1]))
-
-    print('robot',a)
-    print('b',b)
-    print('c',c)
-    print('d',d)
-
-
-
-    # ---- image setup ----
-
-    width, height = 1600, 800
+    # create viz
+    width, height = 1700, 805
     img = np.zeros((height, width, 3), dtype=np.uint8)
     img[:] = (30, 30, 30)  # dark background
+    ppm = 100 # pixels per meter
 
-    # ---- draw points ----
-
-    draw_point(img, a, "A")
-    draw_point(img, b, "B")
-    draw_point(img, c, "C")
-    draw_point(img, d, "D")
-
-    # ---- draw lines from A ----
-
-    draw_line_with_distance(img, a, b)
-    draw_line_with_distance(img, a, c)
-    draw_line_with_distance(img, a, d)
+    # draw_point(img, d, "D")
+    # draw_line_with_distance(img, a, d)
 
     for tagid in id2tag:
-        draw_tag(img, tagid, p322d(id2tag[tagid].pose))
+        draw_tag(img, tagid, p322d(id2tag[tagid].pose), ppm)
 
-    draw_bot(img, Pose2d(15, 1, Rotation2d(d2r(180-10))), 100, 1, 1)
+    draw_bot(img, robot_pose, ppm, robot_len_x, robot_len_y)
+
+    # draw lines and distances to 3 nearest tags
+    a = [robot_pose.X(), robot_pose.Y()]
+    a[0] += math.cos(robot_pose.rotation().radians())*robot_len_x/2
+    a[1] += math.sin(robot_pose.rotation().radians())*robot_len_x/2
+    a = field_point_to_pixel(a[0], a[1], width, height, ppm)
+    draw_point(img, a, "bot")
+    for tag in tags[:3]:
+        b = field_point_to_pixel(tag.pose.X(), tag.pose.Y(), width, height, ppm)
+        draw_point(img, b, "")
+        draw_line_with_distance(img, a, b)
+
 
     # ---- display ----
 
