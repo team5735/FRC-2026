@@ -12,7 +12,6 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.measure.Distance;
-import frc.robot.util.fieldmap.FieldAprilTag;
 
 // This file provides positions, orientations, distances, and poses to field elements for
 // the REBUILT 2026 competition playing field.
@@ -47,11 +46,11 @@ public class FieldConstants {
     //       So, when viewed from the blue side, the red element will be on the left
     public static final Translation2d BLUE_HUB_CENTER = new Translation2d(in2m(181.56), in2m(158.32));
     public static final Translation2d BLUE_OUTPOST_CENTER = new Translation2d(in2m(0), in2m(25.62));
+
     public static final Translation2d BLUE_TRENCH_RIGHT_CENTER = new Translation2d(in2m(181.56), in2m(24.97));
     public static final Translation2d BLUE_TRENCH_LEFT_CENTER = new Translation2d(in2m(181.56), in2m(FIELD_LENGTH_Y.in(Inches)-24.97));
     public static final Distance      TRENCH_LENGTH_Z = Inches.of(22.25); // height of the trench opening
     public static final Distance      TRENCH_LENGTH_Y = Inches.of(2*24.97); // the size of the opening (extent along y-axis of field)
-
     public static final Translation3d TRENCH_DIMENSION = new Translation3d(Inches.of(0), Inches.of(2*24.97), Inches.of(22.25));
 
     public static final Translation2d BLUE_RAMP_RIGHT_CENTER = new Translation2d(in2m(181.56), in2m(24.97*2+12+73/2.0));
@@ -59,10 +58,13 @@ public class FieldConstants {
     public static final Distance      RAMP_LENGTH_X = Inches.of(44.4); // extent along the x-axis of the field
     public static final Distance      RAMP_LENGTH_Y = Inches.of(73); // extent along the y-axis of the field
     public static final Distance      RAMP_LENGTH_Z = Inches.of(6.513); // ramp starts at 0 height and goes to this height in the middle
-
     public static final Translation3d RAMP_DIMENSION = new Translation3d(Inches.of(44.4), Inches.of(73), Inches.of(6.513));
 
 
     // contains all the AprilTags in wpiBlue coordinates
+    // There are 32 of them with IDs 1-32
+    // access them like this:
+    // List<AprilTag> tags = ATF.getTags(); // gets a list of all the april tags as AprilTag classes (should contain 32 of them)
+    // Pose3d pose = ATF.getTagPose(10); // gets the pose directly of the tag with ID 10
     public static final AprilTagFieldLayout ATF = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark);
 }

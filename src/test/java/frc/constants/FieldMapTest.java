@@ -12,9 +12,6 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import static edu.wpi.first.units.Units.Meters;
 
-import frc.robot.util.fieldmap.FieldFmapReader;
-import frc.robot.util.fieldmap.FieldAprilTag;
-import frc.robot.util.fieldmap.FieldSpec;
 import frc.robot.constants.FieldConstants;
 
 public class FieldMapTest {
