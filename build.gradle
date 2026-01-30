@@ -8,6 +8,10 @@ java {
     targetCompatibility = JavaVersion.VERSION_17
 }
 
+sourceSets {
+    sandbox.java.srcDir 'src/sandbox'
+}
+
 def ROBOT_MAIN_CLASS = "frc.robot.Main"
 
 // Define my targets (RoboRIO) and artifacts (deployable files)
@@ -101,4 +105,10 @@ wpi.java.configureTestTasks(test)
 // Configure string concat to always inline compile
 tasks.withType(JavaCompile) {
     options.compilerArgs.add '-XDstringConcat=inline'
+}
+
+tasks.register("runTool", JavaExec) {
+    group = "Tools"
+    classpath = sourceSets.main.runtimeClasspath + sourceSets.sandbox.runtimeClasspath
+    mainClass = project.property("target")
 }
