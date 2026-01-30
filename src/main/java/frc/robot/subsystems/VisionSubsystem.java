@@ -75,6 +75,35 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
     public void maybeUpdateVisionMeasurement(String limelightName) {
+        /*
+         * algo thoughts:
+         * get mt1 and mt2 estimates
+         * get raw fiducials
+         * reject vision measurement if any of these are true:
+         *   mt1 and mt2 pose estimates differ significantly (> 20cm euclidean off from each other)
+         *   mt1 pose estimate is more than 3cm off the ground
+         *   mt1 pose estimate is off the field
+         *   1 tag pose estimate and ambiguity > 0.2
+         *   multi tag pose estimate and any tag ambiguity > 0.5
+         *   robot is rotating (if we get angular velocity)
+         *   
+         *  use mt2 if !rejected and:
+         *    pigeon was updated recently (<10s)
+         *  use mt1 otherwise
+         * 
+         *  reset pigeon if:
+         *    not updated recently (>5s) -- prevents spamming reset
+         *    all pose estimate ambiguity < 0.2
+         *    at least one tag is close (1.5m) TODO look at this constant in visionconstants
+         *    yaw stddev < 5 degrees (I think it's in degrees)
+         * 
+         *   use stddevs:
+         *     use the estimated stddevs for mt1 or mt2, depending on which type we're updating with
+         *     multiply stddevs by avg tag dist to camera: stddev*(1+dist)
+         *     multiply by robot velocity stddev*(1+mps)
+         *     if robot is rotating, use 99999 for theta
+         *     ensure proper minimums (x,y: 0.05, theta: 5 degrees, but in radians)
+         */
         LimelightHelpers.PoseEstimate estimate;
         if (VisionConstants.IS_MT2) {
             estimate = getMt2Estimate(limelightName);
