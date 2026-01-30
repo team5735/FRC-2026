@@ -85,9 +85,18 @@ def draw_line_with_distance(img, p1, p2, color=(255, 0, 0)):
         cv2.LINE_AA
     )
 
-def field_point_to_pixel(x_meters, y_meters, imgw, imgh, ppm):
-    px = int(imgw - x_meters * ppm)
-    py = int(y_meters * ppm)
+def field_point_to_pixel(x_meters, y_meters, imgw, imgh, ppm, pad_x=0, pad_y=0):
+    """ converts physical dimension field coords to pixel location in img
+        x_meters: float field x extent in meters. origin is alliance blue right (conceptually upper-right field)
+        y_meters: float field y extent in meters
+        imgw: int image width in pixels
+        imgh: int image height in pixels
+        ppm: int/float pixels per meter
+        pad_x, pad_y: int pixels to pad the field by on each side (to prevent clipping)
+                      conceptually shifts the image origin by (-pad_x, -pad_y) pixels
+    """
+    px = int(-pad_x + imgw - x_meters * ppm)  # negs b/c origin is at upper-left in img, upper-right in field
+    py = int(pad_y + y_meters * ppm)  # y origin is same in field and image so direct addition
     return (px, py)
 
 def draw_oriented_rectangle(img,
@@ -96,7 +105,9 @@ def draw_oriented_rectangle(img,
                             y_len: float,
                             ppm: float = 100.0,
                             color = [255,255,255],
-                            front_color = [0, 255, 0]):
+                            front_color = [0, 255, 0],
+                            pad_x=0,
+                            pad_y=0):
     """ draws a rectangle on an image, using field coordinates and meters
     x_len, y_len: lengths, in meters, of the rectangle's extent along it's own x- and y- axes
                   in its own frame, +x points ahead of it, +y goes left
@@ -113,7 +124,7 @@ def draw_oriented_rectangle(img,
     img_h, img_w = img.shape[:2]
 
     # put rectangle center in image
-    cx,cy = field_point_to_pixel(pose.X(), pose.Y(), img_w, img_h, ppm)
+    cx,cy = field_point_to_pixel(pose.X(), pose.Y(), img_w, img_h, ppm, pad_x, pad_y)
 
     # 0 == facing left in image
     yaw = pose.rotation().radians()
@@ -135,7 +146,8 @@ def draw_oriented_rectangle(img,
         rx = fx * math.cos(yaw) - fy * math.sin(yaw)
         ry = fx * math.sin(yaw) + fy * math.cos(yaw)
 
-        px,py = field_point_to_pixel(pose.X()+rx, pose.Y()+ry, img_w, img_h, ppm)
+        px,py = field_point_to_pixel(pose.X()+rx, pose.Y()+ry, img_w, img_h, ppm, pad_x, pad_y)
+        print(px,py)
 
         pts.append((px, py))
 
@@ -149,8 +161,8 @@ def draw_oriented_rectangle(img,
     return pts
 
 
-def draw_bot(image, pose2d, ppm, x_len, y_len):
-    return draw_oriented_rectangle(image, pose2d, x_len, y_len, ppm, (255, 255, 255), (0, 255, 0))
+def draw_bot(image, pose2d, ppm, x_len, y_len, pad_x=0, pad_y=0):
+    return draw_oriented_rectangle(image, pose2d, x_len, y_len, ppm, (255, 255, 255), (0, 255, 0), pad_x, pad_y)
 
 def draw_tag(
     image,
@@ -159,6 +171,8 @@ def draw_tag(
     ppm: float = 100.0,
     length_m: float = in2m(6.5),
     width_m: float = in2m(2),
+    pad_x=0,
+    pad_y=0
 ):
     """
     Draw an april tag on the field
@@ -166,7 +180,7 @@ def draw_tag(
     """
     img_h, img_w = image.shape[:2]
 
-    pts = draw_oriented_rectangle(image, pose, width_m, length_m, ppm, (255, 255, 255), (0, 255, 0))
+    pts = draw_oriented_rectangle(image, pose, width_m, length_m, ppm, (255, 255, 255), (0, 255, 0), pad_x, pad_y)
 
     # ID label
     mnx,mxx = min([x[0] for x in pts]), max([x[0] for x in pts])
@@ -191,7 +205,7 @@ def draw_tag(
 def connection_listener(connected, info):
     print(f"{'Connected to' if connected else 'Disconnected from'} {info.remote_id}")
 
-
+# give AprilTag one line constructor
 def new_april_tag(id, p3d):
     t = AprilTag()
     t.ID = id
@@ -221,7 +235,7 @@ def ntvis1():
         table = NetworkTables.getTable("SmartDashboard")
 
         # get robot pose from network tables
-        robot_pose = Pose(*table.getNumberArray("Field/Robot", [0,0,0]))
+        robot_pose = Pose2d(*table.getNumberArray("Field/Robot", [0,0,0]))
         print('robot:',robot_pose)
 
     # stub robot pose
@@ -267,30 +281,30 @@ def ntvis1():
     # tag_poses.sort(key=lambda t: dist((t.x,t.y),(robot_pose.x, robot_pose.y)))
 
     # find nearest tags to robot
-    tags.sort(key=lambda t: dist((t.pose.X(),t.pose.Y()),(robot_pose.X(), robot_pose.Y())))
+    sorted_tags = sorted(tags, key=lambda t: dist((t.pose.X(),t.pose.Y()),(robot_pose.X(), robot_pose.Y())))
 
     # create viz
+    ppm = 100 # pixels per meter
+    pad_x, pad_y = 20,20 # pixel padding on the edges of img to allow for slightly negative drawing indices
     width, height = 1700, 805
     img = np.zeros((height, width, 3), dtype=np.uint8)
     img[:] = (30, 30, 30)  # dark background
-    ppm = 100 # pixels per meter
 
-    # draw_point(img, d, "D")
-    # draw_line_with_distance(img, a, d)
-
+    # put april tags on image
     for tagid in id2tag:
-        draw_tag(img, tagid, p322d(id2tag[tagid].pose), ppm)
+        draw_tag(img, tagid, p322d(id2tag[tagid].pose), ppm, pad_x=pad_x, pad_y=pad_y)
 
-    draw_bot(img, robot_pose, ppm, robot_len_x, robot_len_y)
+    # put robot on image
+    draw_bot(img, robot_pose, ppm, robot_len_x, robot_len_y, pad_x, pad_y)
 
     # draw lines and distances to 3 nearest tags
     a = [robot_pose.X(), robot_pose.Y()]
     a[0] += math.cos(robot_pose.rotation().radians())*robot_len_x/2
     a[1] += math.sin(robot_pose.rotation().radians())*robot_len_x/2
-    a = field_point_to_pixel(a[0], a[1], width, height, ppm)
+    a = field_point_to_pixel(a[0], a[1], width, height, ppm, pad_x, pad_y)
     draw_point(img, a, "bot")
-    for tag in tags[:3]:
-        b = field_point_to_pixel(tag.pose.X(), tag.pose.Y(), width, height, ppm)
+    for tag in sorted_tags[:3]:
+        b = field_point_to_pixel(tag.pose.X(), tag.pose.Y(), width, height, ppm, pad_x, pad_y)
         draw_point(img, b, "")
         draw_line_with_distance(img, a, b)
 
