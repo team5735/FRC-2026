@@ -35,6 +35,7 @@ public class VisionConstants {
 
     public static final Distance NEAR_ENOUGH_TO_RESET = Meters.of(1.5);
     public static final Angle MAX_YAW_STDDEV_FOR_RESET = Degrees.of(5);
+    public static final AngularVelocity MAX_ANGULAR_VELOCITY_FOR_RESET = DegreesPerSecond.of(0.5);
 
     public static final double SINGLE_TAG_MAX_AMBIGUITY = 0.2;
     public static final double MULTI_TAG_MAX_AMBIGUITY = 0.5;

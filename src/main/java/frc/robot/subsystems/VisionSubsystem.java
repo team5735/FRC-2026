@@ -127,9 +127,51 @@ public class VisionSubsystem extends SubsystemBase {
         }
     }
 
-    public void maybeUpdateVisionMeasurement(String limelightName) {
+    private void maybeResetPigeon(String limelightName, PoseEstimate estimate) {
+        // stay grounded to reality!
+        if (estimate.pose3d.getMeasureZ().abs(Meters) > VisionConstants.TOLERATED_HEIGHT.in(Meters)) {
+            SmartDashboard.putString(limelightName + " status",
+                    "mt1 pose estimate is more than 3cm away from the ground");
+            return;
+        }
+
+        // limit angular velocity
+        if (drivetrain.getPigeon2().getAngularVelocityZWorld().asSupplier().get()
+                .in(DegreesPerSecond) < VisionConstants.MAX_ANGULAR_VELOCITY_FOR_RESET.in(DegreesPerSecond)) {
+            SmartDashboard.putString(limelightName + " status", "robot is rotating");
+            return;
+        }
+
+        if (Timer.getFPGATimestamp() - lastPigeonReset < VisionConstants.RESET_PIGEON_INTERVAL.in(Seconds)) {
+            return;
+        }
+
+        // all pose estimate ambiguity < 0.2
+        if (Arrays.stream(estimate.fiducials)
+                .anyMatch(tag -> tag.ambiguity > VisionConstants.MAX_AMBIGUITY_FOR_RESET)) {
+            return;
+        }
+
+        // at least one tag is close (1.5m)
+        if (Arrays.stream(estimate.fiducials)
+                .noneMatch(tag -> tag.distToCamera.in(Meters) < VisionConstants.NEAR_ENOUGH_TO_RESET.in(Meters))) {
+            return;
+        }
+
+        // yaw stddev < 5 degrees
+        if (estimate.stddevs.getRotation().getMeasureZ().in(Degrees) > VisionConstants.MAX_YAW_STDDEV_FOR_RESET
+                .in(Degrees)) {
+            return;
+        }
+
+        drivetrain.getPigeon2().setYaw(estimate.pose2d.getRotation().getMeasure());
+        lastPigeonReset = Timer.getFPGATimestamp();
+    }
+
+    public void handleVisionMeasurement(String limelightName) {
         PoseEstimate mt1 = new PoseEstimate(limelightName, true);
         PoseEstimate mt2 = new PoseEstimate(limelightName, false);
+        maybeResetPigeon(limelightName, mt1);
 
         // mt1 and mt2 differ significantly
         if (mt1.pose3d.getTranslation().getDistance(
@@ -188,31 +230,6 @@ public class VisionSubsystem extends SubsystemBase {
 
     private double lastPigeonReset = 0;
 
-    private void maybeResetPigeon(PoseEstimate estimate) {
-        // not updated recently (>5s) -- prevents spamming reset
-        if (Timer.getFPGATimestamp() - lastPigeonReset < VisionConstants.RESET_PIGEON_INTERVAL.in(Seconds)) {
-            return;
-        }
-        // all pose estimate ambiguity < 0.2
-        if (Arrays.stream(estimate.fiducials)
-                .anyMatch(tag -> tag.ambiguity > VisionConstants.MAX_AMBIGUITY_FOR_RESET)) {
-            return;
-        }
-        // at least one tag is close (1.5m)
-        if (Arrays.stream(estimate.fiducials)
-                .noneMatch(tag -> tag.distToCamera.in(Meters) < VisionConstants.NEAR_ENOUGH_TO_RESET.in(Meters))) {
-            return;
-        }
-        // yaw stddev < 5 degrees
-        if (estimate.stddevs.getRotation().getMeasureZ().in(Degrees) > VisionConstants.MAX_YAW_STDDEV_FOR_RESET
-                .in(Degrees)) {
-            return;
-        }
-
-        drivetrain.getPigeon2().setYaw(estimate.pose2d.getRotation().getMeasure());
-        lastPigeonReset = Timer.getFPGATimestamp();
-    }
-
     private LinearAcceleration getDrivetrainAcceleration() {
         return MetersPerSecondPerSecond.of(Math.hypot(Math.hypot(
                 drivetrain.getPigeon2().getAccelerationX().asSupplier().get().in(MetersPerSecondPerSecond),
@@ -221,8 +238,6 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
     private void updateVisionMeasurement(String limelightName, PoseEstimate estimate) {
-        maybeResetPigeon(estimate);
-
         doubles.set(limelightName + "_status", 0);
         // if the estimate is more than 4 meters away from the current estimate, reset
         if (drivetrainIsNaNOrInf()) {
@@ -252,7 +267,7 @@ public class VisionSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         for (String limelight : LIMELIGHTS) {
-            maybeUpdateVisionMeasurement(limelight);
+            handleVisionMeasurement(limelight);
         }
     }
 
