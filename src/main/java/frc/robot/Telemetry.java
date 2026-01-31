@@ -160,12 +160,12 @@ public class Telemetry {
 
         field.setRobotPose(AutoBuilder.getCurrentPose());
 
-        LimelightHelpers.PoseEstimate mt1Estimate = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight");
+        LimelightHelpers.PoseEstimate mt1Estimate = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-left");
         if (mt1Estimate != null) {
             field.getObject("limelightMt1Pos").setPose(mt1Estimate.pose);
         }
 
-        LimelightHelpers.PoseEstimate mt2Estimate = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
+        LimelightHelpers.PoseEstimate mt2Estimate = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-left");
         if (mt2Estimate != null) {
             field.getObject("limelightMt2Pos").setPose(mt2Estimate.pose);
         }
