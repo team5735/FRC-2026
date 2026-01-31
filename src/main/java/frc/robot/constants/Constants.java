@@ -8,7 +8,7 @@ public class Constants {
         COMPBOT
     }
 
-    public static DrivetrainType DRIVETRAIN_TYPE = DrivetrainType.DEVBOT;
+    public static DrivetrainType DRIVETRAIN_TYPE = DrivetrainType.COMPBOT;
 
     public static final int DRIVE_CONTROLLER_PORT = 0;
     public static final int SUBSYSTEM_CONTROLLER_PORT = 1;
