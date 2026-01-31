@@ -86,7 +86,7 @@ def draw_line_with_distance(img, p1, p2, text, color=(255, 0, 0)):
 
 def field_point_to_pixel(x_meters, y_meters, imgw, imgh, ppm, pad_x=0, pad_y=0):
     """ converts physical dimension field coords to pixel location in img
-        x_meters: float field x extent in meters. origin is alliance blue right (conceptually upper-right field)
+        x_meters: float field x extent in meters. origin is blue alliance right corner
         y_meters: float field y extent in meters
         imgw: int image width in pixels
         imgh: int image height in pixels
@@ -94,8 +94,13 @@ def field_point_to_pixel(x_meters, y_meters, imgw, imgh, ppm, pad_x=0, pad_y=0):
         pad_x, pad_y: int pixels to pad the field by on each side (to prevent clipping)
                       conceptually shifts the image origin by (-pad_x, -pad_y) pixels
     """
-    px = int(-pad_x + imgw - x_meters * ppm)  # negs b/c origin is at upper-left in img, upper-right in field
-    py = int(pad_y + y_meters * ppm)  # y origin is same in field and image so direct addition
+    if 1: # blue alliance is upper right when looking at the field top down
+        px = int(-pad_x + imgw - x_meters * ppm)
+        py = int(pad_y + y_meters * ppm)
+
+    if 0: # blue alliance is lower left when looking at the field top down
+        px = int(pad_x + x_meters * ppm)
+        py = int(-pad_y + imgh - y_meters * ppm)
     return (px, py)
 
 def draw_arc(img,
@@ -120,9 +125,15 @@ def draw_arc(img,
     start_deg = heading_deg - arc_span_deg / 2
     end_deg   = heading_deg + arc_span_deg / 2
 
-    # Convert to OpenCV frame (clockwise, Y-down)
-    start_cv = 180-start_deg
-    end_cv   = 180-end_deg
+    # Convert to OpenCV frame - 0=right, clockwise positive
+    if 1: # we're 0=left, counterclockwise positive
+        start_cv = 180-start_deg
+        end_cv   = 180-end_deg
+
+    if 0: # we're 0=right, counterclockwise positive
+        start_cv = -start_deg
+        end_cv   = -end_deg
+
 
     # OpenCV expects start < end in clockwise space
     if end_cv < start_cv:
@@ -212,7 +223,9 @@ def draw_tag(
     length_m: float = in2m(6.5),
     width_m: float = in2m(2),
     pad_x=0,
-    pad_y=0
+    pad_y=0,
+    color=(255,255,255),
+    front_color=(0, 255, 0)
 ):
     """
     Draw an april tag on the field
@@ -220,7 +233,7 @@ def draw_tag(
     """
     img_h, img_w = image.shape[:2]
 
-    pts = draw_oriented_rectangle(image, pose, width_m, length_m, ppm, (255, 255, 255), (0, 255, 0), pad_x, pad_y)
+    pts = draw_oriented_rectangle(image, pose, width_m, length_m, ppm, color, front_color, pad_x, pad_y)
 
     # ID label
     mnx,mxx = min([x[0] for x in pts]), max([x[0] for x in pts])
