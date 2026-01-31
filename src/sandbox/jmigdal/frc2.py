@@ -14,6 +14,55 @@ from networktables import NetworkTables
 from wpimath.geometry import *
 from robotpy_apriltag import AprilTagFieldLayout, AprilTagField, AprilTag
 
+
+class TagHighlightAnimation(object):
+    def __init__(self, id, pose, t_secs:float, ppm, pad_x, pad_y):
+        self.id = id
+        self.pose = pose
+
+
+        self.cur_ts = datetime.datetime.now()
+        self.dur = datetime.timedelta(seconds=t_secs)
+        self.start_ts = self.cur_ts
+        self.end_ts = self.start_ts + self.dur
+
+        self.highlight_color = (60,20,220) # crimson red in bgr
+        self.normal_color = (255,255,255)
+        self.normal_front_color = (0,255,0)
+        self.normal_text_color = (0, 255, 255)
+
+        self.ppm = ppm
+        self.pad_x = pad_x
+        self.pad_y = pad_y
+
+    def draw(self, img):
+        self.cur_ts = datetime.datetime.now()
+        elapsed = self.cur_ts - self.start_ts
+
+        # meld highlight and normal colors according to % done
+        alpha = elapsed / self.dur
+        if alpha > 1.0:
+            alpha = 1.0
+        draw_color = [0,0,0]
+        front_color = [0,0,0]
+        text_color = [0,0,0]
+        # blend colors
+        for c in range(3):
+            draw_color[c] = ir(alpha*self.normal_color[c] + (1-alpha)*self.highlight_color[c])
+            front_color[c] = ir(alpha*self.normal_front_color[c] + (1-alpha)*self.highlight_color[c])
+            text_color[c] = ir(alpha*self.normal_text_color[c] + (1-alpha)*self.highlight_color[c])
+            text_color[c] = self.highlight_color[c]
+
+        print('drawing')
+        draw_tag(img, self.id, p322d(self.pose), self.ppm, pad_x=self.pad_x, pad_y=self.pad_y,
+                 color=tuple(draw_color),
+                 front_color=tuple(front_color),
+                 text_color=tuple(text_color))
+
+
+    def is_expired(self):
+        return self.cur_ts > self.end_ts
+
 def group_by(lst, key=lambda x:x):
     out = {}
     for x in lst:
@@ -225,7 +274,8 @@ def draw_tag(
     pad_x=0,
     pad_y=0,
     color=(255,255,255),
-    front_color=(0, 255, 0)
+    front_color=(0, 255, 0),
+    text_color=(0, 255, 255)
 ):
     """
     Draw an april tag on the field
@@ -236,20 +286,21 @@ def draw_tag(
     pts = draw_oriented_rectangle(image, pose, width_m, length_m, ppm, color, front_color, pad_x, pad_y)
 
     # ID label
-    mnx,mxx = min([x[0] for x in pts]), max([x[0] for x in pts])
-    mny,mxy = min([x[1] for x in pts]), max([x[1] for x in pts])
-    px = mxx+4
-    py = (mxy+mny)//2
-    cv2.putText(
-        image,
-        f"{tag_id}",
-        (px, py),
-        cv2.FONT_HERSHEY_SIMPLEX,
-        0.4,
-        (0, 255, 255),
-        1,
-        cv2.LINE_AA,
-    )
+    if tag_id is not None:
+        mnx,mxx = min([x[0] for x in pts]), max([x[0] for x in pts])
+        mny,mxy = min([x[1] for x in pts]), max([x[1] for x in pts])
+        px = mxx+4
+        py = (mxy+mny)//2
+        cv2.putText(
+            image,
+            f"{tag_id}",
+            (px, py),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.4,
+            text_color,
+            1,
+            cv2.LINE_AA,
+        )
     return pts
 
 
@@ -329,18 +380,6 @@ def ntvis1():
         print(tags)
         print('tag 10:',id2tag[10].pose)
 
-    # print(tag_poses[0])
-    # pprint.pprint(tag_poses)
-    # tag_poses.sort(key=lambda t: dist((t.x,t.y),(robot_pose.x, robot_pose.y)))
-
-    # find nearest tags to front of robot
-    a = [robot_pose.X(), robot_pose.Y()]
-    # center of front of bot
-    a[0] += math.cos(robot_pose.rotation().radians())*robot_len_x/2
-    a[1] += math.sin(robot_pose.rotation().radians())*robot_len_x/2
-
-    sorted_tags = sorted(tags, key=lambda t: dist((t.pose.X(),t.pose.Y()),a))
-
     # create viz
     ppm = 100 # pixels per meter
     pad_x, pad_y = 20,20 # pixel padding on the edges of img to allow for slightly negative drawing indices
@@ -348,31 +387,55 @@ def ntvis1():
     img = np.zeros((height, width, 3), dtype=np.uint8)
     img[:] = (30, 30, 30)  # dark background
 
-    # put april tags on image
-    for tagid in id2tag:
-        draw_tag(img, tagid, p322d(id2tag[tagid].pose), ppm, pad_x=pad_x, pad_y=pad_y)
+    animations = []
+    _A = TagHighlightAnimation(10, id2tag[10].pose, t_secs=1.0, ppm=ppm, pad_x=pad_x, pad_y=pad_y)
+    animations.append(_A)
 
-    # put robot on image
-    draw_bot(img, robot_pose, ppm, robot_len_x, robot_len_y, pad_x, pad_y)
+    while True:
+        # find nearest tags to front of robot
+        a = [robot_pose.X(), robot_pose.Y()]
+        # center of front of bot
+        a[0] += math.cos(robot_pose.rotation().radians())*robot_len_x/2
+        a[1] += math.sin(robot_pose.rotation().radians())*robot_len_x/2
 
-    # draw lines and distances to 3 nearest tags
-    a_px = field_point_to_pixel(a[0], a[1], width, height, ppm, pad_x, pad_y)
-    draw_point(img, a_px, "")
-    for tag in sorted_tags[:3]:
-        b_px = field_point_to_pixel(tag.pose.X(), tag.pose.Y(), width, height, ppm, pad_x, pad_y)
-        draw_point(img, b_px, "")
-        _dist = m2in(dist(a, (tag.pose.X(), tag.pose.Y())))/12.0
-        draw_line_with_distance(img, a_px, b_px, '%.1f\''%_dist)
-
-    hub_center_shooting_arc = Pose2d(in2m(181.56), in2m(158.32), d2r(180))
-    span = 90
-    draw_arc(img, hub_center_shooting_arc, in2m(10*12), span, ppm, pad_x=pad_x, pad_y=pad_y)
+        sorted_tags = sorted(tags, key=lambda t: dist((t.pose.X(),t.pose.Y()),a))
 
 
-    # ---- display ----
+        # render scene
+        img[:] = (30, 30, 30)  # dark background
 
-    cv2.imshow("FRC Geometry Debug View", img)
-    cv2.waitKey(0)
+        # put april tags on image
+        for tagid in id2tag:
+            draw_tag(img, tagid, p322d(id2tag[tagid].pose), ppm, pad_x=pad_x, pad_y=pad_y)
+
+        # put robot on image
+        draw_bot(img, robot_pose, ppm, robot_len_x, robot_len_y, pad_x, pad_y)
+
+        # draw lines and distances to 3 nearest tags
+        a_px = field_point_to_pixel(a[0], a[1], width, height, ppm, pad_x, pad_y)
+        draw_point(img, a_px, "")
+        for tag in sorted_tags[:3]:
+            b_px = field_point_to_pixel(tag.pose.X(), tag.pose.Y(), width, height, ppm, pad_x, pad_y)
+            draw_point(img, b_px, "")
+            _dist = m2in(dist(a, (tag.pose.X(), tag.pose.Y())))/12.0
+            draw_line_with_distance(img, a_px, b_px, '%.1f\''%_dist)
+
+        hub_center_shooting_arc = Pose2d(in2m(181.56), in2m(158.32), d2r(180))
+        span = 90
+        draw_arc(img, hub_center_shooting_arc, in2m(10*12), span, ppm, pad_x=pad_x, pad_y=pad_y)
+
+        # draw animations
+        for A in animations:
+            A.draw(img)
+        animations = [x for x in animations if not x.is_expired()]
+
+        # show image
+        cv2.imshow("FRC Geometry Debug View", img)
+        key = cv2.waitKey(16)
+
+        if key & 0xFF == ord('q'):
+            break
+
     cv2.destroyAllWindows()
 
 
