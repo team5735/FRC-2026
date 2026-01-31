@@ -1,20 +1,17 @@
+package jmigdal;
+
 import java.util.List;
-import java.util.function.Supplier;
 
 import com.pathplanner.lib.path.GoalEndState;
-import com.pathplanner.lib.path.IdealStartingState;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.Waypoint;
 
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.DrivetrainSubsystem;
+import edu.wpi.first.math.geometry.Translation2d;
 
-
-public class frc1{
+public class frc1 {
     /**
      * Creates a path that is a line from the start point to the end point
      *
@@ -48,16 +45,12 @@ public class frc1{
         return path;
     }
 
-    public static void pathPlannerTest(){
-        createLinearPath(new Translation2d(0,0), new Translation2d(1,1), Rotation2d.fromDegrees(135), 
-        new PathConstraints(10,10,10,10));
+    public static void pathPlannerTest() {
+        createLinearPath(new Translation2d(0, 0), new Translation2d(1, 1), Rotation2d.fromDegrees(135),
+                new PathConstraints(10, 10, 10, 10));
     }
 
-    public static void helloworld(){
-        System.out.println("Hello World");
-    }
     public static void main(String[] args) {
         pathPlannerTest();
-        // helloworld();
     }
 }

@@ -17,7 +17,6 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.constants.Constants;
 import frc.robot.constants.drivetrain.CompbotTunerConstants;
 import frc.robot.constants.drivetrain.DevbotTunerConstants;
-import frc.robot.constants.drivetrain.DrivetrainConstants;
 import frc.robot.subsystems.DrivetrainSubsystem;
 
 public class RobotContainer {
