@@ -53,7 +53,6 @@ class TagHighlightAnimation(object):
             text_color[c] = ir(alpha*self.normal_text_color[c] + (1-alpha)*self.highlight_color[c])
             text_color[c] = self.highlight_color[c]
 
-        print('drawing')
         draw_tag(img, self.id, p322d(self.pose), self.ppm, pad_x=self.pad_x, pad_y=self.pad_y,
                  color=tuple(draw_color),
                  front_color=tuple(front_color),
@@ -168,7 +167,6 @@ def draw_arc(img,
     # Heading
     heading_rad = pose.rotation().radians()
     heading_deg = r2d(heading_rad)
-    print('heading',heading_deg)
 
     # Arc angles in WPILib frame
     start_deg = heading_deg - arc_span_deg / 2
@@ -247,8 +245,6 @@ def draw_oriented_rectangle(img,
         ry = fx * math.sin(yaw) + fy * math.cos(yaw)
 
         px,py = field_point_to_pixel(pose.X()+rx, pose.Y()+ry, img_w, img_h, ppm, pad_x, pad_y)
-        print(px,py)
-
         pts.append((px, py))
 
     # Outline
@@ -316,16 +312,50 @@ def new_april_tag(id, p3d):
     t.pose = p3d
     return t
 
-def ntvis1():
-    robot_len_x = 1 # meters, front-back length
-    robot_len_y = 1 # meters
+def get_robot_pose(nt_smart_dashboard_table):
+    # stub robot pose
+    if nt_smart_dashboard_table is None:
+        robot_pose = Pose2d(in2m(12*6), in2m(12*9), d2r(30))
+        return robot_pose
+    if 1:
+        # get robot pose from network tables
+        x,y,yaw = nt_smart_dashboard_table.getNumberArray("Field/Robot", [0,0,0])
+        yaw = d2r(yaw)
+        robot_pose = Pose2d(x,y,yaw)
+    return robot_pose
 
+def get_detected_tags(ll_table):
+    if ll_table is None:
+        return [10,]
+
+    ll_table.getNumberArray('',[])
+
+
+def ntvis1():
+    robot_len_x = in2m(30) # meters, front-back length
+    robot_len_y = in2m(30) # meters
+
+    field_len_x = in2m(650.12)
+    field_len_y = in2m(316.64)
+
+    window_w = 1200
+    window_h = 800
+
+    ppm = min(window_w/field_len_x,
+              window_h/field_len_y)
+    print('ppm:',ppm)
+
+    # to account for pad_x, pad_y below
+    window_w += 20
+    window_h += 20
+
+    sd_table = None
+    lll_table = None
     if 0:
         NetworkTables.addConnectionListener(connection_listener, immediateNotify=True)
 
-        # ---- initialize ----
-        # Local simulation
-        NetworkTables.initialize(server="127.0.0.1")
+        # NetworkTables.initialize(server="127.0.0.1")
+        NetworkTables.initialize(server="10.57.35.2") # moriarity roborio
 
         # ---- wait for connection ----
         print("Waiting for NetworkTables connection...")
@@ -336,16 +366,8 @@ def ntvis1():
 
 
         # Table path (match robot code)
-        table = NetworkTables.getTable("SmartDashboard")
-
-        # get robot pose from network tables
-        robot_pose = Pose2d(*table.getNumberArray("Field/Robot", [0,0,0]))
-        print('robot:',robot_pose)
-
-    # stub robot pose
-    if 1:
-        robot_pose = Pose2d(in2m(12*6), in2m(12*9), d2r(30))
-        print('stub robot pose',robot_pose)
+        sd_table = NetworkTables.getTable("SmartDashboard")
+        lll_table = NetworkTables.getTable("limelight-left")
 
     if 0: # stub april tags
         tags = [
@@ -368,22 +390,9 @@ def ntvis1():
             print(tag.ID, tag.pose)
             print('  ',p322d(tag.pose))
 
-    if 0: # get tags from network tables
-        tags  = table.getNumberArray("Field/pose_score_left", [])
-        tags += table.getNumberArray("Field/pose_score_right", [])
-
-        assert (len(tags) % 3) == 0
-
-        tag_poses = [Pose2d(tags[i], tags[i+1], tags[i+2]) for i in range(0, len(tags), 3)]
-        tags = [AprilTag(ix, pose) for ix, pose in enumerate(tag_poses)]
-        id2tag = list2dict(tags, key=lambda t:t.ID)
-        print(tags)
-        print('tag 10:',id2tag[10].pose)
-
     # create viz
-    ppm = 100 # pixels per meter
     pad_x, pad_y = 20,20 # pixel padding on the edges of img to allow for slightly negative drawing indices
-    width, height = 1700, 805
+    width, height = window_w, window_h
     img = np.zeros((height, width, 3), dtype=np.uint8)
     img[:] = (30, 30, 30)  # dark background
 
@@ -392,6 +401,17 @@ def ntvis1():
     animations.append(_A)
 
     while True:
+
+        robot_pose = get_robot_pose(sd_table)
+        # robot_pose = Pose2d(robot_pose.translation(), Rotation2d(d2r(-170)))
+
+        # add tag highlight indicating which were detected in pose estimation
+        detected_tags = get_detected_tags(lll_table)
+        for tag_id in detected_tags:
+            if tag_id in id2tag:
+                _A = TagHighlightAnimation(tag_id, id2tag[tag_id].pose, t_secs=1.0, ppm=ppm, pad_x=pad_x, pad_y=pad_y)
+                animations.append(_A)
+
         # find nearest tags to front of robot
         a = [robot_pose.X(), robot_pose.Y()]
         # center of front of bot
@@ -399,6 +419,7 @@ def ntvis1():
         a[1] += math.sin(robot_pose.rotation().radians())*robot_len_x/2
 
         sorted_tags = sorted(tags, key=lambda t: dist((t.pose.X(),t.pose.Y()),a))
+
 
 
         # render scene
@@ -417,10 +438,11 @@ def ntvis1():
         for tag in sorted_tags[:3]:
             b_px = field_point_to_pixel(tag.pose.X(), tag.pose.Y(), width, height, ppm, pad_x, pad_y)
             draw_point(img, b_px, "")
-            _dist = m2in(dist(a, (tag.pose.X(), tag.pose.Y())))/12.0
+            _dist = m2in(dist(a, (tag.pose.X(), tag.pose.Y())))
             draw_line_with_distance(img, a_px, b_px, '%.1f\''%_dist)
 
-        hub_center_shooting_arc = Pose2d(in2m(181.56), in2m(158.32), d2r(180))
+        # hub_center_shooting_arc = Pose2d(in2m(181.56), in2m(158.32), d2r(180))
+        hub_center_shooting_arc = Pose2d(11.91, 4.02, d2r(0))
         span = 90
         draw_arc(img, hub_center_shooting_arc, in2m(10*12), span, ppm, pad_x=pad_x, pad_y=pad_y)
 
