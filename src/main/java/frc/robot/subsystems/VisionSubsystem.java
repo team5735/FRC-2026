@@ -95,6 +95,8 @@ public class VisionSubsystem extends SubsystemBase {
                 atomicArray = NetworkTableInstance.getDefault().getTable(limelightName)
                         .getDoubleArrayTopic("botpose_wpiblue").getEntry(new double[0]).getAtomic();
             } else {
+                LimelightHelpers.SetRobotOrientation(limelightName, drivetrain.getPigeon2().getYaw().getValueAsDouble(),
+                        0, 0, 0, 0, 0);
                 atomicArray = NetworkTableInstance.getDefault().getTable(limelightName)
                         .getDoubleArrayTopic("botpose_orb_wpiblue").getEntry(new double[0]).getAtomic();
             }
@@ -126,6 +128,8 @@ public class VisionSubsystem extends SubsystemBase {
                     new Rotation3d(stddevs[3], stddevs[4], stddevs[5]));
         }
     }
+
+    private double lastPigeonReset = 0;
 
     private void maybeResetPigeon(String limelightName, PoseEstimate estimate) {
         // stay grounded to reality!
@@ -171,6 +175,7 @@ public class VisionSubsystem extends SubsystemBase {
     public void handleVisionMeasurement(String limelightName) {
         PoseEstimate mt1 = new PoseEstimate(limelightName, true);
         PoseEstimate mt2 = new PoseEstimate(limelightName, false);
+        doubles.set("pigeon reset time", lastPigeonReset);
         maybeResetPigeon(limelightName, mt1);
 
         // mt1 and mt2 differ significantly
@@ -221,14 +226,13 @@ public class VisionSubsystem extends SubsystemBase {
             return;
         }
 
+        SmartDashboard.putString(limelightName + " status", "accepted!");
         if (Timer.getFPGATimestamp() - lastPigeonReset < VisionConstants.MT2_DRIFT_TOLERANCE.in(Seconds)) {
             updateVisionMeasurement(limelightName, mt2);
         } else {
             updateVisionMeasurement(limelightName, mt1);
         }
     }
-
-    private double lastPigeonReset = 0;
 
     private LinearAcceleration getDrivetrainAcceleration() {
         return MetersPerSecondPerSecond.of(Math.hypot(Math.hypot(
