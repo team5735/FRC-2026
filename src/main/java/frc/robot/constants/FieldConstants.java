@@ -13,63 +13,72 @@ import edu.wpi.first.units.measure.Distance;
 // the REBUILT 2026 competition playing field.
 // These are based on the AndyMark field specifications
 
-// all coordinates are in the wpiBlue coordinate frame, with (0,0,0) being blue alliance right corner
 public class FieldConstants {
-    private static double in2m(double inches) {return inches*2.54/100.0;}
-
-    // gets the red alliance equivalent of the given blue field piece
-    // the returned dimensions are STILL in wpiBlue coords
-    public static Translation2d redElement(Translation2d blueElement){
-        return new Translation2d(FIELD_LENGTH_X.in(Meters) - blueElement.getX(),
-                                 FIELD_LENGTH_Y.in(Meters) - blueElement.getY());
+    private static Distance inch(double inches) {
+        return Inches.of(inches);
     }
 
+    /**
+     * Transforms a blue-alliance {@link Translation2d} into a red-alliance
+     * {@link Translation2d}
+     * 
+     * @return red-alliance {@link Translation2d}
+     */
+    public static Translation2d redElement(Translation2d blueElement) {
+        return FAR_CORNER.minus(blueElement);
+    }
+
+    /**
+     * Contains all 32 AprilTags in wpiBlue coordinates.
+     *
+     * <p>
+     * Access the tags with {@link AprilTagFieldLayout#getTags} and
+     * {@link AprilTagFieldLayout#getTagPose}
+     */
+    public static final AprilTagFieldLayout APRILTAG_FIELD_LAYOUT = AprilTagFieldLayout
+            .loadField(AprilTagFields.k2026RebuiltAndymark);
 
     // Dimensions of the arena, got from running FieldMapTest in the tests folder,
-    // obtained from the official AprilTagFieldLayout k2026RebuiltAndymark built into wpilib
-    // The terms length and width (and height and depth) are ambiguous. 
-    // Instead of using those, we say the long side "length" of the field is length_x
-    // and the short side "width" of the field if length_y
-    // all of our dimensions will be length_x, length_y, and length_z in wpiblue field coordinates
-    // meaning downfield is in the x- direction, across the short side of the field is y,
-    // and up in the air is z
-    public static final Distance FIELD_LENGTH_X = Meters.of(16.518); // extent along the x-axis
-    public static final Distance FIELD_LENGTH_Y = Meters.of(8.043);   // extent along the y-axis
-    public static final Translation2d FIELD_CENTER = new Translation2d(FIELD_LENGTH_X.div(2), FIELD_LENGTH_Y.div(2));
+    // obtained from the official AprilTagFieldLayout k2026RebuiltAndymark built
+    // into wpilib
+    // The terms length and width (and height and depth) are ambiguous.
+    // Instead of using those, we say the long side "length" of the field is
+    // length_x and the short side "width" of the field if length_y.
+    // All of our dimensions will be length_x, length_y, and length_z in wpiblue
+    // field coordinates meaning downfield is in the x- direction, across the short
+    // side of the field is y, and up in the air is z.
+    public static final Distance FIELD_LENGTH_X = Meters.of(APRILTAG_FIELD_LAYOUT.getFieldLength());
+    public static final Distance FIELD_LENGTH_Y = Meters.of(APRILTAG_FIELD_LAYOUT.getFieldWidth());
 
-    // from https://firstfrc.blob.core.windows.net/frc2026/FieldAssets/2026-field-dimension-dwgs.pdf
-    // NOTE: we are only specifying blue elements.
-    //       use the function redElement() to get the corresponding red alliance element.
-    //       the coordinates for all elements are ALWAYS in the wpiBlue coordinate frame
-    //       Red "RIGHT" elements are red alliance right ie viewed from the red alliance side
-    //       So, when viewed from the blue side, the red element will be on the left
-    public static final Translation2d BLUE_HUB_CENTER = new Translation2d(in2m(181.56), in2m(158.32));
-    public static final Translation2d BLUE_OUTPOST_CENTER = new Translation2d(in2m(0), in2m(25.62));
+    public static final Translation2d FAR_CORNER = new Translation2d(FIELD_LENGTH_X, FIELD_LENGTH_Y);
+    public static final Translation2d FIELD_CENTER = FAR_CORNER.div(2);
 
-    public static final Translation2d BLUE_TRENCH_RIGHT_CENTER = new Translation2d(in2m(181.56), in2m(24.97));
-    public static final Translation2d BLUE_TRENCH_LEFT_CENTER = new Translation2d(in2m(181.56), in2m(FIELD_LENGTH_Y.in(Inches)-24.97));
-    public static final Distance      TRENCH_LENGTH_X = Inches.of(0); // length of the tunnel. todo not really 0
-    public static final Distance      TRENCH_LENGTH_Y = Inches.of(2*24.97); // the size of the opening (extent along y-axis of field)
-    public static final Distance      TRENCH_LENGTH_Z = Inches.of(22.25); // height of the trench opening
-    public static final Translation3d TRENCH_DIMENSION = new Translation3d(Inches.of(0), Inches.of(2*24.97), Inches.of(22.25));
+    // from
+    // https://firstfrc.blob.core.windows.net/frc2026/FieldAssets/2026-field-dimension-dwgs.pdf
+    // NOTE: these are in the wpiBlue coordinate frame
+    // use the function redElement() to get the corresponding red alliance element
+    // the coordinates for all elements are ALWAYS in the wpiBlue coordinate frame
+    // Red "RIGHT" elements are red alliance right ie viewed from the red alliance
+    // side
+    // So, when viewed from the blue side, the red element will be on the left
+    public static final Translation2d BLUE_HUB_CENTER = new Translation2d(inch(181.56), inch(158.32));
+    public static final Translation2d BLUE_OUTPOST_CENTER = new Translation2d(inch(0), inch(25.62));
 
-    public static final Translation2d BLUE_RAMP_RIGHT_CENTER = new Translation2d(in2m(181.56), in2m(24.97*2+12+73/2.0));
-    public static final Translation2d BLUE_RAMP_LEFT_CENTER = new Translation2d(in2m(181.56), in2m(FIELD_LENGTH_Y.in(Inches)-(24.97*2+12+73/2.0)));
-    public static final Distance      RAMP_LENGTH_X = Inches.of(44.4); // the up-then-down total length of the ramp
-    public static final Distance      RAMP_LENGTH_Y = Inches.of(73); // how wide it is to fit a bot through
-    public static final Distance      RAMP_LENGTH_Z = Inches.of(6.513); // ramp starts at 0 height and goes to this height in the middle
-    public static final Translation3d RAMP_DIMENSION = new Translation3d(Inches.of(44.4), Inches.of(73), Inches.of(6.513));
+    public static final Translation2d BLUE_TRENCH_RIGHT_CENTER = new Translation2d(inch(181.56), inch(24.97));
+    public static final Translation2d BLUE_TRENCH_LEFT_CENTER = new Translation2d(inch(181.56),
+            inch(FIELD_LENGTH_Y.in(Inches) - 24.97));
+    public static final Translation3d TRENCH_DIMENSION = new Translation3d(
+            inch(0), // TODO: incorrect
+            inch(2 * 24.97), // opening extent along y-axis
+            inch(22.25)); // opening extent along z-axis
 
+    public static final Translation2d BLUE_RAMP_RIGHT_CENTER = new Translation2d(inch(181.56),
+            inch(24.97 * 2 + 12 + 73 / 2.0));
+    public static final Translation2d BLUE_RAMP_LEFT_CENTER = new Translation2d(inch(181.56),
+            inch(FIELD_LENGTH_Y.in(Inches) - (24.97 * 2 + 12 + 73 / 2.0)));
 
-    // contains all the AprilTags in wpiBlue coordinates
-    // There are 32 of them with IDs 1-32
-    // access them like this:
-    //
-    // gets a list of all the april tags as AprilTag classes (should contain 32 of them)
-    // List<AprilTag> tags = ATF.getTags();
-    //
-    // gets the pose of the tag with ID 10. Since ID and pose is the only information in AprilTag,
-    // that's all you need
-    // Pose3d pose = ATF.getTagPose(10); 
-    public static final AprilTagFieldLayout ATF = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark);
+    public static final Translation3d RAMP_DIMENSION = new Translation3d(
+            inch(44.4), // extent across the x-axis
+            inch(73), // extent across the y-axis
+            inch(6.513)); // ramp starts at 0 height and goes to this height in the middle
 }
