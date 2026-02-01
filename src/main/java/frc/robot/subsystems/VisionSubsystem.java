@@ -12,6 +12,8 @@ import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Seconds;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
@@ -20,6 +22,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.networktables.DoubleArraySubscriber;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.TimestampedDoubleArray;
 import edu.wpi.first.units.measure.Distance;
@@ -72,18 +75,27 @@ public class VisionSubsystem extends SubsystemBase {
         Pose3d stddevs;
         double distToCamera;
 
+        private static Map<String, DoubleArraySubscriber> entriesCache = new HashMap<>();
+
+        private DoubleArraySubscriber getDoubleArraySubscriber(String table, String topic) {
+            String asPath = table + "/" + topic;
+            return entriesCache.computeIfAbsent(asPath, k -> {
+                return NetworkTableInstance.getDefault().getTable(table)
+                        .getDoubleArrayTopic(topic).subscribe(new double[0]);
+            });
+
+        }
+
         public PoseEstimate(String limelightName, boolean isMT1) {
             double[] stddevs = NetworkTableInstance.getDefault().getTable(limelightName).getEntry("stddevs")
                     .getDoubleArray(new double[0]);
             TimestampedDoubleArray atomicArray;
             if (isMT1) {
-                atomicArray = NetworkTableInstance.getDefault().getTable(limelightName)
-                        .getDoubleArrayTopic("botpose_wpiblue").getEntry(new double[0]).getAtomic();
+                atomicArray = getDoubleArraySubscriber(limelightName, "botpose_wpiblue").getAtomic();
             } else {
                 LimelightHelpers.SetRobotOrientation(limelightName, drivetrain.getPigeon2().getYaw().getValueAsDouble(),
                         0, 0, 0, 0, 0);
-                atomicArray = NetworkTableInstance.getDefault().getTable(limelightName)
-                        .getDoubleArrayTopic("botpose_orb_wpiblue").getEntry(new double[0]).getAtomic();
+                atomicArray = getDoubleArraySubscriber(limelightName, "botpose").getAtomic();
             }
 
             double[] array = atomicArray.value;
