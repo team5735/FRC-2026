@@ -33,17 +33,17 @@ public class Arc {
             return center.plus(new Translation2d(radius, start));
         }
 
-        Translation2d centerToGiven = center.minus(position);
+        Translation2d centerToGiven = position.minus(center);
         Rotation2d thetaA = centerToGiven.getAngle();
 
         if (angleInRange(thetaA)) {
             return new Translation2d(radius, thetaA).plus(center);
         }
 
-        Translation2d p1 = position.plus(new Translation2d(radius, start));
-        Translation2d p2 = position.plus(new Translation2d(radius, end));
+        Translation2d p1 = center.plus(new Translation2d(radius, start));
+        Translation2d p2 = center.plus(new Translation2d(radius, end));
 
-        return center.getDistance(p1) <= center.getDistance(p2) ? p1.plus(center) : p2.plus(center);
+        return position.getDistance(p1) <= position.getDistance(p2) ? p1 : p2;
     }
 
     public Translation2d getCenter() {
