@@ -8,10 +8,6 @@ java {
     targetCompatibility = JavaVersion.VERSION_17
 }
 
-sourceSets {
-    sandbox.java.srcDir 'src/sandbox'
-}
-
 def ROBOT_MAIN_CLASS = "frc.robot.Main"
 
 // Define my targets (RoboRIO) and artifacts (deployable files)
@@ -77,6 +73,14 @@ dependencies {
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.1'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+sourceSets {
+    sandbox {
+        java.srcDir 'src/sandbox'
+        resources.srcDir 'src/sandbox'
+        compileClasspath = sourceSets.main.compileClasspath
+    }
 }
 
 test {
