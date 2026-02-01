@@ -291,8 +291,6 @@ public class VisionSubsystem extends SubsystemBase {
 
         // multiply stddevs by avg tag dist to camera: stddev*(1+dist)
         stddevs = stddevs.times(1 + estimate.distToCamera);
-        // multiply by robot velocity stddev*(1+mps)
-        // TODO: do if possible
         // if robot is rotating, use 99999 for theta
         if (drivetrain.getPigeon2().getAngularVelocityZWorld().asSupplier().get()
                 .in(DegreesPerSecond) > VisionConstants.ROTATION_EPSILON.in(DegreesPerSecond)) {
