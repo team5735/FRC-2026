@@ -258,7 +258,7 @@ public class VisionSubsystem extends SubsystemBase {
 
         // robot is rotating (if we get angular velocity)
         if (drivetrain.getPigeon2().getAngularVelocityZWorld().asSupplier().get()
-                .in(DegreesPerSecond) < VisionConstants.TOLERATED_ROTATIONAL_RATE.in(DegreesPerSecond)) {
+                .in(DegreesPerSecond) > VisionConstants.TOLERATED_ROTATIONAL_RATE.in(DegreesPerSecond)) {
             SmartDashboard.putString(limelightName + " status", "robot is rotating");
             return;
         }
