@@ -33,10 +33,10 @@ import frc.robot.util.LimelightHelpers;
 
 // TODO purge most SmartDashboard calls
 public class Telemetry {
-    /* What to publish over networktables for telemetry */
+    // What to publish over networktables for telemetry
     private final NetworkTableInstance inst = NetworkTableInstance.getDefault();
 
-    /* Robot swerve drive state */
+    // Robot swerve drive state
     private final NetworkTable driveStateTable = inst.getTable("DriveState");
     private final StructPublisher<Pose2d> drivePose = driveStateTable.getStructTopic("Pose", Pose2d.struct).publish();
     private final StructPublisher<ChassisSpeeds> driveSpeeds = driveStateTable
@@ -51,26 +51,26 @@ public class Telemetry {
     private final DoublePublisher driveOdometryFrequency = driveStateTable.getDoubleTopic("OdometryFrequency")
             .publish();
 
-    /* Robot pose for field positioning */
+    // Robot pose for field positioning
     private final NetworkTable table = inst.getTable("Pose");
     private final DoubleArrayPublisher fieldPub = table.getDoubleArrayTopic("robotPose").publish();
     private final StringPublisher fieldTypePub = table.getStringTopic(".type").publish();
 
-    /* Mechanisms to represent the swerve module states */
+    // Mechanisms to represent the swerve module states
     private final Mechanism2d[] m_moduleMechanisms = new Mechanism2d[] {
             new Mechanism2d(1, 1),
             new Mechanism2d(1, 1),
             new Mechanism2d(1, 1),
             new Mechanism2d(1, 1),
     };
-    /* A direction and length changing ligament for speed representation */
+    // A direction and length changing ligament for speed representation
     private final MechanismLigament2d[] m_moduleSpeeds = new MechanismLigament2d[] {
             m_moduleMechanisms[0].getRoot("RootSpeed", 0.5, 0.5).append(new MechanismLigament2d("Speed", 0.5, 0)),
             m_moduleMechanisms[1].getRoot("RootSpeed", 0.5, 0.5).append(new MechanismLigament2d("Speed", 0.5, 0)),
             m_moduleMechanisms[2].getRoot("RootSpeed", 0.5, 0.5).append(new MechanismLigament2d("Speed", 0.5, 0)),
             m_moduleMechanisms[3].getRoot("RootSpeed", 0.5, 0.5).append(new MechanismLigament2d("Speed", 0.5, 0)),
     };
-    /* A direction changing and length constant ligament for module direction */
+    // A direction changing and length constant ligament for module direction
     private final MechanismLigament2d[] m_moduleDirections = new MechanismLigament2d[] {
             m_moduleMechanisms[0].getRoot("RootDirection", 0.5, 0.5)
                     .append(new MechanismLigament2d("Direction", 0.1, 0, 0, new Color8Bit(Color.kWhite))),
@@ -136,9 +136,9 @@ public class Telemetry {
         }
     };
 
-    /** Accept the swerve drive state and telemeterize it to SmartDashboard. */
+    // Accept the swerve drive state and telemeterize it to SmartDashboard.
     public void telemeterize(SwerveDriveState state) {
-        /* Telemeterize the swerve drive state */
+        // Telemeterize the swerve drive state
         drivePose.set(state.Pose);
         driveSpeeds.set(state.Speeds);
         driveModuleStates.set(state.ModuleStates);
@@ -147,7 +147,7 @@ public class Telemetry {
         driveTimestamp.set(state.Timestamp);
         driveOdometryFrequency.set(1.0 / state.OdometryPeriod);
 
-        /* Also write to log file */
+        // Also write to log file
         m_poseArray[0] = state.Pose.getX();
         m_poseArray[1] = state.Pose.getY();
         m_poseArray[2] = state.Pose.getRotation().getDegrees();
@@ -165,7 +165,8 @@ public class Telemetry {
             field.getObject("limelightMt1Pos").setPose(mt1Estimate.pose);
         }
 
-        LimelightHelpers.PoseEstimate mt2Estimate = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-left");
+        LimelightHelpers.PoseEstimate mt2Estimate = LimelightHelpers
+                .getBotPoseEstimate_wpiBlue_MegaTag2("limelight-left");
         if (mt2Estimate != null) {
             field.getObject("limelightMt2Pos").setPose(mt2Estimate.pose);
         }
@@ -259,11 +260,11 @@ public class Telemetry {
                 RobotContainer.drivetrain.getModule(0).getDriveMotor().getRotorPosition().getValue()
                         .in(Rotations));
 
-        /* Telemeterize the pose to a Field2d */
+        // Telemeterize the pose to a Field2d
         fieldTypePub.set("Field2d");
         fieldPub.set(m_poseArray);
 
-        /* Telemeterize the module states to a Mechanism2d */
+        // Telemeterize the module states to a Mechanism2d
         for (int i = 0; i < 4; ++i) {
             m_moduleSpeeds[i].setAngle(state.ModuleStates[i].angle);
             m_moduleDirections[i].setAngle(state.ModuleStates[i].angle);
