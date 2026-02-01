@@ -276,23 +276,4 @@ public class VisionSubsystem extends SubsystemBase {
             handleVisionMeasurement(limelight);
         }
     }
-
-    private void resetToMt1() {
-        for (String limelight : LIMELIGHTS) {
-            if (LimelightHelpers.getTV(limelight)) {
-                drivetrain.resetPose(LimelightHelpers.getBotPose2d(limelight));
-                System.out.println("Robot pose set to mt1 report from " + limelight);
-                break;
-            }
-        }
-    }
-
-    public Command getWaitForMt1() {
-        return Commands.idle() // wait
-                .until(() -> { // until any limelight sees a tag
-                    return Arrays.stream(LIMELIGHTS).anyMatch(limelight -> LimelightHelpers.getTV(limelight));
-                })
-                .andThen(Commands.run(() -> resetToMt1(), drivetrain).withTimeout(.1)) // reset pose
-        ;
-    }
 }
