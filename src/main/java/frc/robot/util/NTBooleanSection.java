@@ -12,7 +12,6 @@ public class NTBooleanSection {
     private static final String sectionName = "sections";
 
     private final NetworkTable table;
-    private final String name;
     private Map<String, BooleanPublisher> entries = new HashMap<>();
 
     /**
@@ -22,8 +21,7 @@ public class NTBooleanSection {
      * @param name The name of the subtable where entries will be put.
      */
     public NTBooleanSection(String name) {
-        table = NetworkTableInstance.getDefault().getTable(sectionName).getSubTable(name);
-        this.name = name;
+        this.table = NetworkTableInstance.getDefault().getTable(sectionName).getSubTable(name);
     }
 
     /**
@@ -35,8 +33,22 @@ public class NTBooleanSection {
      * @param entries The entries to create, as a shorthand.
      */
     public NTBooleanSection(String name, String... entries) {
-        table = NetworkTableInstance.getDefault().getTable(sectionName).getSubTable(name);
-        this.name = name;
+        this.table = NetworkTableInstance.getDefault().getTable(sectionName).getSubTable(name);
+        for (String entry : entries) {
+            addEntry(entry);
+        }
+    }
+
+    /**
+     * Creates a new NTBooleanSection. This uses the given table directly without
+     * making a subtable. It also makes the specified entries with addEntry.
+     *
+     * @param table   The table where entries will be put.
+     * @param name    The name of the subtable where entries will be put.
+     * @param entries The entries to create, as a shorthand.
+     */
+    public NTBooleanSection(NetworkTable table, String... entries) {
+        this.table = table;
         for (String entry : entries) {
             addEntry(entry);
         }
@@ -46,15 +58,14 @@ public class NTBooleanSection {
      * Creates a new entry and adds it to the list of entries. The entry will be
      * created as a {@link BooleanTopic} with the name name in the table this
      * instance is for.
-     *
+     * 
      * <p>
-     * A value of 0 is published to the BooleanTopic initially.
+     * Nothing is published to the BooleanTopic initially.
      *
      * @param name The name of the entry.
      */
     public void addEntry(String name) {
         BooleanPublisher publisher = table.getBooleanTopic(name).publish();
-        publisher.set(false);
         entries.put(name, publisher);
     }
 
@@ -62,17 +73,12 @@ public class NTBooleanSection {
      * Sets the entry to the value. This makes a {@link BooleanPublisher} out of the
      * entry and uses .set() to set its value in NetworkTables.
      *
-     * <p>
-     * If the entry is not registered in this section, an error is printed and
-     * nothing is published.
-     * 
      * @param entry The entry to set
      * @param value The value to set the entry to
      */
     public void set(String entry, boolean value) {
         if (!entries.containsKey(entry)) {
-            System.out.println("entry " + entry + " is not in NTDoubleSection " + this.name);
-            return;
+            addEntry(entry);
         }
         entries.get(entry).set(value);
     }
