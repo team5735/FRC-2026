@@ -70,13 +70,13 @@ public class VisionSubsystem extends SubsystemBase {
     public record RawFiducial(double ambiguity, Distance distToCamera) {
     }
 
-    private class PoseEstimate {
-        RawFiducial[] fiducials;
-        Pose2d pose2d;
-        Pose3d pose3d;
-        double timestamp;
-        Pose3d stddevs;
-        double distToCamera;
+    public class PoseEstimate {
+        public RawFiducial[] fiducials;
+        public Pose2d pose2d;
+        public Pose3d pose3d;
+        public double timestamp;
+        public Pose3d stddevs;
+        public double distToCamera;
 
         private static Map<String, DoubleArrayEntry> entriesCache = new HashMap<>();
 
