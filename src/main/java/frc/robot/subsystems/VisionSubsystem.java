@@ -8,7 +8,6 @@ import static edu.wpi.first.units.Units.Centimeters;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Seconds;
 
@@ -24,11 +23,8 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.TimestampedDoubleArray;
 import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.VisionConstants;
@@ -40,7 +36,7 @@ public class VisionSubsystem extends SubsystemBase {
     @SuppressWarnings("unused")
     private double driftEstimateTicks;
 
-    public static final String LIMELIGHTS[] = { "limelight-left", "limelight-right" };
+    public static final String LIMELIGHTS[] = { "limelight-left" };
 
     private NTDoubleSection doubles = new NTDoubleSection("vision", "drivetrainYaw", "drivetrainOmegaZ",
             "drivetrainYaw");
