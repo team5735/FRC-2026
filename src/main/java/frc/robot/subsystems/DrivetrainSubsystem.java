@@ -61,7 +61,7 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
         }
     }
 
-    private static final double kSimLoopPeriod = 0.005; // 5 ms
+    private static final double simLoopPeriod = 0.005; // 5 ms
     private Notifier simNotifier = null;
     private double lastSimTime;
     private double maxSpeed = CONSTANTS.getDefaultSpeed().in(MetersPerSecond);
@@ -70,7 +70,7 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
     private NTDoubleSection doubles = new NTDoubleSection("drivetrain", "timestampIn", "timestampOut", "timestampDiff");
 
     /* Keep track if we've ever applied the operator perspective before or not */
-    private boolean m_hasAppliedOperatorPerspective = false;
+    private boolean hasAppliedOperatorPerspective = false;
 
     /* Swerve requests to apply during SysId characterization */
     public final SwerveRequest.SysIdSwerveTranslation translationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
@@ -78,12 +78,12 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
     public final SwerveRequest.SysIdSwerveRotation rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
     public final SwerveRequest.FieldCentric fieldCentricRequest = new SwerveRequest.FieldCentric()
             .withDeadband(maxSpeed * 0.05).withRotationalDeadband(maxAngularRate * 0.05) // Add a 10% deadband
-            .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
+            .withDriveRequestType(DriveRequestType.Velocity)
             .withCenterOfRotation(CONSTANTS.getPigeonToCenterOfRotation());
     public final SwerveRequest.SwerveDriveBrake brakeRequest = new SwerveRequest.SwerveDriveBrake();
     public final SwerveRequest.RobotCentric robotCentricRequest = new SwerveRequest.RobotCentric();
 
-    private final Consumer<SysIdRoutineLog> translationLogConsumer = (log) -> {
+    private final Consumer<SysIdRoutineLog> openTranslationLogConsumer = (log) -> {
         log.motor("FL_drive")
                 .linearPosition(Meters.of(getState().Pose.getY()))
                 .linearVelocity(MetersPerSecond.of(getState().ModuleStates[0].speedMetersPerSecond))
@@ -101,6 +101,26 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
                 .linearVelocity(MetersPerSecond.of(getState().ModuleStates[3].speedMetersPerSecond))
                 .voltage(getModule(3).getDriveMotor().getMotorVoltage().getValue());
     };
+
+    private final Consumer<SysIdRoutineLog> closedTranslationLogConsumer = (log) -> {
+        log.motor("FL_drive")
+                .angularPosition(getModule(0).getDriveMotor().getPosition().getValue())
+                .angularVelocity(getModule(0).getDriveMotor().getVelocity().getValue())
+                .voltage(getModule(0).getDriveMotor().getMotorVoltage().getValue());
+        log.motor("FR_drive")
+                .angularPosition(getModule(1).getDriveMotor().getPosition().getValue())
+                .angularVelocity(getModule(1).getDriveMotor().getVelocity().getValue())
+                .voltage(getModule(1).getDriveMotor().getMotorVoltage().getValue());
+        log.motor("BL_drive")
+                .angularPosition(getModule(2).getDriveMotor().getPosition().getValue())
+                .angularVelocity(getModule(2).getDriveMotor().getVelocity().getValue())
+                .voltage(getModule(2).getDriveMotor().getMotorVoltage().getValue());
+        log.motor("BR_drive")
+                .angularPosition(getModule(3).getDriveMotor().getPosition().getValue())
+                .angularVelocity(getModule(3).getDriveMotor().getVelocity().getValue())
+                .voltage(getModule(3).getDriveMotor().getMotorVoltage().getValue());
+    };
+
     /*
      * SysId routine for characterizing translation. This is used to find PID gains
      * for the drive motors.
@@ -114,7 +134,7 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
                     null),
             new SysIdRoutine.Mechanism(
                     output -> setControl(translationCharacterization.withVolts(output)),
-                    translationLogConsumer,
+                    closedTranslationLogConsumer,
                     this));
 
     private final Consumer<SysIdRoutineLog> steerLogConsumer = (log) -> {
@@ -178,14 +198,12 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
                     output -> {
                         /* output is actually radians per second, but SysId only supports "volts" */
                         setControl(rotationCharacterization.withRotationalRate(output.in(Volts)));
-                        /* also log the requested output for SysId */
-                        SmartDashboard.putNumber("Rotational_Rate", output.in(Volts));
                     },
                     rotationLogConsumer,
                     this));
 
     /* The SysId routine to test */
-    private SysIdRoutine m_sysIdRoutineToApply = sysIdRoutineRotation;
+    private SysIdRoutine sysIdRoutineToApply = sysIdRoutineRotation;
 
     /**
      * Constructs a CTRE SwerveDrivetrain using the specified constants.
@@ -289,24 +307,24 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
 
     /**
      * Runs the SysId Quasistatic test in the given direction for the routine
-     * specified by {@link #m_sysIdRoutineToApply}.
+     * specified by {@link #sysIdRoutineToApply}.
      *
      * @param direction Direction of the SysId Quasistatic test
      * @return Command to run
      */
     public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-        return m_sysIdRoutineToApply.quasistatic(direction);
+        return sysIdRoutineToApply.quasistatic(direction);
     }
 
     /**
      * Runs the SysId Dynamic test in the given direction for the routine
-     * specified by {@link #m_sysIdRoutineToApply}.
+     * specified by {@link #sysIdRoutineToApply}.
      *
      * @param direction Direction of the SysId Dynamic test
      * @return Command to run
      */
     public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-        return m_sysIdRoutineToApply.dynamic(direction);
+        return sysIdRoutineToApply.dynamic(direction);
     }
 
     @Override
@@ -322,13 +340,13 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
          * This ensures driving behavior doesn't change until an explicit disable event
          * occurs during testing.
          */
-        if (!m_hasAppliedOperatorPerspective || DriverStation.isDisabled()) {
+        if (!hasAppliedOperatorPerspective || DriverStation.isDisabled()) {
             DriverStation.getAlliance().ifPresent(allianceColor -> {
                 setOperatorPerspectiveForward(
                         allianceColor == Alliance.Red
                                 ? Constants.RED_ALLIANCE_PERSPECTIVE_ROTATION
                                 : Constants.BLUE_ALLIANCE_PERSPECTIVE_ROTATION);
-                m_hasAppliedOperatorPerspective = true;
+                hasAppliedOperatorPerspective = true;
             });
         }
     }
@@ -389,7 +407,7 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
             /* use the measured time delta, get battery voltage from WPILib */
             updateSimState(deltaTime, RobotController.getBatteryVoltage());
         });
-        simNotifier.startPeriodic(kSimLoopPeriod);
+        simNotifier.startPeriodic(simLoopPeriod);
     }
 
     private static double deadband(double input) {

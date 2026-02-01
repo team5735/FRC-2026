@@ -34,17 +34,17 @@ public class DevbotConstants implements DrivetrainConstants {
 
     @Override
     public double getRotKs() {
-        return 0; // TODO
+        return 0.07581;
     }
 
     @Override
     public double getRotKv() {
-        return 0; // TODO
+        return 7.1649;
     }
 
     @Override
     public double getRotKa() {
-        return 0; // TODO
+        return 0.42822;
     }
 
     @Override
