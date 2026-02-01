@@ -304,6 +304,17 @@ public class VisionSubsystem extends SubsystemBase {
         stddevs.getData()[1] = Math.max(Centimeters.of(5).in(Meters), stddevs.getData()[1]);
         stddevs.getData()[2] = Math.max(Degrees.of(5).in(Radians), stddevs.getData()[2]);
 
+        // telemeterize standard deviations
+        doubles.set(limelightName + " stddev x", stddevs.getData()[0]);
+        doubles.set(limelightName + " stddev y", stddevs.getData()[1]);
+        doubles.set(limelightName + " stddev theta", stddevs.getData()[2]);
+
+        doubles.set(limelightName + " will set x", estimate.pose2d.getX());
+        doubles.set(limelightName + " will set y", estimate.pose2d.getY());
+        doubles.set(limelightName + " will set theta", estimate.pose2d.getRotation().getDegrees());
+
+        doubles.set(limelightName + " timestamp", estimate.timestamp);
+
         drivetrain.addVisionMeasurement(estimate.pose2d, estimate.timestamp, stddevs);
     }
 }
