@@ -20,7 +20,6 @@ public class Arc {
         double theta = MathUtil.angleModulus(theta_.getRadians());
         double first = MathUtil.angleModulus(start.getRadians());
         double second = MathUtil.angleModulus(end.getRadians());
-        System.out.println(theta + " " + first + " " + second);
 
         if (first > second) {
             return theta >= second && theta <= first;
@@ -29,8 +28,6 @@ public class Arc {
     }
 
     public Translation2d nearestPointOnArc(Translation2d position) {
-        System.out.println(position.getX() + " " + position.getY());
-        System.out.println(center.getX() + " " + center.getY());
         // return any point on the arc if we're passed the center
         if (position.equals(center)) {
             return center.plus(new Translation2d(radius, start));
@@ -40,7 +37,6 @@ public class Arc {
         Rotation2d thetaA = centerToGiven.getAngle();
 
         if (angleInRange(thetaA)) {
-            System.out.println("in range");
             return new Translation2d(radius, thetaA).plus(center);
         }
 
