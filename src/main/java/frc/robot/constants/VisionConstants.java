@@ -12,6 +12,8 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Time;
 
 public class VisionConstants {
+    public static final String          LIMELIGHTS[] = { "limelight-left" };
+
     public static final boolean         IS_MT2 = false;
 
     public static final Distance        TOLERATED_HEIGHT = Centimeters.of(3);

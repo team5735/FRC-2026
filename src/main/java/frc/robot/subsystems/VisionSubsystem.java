@@ -36,16 +36,11 @@ public class VisionSubsystem extends SubsystemBase {
     @SuppressWarnings("unused")
     private double driftEstimateTicks;
 
-    public static final String LIMELIGHTS[] = { "limelight-left" };
-
     private NTDoubleSection doubles = new NTDoubleSection("vision", "drivetrainYaw", "drivetrainOmegaZ",
             "drivetrainYaw");
 
     public VisionSubsystem(DrivetrainSubsystem drivetrain) {
         this.drivetrain = drivetrain;
-        for (String limelight : LIMELIGHTS) {
-            doubles.addEntry(limelight + "_status");
-        }
     }
 
     private boolean trySeedPigeon(String name) {
@@ -61,7 +56,7 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
     public void seedPigeon() {
-        for (String limelight : LIMELIGHTS) {
+        for (String limelight : VisionConstants.LIMELIGHTS) {
             trySeedPigeon(limelight);
         }
     }
@@ -265,12 +260,5 @@ public class VisionSubsystem extends SubsystemBase {
         stddevs.getData()[2] = Math.max(Degrees.of(5).in(Radians), stddevs.getData()[2]);
 
         drivetrain.addVisionMeasurement(estimate.pose2d, estimate.timestamp, stddevs);
-    }
-
-    @Override
-    public void periodic() {
-        for (String limelight : LIMELIGHTS) {
-            handleVisionMeasurement(limelight);
-        }
     }
 }

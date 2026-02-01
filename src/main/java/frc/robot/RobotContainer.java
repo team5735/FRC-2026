@@ -19,6 +19,7 @@ import frc.robot.constants.Constants;
 import frc.robot.constants.drivetrain.CompbotTunerConstants;
 import frc.robot.constants.drivetrain.DevbotTunerConstants;
 import frc.robot.subsystems.DrivetrainSubsystem;
+import frc.robot.subsystems.VisionSubsystem;
 
 public class RobotContainer {
     private final CommandXboxController driveController = new CommandXboxController(
@@ -43,6 +44,8 @@ public class RobotContainer {
                 throw new RuntimeException("Unknown drivetrain type");
         }
     }
+
+    public static final VisionSubsystem vision = new VisionSubsystem(drivetrain);
 
     public RobotContainer() {
         DriverStation.silenceJoystickConnectionWarning(true);
