@@ -1,8 +1,11 @@
 package frc.robot.util;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Arc {
     Translation2d center;
@@ -60,5 +63,19 @@ public class Arc {
 
     public Rotation2d getEnd() {
         return end;
+    }
+
+    public void telemeterize(Pose2d robotPose) {
+        Field2d field = new Field2d();
+        field.setRobotPose(robotPose);
+        field.getObject("center").setPose(new Pose2d(center, Rotation2d.kZero));
+        Translation2d startPos = new Translation2d(radius, start).plus(center);
+        field.getObject("start").setPose(new Pose2d(startPos, startPos.minus(center).getAngle()));
+        Translation2d endPos = new Translation2d(radius, end).plus(center);
+        field.getObject("end").setPose(new Pose2d(endPos, endPos.minus(center).getAngle()));
+        Translation2d nearest = nearestPointOnArc(robotPose.getTranslation());
+        field.getObject("nearest").setPose(new Pose2d(nearest, nearest.minus(center).getAngle()));
+        SmartDashboard.putData("arc as a field", field);
+        field.close();
     }
 }
