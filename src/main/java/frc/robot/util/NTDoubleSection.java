@@ -12,7 +12,6 @@ public class NTDoubleSection {
     private static final String sectionName = "sections";
 
     private final NetworkTable table;
-    private final String name;
     private Map<String, DoublePublisher> entries = new HashMap<>();
 
     /**
@@ -23,7 +22,6 @@ public class NTDoubleSection {
      */
     public NTDoubleSection(String name) {
         table = NetworkTableInstance.getDefault().getTable(sectionName).getSubTable(name);
-        this.name = name;
     }
 
     /**
@@ -36,7 +34,6 @@ public class NTDoubleSection {
      */
     public NTDoubleSection(String name, String... entries) {
         table = NetworkTableInstance.getDefault().getTable(sectionName).getSubTable(name);
-        this.name = name;
         for (String entry : entries) {
             addEntry(entry);
         }
@@ -54,7 +51,6 @@ public class NTDoubleSection {
      */
     public void addEntry(String name) {
         DoublePublisher publisher = table.getDoubleTopic(name).publish();
-        // publisher.set(0);
         entries.put(name, publisher);
     }
 
@@ -62,17 +58,12 @@ public class NTDoubleSection {
      * Sets the entry to the value. This makes a {@link DoublePublisher} out of the
      * entry and uses .set() to set its value in NetworkTables.
      *
-     * <p>
-     * If the entry is not registered in this section, an error is printed and
-     * nothing is published.
-     * 
      * @param entry The entry to set
      * @param value The value to set the entry to
      */
     public void set(String entry, double value) {
         if (!entries.containsKey(entry)) {
-            System.out.println("entry " + entry + " is not in NTDoubleSection " + this.name);
-            return;
+            addEntry(entry);
         }
         entries.get(entry).set(value);
     }
