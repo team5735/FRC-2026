@@ -24,7 +24,7 @@ public class ArcNearestPointSwing extends JPanel {
 
     private Point clickPoint = null;
 
-    private Arc arc = new Arc(new Translation2d(400, 300), 200, Rotation2d.kZero, Rotation2d.kCW_90deg);
+    private Arc arc = new Arc(new Translation2d(400, 300), 200, Rotation2d.kZero, Rotation2d.kCCW_90deg);
 
     // ---------- Drawing ----------
 
