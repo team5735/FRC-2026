@@ -1,55 +1,53 @@
 package frc.robot.util;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 
 public class Arc {
     Translation2d center;
     double radius;
-    Rotation2d thetaStart, thetaEnd;
+    Rotation2d start, end;
 
-    public Arc(Translation2d center, double radius, Rotation2d thetaStart, Rotation2d thetaEnd) {
+    public Arc(Translation2d center, double radius, Rotation2d start, Rotation2d end) {
         this.center = center;
         this.radius = radius;
-        this.thetaStart = thetaStart;
-        this.thetaEnd = thetaEnd;
+        this.start = start;
+        this.end = end;
     }
 
-    public static double normalizeAngle(double theta) {
-        double twoPi = 2 * Math.PI;
-        theta = theta % twoPi;
-        return theta < 0 ? theta + twoPi : theta;
-    }
+    public boolean angleInRange(Rotation2d theta_) {
+        double theta = MathUtil.angleModulus(theta_.getRadians());
+        double first = MathUtil.angleModulus(start.getRadians());
+        double second = MathUtil.angleModulus(end.getRadians());
+        System.out.println(theta + " " + first + " " + second);
 
-    public boolean angleInRange(double theta) {
-        theta = normalizeAngle(theta);
-        double start = normalizeAngle(thetaStart.getRadians());
-        double end = normalizeAngle(thetaEnd.getRadians());
-
-        if (start <= end) {
-            return theta >= start && theta <= end;
-        } else {
-            return theta >= start || theta <= end;
+        if (first > second) {
+            return theta >= second && theta <= first;
         }
+        return theta >= first && theta <= second;
     }
 
     public Translation2d nearestPointOnArc(Translation2d position) {
+        System.out.println(position.getX() + " " + position.getY());
+        System.out.println(center.getX() + " " + center.getY());
         // return any point on the arc if we're passed the center
         if (position.equals(center)) {
-            return center.plus(new Translation2d(radius, thetaStart));
+            return center.plus(new Translation2d(radius, start));
         }
 
-        Translation2d givenToCenter = center.minus(position);
-        Rotation2d thetaA = givenToCenter.getAngle();
+        Translation2d centerToGiven = center.minus(position);
+        Rotation2d thetaA = centerToGiven.getAngle();
 
-        if (angleInRange(thetaA.getRadians())) {
-            return new Translation2d(radius, thetaA);
+        if (angleInRange(thetaA)) {
+            System.out.println("in range");
+            return new Translation2d(radius, thetaA).plus(center);
         }
 
-        Translation2d p1 = position.plus(new Translation2d(radius, thetaStart));
-        Translation2d p2 = position.plus(new Translation2d(radius, thetaEnd));
+        Translation2d p1 = position.plus(new Translation2d(radius, start));
+        Translation2d p2 = position.plus(new Translation2d(radius, end));
 
-        return center.getDistance(p1) <= center.getDistance(p2) ? p1 : p2;
+        return center.getDistance(p1) <= center.getDistance(p2) ? p1.plus(center) : p2.plus(center);
     }
 
     public Translation2d getCenter() {
@@ -60,11 +58,11 @@ public class Arc {
         return radius;
     }
 
-    public Rotation2d getThetaStart() {
-        return thetaStart;
+    public Rotation2d getStart() {
+        return start;
     }
 
-    public Rotation2d getThetaEnd() {
-        return thetaEnd;
+    public Rotation2d getEnd() {
+        return end;
     }
 }
