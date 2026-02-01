@@ -12,10 +12,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.constants.Constants;
+import frc.robot.constants.FieldConstants;
 import frc.robot.constants.drivetrain.CompbotTunerConstants;
 import frc.robot.constants.drivetrain.DevbotTunerConstants;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
+import frc.robot.util.Arc;
 
 public class RobotContainer {
     private final CommandXboxController driveController = new CommandXboxController(
@@ -48,6 +50,11 @@ public class RobotContainer {
         configureBindings();
     }
 
+    private Arc targetArc = new Arc(
+            FieldConstants.APRILTAG_FIELD_LAYOUT.getTagPose(9)
+                    .get().getTranslation().toTranslation2d(),
+            1, Rotation2d.fromDegrees(-45), Rotation2d.fromDegrees(45));
+
     private void configureBindings() {
         drivetrain.registerTelemetry(logger::telemeterize);
 
@@ -61,6 +68,10 @@ public class RobotContainer {
         driveController.y().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
         driveController.x().onTrue(drivetrain
                 .runOnce(() -> drivetrain.resetPose(vision.new PoseEstimate("limelight-left", false).pose2d)));
+
+        driveController.b().onTrue(drivetrain.runOnce(() -> {
+            targetArc.telemeterize(drivetrain.getEstimatedPosition());
+        }));
 
         testController.rightBumper().whileTrue(drivetrain.applyRequest(
                 () -> {
