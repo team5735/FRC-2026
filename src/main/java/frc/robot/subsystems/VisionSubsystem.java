@@ -258,7 +258,7 @@ public class VisionSubsystem extends SubsystemBase {
         stddevs = stddevs.times(1 + getDrivetrainAcceleration().in(MetersPerSecondPerSecond));
         // if robot is rotating, use 99999 for theta
         if (drivetrain.getPigeon2().getAngularVelocityZWorld().asSupplier().get()
-                .in(DegreesPerSecond) > VisionConstants.ROTATIONAL_EPSILON.in(DegreesPerSecond)) {
+                .in(DegreesPerSecond) > VisionConstants.ROTATION_EPSILON.in(DegreesPerSecond)) {
             stddevs.getData()[2] = 99999;
         }
         // ensure proper minimums (x,y: 0.05, theta: 5 degrees, but in radians)
