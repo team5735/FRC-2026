@@ -164,6 +164,7 @@ public class VisionSubsystem extends SubsystemBase {
         }
 
         SmartDashboard.putString(limelightName + " reset status", "accepted!");
+        System.out.println("resetting pigeon from mt1 from " + limelightName);
         drivetrain.getPigeon2().setYaw(estimate.pose2d.getRotation().getMeasure());
         lastPigeonReset = Timer.getFPGATimestamp();
     }
