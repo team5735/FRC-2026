@@ -79,8 +79,14 @@ sourceSets {
     sandbox {
         java.srcDir 'src/sandbox'
         resources.srcDir 'src/sandbox'
-        compileClasspath = sourceSets.main.compileClasspath
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
     }
+}
+
+configurations {
+    sandboxImplementation.extendsFrom implementation
+    sandboxRuntimeOnly.extendsFrom runtimeOnly
 }
 
 test {
