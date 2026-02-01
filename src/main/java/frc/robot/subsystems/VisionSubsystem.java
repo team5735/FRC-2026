@@ -137,10 +137,15 @@ public class VisionSubsystem extends SubsystemBase {
             if (!isMT1) {
                 // mt2 is the same format as mt1 data just in the second half of the array; copy
                 // the second half to the first
-                System.arraycopy(array, 6, array, 0, 6);
+                System.arraycopy(stddevs, 6, stddevs, 0, 6);
             }
-            this.stddevs = new Pose3d(new Translation3d(stddevs[0], stddevs[1], stddevs[2]),
-                    new Rotation3d(stddevs[3], stddevs[4], stddevs[5]));
+            this.stddevs = new Pose3d(
+                    new Translation3d(Meters.of(stddevs[0]),
+                            Meters.of(stddevs[1]),
+                            Meters.of(stddevs[2])),
+                    new Rotation3d(Degrees.of(stddevs[3]),
+                            Degrees.of(stddevs[4]),
+                            Degrees.of(stddevs[5])));
         }
     }
 
