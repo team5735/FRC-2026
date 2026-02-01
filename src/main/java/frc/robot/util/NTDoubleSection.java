@@ -21,7 +21,7 @@ public class NTDoubleSection {
      * @param name The name of the subtable where entries will be put.
      */
     public NTDoubleSection(String name) {
-        table = NetworkTableInstance.getDefault().getTable(sectionName).getSubTable(name);
+        this.table = NetworkTableInstance.getDefault().getTable(sectionName).getSubTable(name);
     }
 
     /**
@@ -33,7 +33,22 @@ public class NTDoubleSection {
      * @param entries The entries to create, as a shorthand.
      */
     public NTDoubleSection(String name, String... entries) {
-        table = NetworkTableInstance.getDefault().getTable(sectionName).getSubTable(name);
+        this.table = NetworkTableInstance.getDefault().getTable(sectionName).getSubTable(name);
+        for (String entry : entries) {
+            addEntry(entry);
+        }
+    }
+
+    /**
+     * Creates a new NTDoubleSection. This uses the given table directly without
+     * making a subtable. It also makes the specified entries with addEntry.
+     *
+     * @param table   The table where entries will be put.
+     * @param name    The name of the subtable where entries will be put.
+     * @param entries The entries to create, as a shorthand.
+     */
+    public NTDoubleSection(NetworkTable table, String... entries) {
+        this.table = table;
         for (String entry : entries) {
             addEntry(entry);
         }
