@@ -14,6 +14,7 @@ import static edu.wpi.first.units.Units.Seconds;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
@@ -22,9 +23,11 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.networktables.DoubleArraySubscriber;
+import edu.wpi.first.networktables.DoubleArrayEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.TimestampedDoubleArray;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -75,15 +78,15 @@ public class VisionSubsystem extends SubsystemBase {
         Pose3d stddevs;
         double distToCamera;
 
-        private static Map<String, DoubleArraySubscriber> entriesCache = new HashMap<>();
+        private static Map<String, DoubleArrayEntry> entriesCache = new HashMap<>();
 
-        private DoubleArraySubscriber getDoubleArraySubscriber(String table, String topic) {
+        private DoubleArrayEntry getDoubleArrayEntry(String table, String topic) {
             String asPath = table + "/" + topic;
             return entriesCache.computeIfAbsent(asPath, k -> {
+                System.out.println("creating subscriber for " + asPath);
                 return NetworkTableInstance.getDefault().getTable(table)
-                        .getDoubleArrayTopic(topic).subscribe(new double[0]);
+                        .getDoubleArrayTopic(topic).getEntry(new double[0]);
             });
-
         }
 
         public PoseEstimate(String limelightName, boolean isMT1) {
@@ -91,11 +94,13 @@ public class VisionSubsystem extends SubsystemBase {
                     .getDoubleArray(new double[0]);
             TimestampedDoubleArray atomicArray;
             if (isMT1) {
-                atomicArray = getDoubleArraySubscriber(limelightName, "botpose_wpiblue").getAtomic();
+                atomicArray = getDoubleArrayEntry(limelightName, "botpose_wpiblue").getAtomic();
             } else {
-                LimelightHelpers.SetRobotOrientation(limelightName, drivetrain.getPigeon2().getYaw().getValueAsDouble(),
-                        0, 0, 0, 0, 0);
-                atomicArray = getDoubleArraySubscriber(limelightName, "botpose").getAtomic();
+                Angle pigeonOrientation = drivetrain.getPigeon2().getYaw().getValue();
+                doubles.set("drivetrainYaw", pigeonOrientation.in(Degrees));
+                getDoubleArrayEntry(limelightName, "robot_orientation_set")
+                        .set(new double[] { pigeonOrientation.in(Degrees), 0, 0, 0, 0, 0 });
+                atomicArray = getDoubleArrayEntry(limelightName, "botpose").getAtomic();
             }
 
             double[] array = atomicArray.value;
@@ -108,8 +113,12 @@ public class VisionSubsystem extends SubsystemBase {
                 this.stddevs = null;
                 return;
             }
-            Translation3d translation = new Translation3d(array[0], array[1], array[2]);
-            Rotation3d rotation = new Rotation3d(array[3], array[4], array[5]);
+            Translation3d translation = new Translation3d(Meters.of(array[0]),
+                    Meters.of(array[1]),
+                    Meters.of(array[2]));
+            Rotation3d rotation = new Rotation3d(Degrees.of(array[3]),
+                    Degrees.of(array[4]),
+                    Degrees.of(array[5]));
             double latency = array[6];
 
             int nFiducials = (int) array[7];
@@ -136,8 +145,9 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
     private double lastPigeonReset = 0;
+    Supplier<AngularVelocity> angularVelocityZ = null;
 
-    private void maybeResetPigeon(String limelightName, PoseEstimate estimate) {
+    private void maybeResetPigeon(String limelightName, PoseEstimate mt1) {
         // obey the minimum reset delay
         if (Timer.getFPGATimestamp() - lastPigeonReset < VisionConstants.MIN_RESET_DELAY.in(Seconds)) {
             SmartDashboard.putString(limelightName + " reset status", "too soon since last reset");
@@ -145,43 +155,48 @@ public class VisionSubsystem extends SubsystemBase {
         }
 
         // stay grounded to reality!
-        if (estimate.pose3d.getMeasureZ().abs(Meters) > VisionConstants.TOLERATED_HEIGHT.in(Meters)) {
+        if (mt1.pose3d.getMeasureZ().abs(Meters) > VisionConstants.TOLERATED_HEIGHT.in(Meters)) {
             SmartDashboard.putString(limelightName + " reset status",
                     "mt1 pose estimate is more than 3cm away from the ground");
             return;
         }
 
         // limit angular velocity
-        if (drivetrain.getPigeon2().getAngularVelocityZWorld().asSupplier().get()
-                .in(DegreesPerSecond) < VisionConstants.MAX_ANGULAR_VELOCITY_FOR_RESET.in(DegreesPerSecond)) {
-            SmartDashboard.putString(limelightName + " reset status", "robot is rotating");
+        if (angularVelocityZ == null) {
+            angularVelocityZ = drivetrain.getPigeon2().getAngularVelocityZWorld().asSupplier();
+        }
+        doubles.set("angular velocity", angularVelocityZ.get().in(DegreesPerSecond));
+        if (angularVelocityZ.get().in(DegreesPerSecond) > VisionConstants.MAX_ANGULAR_VELOCITY_FOR_RESET
+                .in(DegreesPerSecond)) {
+            SmartDashboard.putString(limelightName + " reset status", "robot is rotating too fast");
             return;
         }
 
         // all pose estimate ambiguity < 0.2
-        if (Arrays.stream(estimate.fiducials)
+        if (Arrays.stream(mt1.fiducials)
                 .anyMatch(tag -> tag.ambiguity > VisionConstants.MAX_AMBIGUITY_FOR_RESET)) {
             SmartDashboard.putString(limelightName + " reset status", "any tag ambiguity too high");
             return;
         }
 
         // at least one tag is close (1.5m)
-        if (Arrays.stream(estimate.fiducials)
+        if (Arrays.stream(mt1.fiducials)
                 .noneMatch(tag -> tag.distToCamera.in(Meters) < VisionConstants.NEAR_ENOUGH_TO_RESET.in(Meters))) {
             SmartDashboard.putString(limelightName + " reset status", "no tag close enough to reset");
             return;
         }
 
         // yaw stddev < 5 degrees
-        if (estimate.stddevs.getRotation().getMeasureZ().in(Degrees) > VisionConstants.MAX_YAW_STDDEV_FOR_RESET
+        if (mt1.stddevs.getRotation().getMeasureZ().in(Degrees) > VisionConstants.MAX_YAW_STDDEV_FOR_RESET
                 .in(Degrees)) {
             SmartDashboard.putString(limelightName + " reset status", "yaw stddev too high");
             return;
         }
 
         SmartDashboard.putString(limelightName + " reset status", "accepted!");
-        System.out.println("resetting pigeon from mt1 from " + limelightName);
-        drivetrain.getPigeon2().setYaw(estimate.pose2d.getRotation().getMeasure());
+        System.out.println(
+                "resetting pigeon from mt1 from " + limelightName + " to " + mt1.pose2d.getRotation().getDegrees());
+        drivetrain.getPigeon2().setYaw(mt1.pose2d.getRotation().getMeasure().in(Degrees));
         lastPigeonReset = Timer.getFPGATimestamp();
     }
 
