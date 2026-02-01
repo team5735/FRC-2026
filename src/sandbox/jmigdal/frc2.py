@@ -94,16 +94,17 @@ def dist(p1, p2):
 
 def draw_point(img, p, label, color=(0, 255, 0)):
     cv2.circle(img, p, 5, color, -1)
-    cv2.putText(
-        img,
-        label,
-        (p[0] + 5, p[1] - 5),
-        cv2.FONT_HERSHEY_SIMPLEX,
-        0.5,
-        color,
-        1,
-        cv2.LINE_AA
-    )
+    if label:
+        cv2.putText(
+            img,
+            label,
+            (p[0] + 5, p[1] - 5),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.5,
+            color,
+            1,
+            cv2.LINE_AA
+        )
 
 def draw_line_with_distance(img, p1, p2, text, color=(255, 0, 0)):
     cv2.line(img, p1, p2, color, 2)
@@ -149,6 +150,7 @@ def field_point_to_pixel(x_meters, y_meters, imgw, imgh, ppm, pad_x=0, pad_y=0):
     if 0: # blue alliance is lower left when looking at the field top down
         px = int(pad_x + x_meters * ppm)
         py = int(-pad_y + imgh - y_meters * ppm)
+
     return (px, py)
 
 def draw_arc(img,
@@ -317,18 +319,38 @@ def get_robot_pose(nt_smart_dashboard_table):
     if nt_smart_dashboard_table is None:
         robot_pose = Pose2d(in2m(12*6), in2m(12*9), d2r(30))
         return robot_pose
-    if 1:
-        # get robot pose from network tables
+
+    # get robot pose from network tables
+    if 'limelight' in nt_smart_dashboard_table.getPath():
+        nums = nt_smart_dashboard_table.getNumberArray('botpose_wpiblue', [])
+        if not nums:
+            return Pose2d(0, 0, 0)
+        x,y,yaw = nums[0],nums[1],nums[5]
+        yaw = d2r(yaw)
+        robot_pose = Pose2d(x,y,yaw)
+        return robot_pose
+    else:
         x,y,yaw = nt_smart_dashboard_table.getNumberArray("Field/Robot", [0,0,0])
         yaw = d2r(yaw)
         robot_pose = Pose2d(x,y,yaw)
-    return robot_pose
+        return robot_pose
 
-def get_detected_tags(ll_table):
+def get_detected_tags(ll_table, last_rfs=None):
     if ll_table is None:
         return [10,]
 
-    ll_table.getNumberArray('',[])
+    ids = []
+    rfs = ll_table.getNumberArray('rawfiducials',[])
+
+    # check if the last received fiducials haven't changed
+    # if they haven't, we haven't detected fiducials this call
+    if last_rfs is not None and rfs == last_rfs:
+        return [], None
+
+    for ix in range(0,len(rfs),7):
+        ids.append(int(rfs[ix]))
+
+    return ids,rfs
 
 
 def ntvis1():
@@ -340,18 +362,20 @@ def ntvis1():
 
     window_w = 1200
     window_h = 800
+    pad_x, pad_y = 20,20 # pixel padding on the edges of img to allow for slightly negative drawing indices
 
     ppm = min(window_w/field_len_x,
               window_h/field_len_y)
     print('ppm:',ppm)
 
-    # to account for pad_x, pad_y below
-    window_w += 20
-    window_h += 20
+    # now make the image the correct size
+    window_w += pad_x
+    window_h += pad_y
+
 
     sd_table = None
     lll_table = None
-    if 0:
+    if 1:
         NetworkTables.addConnectionListener(connection_listener, immediateNotify=True)
 
         # NetworkTables.initialize(server="127.0.0.1")
@@ -391,32 +415,42 @@ def ntvis1():
             print('  ',p322d(tag.pose))
 
     # create viz
-    pad_x, pad_y = 20,20 # pixel padding on the edges of img to allow for slightly negative drawing indices
-    width, height = window_w, window_h
-    img = np.zeros((height, width, 3), dtype=np.uint8)
+    img = np.zeros((window_h, window_w, 3), dtype=np.uint8)
     img[:] = (30, 30, 30)  # dark background
 
     animations = []
     _A = TagHighlightAnimation(10, id2tag[10].pose, t_secs=1.0, ppm=ppm, pad_x=pad_x, pad_y=pad_y)
     animations.append(_A)
 
+    detected_tags = []
+    last_detected_fiducials = []
+    last_detected_fiducials_ts = datetime.datetime.now()
     while True:
-
-        robot_pose = get_robot_pose(sd_table)
+        # robot_pose = get_robot_pose(sd_table)
+        robot_pose = get_robot_pose(lll_table)
         # robot_pose = Pose2d(robot_pose.translation(), Rotation2d(d2r(-170)))
 
-        # add tag highlight indicating which were detected in pose estimation
-        detected_tags = get_detected_tags(lll_table)
-        for tag_id in detected_tags:
-            if tag_id in id2tag:
-                _A = TagHighlightAnimation(tag_id, id2tag[tag_id].pose, t_secs=1.0, ppm=ppm, pad_x=pad_x, pad_y=pad_y)
-                animations.append(_A)
+        # check if we detected new tags
+        _detected_tags, _lastrfs = get_detected_tags(lll_table, last_detected_fiducials)
+
+        # we actually detected a new set of tags
+        if _lastrfs is not None:
+            last_detected_fiducials = _lastrfs
+            last_detected_fiducials_ts = datetime.datetime.now()
+            detected_tags = _detected_tags
+
+            # add tag highlight indicating which were detected in pose estimation
+            for tag_id in detected_tags:
+                if tag_id in id2tag:
+                    _A = TagHighlightAnimation(tag_id, id2tag[tag_id].pose, t_secs=1.0, ppm=ppm, pad_x=pad_x, pad_y=pad_y)
+                    animations.append(_A)
 
         # find nearest tags to front of robot
         a = [robot_pose.X(), robot_pose.Y()]
         # center of front of bot
         a[0] += math.cos(robot_pose.rotation().radians())*robot_len_x/2
         a[1] += math.sin(robot_pose.rotation().radians())*robot_len_x/2
+        robot_front_pose = Pose2d(a[0], a[1], robot_pose.rotation())
 
         sorted_tags = sorted(tags, key=lambda t: dist((t.pose.X(),t.pose.Y()),a))
 
@@ -432,14 +466,30 @@ def ntvis1():
         # put robot on image
         draw_bot(img, robot_pose, ppm, robot_len_x, robot_len_y, pad_x, pad_y)
 
+        # pixel location of the center front of bot in the image (used for cf measuring distances in real life)
+        a_px = field_point_to_pixel(robot_front_pose.X(), robot_front_pose.Y(), window_w, window_h, ppm, pad_x, pad_y)
+
         # draw lines and distances to 3 nearest tags
-        a_px = field_point_to_pixel(a[0], a[1], width, height, ppm, pad_x, pad_y)
-        draw_point(img, a_px, "")
-        for tag in sorted_tags[:3]:
-            b_px = field_point_to_pixel(tag.pose.X(), tag.pose.Y(), width, height, ppm, pad_x, pad_y)
-            draw_point(img, b_px, "")
-            _dist = m2in(dist(a, (tag.pose.X(), tag.pose.Y())))
-            draw_line_with_distance(img, a_px, b_px, '%.1f\''%_dist)
+        if 0:
+            draw_point(img, a_px, "")
+            for tag in sorted_tags[:3]:
+                b_px = field_point_to_pixel(tag.pose.X(), tag.pose.Y(), window_w, window_h, ppm, pad_x, pad_y)
+                draw_point(img, b_px, "")
+                _dist = m2in(dist(a, (tag.pose.X(), tag.pose.Y())))
+                draw_line_with_distance(img, a_px, b_px, '%.1f"'%_dist)
+
+        # draw lines and distances to detected tags
+        if 1:
+            # check if these detections are recent enough, otherwise we aren't seeing any tags right now
+            if datetime.datetime.now()-last_detected_fiducials_ts < datetime.timedelta(seconds=0.25):
+                for tid in detected_tags:
+                    tag = id2tag[tid]
+                    b_px = field_point_to_pixel(tag.pose.X(), tag.pose.Y(), window_w, window_h, ppm, pad_x, pad_y)
+                    # don't draw the point because of animations below (looks bad)
+                    # draw_point(img, b_px, "")
+                    _dist = m2in(dist(a, (tag.pose.X(), tag.pose.Y())))
+                    draw_line_with_distance(img, a_px, b_px, '%.1f"'%_dist)
+
 
         # hub_center_shooting_arc = Pose2d(in2m(181.56), in2m(158.32), d2r(180))
         hub_center_shooting_arc = Pose2d(11.91, 4.02, d2r(0))
