@@ -13,6 +13,8 @@ public class Constants {
     public static final int DRIVE_CONTROLLER_PORT = 0;
     public static final int SUBSYSTEM_CONTROLLER_PORT = 1;
     public static final int TEST_CONTROLLER_PORT = 2;
+    public static final int MOTOR_ID_TALONFX = 58;
+    public static final int MOTOR_ID_SPARKMAX = 23;
 
     public static final double DEADBAND = 0.1;
 
