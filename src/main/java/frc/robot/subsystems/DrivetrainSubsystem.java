@@ -64,8 +64,8 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
     private static final double simLoopPeriod = 0.005; // 5 ms
     private Notifier simNotifier = null;
     private double lastSimTime;
-    private double maxSpeed = CONSTANTS.getDefaultSpeed().in(MetersPerSecond);
-    private double maxAngularRate = CONSTANTS.getDefaultRotationalRate().in(RadiansPerSecond);
+    private double defaultSpeed = CONSTANTS.getDefaultSpeed().in(MetersPerSecond);
+    private double defaulyAngularRate = CONSTANTS.getDefaultRotationalRate().in(RadiansPerSecond);
 
     private NTDoubleSection doubles = new NTDoubleSection("drivetrain", "timestampIn", "timestampOut", "timestampDiff");
 
@@ -77,11 +77,13 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
     public final SwerveRequest.SysIdSwerveSteerGains steerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
     public final SwerveRequest.SysIdSwerveRotation rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
     public final SwerveRequest.FieldCentric fieldCentricRequest = new SwerveRequest.FieldCentric()
-            .withDeadband(maxSpeed * 0.05).withRotationalDeadband(maxAngularRate * 0.05) // Add a 10% deadband
+            .withDeadband(defaultSpeed * 0.05).withRotationalDeadband(defaulyAngularRate * 0.05) // Add a 5% deadband
             .withDriveRequestType(DriveRequestType.Velocity)
             .withCenterOfRotation(CONSTANTS.getPigeonToCenterOfRotation());
     public final SwerveRequest.SwerveDriveBrake brakeRequest = new SwerveRequest.SwerveDriveBrake();
-    public final SwerveRequest.RobotCentric robotCentricRequest = new SwerveRequest.RobotCentric();
+    public final SwerveRequest.RobotCentric robotCentricRequest = new SwerveRequest.RobotCentric()
+            .withDeadband(defaultSpeed * 0.05).withRotationalDeadband(defaulyAngularRate * 0.05)
+            .withDriveRequestType(DriveRequestType.Velocity);
 
     private final Consumer<SysIdRoutineLog> openTranslationLogConsumer = (log) -> {
         log.motor("FL_drive")
@@ -359,7 +361,7 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
      * For use by PIDs. Speed limited for safety.
      */
     public void pidDrive(double vx, double vy, double omega) {
-        if (Math.abs(vx) > maxSpeed || Math.abs(vy) > maxSpeed || Math.abs(omega) > maxAngularRate) {
+        if (Math.abs(vx) > defaultSpeed || Math.abs(vy) > defaultSpeed || Math.abs(omega) > defaulyAngularRate) {
             setControl(brakeRequest);
         }
         setControl(fieldCentricRequest.withVelocityX(vx).withVelocityY(vy).withRotationalRate(omega));
@@ -377,10 +379,10 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
             Supplier<Boolean> isSlowMode) {
         return applyRequest(() -> {
             double speedMPS = (isSlowMode.get().booleanValue()) ? CONSTANTS.getSlowSpeed().in(MetersPerSecond)
-                    : maxSpeed;
+                    : defaultSpeed;
             double rotationMPS = (isSlowMode.get().booleanValue())
                     ? CONSTANTS.getSlowRotationalRate().in(RadiansPerSecond)
-                    : maxAngularRate;
+                    : defaulyAngularRate;
             return fieldCentricRequest
                     .withVelocityX(-deadband(stickY.get()) * speedMPS)
                     .withVelocityY(-deadband(stickX.get()) * speedMPS)
@@ -428,8 +430,7 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
     }
 
     public void autoDriveRobotRelative(ChassisSpeeds robotChassisSpeeds) {
-        var discrete = ChassisSpeeds.discretize(robotChassisSpeeds, 1.0 / 10.0); // TODO: is this the right frequency?
-                                                                                 // (copied from 2024)
+        var discrete = ChassisSpeeds.discretize(robotChassisSpeeds, 0.02);
 
         setControl(
                 robotCentricRequest
@@ -440,7 +441,7 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
 
     private void setUpAuto() {
         AutoBuilder.configure(
-                () -> getEstimatedPosition(),
+                this::getEstimatedPosition,
                 this::resetPose,
                 this::getChassisSpeeds,
                 (speeds, ff) -> autoDriveRobotRelative(speeds),

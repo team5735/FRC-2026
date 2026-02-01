@@ -6,13 +6,20 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.Radians;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathfindingCommand;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.constants.Constants;
@@ -26,6 +33,8 @@ public class RobotContainer {
 
     private final CommandXboxController testController = new CommandXboxController(
             Constants.TEST_CONTROLLER_PORT);
+
+    private final SendableChooser<Command> autoChooser;
 
     private final Telemetry logger = new Telemetry();
 
@@ -45,6 +54,15 @@ public class RobotContainer {
     }
 
     public RobotContainer() {
+        Map<String, Command> commandsForAuto = new HashMap<>();
+
+        NamedCommands.registerCommands(commandsForAuto);
+
+        autoChooser = AutoBuilder.buildAutoChooser();
+
+        SmartDashboard.putData("Choose an Auto", autoChooser);
+        PathfindingCommand.warmupCommand().schedule();
+
         DriverStation.silenceJoystickConnectionWarning(true);
         configureBindings();
     }
@@ -77,6 +95,12 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return Commands.none();
+        Command auto = autoChooser.getSelected();
+        if (auto == null) {
+            System.out.println("auto is null");
+            return drivetrain.brakeCommand();
+        }
+
+        return auto;
     }
 }
