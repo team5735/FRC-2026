@@ -63,6 +63,8 @@ public class RobotContainer {
                 () -> driveController.getHID().getBButton()));
 
         driveController.y().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+        driveController.x().onTrue(drivetrain
+                .runOnce(() -> drivetrain.resetPose(vision.new PoseEstimate("limelight-left", false).pose2d)));
 
         testController.a().whileTrue(drivetrain.sysIdDynamic(SysIdRoutine.Direction.kForward));
         testController.b().whileTrue(drivetrain.sysIdDynamic(SysIdRoutine.Direction.kReverse));
