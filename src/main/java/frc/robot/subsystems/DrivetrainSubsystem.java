@@ -1,14 +1,8 @@
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.Rotations;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static edu.wpi.first.units.Units.Second;
-import static edu.wpi.first.units.Units.Volts;
 
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.Utils;
@@ -30,11 +24,8 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.constants.Constants;
 import frc.robot.constants.drivetrain.CompbotConstants;
 import frc.robot.constants.drivetrain.CompbotTunerConstants.TunerSwerveDrivetrain;
@@ -82,110 +73,6 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
             .withCenterOfRotation(CONSTANTS.getPigeonToCenterOfRotation());
     public final SwerveRequest.SwerveDriveBrake brakeRequest = new SwerveRequest.SwerveDriveBrake();
     public final SwerveRequest.RobotCentric robotCentricRequest = new SwerveRequest.RobotCentric();
-
-    private final Consumer<SysIdRoutineLog> translationLogConsumer = (log) -> {
-        log.motor("FL_drive")
-                .linearPosition(Meters.of(getState().Pose.getY()))
-                .linearVelocity(MetersPerSecond.of(getState().ModuleStates[0].speedMetersPerSecond))
-                .voltage(getModule(0).getDriveMotor().getMotorVoltage().getValue());
-        log.motor("FR_drive")
-                .linearPosition(Meters.of(getState().Pose.getY()))
-                .linearVelocity(MetersPerSecond.of(getState().ModuleStates[1].speedMetersPerSecond))
-                .voltage(getModule(1).getDriveMotor().getMotorVoltage().getValue());
-        log.motor("BL_drive")
-                .linearPosition(Meters.of(getState().Pose.getY()))
-                .linearVelocity(MetersPerSecond.of(getState().ModuleStates[2].speedMetersPerSecond))
-                .voltage(getModule(2).getDriveMotor().getMotorVoltage().getValue());
-        log.motor("BR_drive")
-                .linearPosition(Meters.of(getState().Pose.getY()))
-                .linearVelocity(MetersPerSecond.of(getState().ModuleStates[3].speedMetersPerSecond))
-                .voltage(getModule(3).getDriveMotor().getMotorVoltage().getValue());
-    };
-    /*
-     * SysId routine for characterizing translation. This is used to find PID gains
-     * for the drive motors.
-     */
-    private final SysIdRoutine sysIdRoutineTranslation = new SysIdRoutine(
-            new SysIdRoutine.Config(
-                    null, // Use default ramp rate (1 V/s)
-                    Volts.of(4), // Reduce dynamic step voltage to 4 V to prevent brownout
-                    null, // Use default timeout (10 s)
-                    // Log state by default
-                    null),
-            new SysIdRoutine.Mechanism(
-                    output -> setControl(translationCharacterization.withVolts(output)),
-                    translationLogConsumer,
-                    this));
-
-    private final Consumer<SysIdRoutineLog> steerLogConsumer = (log) -> {
-        log.motor("FL_steer")
-                .angularPosition(Rotations.of((getModule(0).getCurrentState().angle.getRotations() + 1) % 1))
-                .angularVelocity(RotationsPerSecond.of(getModule(0).getSteerMotor().getVelocity().getValueAsDouble()))
-                .voltage(getModule(0).getSteerMotor().getMotorVoltage().getValue());
-        log.motor("FR_steer")
-                .angularPosition(Rotations.of((getModule(1).getCurrentState().angle.getRotations() + 1) % 1))
-                .angularVelocity(RotationsPerSecond.of(getModule(1).getSteerMotor().getVelocity().getValueAsDouble()))
-                .voltage(getModule(0).getSteerMotor().getMotorVoltage().getValue());
-        log.motor("BL_steer")
-                .angularPosition(Rotations.of((getModule(2).getCurrentState().angle.getRotations() + 1) % 1))
-                .angularVelocity(RotationsPerSecond.of(getModule(2).getSteerMotor().getVelocity().getValueAsDouble()))
-                .voltage(getModule(0).getSteerMotor().getMotorVoltage().getValue());
-        log.motor("BR_steer")
-                .angularPosition(Rotations.of((getModule(3).getCurrentState().angle.getRotations() + 1) % 1))
-                .angularVelocity(RotationsPerSecond.of(getModule(3).getSteerMotor().getVelocity().getValueAsDouble()))
-                .voltage(getModule(0).getSteerMotor().getMotorVoltage().getValue());
-    };
-
-    /*
-     * SysId routine for characterizing steer. This is used to find PID gains for
-     * the steer motors.
-     */
-    private final SysIdRoutine sysIdRoutineSteer = new SysIdRoutine(
-            new SysIdRoutine.Config(
-                    null, // Use default ramp rate (1 V/s)
-                    Volts.of(7), // Use dynamic voltage of 7 V
-                    null, // Use default timeout (10 s)
-                    // Log state by default
-                    null),
-            new SysIdRoutine.Mechanism(
-                    volts -> setControl(steerCharacterization.withVolts(volts)),
-                    steerLogConsumer,
-                    this));
-
-    private final Consumer<SysIdRoutineLog> rotationLogConsumer = (log) -> {
-        log.motor("robot_rot")
-                .angularPosition(getPigeon2().getYaw().getValue())
-                .angularVelocity(getPigeon2().getAngularVelocityZWorld().getValue())
-                .voltage(getModule(0).getDriveMotor().getMotorVoltage().getValue());
-    };
-    /*
-     * SysId routine for characterizing rotation.
-     * This is used to find PID gains for the FieldCentricFacingAngle
-     * HeadingController.
-     * See the documentation of SwerveRequest.SysIdSwerveRotation for info on
-     * importing the log to SysId.
-     */
-    private final SysIdRoutine sysIdRoutineRotation = new SysIdRoutine(
-            new SysIdRoutine.Config(
-                    /* This is in radians per second², but SysId only supports "volts per second" */
-                    Volts.of(Math.PI / 6).per(Second),
-                    /* This is in radians per second, but SysId only supports "volts" */
-                    Volts.of(Math.PI),
-                    null, // Use default timeout (10 s)
-                    // Log state by default
-                    null),
-            new SysIdRoutine.Mechanism(
-                    output -> {
-                        /* output is actually radians per second, but SysId only supports "volts" */
-                        setControl(rotationCharacterization.withRotationalRate(output.in(Volts)));
-                        /* also log the requested output for SysId */
-                        SmartDashboard.putNumber("Rotational_Rate", output.in(Volts));
-                    },
-                    rotationLogConsumer,
-                    this));
-
-    /* The SysId routine to test */
-    private SysIdRoutine m_sysIdRoutineToApply = sysIdRoutineRotation;
 
     /**
      * Constructs a CTRE SwerveDrivetrain using the specified constants.
@@ -285,28 +172,6 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
      */
     public Command applyRequest(Supplier<SwerveRequest> requestSupplier) {
         return run(() -> this.setControl(requestSupplier.get()));
-    }
-
-    /**
-     * Runs the SysId Quasistatic test in the given direction for the routine
-     * specified by {@link #m_sysIdRoutineToApply}.
-     *
-     * @param direction Direction of the SysId Quasistatic test
-     * @return Command to run
-     */
-    public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-        return m_sysIdRoutineToApply.quasistatic(direction);
-    }
-
-    /**
-     * Runs the SysId Dynamic test in the given direction for the routine
-     * specified by {@link #m_sysIdRoutineToApply}.
-     *
-     * @param direction Direction of the SysId Dynamic test
-     * @return Command to run
-     */
-    public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-        return m_sysIdRoutineToApply.dynamic(direction);
     }
 
     @Override

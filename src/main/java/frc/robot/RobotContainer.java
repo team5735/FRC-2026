@@ -14,7 +14,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.constants.Constants;
 import frc.robot.constants.drivetrain.CompbotTunerConstants;
 import frc.robot.constants.drivetrain.DevbotTunerConstants;
@@ -65,11 +64,6 @@ public class RobotContainer {
         driveController.y().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
         driveController.x().onTrue(drivetrain
                 .runOnce(() -> drivetrain.resetPose(vision.new PoseEstimate("limelight-left", false).pose2d)));
-
-        testController.a().whileTrue(drivetrain.sysIdDynamic(SysIdRoutine.Direction.kForward));
-        testController.b().whileTrue(drivetrain.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-        testController.x().whileTrue(drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-        testController.y().whileTrue(drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
 
         testController.rightBumper().whileTrue(drivetrain.applyRequest(
                 () -> {
