@@ -4,12 +4,9 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Radians;
-
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -69,10 +66,8 @@ public class RobotContainer {
                 () -> {
                     double x = testController.getRightX();
                     double y = testController.getRightY();
-                    Angle theta = Radians.of(Math.atan(y / x));
-                    return new SwerveRequest.PointWheelsAt().withModuleDirection(new Rotation2d(theta));
+                    return new SwerveRequest.PointWheelsAt().withModuleDirection(new Rotation2d(x, y));
                 }));
-
     }
 
     public Command getAutonomousCommand() {
