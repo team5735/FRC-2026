@@ -100,7 +100,7 @@ public class VisionSubsystem extends SubsystemBase {
                 doubles.set("drivetrainYaw", pigeonOrientation.in(Degrees));
                 getDoubleArrayEntry(limelightName, "robot_orientation_set")
                         .set(new double[] { pigeonOrientation.in(Degrees), 0, 0, 0, 0, 0 });
-                atomicArray = getDoubleArrayEntry(limelightName, "botpose").getAtomic();
+                atomicArray = getDoubleArrayEntry(limelightName, "botpose_orb_wpiblue").getAtomic();
             }
 
             double[] array = atomicArray.value;
