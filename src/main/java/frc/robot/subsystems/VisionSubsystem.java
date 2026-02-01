@@ -87,6 +87,15 @@ public class VisionSubsystem extends SubsystemBase {
             }
 
             double[] array = atomicArray.value;
+            if (array.length == 0) {
+                this.pose3d = null;
+                this.pose2d = null;
+                this.timestamp = 0;
+                this.fiducials = new RawFiducial[0];
+                this.distToCamera = 0;
+                this.stddevs = null;
+                return;
+            }
             Translation3d translation = new Translation3d(array[0], array[1], array[2]);
             Rotation3d rotation = new Rotation3d(array[3], array[4], array[5]);
             double latency = array[6];
@@ -167,6 +176,10 @@ public class VisionSubsystem extends SubsystemBase {
     public void handleVisionMeasurement(String limelightName) {
         PoseEstimate mt1 = new PoseEstimate(limelightName, true);
         PoseEstimate mt2 = new PoseEstimate(limelightName, false);
+        if (mt1.pose2d == null || mt2.pose2d == null) {
+            SmartDashboard.putString(limelightName + " status", "mt1 or mt2 pose estimate is null");
+            return;
+        }
         doubles.set("pigeon reset time", lastPigeonReset);
         maybeResetPigeon(limelightName, mt1);
 
