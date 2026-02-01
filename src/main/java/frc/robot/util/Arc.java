@@ -66,6 +66,7 @@ public class Arc {
     }
 
     public void telemeterize(Pose2d robotPose) {
+        System.out.println("telemeterizing arc");
         Field2d field = new Field2d();
         field.setRobotPose(robotPose);
         field.getObject("center").setPose(new Pose2d(center, Rotation2d.kZero));
@@ -76,6 +77,5 @@ public class Arc {
         Translation2d nearest = nearestPointOnArc(robotPose.getTranslation());
         field.getObject("nearest").setPose(new Pose2d(nearest, nearest.minus(center).getAngle()));
         SmartDashboard.putData("arc as a field", field);
-        field.close();
     }
 }

@@ -69,7 +69,7 @@ public class RobotContainer {
         driveController.x().onTrue(drivetrain
                 .runOnce(() -> drivetrain.resetPose(vision.new PoseEstimate("limelight-left", false).pose2d)));
 
-        driveController.b().onTrue(drivetrain.runOnce(() -> {
+        driveController.b().onTrue(Commands.runOnce(() -> {
             targetArc.telemeterize(drivetrain.getEstimatedPosition());
         }));
 
