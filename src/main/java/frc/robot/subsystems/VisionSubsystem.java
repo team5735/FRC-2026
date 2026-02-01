@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Centimeters;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.Meters;
@@ -69,13 +70,6 @@ public class VisionSubsystem extends SubsystemBase {
         }
     }
 
-    private boolean drivetrainIsNaNOrInf() {
-        return Double.isNaN(drivetrain.getEstimatedPosition().getX())
-                || Double.isInfinite(drivetrain.getEstimatedPosition().getX()) ||
-                Double.isNaN(drivetrain.getEstimatedPosition().getY())
-                || Double.isInfinite(drivetrain.getEstimatedPosition().getY());
-    }
-
     public record RawFiducial(double ambiguity, Distance distToCamera) {
     }
 
@@ -132,9 +126,15 @@ public class VisionSubsystem extends SubsystemBase {
     private double lastPigeonReset = 0;
 
     private void maybeResetPigeon(String limelightName, PoseEstimate estimate) {
+        // obey the minimum reset delay
+        if (Timer.getFPGATimestamp() - lastPigeonReset < VisionConstants.MIN_RESET_DELAY.in(Seconds)) {
+            SmartDashboard.putString(limelightName + " reset status", "too soon since last reset");
+            return;
+        }
+
         // stay grounded to reality!
         if (estimate.pose3d.getMeasureZ().abs(Meters) > VisionConstants.TOLERATED_HEIGHT.in(Meters)) {
-            SmartDashboard.putString(limelightName + " status",
+            SmartDashboard.putString(limelightName + " reset status",
                     "mt1 pose estimate is more than 3cm away from the ground");
             return;
         }
@@ -142,32 +142,32 @@ public class VisionSubsystem extends SubsystemBase {
         // limit angular velocity
         if (drivetrain.getPigeon2().getAngularVelocityZWorld().asSupplier().get()
                 .in(DegreesPerSecond) < VisionConstants.MAX_ANGULAR_VELOCITY_FOR_RESET.in(DegreesPerSecond)) {
-            SmartDashboard.putString(limelightName + " status", "robot is rotating");
-            return;
-        }
-
-        if (Timer.getFPGATimestamp() - lastPigeonReset < VisionConstants.RESET_PIGEON_INTERVAL.in(Seconds)) {
+            SmartDashboard.putString(limelightName + " reset status", "robot is rotating");
             return;
         }
 
         // all pose estimate ambiguity < 0.2
         if (Arrays.stream(estimate.fiducials)
                 .anyMatch(tag -> tag.ambiguity > VisionConstants.MAX_AMBIGUITY_FOR_RESET)) {
+            SmartDashboard.putString(limelightName + " reset status", "any tag ambiguity too high");
             return;
         }
 
         // at least one tag is close (1.5m)
         if (Arrays.stream(estimate.fiducials)
                 .noneMatch(tag -> tag.distToCamera.in(Meters) < VisionConstants.NEAR_ENOUGH_TO_RESET.in(Meters))) {
+            SmartDashboard.putString(limelightName + " reset status", "no tag close enough to reset");
             return;
         }
 
         // yaw stddev < 5 degrees
         if (estimate.stddevs.getRotation().getMeasureZ().in(Degrees) > VisionConstants.MAX_YAW_STDDEV_FOR_RESET
                 .in(Degrees)) {
+            SmartDashboard.putString(limelightName + " reset status", "yaw stddev too high");
             return;
         }
 
+        SmartDashboard.putString(limelightName + " reset status", "accepted!");
         drivetrain.getPigeon2().setYaw(estimate.pose2d.getRotation().getMeasure());
         lastPigeonReset = Timer.getFPGATimestamp();
     }
@@ -226,45 +226,47 @@ public class VisionSubsystem extends SubsystemBase {
             return;
         }
 
-        SmartDashboard.putString(limelightName + " status", "accepted!");
         if (Timer.getFPGATimestamp() - lastPigeonReset < VisionConstants.MT2_DRIFT_TOLERANCE.in(Seconds)) {
+            SmartDashboard.putString(limelightName + " status", "accepted! using mt2");
             updateVisionMeasurement(limelightName, mt2);
         } else {
+            SmartDashboard.putString(limelightName + " status", "accepted! using mt1");
             updateVisionMeasurement(limelightName, mt1);
         }
     }
 
-    private LinearAcceleration getDrivetrainAcceleration() {
-        return MetersPerSecondPerSecond.of(Math.hypot(Math.hypot(
-                drivetrain.getPigeon2().getAccelerationX().asSupplier().get().in(MetersPerSecondPerSecond),
-                drivetrain.getPigeon2().getAccelerationY().asSupplier().get().in(MetersPerSecondPerSecond)),
-                drivetrain.getPigeon2().getAccelerationZ().asSupplier().get().in(MetersPerSecondPerSecond)));
+    private boolean drivetrainIsNaNOrInf() {
+        return Double.isNaN(drivetrain.getEstimatedPosition().getX())
+                || Double.isInfinite(drivetrain.getEstimatedPosition().getX()) ||
+                Double.isNaN(drivetrain.getEstimatedPosition().getY())
+                || Double.isInfinite(drivetrain.getEstimatedPosition().getY());
     }
 
     private void updateVisionMeasurement(String limelightName, PoseEstimate estimate) {
-        doubles.set(limelightName + "_status", 0);
-        // if the estimate is more than 4 meters away from the current estimate, reset
+        // completely reset the pose estimator if it's not having a good time
         if (drivetrainIsNaNOrInf()) {
+            System.out.println("resetting drivetrain pose estimator due to nan or inf");
             drivetrain.resetPose(estimate.pose2d);
         }
-        // use stddevs:
-        // ensure proper minimums (x,y: 0.05, theta: 5 degrees, but in radians)
+
         Vector<N3> stddevs = VecBuilder.fill(estimate.stddevs.getX(), estimate.stddevs.getY(),
                 estimate.stddevs.getRotation().getMeasureZ().in(Radians));
 
         // multiply stddevs by avg tag dist to camera: stddev*(1+dist)
         stddevs = stddevs.times(1 + estimate.distToCamera);
         // multiply by robot velocity stddev*(1+mps)
-        stddevs = stddevs.times(1 + getDrivetrainAcceleration().in(MetersPerSecondPerSecond));
+        // TODO: do if possible
         // if robot is rotating, use 99999 for theta
         if (drivetrain.getPigeon2().getAngularVelocityZWorld().asSupplier().get()
                 .in(DegreesPerSecond) > VisionConstants.ROTATION_EPSILON.in(DegreesPerSecond)) {
             stddevs.getData()[2] = 99999;
         }
-        // ensure proper minimums (x,y: 0.05, theta: 5 degrees, but in radians)
-        stddevs.getData()[0] = Math.max(0.05, stddevs.getData()[0]);
-        stddevs.getData()[1] = Math.max(0.05, stddevs.getData()[1]);
+
+        // ensure reasonable minimums (x, y: 5cm, theta: 5°)
+        stddevs.getData()[0] = Math.max(Centimeters.of(5).in(Meters), stddevs.getData()[0]);
+        stddevs.getData()[1] = Math.max(Centimeters.of(5).in(Meters), stddevs.getData()[1]);
         stddevs.getData()[2] = Math.max(Degrees.of(5).in(Radians), stddevs.getData()[2]);
+
         drivetrain.addVisionMeasurement(estimate.pose2d, estimate.timestamp, stddevs);
     }
 
