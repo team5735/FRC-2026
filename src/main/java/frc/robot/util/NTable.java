@@ -160,7 +160,14 @@ public class NTable {
      * @param type the type of the entry
      */
     public NetworkTableValue get(String name, NetworkTableType type) {
-        return getEntry(name, type).get();
+        NetworkTableValue value = getEntry(name, type).get();
+        if (!value.getType().equals(type)) {
+            DriverStation.reportWarning(
+                    "NTable entry " + table.getPath() + "/" + name + " was not a "
+                            + type.getValueStr(),
+                    true);
+        }
+        return value;
     }
 
     /**
