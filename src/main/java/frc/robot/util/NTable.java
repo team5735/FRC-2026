@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.NetworkTableType;
 import edu.wpi.first.networktables.NetworkTableValue;
@@ -112,8 +113,7 @@ public class NTable {
      */
     public void set(String name, Object value) {
         String type = NetworkTableType.getStringFromObject(value);
-        NetworkTableType typeEnum = NetworkTableType.getFromString(type);
-        if (typeEnum.equals(NetworkTableType.kUnassigned)) {
+        if (!NetworkTableEntry.isValidDataType(value)) {
             DriverStation.reportWarning("NTable entry " + table.getPath() + "/" + name
                     + " has invalid type; the passed object is of type " + value.getClass().getName(), true);
             return;
