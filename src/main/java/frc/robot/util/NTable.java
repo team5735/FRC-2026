@@ -94,6 +94,32 @@ public class NTable {
     }
 
     /**
+     * {@return an entry of this NTable}
+     *
+     * <p>
+     * Adds the entry to {@link #entries} if it's not already present.
+     *
+     * @param name the name of the entry
+     * @param type the type of the entry
+     */
+    public GenericEntry getEntry(String name, NetworkTableType type) {
+        return entries.computeIfAbsent(name, key -> table.getTopic(key).getGenericEntry(type.getValueStr()));
+    }
+
+    /**
+     * {@return an entry of this NTable}
+     *
+     * <p>
+     * Adds the entry to {@link #entries} if it's not already present.
+     *
+     * @param name the name of the entry
+     * @param type the type of the entry
+     */
+    public GenericEntry getEntry(String name, String type) {
+        return getEntry(name, NetworkTableType.getFromString(type));
+    }
+
+    /**
      * Publishes a value of any accepted type to the NetworkTable.
      *
      * <p>
@@ -112,16 +138,17 @@ public class NTable {
      * @param value the value to publish.
      */
     public void set(String name, Object value) {
-        String type = NetworkTableType.getStringFromObject(value);
         if (!NetworkTableEntry.isValidDataType(value)) {
             DriverStation.reportWarning("NTable entry " + table.getPath() + "/" + name
                     + " has invalid type; the passed object is of type " + value.getClass().getName(), true);
             return;
         }
-        GenericEntry entry = entries.computeIfAbsent(name, n -> table.getTopic(n).getGenericEntry(type));
+        GenericEntry entry = getEntry(name, NetworkTableType.getStringFromObject(value));
         boolean success = entry.setValue(value);
         if (!success) {
-            DriverStation.reportWarning("warning: NTable entry " + table.getPath() + "/" + name + " was not a " + type,
+            DriverStation.reportWarning(
+                    "NTable entry " + table.getPath() + "/" + name + " was not a "
+                            + NetworkTableType.getStringFromObject(value),
                     true);
         }
     }
@@ -133,8 +160,7 @@ public class NTable {
      * @param type the type of the entry
      */
     public NetworkTableValue get(String name, NetworkTableType type) {
-        GenericEntry entry = entries.computeIfAbsent(name, n -> table.getTopic(n).getGenericEntry(type.getValueStr()));
-        return entry.get();
+        return getEntry(name, type).get();
     }
 
     /**
