@@ -246,12 +246,11 @@ public class NTable {
      * @param data the object to publish
      */
     public void setSendable(String name, Sendable data) {
-        NTable dataTable = sub(name);
         SendableBuilderImpl builder = new SendableBuilderImpl();
-        builder.setTable(dataTable.getTable());
+        builder.setTable(sub(name).getTable());
         SendableRegistry.publish(data, builder);
         builder.startListeners();
-        dataTable.set(".name", name);
+        sub(name).set(".name", name);
     }
 
     /**
