@@ -183,20 +183,24 @@ public class NTable {
     }
 
     /**
-     * Makes an entry persistent through program restarts.
+     * Makes the specified entries persist through program restarts.
      * 
      * @param name the name of the entry
      */
-    public void makePersistent(String name) {
-        table.getEntry(name).setPersistent();
+    public void makePersistent(String... names) {
+        for (String name : names) {
+            table.getEntry(name).setPersistent();
+        }
     }
 
     /**
-     * Makes an entry not persistent through program restarts.
+     * Makes the specified entry not persist through program restarts.
      * 
      * @param name the name of the entry
      */
-    public void clearPersistent(String name) {
-        table.getEntry(name).clearPersistent();
+    public void clearPersistent(String... names) {
+        for (String name : names) {
+            table.getEntry(name).clearPersistent();
+        }
     }
 }
