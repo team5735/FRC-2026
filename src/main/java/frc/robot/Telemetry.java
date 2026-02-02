@@ -169,8 +169,8 @@ public class Telemetry {
             field.getObject("limelightMt2Pos").setPose(mt2Estimate.pose);
         }
 
-        table.putSendable("field", field);
-        table.putSendable("swerve state", sendableState);
+        table.setSendable("field", field);
+        table.setSendable("swerve state", sendableState);
 
         stateTable.set("pose", poseArray);
         stateTable.set("module states", moduleStatesArray);
@@ -197,7 +197,7 @@ public class Telemetry {
             moduleSpeeds[i].setLength(state.ModuleStates[i].speedMetersPerSecond
                     / (2 * CompbotTunerConstants.SPEED_AT_12_VOLTS.in(MetersPerSecond)));
 
-            table.putSendable("mechanism", moduleMechanisms[i]);
+            table.setSendable("mechanism", moduleMechanisms[i]);
         }
 
         table.set("translation_position", state.Pose.getY());
