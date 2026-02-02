@@ -11,10 +11,33 @@ import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilderImpl;
 
+/**
+ * A {@link NetworkTable}.
+ *
+ * <p>
+ * This class represents a NetworkTable. Its purpose is to make the
+ * NetworkTables API nicer to use, as well as adding consistent caching logic
+ * for entries and tables to hopefully permanently eliminate continuously making
+ * publishers or tables.
+ *
+ * <p>
+ * Note that one invariant of this class is that every table of the
+ * NetworkTables is represented by exactly one NTable. This ensures that every
+ * NTable is effectively a singleton of sorts. Additionally, ths ensures that
+ * each {@link GenericEntry} managed by every NTable is only created once,
+ * allowing much more flexibility in client code.
+ */
 public class NTable {
-    private static NTable root;
+    /**
+     * The root NTable, representing the root of all NetworkTables.
+     */
+    private static final NTable root = new NTable(NetworkTableInstance.getDefault().getTable(""));
 
-    private NetworkTable table;
+    /**
+     * The NetworkTable this NTable represents. This NTable object can be seen as a
+     * wrapper around its table.
+     */
+    private final NetworkTable table;
 
     public NetworkTable getTable() {
         return table;
