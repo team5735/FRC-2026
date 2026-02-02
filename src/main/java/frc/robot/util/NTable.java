@@ -170,6 +170,61 @@ public class NTable {
         return value;
     }
 
+    /** {@return the requested double} */
+    public double getDouble(String name) {
+        return get(name, NetworkTableType.kDouble).getDouble();
+    }
+
+    /** {@return the requested boolean} */
+    public boolean getBoolean(String name) {
+        return get(name, NetworkTableType.kBoolean).getBoolean();
+    }
+
+    /** {@return the requested string} */
+    public String getString(String name) {
+        return get(name, NetworkTableType.kString).getString();
+    }
+
+    /** {@return the requested int} */
+    public long getInt(String name) {
+        return get(name, NetworkTableType.kInteger).getInteger();
+    }
+
+    /** {@return the requested float} */
+    public float getLong(String name) {
+        return get(name, NetworkTableType.kFloat).getFloat();
+    }
+
+    /** {@return the requested raw bytes} */
+    public byte[] getRaw(String name) {
+        return get(name, NetworkTableType.kRaw).getRaw();
+    }
+
+    /** {@return the requested array of doubles} */
+    public double[] getDoubleArray(String name) {
+        return get(name, NetworkTableType.kDoubleArray).getDoubleArray();
+    }
+
+    /** {@return the requested array of booleans} */
+    public boolean[] getBooleanArray(String name) {
+        return get(name, NetworkTableType.kBooleanArray).getBooleanArray();
+    }
+
+    /** {@return the requested array of strings} */
+    public String[] getStringArray(String name) {
+        return get(name, NetworkTableType.kStringArray).getStringArray();
+    }
+
+    /** {@return the requested array of ints} */
+    public long[] getIntArray(String name) {
+        return get(name, NetworkTableType.kIntegerArray).getIntegerArray();
+    }
+
+    /** {@return the requested array of floats} */
+    public float[] getFloatArray(String name) {
+        return get(name, NetworkTableType.kFloatArray).getFloatArray();
+    }
+
     /**
      * Publishes a Sendable object to the NetworkTables.
      *
