@@ -1,10 +1,11 @@
-package frc.robot.util;
+package frc.robot.util.geometry;
 
 import static edu.wpi.first.units.Units.Meters;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.Distance;
+import frc.robot.util.NTable;
 
 public class Line {
     private double slope;

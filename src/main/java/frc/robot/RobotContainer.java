@@ -17,7 +17,7 @@ import frc.robot.constants.drivetrain.CompbotTunerConstants;
 import frc.robot.constants.drivetrain.DevbotTunerConstants;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
-import frc.robot.util.Arc;
+import frc.robot.util.geometry.Arc;
 
 public class RobotContainer {
     private final CommandXboxController driveController = new CommandXboxController(
