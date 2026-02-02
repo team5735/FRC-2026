@@ -35,6 +35,10 @@ public class NTable {
         return root;
     }
 
+    public static NTable root(String name) {
+        return root().sub(name);
+    }
+
     public NTable sub(String name) {
         return subs.computeIfAbsent(name, n -> new NTable(table.getSubTable(n)));
     }
