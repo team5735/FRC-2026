@@ -7,6 +7,9 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.NetworkTableType;
 import edu.wpi.first.networktables.NetworkTableValue;
+import edu.wpi.first.util.sendable.Sendable;
+import edu.wpi.first.util.sendable.SendableRegistry;
+import edu.wpi.first.wpilibj.smartdashboard.SendableBuilderImpl;
 
 public class NTable {
     private static NTable root;
@@ -48,5 +51,14 @@ public class NTable {
     public NetworkTableValue get(String name, NetworkTableType type) {
         GenericEntry entry = entries.computeIfAbsent(name, n -> table.getTopic(n).getGenericEntry(type.getValueStr()));
         return entry.get();
+    }
+
+    public void setSendable(String name, Sendable data) {
+        NTable dataTable = sub(name);
+        SendableBuilderImpl builder = new SendableBuilderImpl();
+        builder.setTable(dataTable.getTable());
+        SendableRegistry.publish(data, builder);
+        builder.startListeners();
+        dataTable.set(".name", name);
     }
 }
