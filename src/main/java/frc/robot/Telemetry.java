@@ -5,6 +5,8 @@ import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
 
+import java.util.Arrays;
+
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 import com.pathplanner.lib.auto.AutoBuilder;
 
@@ -13,11 +15,9 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.networktables.DoubleArrayPublisher;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.util.sendable.Sendable;
@@ -25,13 +25,12 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import frc.robot.constants.drivetrain.CompbotTunerConstants;
 import frc.robot.util.LimelightHelpers;
+import frc.robot.util.NTable;
 
-// TODO purge most SmartDashboard calls
 public class Telemetry {
     // What to publish over networktables for telemetry
     private final NetworkTableInstance inst = NetworkTableInstance.getDefault();
@@ -51,40 +50,35 @@ public class Telemetry {
     private final DoublePublisher driveOdometryFrequency = driveStateTable.getDoubleTopic("OdometryFrequency")
             .publish();
 
-    // Robot pose for field positioning
-    private final NetworkTable table = inst.getTable("Pose");
-    private final DoubleArrayPublisher fieldPub = table.getDoubleArrayTopic("robotPose").publish();
-    private final StringPublisher fieldTypePub = table.getStringTopic(".type").publish();
-
     // Mechanisms to represent the swerve module states
-    private final Mechanism2d[] m_moduleMechanisms = new Mechanism2d[] {
+    private final Mechanism2d[] moduleMechanisms = new Mechanism2d[] {
             new Mechanism2d(1, 1),
             new Mechanism2d(1, 1),
             new Mechanism2d(1, 1),
             new Mechanism2d(1, 1),
     };
     // A direction and length changing ligament for speed representation
-    private final MechanismLigament2d[] m_moduleSpeeds = new MechanismLigament2d[] {
-            m_moduleMechanisms[0].getRoot("RootSpeed", 0.5, 0.5).append(new MechanismLigament2d("Speed", 0.5, 0)),
-            m_moduleMechanisms[1].getRoot("RootSpeed", 0.5, 0.5).append(new MechanismLigament2d("Speed", 0.5, 0)),
-            m_moduleMechanisms[2].getRoot("RootSpeed", 0.5, 0.5).append(new MechanismLigament2d("Speed", 0.5, 0)),
-            m_moduleMechanisms[3].getRoot("RootSpeed", 0.5, 0.5).append(new MechanismLigament2d("Speed", 0.5, 0)),
+    private final MechanismLigament2d[] moduleSpeeds = new MechanismLigament2d[] {
+            moduleMechanisms[0].getRoot("RootSpeed", 0.5, 0.5).append(new MechanismLigament2d("Speed", 0.5, 0)),
+            moduleMechanisms[1].getRoot("RootSpeed", 0.5, 0.5).append(new MechanismLigament2d("Speed", 0.5, 0)),
+            moduleMechanisms[2].getRoot("RootSpeed", 0.5, 0.5).append(new MechanismLigament2d("Speed", 0.5, 0)),
+            moduleMechanisms[3].getRoot("RootSpeed", 0.5, 0.5).append(new MechanismLigament2d("Speed", 0.5, 0)),
     };
     // A direction changing and length constant ligament for module direction
-    private final MechanismLigament2d[] m_moduleDirections = new MechanismLigament2d[] {
-            m_moduleMechanisms[0].getRoot("RootDirection", 0.5, 0.5)
+    private final MechanismLigament2d[] moduleDirections = new MechanismLigament2d[] {
+            moduleMechanisms[0].getRoot("RootDirection", 0.5, 0.5)
                     .append(new MechanismLigament2d("Direction", 0.1, 0, 0, new Color8Bit(Color.kWhite))),
-            m_moduleMechanisms[1].getRoot("RootDirection", 0.5, 0.5)
+            moduleMechanisms[1].getRoot("RootDirection", 0.5, 0.5)
                     .append(new MechanismLigament2d("Direction", 0.1, 0, 0, new Color8Bit(Color.kWhite))),
-            m_moduleMechanisms[2].getRoot("RootDirection", 0.5, 0.5)
+            moduleMechanisms[2].getRoot("RootDirection", 0.5, 0.5)
                     .append(new MechanismLigament2d("Direction", 0.1, 0, 0, new Color8Bit(Color.kWhite))),
-            m_moduleMechanisms[3].getRoot("RootDirection", 0.5, 0.5)
+            moduleMechanisms[3].getRoot("RootDirection", 0.5, 0.5)
                     .append(new MechanismLigament2d("Direction", 0.1, 0, 0, new Color8Bit(Color.kWhite))),
     };
 
-    private final double[] m_poseArray = new double[3];
-    private final double[] m_moduleStatesArray = new double[8];
-    private final double[] m_moduleTargetsArray = new double[8];
+    private final double[] poseArray = new double[3];
+    private final double[] moduleStatesArray = new double[8];
+    private final double[] moduleTargetsArray = new double[8];
 
     public static final Field2d field = new Field2d();
 
@@ -136,6 +130,10 @@ public class Telemetry {
         }
     };
 
+    private final NTable table = NTable.root().sub("telemetry");
+    private final NTable stateTable = table.sub("drive state");
+    private final NTable moduleTable = table.sub("modules");
+
     // Accept the swerve drive state and telemeterize it to SmartDashboard.
     public void telemeterize(SwerveDriveState state) {
         // Telemeterize the swerve drive state
@@ -148,14 +146,14 @@ public class Telemetry {
         driveOdometryFrequency.set(1.0 / state.OdometryPeriod);
 
         // Also write to log file
-        m_poseArray[0] = state.Pose.getX();
-        m_poseArray[1] = state.Pose.getY();
-        m_poseArray[2] = state.Pose.getRotation().getDegrees();
+        poseArray[0] = state.Pose.getX();
+        poseArray[1] = state.Pose.getY();
+        poseArray[2] = state.Pose.getRotation().getDegrees();
         for (int i = 0; i < 4; ++i) {
-            m_moduleStatesArray[i * 2 + 0] = state.ModuleStates[i].angle.getRadians();
-            m_moduleStatesArray[i * 2 + 1] = state.ModuleStates[i].speedMetersPerSecond;
-            m_moduleTargetsArray[i * 2 + 0] = state.ModuleTargets[i].angle.getRadians();
-            m_moduleTargetsArray[i * 2 + 1] = state.ModuleTargets[i].speedMetersPerSecond;
+            moduleStatesArray[i * 2 + 0] = state.ModuleStates[i].angle.getRadians();
+            moduleStatesArray[i * 2 + 1] = state.ModuleStates[i].speedMetersPerSecond;
+            moduleTargetsArray[i * 2 + 0] = state.ModuleTargets[i].angle.getRadians();
+            moduleTargetsArray[i * 2 + 1] = state.ModuleTargets[i].speedMetersPerSecond;
         }
 
         field.setRobotPose(AutoBuilder.getCurrentPose());
@@ -170,108 +168,43 @@ public class Telemetry {
         if (mt2Estimate != null) {
             field.getObject("limelightMt2Pos").setPose(mt2Estimate.pose);
         }
-        SmartDashboard.putData("Field", field);
 
-        SmartDashboard.putData("Swerve State", sendableState);
+        table.putSendable("field", field);
+        table.putSendable("swerve state", sendableState);
 
-        SmartDashboard.putNumberArray("DriveState/Pose", m_poseArray);
-        SmartDashboard.putNumberArray("DriveState/ModuleStates", m_moduleStatesArray);
-        SmartDashboard.putNumberArray("DriveState/ModuleTargets", m_moduleTargetsArray);
-        SmartDashboard.putNumber("DriveState/OdometryPeriod/seconds", state.OdometryPeriod);
+        stateTable.set("pose", poseArray);
+        stateTable.set("module states", moduleStatesArray);
+        stateTable.set("module targets", moduleTargetsArray);
+        stateTable.set("odometry period", state.OdometryPeriod);
 
-        SmartDashboard.putNumber("translation_position", state.Pose.getY());
+        var modules = RobotContainer.drivetrain.getModules();
+        NTable[] tables = Arrays.stream(new String[] { "FL", "FR", "BL", "BR" })
+                .map(s -> moduleTable.sub(s))
+                .toArray(NTable[]::new);
+        for (int i = 0; i < modules.length; i++) {
+            var module = modules[i];
+            NTable table = tables[i];
+            table.set("steer position", (module.getCurrentState().angle.getRotations() + 1) % 1);
+            table.set("steer setpoint", (module.getTargetState().angle.getRotations() + 1) % 1);
+            table.set("drive velocity", state.ModuleStates[i].speedMetersPerSecond);
+            table.set("drive voltage", module.getDriveMotor().getMotorVoltage().getValueAsDouble());
+            table.set("steer velocity", module.getSteerMotor().getVelocity().getValueAsDouble());
+            table.set("steer voltage", module.getSteerMotor().getMotorVoltage().getValueAsDouble());
+            table.set("drive motor rotations", module.getDriveMotor().getRotorPosition().getValue().in(Rotations));
 
-        SmartDashboard.putNumber(
-                "FL_steer_position",
-                (RobotContainer.drivetrain.getModule(0).getCurrentState().angle.getRotations() + 1) % 1);
-        SmartDashboard.putNumber(
-                "FL_steer_velocity",
-                RobotContainer.drivetrain.getModule(0).getSteerMotor().getVelocity().getValueAsDouble());
-        SmartDashboard.putNumber("FL_drive_velocity", state.ModuleStates[0].speedMetersPerSecond);
-
-        SmartDashboard.putNumber(
-                "FR_steer_position",
-                (RobotContainer.drivetrain.getModule(1).getCurrentState().angle.getRotations() + 1) % 1);
-        SmartDashboard.putNumber(
-                "FR_steer_velocity",
-                RobotContainer.drivetrain.getModule(1).getSteerMotor().getVelocity().getValueAsDouble());
-        SmartDashboard.putNumber("FR_drive_velocity", state.ModuleStates[1].speedMetersPerSecond);
-
-        SmartDashboard.putNumber(
-                "BL_steer_position",
-                (RobotContainer.drivetrain.getModule(2).getCurrentState().angle.getRotations() + 1) % 1);
-        SmartDashboard.putNumber(
-                "BL_steer_velocity",
-                RobotContainer.drivetrain.getModule(2).getSteerMotor().getVelocity().getValueAsDouble());
-        SmartDashboard.putNumber("BL_drive_velocity", state.ModuleStates[2].speedMetersPerSecond);
-
-        SmartDashboard.putNumber(
-                "BR_steer_position",
-                (RobotContainer.drivetrain.getModule(3).getCurrentState().angle.getRotations() + 1) % 1);
-        SmartDashboard.putNumber(
-                "BR_steer_velocity",
-                RobotContainer.drivetrain.getModule(3).getSteerMotor().getVelocity().getValueAsDouble());
-        SmartDashboard.putNumber("BR_drive_velocity", state.ModuleStates[3].speedMetersPerSecond);
-
-        SmartDashboard.putNumber(
-                "rotation_position",
-                MathUtil.inputModulus(
-                        RobotContainer.drivetrain.getPigeon2().getYaw().getValue().in(Radians),
-                        -Math.PI, Math.PI));
-        SmartDashboard.putNumber(
-                "rotation_velocity",
-                RobotContainer.drivetrain.getPigeon2().getAngularVelocityZWorld().getValue()
-                        .in(RadiansPerSecond));
-
-        SmartDashboard.putNumber(
-                "FL_steer_setpoint",
-                (RobotContainer.drivetrain.getModule(0).getTargetState().angle.getRotations() + 1) % 1);
-
-        SmartDashboard.putNumber(
-                "FL_drive_volts",
-                RobotContainer.drivetrain.getModule(0).getDriveMotor().getMotorVoltage().getValueAsDouble());
-        SmartDashboard.putNumber(
-                "FL_steer_volts",
-                RobotContainer.drivetrain.getModule(0).getSteerMotor().getMotorVoltage().getValueAsDouble());
-
-        SmartDashboard.putNumber(
-                "FR_drive_volts",
-                RobotContainer.drivetrain.getModule(1).getDriveMotor().getMotorVoltage().getValueAsDouble());
-        SmartDashboard.putNumber(
-                "FR_steer_volts",
-                RobotContainer.drivetrain.getModule(1).getSteerMotor().getMotorVoltage().getValueAsDouble());
-
-        SmartDashboard.putNumber(
-                "BL_drive_volts",
-                RobotContainer.drivetrain.getModule(2).getDriveMotor().getMotorVoltage().getValueAsDouble());
-        SmartDashboard.putNumber(
-                "BL_steer_volts",
-                RobotContainer.drivetrain.getModule(2).getSteerMotor().getMotorVoltage().getValueAsDouble());
-
-        SmartDashboard.putNumber(
-                "BR_drive_volts",
-                RobotContainer.drivetrain.getModule(3).getDriveMotor().getMotorVoltage().getValueAsDouble());
-        SmartDashboard.putNumber(
-                "BR_steer_volts",
-                RobotContainer.drivetrain.getModule(3).getSteerMotor().getMotorVoltage().getValueAsDouble());
-
-        SmartDashboard.putNumber(
-                "FL_drive_motor_rotations",
-                RobotContainer.drivetrain.getModule(0).getDriveMotor().getRotorPosition().getValue()
-                        .in(Rotations));
-
-        // Telemeterize the pose to a Field2d
-        fieldTypePub.set("Field2d");
-        fieldPub.set(m_poseArray);
-
-        // Telemeterize the module states to a Mechanism2d
-        for (int i = 0; i < 4; ++i) {
-            m_moduleSpeeds[i].setAngle(state.ModuleStates[i].angle);
-            m_moduleDirections[i].setAngle(state.ModuleStates[i].angle);
-            m_moduleSpeeds[i].setLength(state.ModuleStates[i].speedMetersPerSecond
+            moduleSpeeds[i].setAngle(state.ModuleStates[i].angle);
+            moduleDirections[i].setAngle(state.ModuleStates[i].angle);
+            moduleSpeeds[i].setLength(state.ModuleStates[i].speedMetersPerSecond
                     / (2 * CompbotTunerConstants.SPEED_AT_12_VOLTS.in(MetersPerSecond)));
 
-            SmartDashboard.putData("Module " + i, m_moduleMechanisms[i]);
+            table.putSendable("mechanism", moduleMechanisms[i]);
         }
+
+        table.set("translation_position", state.Pose.getY());
+        table.set("rotation_position", MathUtil.inputModulus(
+                RobotContainer.drivetrain.getPigeon2().getYaw().getValue().in(Radians),
+                -Math.PI, Math.PI));
+        table.set("rotation_velocity", RobotContainer.drivetrain.getPigeon2().getAngularVelocityZWorld().getValue()
+                .in(RadiansPerSecond));
     }
 }
