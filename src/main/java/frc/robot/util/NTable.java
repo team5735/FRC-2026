@@ -13,6 +13,10 @@ public class NTable {
 
     private NetworkTable table;
 
+    public NetworkTable getTable() {
+        return table;
+    }
+
     private HashMap<String, NTable> subs = new HashMap<>();
     private HashMap<String, GenericEntry> entries = new HashMap<>();
 
