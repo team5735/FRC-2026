@@ -41,9 +41,8 @@ public class NTable {
         }
     }
 
-    public NetworkTableValue get(String name, Object value) {
-        String type = NetworkTableType.getStringFromObject(value);
-        GenericEntry entry = entries.computeIfAbsent(name, n -> table.getTopic(n).getGenericEntry(type));
+    public NetworkTableValue get(String name, NetworkTableType type) {
+        GenericEntry entry = entries.computeIfAbsent(name, n -> table.getTopic(n).getGenericEntry(type.getValueStr()));
         return entry.get();
     }
 }
