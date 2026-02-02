@@ -52,9 +52,6 @@ public class NTable {
     }
 
     public static NTable root() {
-        if (root == null) {
-            root = new NTable(NetworkTableInstance.getDefault().getTable(""));
-        }
         return root;
     }
 
