@@ -181,4 +181,22 @@ public class NTable {
         builder.startListeners();
         dataTable.set(".name", name);
     }
+
+    /**
+     * Makes an entry persistent through program restarts.
+     * 
+     * @param name the name of the entry
+     */
+    public void makePersistent(String name) {
+        table.getEntry(name).setPersistent();
+    }
+
+    /**
+     * Makes an entry not persistent through program restarts.
+     * 
+     * @param name the name of the entry
+     */
+    public void clearPersistent(String name) {
+        table.getEntry(name).clearPersistent();
+    }
 }
