@@ -29,9 +29,9 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.constants.Constants;
 import frc.robot.constants.drivetrain.CompbotConstants;
 import frc.robot.constants.drivetrain.CompbotTunerConstants.TunerSwerveDrivetrain;
+import frc.robot.util.NTable;
 import frc.robot.constants.drivetrain.DevbotConstants;
 import frc.robot.constants.drivetrain.DrivetrainConstants;
-import frc.robot.util.NTDoubleSection;
 
 /**
  * Class that extends the Phoenix 6 SwerveDrivetrain class and implements
@@ -58,7 +58,7 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
     private double maxSpeed = CONSTANTS.getDefaultSpeed().in(MetersPerSecond);
     private double maxAngularRate = CONSTANTS.getDefaultRotationalRate().in(RadiansPerSecond);
 
-    private NTDoubleSection doubles = new NTDoubleSection("drivetrain", "timestampIn", "timestampOut", "timestampDiff");
+    private NTable table = NTable.root("drivetrain");
 
     /* Keep track if we've ever applied the operator perspective before or not */
     private boolean m_hasAppliedOperatorPerspective = false;
@@ -330,8 +330,8 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
      */
     @Override
     public void addVisionMeasurement(Pose2d visionRobotPoseMeters, double timestampSeconds) {
-        doubles.set("timestampIn", timestampSeconds);
-        doubles.set("timestampOut", Utils.fpgaToCurrentTime(timestampSeconds));
+        table.set("timestampIn", timestampSeconds);
+        table.set("timestampOut", Utils.fpgaToCurrentTime(timestampSeconds));
         super.addVisionMeasurement(visionRobotPoseMeters, Utils.fpgaToCurrentTime(timestampSeconds));
     }
 
@@ -371,9 +371,9 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
     @Override
     public void addVisionMeasurement(Pose2d visionRobotPoseMeters, double timestampSeconds,
             Matrix<N3, N1> visionMeasurementStdDevs) {
-        doubles.set("timestampIn", timestampSeconds);
-        doubles.set("timestampOut", Utils.fpgaToCurrentTime(timestampSeconds));
-        doubles.set("timestampDiff", Utils.fpgaToCurrentTime(timestampSeconds) - Utils.getCurrentTimeSeconds());
+        table.set("timestampIn", timestampSeconds);
+        table.set("timestampOut", Utils.fpgaToCurrentTime(timestampSeconds));
+        table.set("timestampDiff", Utils.fpgaToCurrentTime(timestampSeconds) - Utils.getCurrentTimeSeconds());
         super.addVisionMeasurement(visionRobotPoseMeters, Utils.fpgaToCurrentTime(timestampSeconds),
                 visionMeasurementStdDevs);
     }

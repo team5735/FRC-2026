@@ -9,7 +9,7 @@ public class TunablePIDController {
 
     protected TunableNumber p, i, d;
 
-    private NTDoubleSection doubles;
+    private NTable table;
 
     /**
      * Creates a new PIDCommand, which controls the given output with a
@@ -31,7 +31,7 @@ public class TunablePIDController {
         i = new TunableNumber("tunable_pid_commands", name + "_i", _i);
         d = new TunableNumber("tunable_pid_commands", name + "_d", _d);
 
-        doubles = new NTDoubleSection(name + " pid", "setpoint", "output", "measurement", "p", "i", "d");
+        table = NTable.root("pid").sub(name);
     }
 
     public void setup(double setpoint) {
@@ -40,12 +40,12 @@ public class TunablePIDController {
 
     public void setup(double setpoint, double tolerance) {
         controller = new PIDController(p.get(), i.get(), d.get());
-        doubles.set("p", p.get());
-        doubles.set("i", i.get());
-        doubles.set("d", d.get());
+        table.set("p", p.get());
+        table.set("i", i.get());
+        table.set("d", d.get());
 
         controller.setSetpoint(setpoint);
-        doubles.set("setpoint", setpoint);
+        table.set("setpoint", setpoint);
         controller.setTolerance(tolerance);
     }
 
@@ -64,8 +64,8 @@ public class TunablePIDController {
      */
     public double calculate(double measurement) {
         double value = controller.calculate(measurement);
-        doubles.set("measurement", measurement);
-        doubles.set("output", value);
+        table.set("measurement", measurement);
+        table.set("output", value);
         return value;
     }
 

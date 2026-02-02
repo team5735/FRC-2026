@@ -1,10 +1,10 @@
 package frc.robot.util;
 
+import static edu.wpi.first.units.Units.Meters;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.Distance;
-
-import static edu.wpi.first.units.Units.Meters;
 
 public class Line {
     private double slope;
@@ -12,7 +12,7 @@ public class Line {
     private Distance centerX;
     private Distance centerY;
 
-    NTDoubleSection doubles;
+    NTable table;
 
     /**
      * Construct a line with a given point and a given angle.
@@ -36,11 +36,11 @@ public class Line {
         centerX = position.getMeasureX();
         centerY = position.getMeasureY();
 
-        this.doubles = new NTDoubleSection(name + "_line", "slope", "centerX", "centerY");
+        this.table = NTable.root("line").sub(name);
 
-        doubles.set("slope", slope);
-        doubles.set("centerX", centerX.in(Meters));
-        doubles.set("centerY", centerY.in(Meters));
+        table.set("slope", slope);
+        table.set("centerX", centerX.in(Meters));
+        table.set("centerY", centerY.in(Meters));
     }
 
     /**
@@ -58,8 +58,8 @@ public class Line {
         this.centerX = this.centerX.plus(trans.getMeasureX());
         this.centerY = this.centerY.plus(trans.getMeasureY());
 
-        doubles.set("centerX", centerX.in(Meters));
-        doubles.set("centerY", centerY.in(Meters));
+        table.set("centerX", centerX.in(Meters));
+        table.set("centerY", centerY.in(Meters));
         return this;
     }
 

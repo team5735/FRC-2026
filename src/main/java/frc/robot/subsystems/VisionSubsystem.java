@@ -35,15 +35,14 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.VisionConstants;
 import frc.robot.util.LimelightHelpers;
-import frc.robot.util.NTDoubleSection;
+import frc.robot.util.NTable;
 
 public class VisionSubsystem extends SubsystemBase {
     DrivetrainSubsystem drivetrain;
     @SuppressWarnings("unused")
     private double driftEstimateTicks;
 
-    private NTDoubleSection doubles = new NTDoubleSection("vision", "drivetrainYaw", "drivetrainOmegaZ",
-            "drivetrainYaw");
+    private NTable table = NTable.root("vision");
 
     public VisionSubsystem(DrivetrainSubsystem drivetrain) {
         this.drivetrain = drivetrain;
@@ -97,7 +96,7 @@ public class VisionSubsystem extends SubsystemBase {
                 atomicArray = getDoubleArrayEntry(limelightName, "botpose_wpiblue").getAtomic();
             } else {
                 Angle pigeonOrientation = drivetrain.getPigeon2().getYaw().getValue();
-                doubles.set("drivetrainYaw", pigeonOrientation.in(Degrees));
+                table.set("drivetrainYaw", pigeonOrientation.in(Degrees));
                 getDoubleArrayEntry(limelightName, "robot_orientation_set")
                         .set(new double[] { pigeonOrientation.in(Degrees), 0, 0, 0, 0, 0 });
                 atomicArray = getDoubleArrayEntry(limelightName, "botpose_orb_wpiblue").getAtomic();
@@ -170,7 +169,7 @@ public class VisionSubsystem extends SubsystemBase {
         if (angularVelocityZ == null) {
             angularVelocityZ = drivetrain.getPigeon2().getAngularVelocityZWorld().asSupplier();
         }
-        doubles.set("angular velocity", angularVelocityZ.get().in(DegreesPerSecond));
+        table.set("angular velocity", angularVelocityZ.get().in(DegreesPerSecond));
         if (angularVelocityZ.get().in(DegreesPerSecond) > VisionConstants.MAX_ANGULAR_VELOCITY_FOR_RESET
                 .in(DegreesPerSecond)) {
             SmartDashboard.putString(limelightName + " reset status", "robot is rotating too fast");
@@ -212,7 +211,7 @@ public class VisionSubsystem extends SubsystemBase {
             SmartDashboard.putString(limelightName + " status", "mt1 or mt2 pose estimate is null");
             return;
         }
-        doubles.set("pigeon reset time", lastPigeonReset);
+        table.set("pigeon reset time", lastPigeonReset);
         maybeResetPigeon(limelightName, mt1);
 
         // mt1 and mt2 differ significantly
@@ -303,15 +302,15 @@ public class VisionSubsystem extends SubsystemBase {
         stddevs.getData()[2] = Math.max(Degrees.of(5).in(Radians), stddevs.getData()[2]);
 
         // telemeterize standard deviations
-        doubles.set(limelightName + " stddev x", stddevs.getData()[0]);
-        doubles.set(limelightName + " stddev y", stddevs.getData()[1]);
-        doubles.set(limelightName + " stddev theta", stddevs.getData()[2]);
+        table.set(limelightName + " stddev x", stddevs.getData()[0]);
+        table.set(limelightName + " stddev y", stddevs.getData()[1]);
+        table.set(limelightName + " stddev theta", stddevs.getData()[2]);
 
-        doubles.set(limelightName + " will set x", estimate.pose2d.getX());
-        doubles.set(limelightName + " will set y", estimate.pose2d.getY());
-        doubles.set(limelightName + " will set theta", estimate.pose2d.getRotation().getDegrees());
+        table.set(limelightName + " will set x", estimate.pose2d.getX());
+        table.set(limelightName + " will set y", estimate.pose2d.getY());
+        table.set(limelightName + " will set theta", estimate.pose2d.getRotation().getDegrees());
 
-        doubles.set(limelightName + " timestamp", estimate.timestamp);
+        table.set(limelightName + " timestamp", estimate.timestamp);
 
         drivetrain.addVisionMeasurement(estimate.pose2d, estimate.timestamp, stddevs);
     }
