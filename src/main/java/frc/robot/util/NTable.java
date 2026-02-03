@@ -109,7 +109,7 @@ public class NTable {
         if (!entry.get().getType().equals(type)) {
             DriverStation.reportWarning(
                     "NTable entry " + table.getPath() + "/" + name + " had a type different from '"
-                            + type.getValueStr() + "'",
+                            + type.getValueStr() + "'; its type was " + entry.get().getType().getValueStr(),
                     true);
         }
 
