@@ -12,7 +12,6 @@ import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilderImpl;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * A {@link NetworkTable}.
@@ -251,25 +250,25 @@ public class NTable {
         return get(name, NetworkTableType.kFloatArray).getFloatArray();
     }
 
-    static HashMap<String, Sendable> tablesToData = new HashMap<>();
+    /** A map of names to sent {@link Sendable}s. */
+    HashMap<String, Sendable> tablesToData = new HashMap<>();
 
     /**
      * Publishes a Sendable object to the NetworkTables.
      *
      * <p>
-     * This behaves pretty much identically to
-     * {@link SmartDashboard#putData(String, Sendable)}.
+     * If the object has already been published, it will not be published again, as
+     * Sendables are automatically updated by the robot loop.
      * 
      * @param name the name of the entry
      * @param data the object to publish
      */
     public void setSendable(String name, Sendable data) {
-        String key = table.getPath() + "/" + name;
-        Sendable stored = tablesToData.get(key);
-        if (stored != null && stored == data) {
+        if (tablesToData.get(name) == data) {
+            // this sendable has already been published and will automatically update
             return;
         }
-        tablesToData.put(key, stored);
+        tablesToData.put(name, data);
         SendableBuilderImpl builder = new SendableBuilderImpl();
         builder.setTable(sub(name).getTable());
         SendableRegistry.publish(data, builder);
