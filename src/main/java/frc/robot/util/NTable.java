@@ -99,6 +99,10 @@ public class NTable {
      * <p>
      * Adds the entry to {@link #entries} if it's not already present.
      *
+     * <p>
+     * Note that unless this entry has been set, this function will see the topic as
+     * being of an unassigned type.
+     *
      * @param name the name of the entry
      * @param type the type of the entry
      */
@@ -123,6 +127,10 @@ public class NTable {
      *
      * <p>
      * Adds the entry to {@link #entries} if it's not already present.
+     *
+     * <p>
+     * Note that unless this entry has been set, this function will see the topic as
+     * being of an unassigned type.
      *
      * @param name the name of the entry
      * @param type the type of the entry
