@@ -54,6 +54,8 @@ public class Robot extends TimedRobot {
         for (String limelight : VisionConstants.LIMELIGHTS) {
             RobotContainer.vision.handleVisionMeasurement(limelight);
         }
+
+        NTable.updateAllSendables();
     }
 
     /** This function is called once each time the robot enters Disabled mode. */

@@ -297,4 +297,17 @@ public class NTable {
             table.getEntry(name).clearPersistent();
         }
     }
+
+    private static void updateAllSendables(NTable table) {
+        for (Sendable data : table.tablesToData.values()) {
+            SendableRegistry.update(data);
+        }
+        for (NTable subtable : table.subs.values()) {
+            updateAllSendables(subtable);
+        }
+    }
+
+    public static void updateAllSendables() {
+        updateAllSendables(root());
+    }
 }
