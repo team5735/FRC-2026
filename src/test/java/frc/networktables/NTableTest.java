@@ -9,7 +9,7 @@ import frc.robot.util.NTable;
 
 public class NTableTest {
     @Test
-    void singletonsTest() throws Exception {
+    void singletonsTest() {
         assertTrue(NTable.root("test") == NTable.root("test"));
 
         NTable testTable = NTable.root("test");
@@ -17,5 +17,10 @@ public class NTableTest {
         assertTrue(testTable.sub("sub") == testTable.sub("sub"));
         assertTrue(testTable.getEntry("ent", NetworkTableType.kBoolean) == testTable.getEntry("ent",
                 NetworkTableType.kBoolean));
+    }
+
+    public static void main(String[] args) {
+        NTableTest test = new NTableTest();
+        test.singletonsTest();
     }
 }
