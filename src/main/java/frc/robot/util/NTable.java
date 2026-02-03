@@ -107,11 +107,12 @@ public class NTable {
         GenericEntry entry = entries.computeIfAbsent(name,
                 n -> table.getTopic(n).getGenericEntry(type.getValueStr()));
 
-        if (entryExisted && !entry.get().getType().equals(type)) {
+        NetworkTableType entryType = entry.get().getType();
+        if (entryExisted && !entryType.equals(type)) {
             DriverStation.reportWarning(
                     "NTable entry " + table.getPath() + "/" + name + " had a type different from '"
-                    true);
-                            + type + "'; its type was '" + entry.get().getType() + "'",
+                            + type + "'; its type was '" + entryType + "'",
+                    false);
         }
 
         return entry;
