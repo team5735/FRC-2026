@@ -30,7 +30,6 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.VisionConstants;
@@ -154,14 +153,13 @@ public class VisionSubsystem extends SubsystemBase {
     private void maybeResetPigeon(String limelightName, PoseEstimate mt1) {
         // obey the minimum reset delay
         if (Timer.getFPGATimestamp() - lastPigeonReset < VisionConstants.MIN_RESET_DELAY.in(Seconds)) {
-            SmartDashboard.putString(limelightName + " reset status", "too soon since last reset");
+            table.set("reset status", "too soon since last reset");
             return;
         }
 
         // stay grounded to reality!
         if (mt1.pose3d.getMeasureZ().abs(Meters) > VisionConstants.TOLERATED_HEIGHT.in(Meters)) {
-            SmartDashboard.putString(limelightName + " reset status",
-                    "mt1 pose estimate is more than 3cm away from the ground");
+            table.set("reset status", "mt1 pose estimate is more than 3cm away from the ground");
             return;
         }
 
@@ -172,32 +170,32 @@ public class VisionSubsystem extends SubsystemBase {
         table.set("angular velocity", angularVelocityZ.get().in(DegreesPerSecond));
         if (angularVelocityZ.get().in(DegreesPerSecond) > VisionConstants.MAX_ANGULAR_VELOCITY_FOR_RESET
                 .in(DegreesPerSecond)) {
-            SmartDashboard.putString(limelightName + " reset status", "robot is rotating too fast");
+            table.set("reset status", "robot is rotating too fast");
             return;
         }
 
         // all pose estimate ambiguity < 0.2
         if (Arrays.stream(mt1.fiducials)
                 .anyMatch(tag -> tag.ambiguity > VisionConstants.MAX_AMBIGUITY_FOR_RESET)) {
-            SmartDashboard.putString(limelightName + " reset status", "any tag ambiguity too high");
+            table.set("reset status", "any tag ambiguity too high");
             return;
         }
 
         // at least one tag is close (1.5m)
         if (Arrays.stream(mt1.fiducials)
                 .noneMatch(tag -> tag.distToCamera.in(Meters) < VisionConstants.NEAR_ENOUGH_TO_RESET.in(Meters))) {
-            SmartDashboard.putString(limelightName + " reset status", "no tag close enough to reset");
+            table.set("reset status", "no tag close enough to reset");
             return;
         }
 
         // yaw stddev < 5 degrees
         if (mt1.stddevs.getRotation().getMeasureZ().in(Degrees) > VisionConstants.MAX_YAW_STDDEV_FOR_RESET
                 .in(Degrees)) {
-            SmartDashboard.putString(limelightName + " reset status", "yaw stddev too high");
+            table.set("reset status", "yaw stddev too high");
             return;
         }
 
-        SmartDashboard.putString(limelightName + " reset status", "accepted!");
+        table.set("reset status", "accepted!");
         System.out.println(
                 "resetting pigeon from mt1 from " + limelightName + " to " + mt1.pose2d.getRotation().getDegrees());
         drivetrain.getPigeon2().setYaw(mt1.pose2d.getRotation().getMeasure().in(Degrees));
@@ -208,23 +206,24 @@ public class VisionSubsystem extends SubsystemBase {
         PoseEstimate mt1 = new PoseEstimate(limelightName, true);
         PoseEstimate mt2 = new PoseEstimate(limelightName, false);
         if (mt1.pose2d == null || mt2.pose2d == null) {
-            SmartDashboard.putString(limelightName + " status", "mt1 or mt2 pose estimate is null");
+            table.set("status", "mt1 or mt2 pose estimate is null");
             return;
         }
         table.set("pigeon reset time", lastPigeonReset);
         maybeResetPigeon(limelightName, mt1);
 
+        this.table = this.table.sub(limelightName);
+
         // mt1 and mt2 differ significantly
         if (mt1.pose3d.getTranslation().getDistance(
                 mt2.pose3d.getTranslation()) > VisionConstants.MAX_DISTANCE_BETWEEN_MT1_AND_MT2.in(Meters)) {
-            SmartDashboard.putString(limelightName + " status", "mt1 and mt2 pose estimates differ significantly");
+            table.set("status", "mt1 and mt2 pose estimates differ significantly");
             return;
         }
 
         // mt1 pose estimate is more than 3cm off the ground
         if (mt1.pose3d.getMeasureZ().abs(Meters) > VisionConstants.TOLERATED_HEIGHT.in(Meters)) {
-            SmartDashboard.putString(limelightName + " status",
-                    "mt1 pose estimate is more than 3cm away from the ground");
+            table.set("status", "mt1 pose estimate is more than 3cm away from the ground");
             return;
         }
 
@@ -238,37 +237,39 @@ public class VisionSubsystem extends SubsystemBase {
                 || mt1.pose2d.getTranslation().getY() < robotBoundingBox / 2
                 || mt1.pose2d.getTranslation()
                         .getY() > (FieldConstants.FIELD_LENGTH_Y.in(Meters) - robotBoundingBox / 2)) {
-            SmartDashboard.putString(limelightName + " status", "mt1 pose estimate is off the field");
+            table.set("status", "mt1 pose estimate is off the field");
             return;
         }
 
         // 1 tag pose estimate and ambiguity > 0.2
         if (mt1.fiducials.length == 1 && mt1.fiducials[0].ambiguity > VisionConstants.SINGLE_TAG_MAX_AMBIGUITY) {
-            SmartDashboard.putString(limelightName + " status", "1 tag ambiguity > 0.2");
+            table.set("status", "1 tag ambiguity > 0.2");
             return;
         }
 
         // multi tag pose estimate and any tag ambiguity > 0.5
         if (mt1.fiducials.length > 1 && Arrays.stream(mt1.fiducials)
                 .anyMatch(tag -> tag.ambiguity > VisionConstants.MULTI_TAG_MAX_AMBIGUITY)) {
-            SmartDashboard.putString(limelightName + " status", "multi tag ambiguity > 0.5");
+            table.set("status", "multi tag ambiguity > 0.5");
             return;
         }
 
         // robot is rotating (if we get angular velocity)
         if (drivetrain.getPigeon2().getAngularVelocityZWorld().asSupplier().get()
                 .in(DegreesPerSecond) > VisionConstants.TOLERATED_ROTATIONAL_RATE.in(DegreesPerSecond)) {
-            SmartDashboard.putString(limelightName + " status", "robot is rotating");
+            table.set("status", "robot is rotating");
             return;
         }
 
         if (Timer.getFPGATimestamp() - lastPigeonReset < VisionConstants.MT2_DRIFT_TOLERANCE.in(Seconds)) {
-            SmartDashboard.putString(limelightName + " status", "accepted! using mt2");
+            table.set("status", "accepted! using mt2");
             updateVisionMeasurement(limelightName, mt2);
         } else {
-            SmartDashboard.putString(limelightName + " status", "accepted! using mt1");
+            table.set("status", "accepted! using mt1");
             updateVisionMeasurement(limelightName, mt1);
         }
+
+        this.table = this.table.getParent();
     }
 
     private boolean drivetrainIsNaNOrInf() {
@@ -301,16 +302,16 @@ public class VisionSubsystem extends SubsystemBase {
         stddevs.getData()[1] = Math.max(Centimeters.of(5).in(Meters), stddevs.getData()[1]);
         stddevs.getData()[2] = Math.max(Degrees.of(5).in(Radians), stddevs.getData()[2]);
 
-        // telemeterize standard deviations
-        table.set(limelightName + " stddev x", stddevs.getData()[0]);
-        table.set(limelightName + " stddev y", stddevs.getData()[1]);
-        table.set(limelightName + " stddev theta", stddevs.getData()[2]);
+        NTable est = table.sub("estimate");
+        est.sub("stddev").set("x", stddevs.getData()[0]);
+        est.sub("stddev").set("y", stddevs.getData()[1]);
+        est.sub("stddev").set("theta", stddevs.getData()[2]);
 
-        table.set(limelightName + " will set x", estimate.pose2d.getX());
-        table.set(limelightName + " will set y", estimate.pose2d.getY());
-        table.set(limelightName + " will set theta", estimate.pose2d.getRotation().getDegrees());
+        est.set("x", estimate.pose2d.getX());
+        est.set("y", estimate.pose2d.getY());
+        est.set("theta", estimate.pose2d.getRotation().getDegrees());
 
-        table.set(limelightName + " timestamp", estimate.timestamp);
+        est.set("timestamp", estimate.timestamp);
 
         drivetrain.addVisionMeasurement(estimate.pose2d, estimate.timestamp, stddevs);
     }
