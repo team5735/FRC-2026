@@ -251,6 +251,8 @@ public class NTable {
         return get(name, NetworkTableType.kFloatArray).getFloatArray();
     }
 
+    static HashMap<String, Sendable> tablesToData = new HashMap<>();
+
     /**
      * Publishes a Sendable object to the NetworkTables.
      *
@@ -262,6 +264,12 @@ public class NTable {
      * @param data the object to publish
      */
     public void setSendable(String name, Sendable data) {
+        String key = table.getPath() + "/" + name;
+        Sendable stored = tablesToData.get(key);
+        if (stored != null && stored == data) {
+            return;
+        }
+        tablesToData.put(key, stored);
         SendableBuilderImpl builder = new SendableBuilderImpl();
         builder.setTable(sub(name).getTable());
         SendableRegistry.publish(data, builder);
