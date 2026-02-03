@@ -23,6 +23,13 @@ public class NetworkTablesTest {
     }
 
     @Test
+    void parentTest() {
+        Assertions.assertTrue(NTable.root("test").getParent() == NTable.root());
+        Assertions.assertTrue(NTable.root("test").sub("sub").getParent() == NTable.root("test"));
+        Assertions.assertTrue(NTable.root().getParent() == null);
+    }
+
+    @Test
     void basicNTTest() {
         NetworkTable table = NetworkTableInstance.getDefault().getTable("");
         DoublePublisher pub = table.getDoubleTopic("test").publish();
