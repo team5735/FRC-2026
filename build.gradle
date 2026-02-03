@@ -120,8 +120,8 @@ tasks.withType(JavaCompile) {
     options.compilerArgs.add '-XDstringConcat=inline'
 }
 
-tasks.register("runTool", JavaExec) {
+tasks.register("run", JavaExec) {
     group = "Tools"
-    classpath = sourceSets.main.runtimeClasspath + sourceSets.sandbox.runtimeClasspath
+    classpath = sourceSets.main.runtimeClasspath + sourceSets.test.runtimeClasspath + sourceSets.sandbox.runtimeClasspath
     mainClass = findProperty("target") ?: "inkly.Nothing"
 }
