@@ -5,7 +5,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.util.NTable;
 
 public class Arc {
     Translation2d center;
@@ -76,6 +76,6 @@ public class Arc {
         field.getObject("end").setPose(new Pose2d(endPos, endPos.minus(center).getAngle()));
         Translation2d nearest = nearestPointOnArc(robotPose.getTranslation());
         field.getObject("nearest").setPose(new Pose2d(nearest, nearest.minus(center).getAngle()));
-        SmartDashboard.putData("arc as a field", field);
+        NTable.root().setSendable("arc as a field", field);
     }
 }
