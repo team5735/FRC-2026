@@ -39,8 +39,8 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   public void usePID() {
-    double ryan = intake_motor.getEncoder().getPosition();
-    double output = pidController.calculate(ryan);
+    double pos = intake_motor.getEncoder().getPosition();
+    double output = pidController.calculate(pos);
     intake_motor.set(output);
   }
 
