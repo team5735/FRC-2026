@@ -34,7 +34,7 @@ public class NTable {
     /**
      * The root NTable, representing the root of all NetworkTables.
      */
-    private static final NTable root = new NTable(NetworkTableInstance.getDefault().getTable(""));
+    private static final NTable root = new NTable(NetworkTableInstance.getDefault().getTable(""), null);
 
     /**
      * The NetworkTable this NTable represents. This NTable object can be seen as a
@@ -42,9 +42,14 @@ public class NTable {
      */
     private final NetworkTable table;
 
-    /**
-     * {@return the NetworkTable this NTable represents}
-     */
+    private final NTable parent;
+
+    /** {@return the parent of this NTable, or null if it is root} */
+    public NTable getParent() {
+        return parent;
+    }
+
+    /** {@return the NetworkTable this NTable represents} */
     public NetworkTable getTable() {
         return table;
     }
@@ -64,8 +69,9 @@ public class NTable {
      *
      * @param table the NetworkTable this NTable will represent
      */
-    private NTable(NetworkTable table) {
+    private NTable(NetworkTable table, NTable parent) {
         this.table = table;
+        this.parent = parent;
     }
 
     /**
@@ -90,7 +96,7 @@ public class NTable {
      * @param name the name of the subtable
      */
     public NTable sub(String name) {
-        return subs.computeIfAbsent(name, n -> new NTable(table.getSubTable(n)));
+        return subs.computeIfAbsent(name, n -> new NTable(table.getSubTable(n), this));
     }
 
     /**
