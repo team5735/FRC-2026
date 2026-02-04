@@ -129,7 +129,7 @@ public class VisionSubsystem extends SubsystemBase {
 
             this.pose3d = new Pose3d(translation, rotation);
             this.pose2d = pose3d.toPose2d();
-            this.timestamp = atomicArray.timestamp - latency;
+            this.timestamp = (atomicArray.timestamp / 1e6) - (latency / 1e3);
             this.fiducials = fiducials;
             this.distToCamera = array[9];
 
