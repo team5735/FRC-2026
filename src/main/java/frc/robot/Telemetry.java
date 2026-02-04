@@ -87,46 +87,24 @@ public class Telemetry {
         public void initSendable(SendableBuilder builder) {
             builder.setSmartDashboardType("SwerveDrive");
 
-            builder.addDoubleProperty(
-                    "Front Left Angle",
-                    () -> RobotContainer.drivetrain.getModule(0).getCurrentState().angle.getRadians(),
-                    null);
-            builder.addDoubleProperty(
-                    "Front Left Velocity",
-                    () -> RobotContainer.drivetrain.getModule(0).getCurrentState().speedMetersPerSecond,
-                    null);
+            SwerveModuleState[] states = Arrays.stream(new int[] { 0, 1, 2, 3 })
+                    .mapToObj(x -> RobotContainer.drivetrain.getModule(x).getCurrentState())
+                    .toArray(SwerveModuleState[]::new);
 
-            builder.addDoubleProperty(
-                    "Front Right Angle",
-                    () -> RobotContainer.drivetrain.getModule(1).getCurrentState().angle.getRadians(),
-                    null);
-            builder.addDoubleProperty(
-                    "Front Right Velocity",
-                    () -> RobotContainer.drivetrain.getModule(1).getCurrentState().speedMetersPerSecond,
-                    null);
+            builder.addDoubleProperty("Front Left Angle", () -> states[0].angle.getRadians(), null);
+            builder.addDoubleProperty("Front Left Velocity", () -> states[0].speedMetersPerSecond, null);
 
-            builder.addDoubleProperty(
-                    "Back Left Angle",
-                    () -> RobotContainer.drivetrain.getModule(2).getCurrentState().angle.getRadians(),
-                    null);
-            builder.addDoubleProperty(
-                    "Back Left Velocity",
-                    () -> RobotContainer.drivetrain.getModule(2).getCurrentState().speedMetersPerSecond,
-                    null);
+            builder.addDoubleProperty("Front Right Angle", () -> states[1].angle.getRadians(), null);
+            builder.addDoubleProperty("Front Right Velocity", () -> states[1].speedMetersPerSecond, null);
 
-            builder.addDoubleProperty(
-                    "Back Right Angle",
-                    () -> RobotContainer.drivetrain.getModule(3).getCurrentState().angle.getRadians(),
-                    null);
-            builder.addDoubleProperty(
-                    "Back Right Velocity",
-                    () -> RobotContainer.drivetrain.getModule(3).getCurrentState().speedMetersPerSecond,
-                    null);
+            builder.addDoubleProperty("Back Left Angle", () -> states[2].angle.getRadians(), null);
+            builder.addDoubleProperty("Back Left Velocity", () -> states[2].speedMetersPerSecond, null);
 
-            builder.addDoubleProperty(
-                    "Robot Angle",
-                    () -> RobotContainer.drivetrain.getPigeon2().getYaw().getValue().in(Radians),
-                    null);
+            builder.addDoubleProperty("Back Right Angle", () -> states[3].angle.getRadians(), null);
+            builder.addDoubleProperty("Back Right Velocity", () -> states[3].speedMetersPerSecond, null);
+
+            builder.addDoubleProperty("Robot Angle",
+                    () -> RobotContainer.drivetrain.getPigeon2().getYaw().getValue().in(Radians), null);
         }
     };
 
@@ -167,20 +145,6 @@ public class Telemetry {
         }
 
         field.setRobotPose(AutoBuilder.getCurrentPose());
-
-        LimelightHelpers.PoseEstimate mt1Estimate = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-left");
-        if (mt1Estimate != null) {
-            field.getObject("limelightMt1Pos").setPose(mt1Estimate.pose);
-        }
-
-        LimelightHelpers.PoseEstimate mt2Estimate = LimelightHelpers
-                .getBotPoseEstimate_wpiBlue_MegaTag2("limelight-left");
-        if (mt2Estimate != null) {
-            field.getObject("limelightMt2Pos").setPose(mt2Estimate.pose);
-        }
-
-        table.setSendable("field", field);
-        table.setSendable("swerve state", sendableState);
 
         stateTable.set("pose", poseArray);
         stateTable.set("module states", moduleStatesArray);
