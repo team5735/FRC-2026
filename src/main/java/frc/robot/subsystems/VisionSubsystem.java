@@ -31,6 +31,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Telemetry;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.VisionConstants;
 import frc.robot.util.LimelightHelpers;
@@ -268,6 +269,9 @@ public class VisionSubsystem extends SubsystemBase {
             table.set("status", "accepted! using mt1");
             updateVisionMeasurement(limelightName, mt1);
         }
+
+        Telemetry.field.getObject(limelightName + " mt1").setPose(mt1.pose2d);
+        Telemetry.field.getObject(limelightName + " mt2").setPose(mt2.pose2d);
 
         this.table = this.table.getParent();
     }

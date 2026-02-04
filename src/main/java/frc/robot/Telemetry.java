@@ -27,8 +27,8 @@ import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
+import frc.robot.constants.VisionConstants;
 import frc.robot.constants.drivetrain.CompbotTunerConstants;
-import frc.robot.util.LimelightHelpers;
 import frc.robot.util.NTable;
 
 public class Telemetry {
@@ -133,6 +133,16 @@ public class Telemetry {
     private final NTable table = NTable.root().sub("telemetry");
     private final NTable stateTable = table.sub("drive state");
     private final NTable moduleTable = table.sub("modules");
+
+    Telemetry() {
+        field.getRobotObject().setPose(new Pose2d());
+        for (String limelight : VisionConstants.LIMELIGHTS) {
+            field.getObject(limelight + " mt1").setPose(new Pose2d());
+            field.getObject(limelight + " mt2").setPose(new Pose2d());
+        }
+        table.setSendable("field", field);
+        table.setSendable("swerve state", sendableState);
+    }
 
     // Accept the swerve drive state and telemeterize it to SmartDashboard.
     public void telemeterize(SwerveDriveState state) {
