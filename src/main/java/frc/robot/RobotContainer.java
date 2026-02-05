@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.ClimbDownCommand;
 import frc.robot.commands.ClimbUpCommand;
 import frc.robot.subsystems.ClimberSubsystem;
