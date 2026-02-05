@@ -217,6 +217,9 @@ public class VisionSubsystem extends SubsystemBase {
         table.set("pigeon reset time", lastPigeonReset);
         maybeResetPigeon(limelightName, mt1);
 
+        Telemetry.field.getObject(limelightName + " mt1").setPose(mt1.pose2d);
+        Telemetry.field.getObject(limelightName + " mt2").setPose(mt2.pose2d);
+
         // mt1 and mt2 differ significantly
         if (mt1.pose3d.getTranslation().getDistance(
                 mt2.pose3d.getTranslation()) > VisionConstants.MAX_DISTANCE_BETWEEN_MT1_AND_MT2.in(Meters)) {
@@ -271,9 +274,6 @@ public class VisionSubsystem extends SubsystemBase {
             lltable.set("status", "accepted! using mt1");
             updateVisionMeasurement(limelightName, mt1);
         }
-
-        Telemetry.field.getObject(limelightName + " mt1").setPose(mt1.pose2d);
-        Telemetry.field.getObject(limelightName + " mt2").setPose(mt2.pose2d);
     }
 
     private boolean drivetrainIsNaNOrInf() {
