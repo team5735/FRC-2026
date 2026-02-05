@@ -24,7 +24,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class RobotContainer {
     private final CommandXboxController m_driverController = new CommandXboxController(
-            OperatorConstants.kDriverControllerPort);
+            Constants.DRIVE_CONTROLLER_PORT);
 
     private final ClimberSubsystem climber = new ClimberSubsystem();
     /**
