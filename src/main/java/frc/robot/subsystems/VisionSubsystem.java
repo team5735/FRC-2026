@@ -9,7 +9,6 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.Seconds;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -29,7 +28,6 @@ import edu.wpi.first.networktables.TimestampedDoubleArray;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Telemetry;
 import frc.robot.constants.FieldConstants;
@@ -151,81 +149,17 @@ public class VisionSubsystem extends SubsystemBase {
     private double lastPigeonReset = 0;
     Supplier<AngularVelocity> angularVelocityZ = null;
 
-    private void maybeResetPigeon(String limelightName, PoseEstimate mt1) {
-        NTable lltable = this.table.sub(limelightName);
-
-        // obey the minimum reset delay
-        if (Timer.getFPGATimestamp() - lastPigeonReset < VisionConstants.MIN_RESET_DELAY.in(Seconds)) {
-            lltable.set("reset status", "too soon since last reset");
-            return;
-        }
-
-        // stay grounded to reality!
-        if (mt1.pose3d.getMeasureZ().abs(Meters) > VisionConstants.TOLERATED_HEIGHT.in(Meters)) {
-            lltable.set("reset status", "mt1 pose estimate is more than 3cm away from the ground");
-            return;
-        }
-
-        // limit angular velocity
-        if (angularVelocityZ == null) {
-            angularVelocityZ = drivetrain.getPigeon2().getAngularVelocityZWorld().asSupplier();
-        }
-        lltable.set("angular velocity", angularVelocityZ.get().in(DegreesPerSecond));
-        if (angularVelocityZ.get().in(DegreesPerSecond) > VisionConstants.MAX_ANGULAR_VELOCITY_FOR_RESET
-                .in(DegreesPerSecond)) {
-            lltable.set("reset status", "robot is rotating too fast");
-            return;
-        }
-
-        // all pose estimate ambiguity < 0.2
-        if (Arrays.stream(mt1.fiducials)
-                .anyMatch(tag -> tag.ambiguity > VisionConstants.MAX_AMBIGUITY_FOR_RESET)) {
-            lltable.set("reset status", "any tag ambiguity too high");
-            return;
-        }
-
-        // at least one tag is close (1.5m)
-        if (Arrays.stream(mt1.fiducials)
-                .noneMatch(tag -> tag.distToCamera.in(Meters) < VisionConstants.NEAR_ENOUGH_TO_RESET.in(Meters))) {
-            lltable.set("reset status", "no tag close enough to reset");
-            return;
-        }
-
-        // yaw stddev < 5 degrees
-        if (mt1.stddevs.getRotation().getMeasureZ().in(Degrees) > VisionConstants.MAX_YAW_STDDEV_FOR_RESET
-                .in(Degrees)) {
-            lltable.set("reset status", "yaw stddev too high");
-            return;
-        }
-
-        lltable.set("reset status", "accepted!");
-        System.out.println(
-                "resetting pigeon from mt1 from " + limelightName + " to " + mt1.pose2d.getRotation().getDegrees());
-        drivetrain.getPigeon2().setYaw(mt1.pose2d.getRotation().getMeasure().in(Degrees));
-        lastPigeonReset = Timer.getFPGATimestamp();
-    }
-
     public void handleVisionMeasurement(String limelightName) {
         NTable lltable = this.table.sub(limelightName);
 
         PoseEstimate mt1 = new PoseEstimate(limelightName, true);
-        PoseEstimate mt2 = new PoseEstimate(limelightName, false);
-        if (mt1.pose2d == null || mt2.pose2d == null) {
+        if (mt1.pose2d == null) {
             table.set("status", "mt1 or mt2 pose estimate is null");
             return;
         }
         table.set("pigeon reset time", lastPigeonReset);
-        maybeResetPigeon(limelightName, mt1);
 
         Telemetry.field.getObject(limelightName + " mt1").setPose(mt1.pose2d);
-        Telemetry.field.getObject(limelightName + " mt2").setPose(mt2.pose2d);
-
-        // mt1 and mt2 differ significantly
-        if (mt1.pose3d.getTranslation().getDistance(
-                mt2.pose3d.getTranslation()) > VisionConstants.MAX_DISTANCE_BETWEEN_MT1_AND_MT2.in(Meters)) {
-            lltable.set("status", "mt1 and mt2 pose estimates differ significantly");
-            return;
-        }
 
         // mt1 pose estimate is more than 3cm off the ground
         if (mt1.pose3d.getMeasureZ().abs(Meters) > VisionConstants.TOLERATED_HEIGHT.in(Meters)) {
@@ -267,13 +201,8 @@ public class VisionSubsystem extends SubsystemBase {
             return;
         }
 
-        if (Timer.getFPGATimestamp() - lastPigeonReset < VisionConstants.MT2_DRIFT_TOLERANCE.in(Seconds)) {
-            lltable.set("status", "accepted! using mt2");
-            updateVisionMeasurement(limelightName, mt2);
-        } else {
-            lltable.set("status", "accepted! using mt1");
-            updateVisionMeasurement(limelightName, mt1);
-        }
+        lltable.set("status", "accepted! using mt1");
+        updateVisionMeasurement(limelightName, mt1);
     }
 
     private boolean drivetrainIsNaNOrInf() {
