@@ -4,6 +4,7 @@ import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -13,6 +14,7 @@ public class ClimberSubsystem extends SubsystemBase{
   public ClimberSubsystem() {
     talon.getConfigurator().apply(new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Brake));
   }
+  private final DigitalInput limitUp = new DigitalInput(Constants.upperLimitPin);
 
   public void climbUp() {
     talon.setVoltage(Constants.upVolts);

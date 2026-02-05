@@ -16,8 +16,7 @@ public final class Constants {
   public static final int mot1 = 58;
   public static final int upVolts = 2;
   public static final int downVolts = -2;
-  public static class OperatorConstants {
-    public static final int kDriverControllerPort = 0;
-    
-  }
+  public static final int upperLimitPin = 0;
+  public static final int lowerLimitPin = 1;
+  
 }
