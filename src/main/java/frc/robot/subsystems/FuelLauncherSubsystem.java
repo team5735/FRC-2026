@@ -14,12 +14,15 @@ import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkFlexConfig;
+import edu.wpi.first.math.controller.PIDController;
 
 
 public class FuelLauncherSubsystem extends SubsystemBase {
     // private final TalonFX krakenMotor = new TalonFX(Constants.LAUNCHER_KRAKEN_ID);
     // private final SparkFlex vortexLeft = new SparkFlex(Constants.LAUNCHER_LEFT_VORTEX_ID, MotorType.kBrushless);
     private final SparkFlex vortexRight = new SparkFlex(Constants.LAUNCHER_RIGHT_VORTEX_ID, MotorType.kBrushless);
+
+    private final PIDController PIDController = new PIDController(0, 0, 0);
 
 
 
@@ -39,6 +42,7 @@ public class FuelLauncherSubsystem extends SubsystemBase {
         // krakenMotor.setVoltage(0);
         vortexRight.setVoltage(0);
     }
+
 
     @Override
     public void periodic() {
