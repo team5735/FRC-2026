@@ -71,6 +71,7 @@ public class NTable {
     private NTable(NetworkTable table, NTable parent) {
         this.table = table;
         this.parent = parent;
+        System.out.println("created ntable for " + table.getPath());
     }
 
     /**
