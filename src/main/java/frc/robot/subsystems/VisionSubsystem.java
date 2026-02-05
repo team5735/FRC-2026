@@ -212,8 +212,12 @@ public class VisionSubsystem extends SubsystemBase {
         Vector<N3> stddevs = VecBuilder.fill(estimate.stddevs.getX(), estimate.stddevs.getY(),
                 estimate.stddevs.getRotation().getMeasureZ().in(Radians));
 
-        // multiply stddevs by avg tag dist to camera: stddev*(1+dist)
+        // multiply stddevs by avg tag dist to camera: stddev * (1 + dist)
         stddevs = stddevs.times(1 + estimate.distToCamera);
+        // multiply stddevs by drivetrain speed: stddev * (1 + speed)
+        stddevs = stddevs.times(1 + Math.hypot(
+                drivetrain.getState().Speeds.vxMetersPerSecond,
+                drivetrain.getState().Speeds.vyMetersPerSecond));
         // if robot is rotating, use 99999 for theta
         if (drivetrain.getPigeon2().getAngularVelocityZWorld().asSupplier().get()
                 .in(DegreesPerSecond) > VisionConstants.ROTATION_EPSILON.in(DegreesPerSecond)) {
