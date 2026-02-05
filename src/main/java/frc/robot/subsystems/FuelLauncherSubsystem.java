@@ -47,6 +47,6 @@ public class FuelLauncherSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         SmartDashboard.putNumber("speed_rpm_raw", vortexRight.getEncoder().getVelocity());
-        // SmartDashboard.putNumber("speed_rpm_raw", krakenMotor.getVelocity().getValueAsDouble());
+        // SmartDashboard.putNumber("speed_rpm_raw", 60*krakenMotor.getVelocity().getValueAsDouble());
     }
 }
