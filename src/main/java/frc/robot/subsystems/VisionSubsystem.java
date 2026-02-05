@@ -25,7 +25,6 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.networktables.DoubleArrayEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.TimestampedDoubleArray;
-import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -86,19 +85,11 @@ public class VisionSubsystem extends SubsystemBase {
             });
         }
 
-        public PoseEstimate(String limelightName, boolean isMT1) {
+        public PoseEstimate(String limelightName) {
             double[] stddevs = NetworkTableInstance.getDefault().getTable(limelightName).getEntry("stddevs")
                     .getDoubleArray(new double[0]);
             TimestampedDoubleArray atomicArray;
-            if (isMT1) {
-                atomicArray = getDoubleArrayEntry(limelightName, "botpose_wpiblue").getAtomic();
-            } else {
-                Angle pigeonOrientation = drivetrain.getPigeon2().getYaw().getValue();
-                table.set("drivetrainYaw", pigeonOrientation.in(Degrees));
-                getDoubleArrayEntry(limelightName, "robot_orientation_set")
-                        .set(new double[] { pigeonOrientation.in(Degrees), 0, 0, 0, 0, 0 });
-                atomicArray = getDoubleArrayEntry(limelightName, "botpose_orb_wpiblue").getAtomic();
-            }
+            atomicArray = getDoubleArrayEntry(limelightName, "botpose_wpiblue").getAtomic();
 
             double[] array = atomicArray.value;
             if (array.length == 0) {
@@ -131,11 +122,6 @@ public class VisionSubsystem extends SubsystemBase {
             this.fiducials = fiducials;
             this.distToCamera = array[9];
 
-            if (!isMT1) {
-                // mt2 is the same format as mt1 data just in the second half of the array; copy
-                // the second half to the first
-                System.arraycopy(stddevs, 6, stddevs, 0, 6);
-            }
             this.stddevs = new Pose3d(
                     new Translation3d(Meters.of(stddevs[0]),
                             Meters.of(stddevs[1]),
@@ -152,9 +138,9 @@ public class VisionSubsystem extends SubsystemBase {
     public void handleVisionMeasurement(String limelightName) {
         NTable lltable = this.table.sub(limelightName);
 
-        PoseEstimate mt1 = new PoseEstimate(limelightName, true);
+        PoseEstimate mt1 = new PoseEstimate(limelightName);
         if (mt1.pose2d == null) {
-            table.set("status", "mt1 or mt2 pose estimate is null");
+            table.set("status", "mt1 pose estimate is null");
             return;
         }
         table.set("pigeon reset time", lastPigeonReset);
