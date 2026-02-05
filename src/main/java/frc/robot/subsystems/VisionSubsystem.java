@@ -147,6 +147,7 @@ public class VisionSubsystem extends SubsystemBase {
 
         Telemetry.field.getObject(limelightName + " mt1").setPose(mt1.pose2d);
 
+        lltable.set("dist to ground", mt1.pose3d.getMeasureZ().abs(Meters));
         // mt1 pose estimate is more than 3cm off the ground
         if (mt1.pose3d.getMeasureZ().abs(Meters) > VisionConstants.TOLERATED_HEIGHT.in(Meters)) {
             lltable.set("status", "mt1 pose estimate is more than 3cm away from the ground");
@@ -167,6 +168,8 @@ public class VisionSubsystem extends SubsystemBase {
             return;
         }
 
+        double[] ambiguities = Arrays.stream(mt1.fiducials).mapToDouble(tag -> tag.ambiguity).toArray();
+        lltable.set("multi tag pose ambiguity", ambiguities);
         // 1 tag pose estimate and ambiguity > 0.2
         if (mt1.fiducials.length == 1 && mt1.fiducials[0].ambiguity > VisionConstants.SINGLE_TAG_MAX_AMBIGUITY) {
             lltable.set("status", "1 tag ambiguity > 0.2");
@@ -180,6 +183,7 @@ public class VisionSubsystem extends SubsystemBase {
             return;
         }
 
+        lltable.set("robot angular velocity", drivetrain.getPigeon2().getAngularVelocityZWorld().asSupplier().get());
         // robot is rotating (if we get angular velocity)
         if (drivetrain.getPigeon2().getAngularVelocityZWorld().asSupplier().get()
                 .in(DegreesPerSecond) > VisionConstants.TOLERATED_ROTATIONAL_RATE.in(DegreesPerSecond)) {
