@@ -49,6 +49,10 @@ public class Arc {
         return position.getDistance(p1) <= position.getDistance(p2) ? p1 : p2;
     }
 
+    public Pose2d getPoseFacingCenter(Translation2d position) {
+        return new Pose2d(position, position.minus(center).getAngle());
+    }
+
     public Translation2d getCenter() {
         return center;
     }
