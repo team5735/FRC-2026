@@ -6,6 +6,7 @@ package frc.robot;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -20,10 +21,10 @@ import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.util.geometry.Arc;
 
 public class RobotContainer {
-    private final CommandXboxController driveController = new CommandXboxController(
+    public static final CommandXboxController driveController = new CommandXboxController(
             Constants.DRIVE_CONTROLLER_PORT);
 
-    private final CommandXboxController testController = new CommandXboxController(
+    public static final CommandXboxController testController = new CommandXboxController(
             Constants.TEST_CONTROLLER_PORT);
 
     private final Telemetry logger = new Telemetry();
@@ -67,7 +68,7 @@ public class RobotContainer {
 
         driveController.y().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
         driveController.x().onTrue(drivetrain
-                .runOnce(() -> drivetrain.resetPose(vision.new PoseEstimate("limelight-left").pose2d)));
+                .runOnce(() -> drivetrain.resetPose(new Pose2d())));
 
         driveController.b().onTrue(Commands.runOnce(() -> {
             targetArc.telemeterize(drivetrain.getEstimatedPosition());
