@@ -878,11 +878,9 @@ public class LimelightHelpers {
 
     public static URL getLimelightURLString(String tableName, String request) {
         String urlString = "http://" + sanitizeName(tableName) + ".local:5807/" + request;
-        URL url;
         try {
-            url = new URL(urlString);
-            return url;
-        } catch (MalformedURLException e) {
+            return new URI(urlString).toURL();
+        } catch (URISyntaxException | MalformedURLException e) {
             System.err.println("bad LL URL");
         }
         return null;
