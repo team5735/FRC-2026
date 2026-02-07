@@ -1,6 +1,7 @@
 package frc.geometry;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import org.junit.jupiter.api.Test;
 
@@ -16,6 +17,12 @@ public class ArcTest {
         assertEquals(new Translation2d(90, 150), arc.nearestPointOnArc(new Translation2d(50, 150)));
         assertEquals(new Translation2d(90, 150), arc.nearestPointOnArc(new Translation2d(95, 150)));
         assertEquals(arc.getCenter().plus(new Translation2d(10, Rotation2d.fromDegrees(135))),
-                arc.nearestPointOnArc(new Translation2d(110, 150)));
+                arc.nearestPointOnArc(new Translation2d(100, 160)));
+        assertNotEquals(arc.getCenter().plus(new Translation2d(10, Rotation2d.fromDegrees(135))),
+                arc.nearestPointOnArc(new Translation2d(100, 140)));
+        assertEquals(arc.getCenter().plus(new Translation2d(10, Rotation2d.fromDegrees(225))),
+                arc.nearestPointOnArc(new Translation2d(100, 140)));
+        assertNotEquals(arc.getCenter().plus(new Translation2d(10, Rotation2d.fromDegrees(225))),
+                arc.nearestPointOnArc(new Translation2d(100, 160)));
     }
 }
