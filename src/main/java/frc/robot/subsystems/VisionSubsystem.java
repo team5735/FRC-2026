@@ -93,12 +93,10 @@ public class VisionSubsystem extends SubsystemBase {
 
             double[] array = atomicArray.value;
             if (array.length == 0) {
-                this.pose3d = null;
-                this.pose2d = null;
-                this.timestamp = 0;
-                this.fiducials = new RawFiducial[0];
-                this.distToCamera = 0;
-                this.stddevs = null;
+                return;
+            }
+            int nFiducials = (int) array[7];
+            if (nFiducials == 0) {
                 return;
             }
             Translation3d translation = new Translation3d(Meters.of(array[0]),
@@ -109,7 +107,6 @@ public class VisionSubsystem extends SubsystemBase {
                     Degrees.of(array[5]));
             double latency = array[6];
 
-            int nFiducials = (int) array[7];
             RawFiducial[] fiducials = new RawFiducial[nFiducials];
             for (int i = 0; i < nFiducials; i++) {
                 double[] fiducial = Arrays.copyOfRange(array, 11 + 7 * i, 18 + 7 * i);
