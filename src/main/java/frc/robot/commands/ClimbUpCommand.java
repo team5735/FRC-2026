@@ -4,7 +4,7 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.ClimberSubsystem;
 
-public class ClimbUpCommand extends Command{
+public class ClimbUpCommand extends Command {
     private final ClimberSubsystem climber;
 
     public ClimbUpCommand(ClimberSubsystem climber) {
@@ -23,4 +23,4 @@ public class ClimbUpCommand extends Command{
         climber.stop();
     }
 
-  }
+}
