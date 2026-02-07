@@ -20,9 +20,9 @@ public class Arc {
     }
 
     public boolean angleInRange(Rotation2d theta_) {
-        double theta = MathUtil.angleModulus(theta_.getRadians());
-        double first = MathUtil.angleModulus(start.getRadians());
-        double second = MathUtil.angleModulus(end.getRadians());
+        double theta = MathUtil.inputModulus(theta_.getRadians(), 0, 2 * Math.PI);
+        double first = MathUtil.inputModulus(start.getRadians(), 0, 2 * Math.PI);
+        double second = MathUtil.inputModulus(end.getRadians(), 0, 2 * Math.PI);
 
         if (first > second) {
             return theta >= second && theta <= first;
