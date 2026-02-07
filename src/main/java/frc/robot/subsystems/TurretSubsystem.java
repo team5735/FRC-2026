@@ -5,6 +5,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import frc.robot.constants.Constants;
+import frc.robot.constants.TurretConstants;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -16,11 +17,11 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     private void testForward() {
-        kraken.setVoltage(2);
+        kraken.setVoltage(TurretConstants.TESTING_VOLTS);
     }
 
     private void testReverse() {
-        kraken.setVoltage(-2);
+        kraken.setVoltage(-TurretConstants.TESTING_VOLTS);
     }
 
     private void stop() {

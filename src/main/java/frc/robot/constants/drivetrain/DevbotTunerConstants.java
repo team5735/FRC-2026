@@ -91,7 +91,7 @@ public class DevbotTunerConstants {
 
     // CAN bus that the devices are located on.
     // All swerve devices must share the same CAN bus
-    public static final CANBus CAN_BUS = new CANBus("rio", "./logs/example.hoot"); // TODO - physically swap to CANivore
+    public static final CANBus CAN_BUS = new CANBus("debbie", "./logs/example.hoot");
 
     // Theoretical free speed (m/s) at 12 V applied output.
     // This needs to be tuned to your individual robot
