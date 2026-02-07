@@ -204,6 +204,8 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
     public void handleVisionMeasurement(String limelightName) {
+        //if (System.nanoTime() != 0) return;
+
         PoseEstimate mt1 = new PoseEstimate(limelightName, true);
         PoseEstimate mt2 = new PoseEstimate(limelightName, false);
         if (mt1.pose2d == null || mt2.pose2d == null) {
@@ -213,18 +215,18 @@ public class VisionSubsystem extends SubsystemBase {
         table.set("pigeon reset time", lastPigeonReset);
         maybeResetPigeon(limelightName, mt1);
 
-        this.table = this.table.sub(limelightName);
+        var llTable = this.table.sub(limelightName);
 
         // mt1 and mt2 differ significantly
         if (mt1.pose3d.getTranslation().getDistance(
                 mt2.pose3d.getTranslation()) > VisionConstants.MAX_DISTANCE_BETWEEN_MT1_AND_MT2.in(Meters)) {
-            table.set("status", "mt1 and mt2 pose estimates differ significantly");
+            llTable.set("status", "mt1 and mt2 pose estimates differ significantly");
             return;
         }
 
         // mt1 pose estimate is more than 3cm off the ground
         if (mt1.pose3d.getMeasureZ().abs(Meters) > VisionConstants.TOLERATED_HEIGHT.in(Meters)) {
-            table.set("status", "mt1 pose estimate is more than 3cm away from the ground");
+            llTable.set("status", "mt1 pose estimate is more than 3cm away from the ground");
             return;
         }
 
@@ -238,42 +240,40 @@ public class VisionSubsystem extends SubsystemBase {
                 || mt1.pose2d.getTranslation().getY() < robotBoundingBox / 2
                 || mt1.pose2d.getTranslation()
                         .getY() > (FieldConstants.FIELD_LENGTH_Y.in(Meters) - robotBoundingBox / 2)) {
-            table.set("status", "mt1 pose estimate is off the field");
+            llTable.set("status", "mt1 pose estimate is off the field");
             return;
         }
 
         // 1 tag pose estimate and ambiguity > 0.2
         if (mt1.fiducials.length == 1 && mt1.fiducials[0].ambiguity > VisionConstants.SINGLE_TAG_MAX_AMBIGUITY) {
-            table.set("status", "1 tag ambiguity > 0.2");
+            llTable.set("status", "1 tag ambiguity > 0.2");
             return;
         }
 
         // multi tag pose estimate and any tag ambiguity > 0.5
         if (mt1.fiducials.length > 1 && Arrays.stream(mt1.fiducials)
                 .anyMatch(tag -> tag.ambiguity > VisionConstants.MULTI_TAG_MAX_AMBIGUITY)) {
-            table.set("status", "multi tag ambiguity > 0.5");
+            llTable.set("status", "multi tag ambiguity > 0.5");
             return;
         }
 
         // robot is rotating (if we get angular velocity)
         if (drivetrain.getPigeon2().getAngularVelocityZWorld().asSupplier().get()
                 .in(DegreesPerSecond) > VisionConstants.TOLERATED_ROTATIONAL_RATE.in(DegreesPerSecond)) {
-            table.set("status", "robot is rotating");
+            llTable.set("status", "robot is rotating");
             return;
         }
 
         if (Timer.getFPGATimestamp() - lastPigeonReset < VisionConstants.MT2_DRIFT_TOLERANCE.in(Seconds)) {
-            table.set("status", "accepted! using mt2");
+            llTable.set("status", "accepted! using mt2");
             updateVisionMeasurement(limelightName, mt2);
         } else {
-            table.set("status", "accepted! using mt1");
+            llTable.set("status", "accepted! using mt1");
             updateVisionMeasurement(limelightName, mt1);
         }
 
         Telemetry.field.getObject(limelightName + " mt1").setPose(mt1.pose2d);
         Telemetry.field.getObject(limelightName + " mt2").setPose(mt2.pose2d);
-
-        this.table = this.table.getParent();
     }
 
     private boolean drivetrainIsNaNOrInf() {
