@@ -184,7 +184,8 @@ public class VisionSubsystem extends SubsystemBase {
             return;
         }
 
-        lltable.set("robot angular velocity", drivetrain.getPigeon2().getAngularVelocityZWorld().asSupplier().get());
+        lltable.set("robot angular velocity",
+                drivetrain.getPigeon2().getAngularVelocityZWorld().asSupplier().get().in(DegreesPerSecond));
         // robot is rotating (if we get angular velocity)
         if (drivetrain.getPigeon2().getAngularVelocityZWorld().asSupplier().get()
                 .in(DegreesPerSecond) > VisionConstants.TOLERATED_ROTATIONAL_RATE.in(DegreesPerSecond)) {
