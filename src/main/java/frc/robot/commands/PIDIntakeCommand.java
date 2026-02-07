@@ -4,18 +4,18 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.FuelLauncherSubsystem;
 
 public class PIDIntakeCommand extends Command {
-    private double targetVelocity;
+    private double targetRPM;
     private FuelLauncherSubsystem launcher;
 
 
-    public PIDIntakeCommand(double targetVelocity, FuelLauncherSubsystem launcher) {
+    public PIDIntakeCommand(double targetRPM, FuelLauncherSubsystem launcher) {
         this.launcher = launcher;
-        this.targetVelocity = targetVelocity;
+        this.targetRPM = targetRPM;
     }
 
     @Override
     public void initialize() {
-        launcher.setGoal(targetVelocity);
+        launcher.setTargetRPM(this.targetRPM);
     }
     
     @Override
