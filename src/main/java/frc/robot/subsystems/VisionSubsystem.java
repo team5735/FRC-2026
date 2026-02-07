@@ -129,7 +129,6 @@ public class VisionSubsystem extends SubsystemBase {
         }
     }
 
-    private double lastPigeonReset = 0;
     Supplier<AngularVelocity> angularVelocityZ = null;
 
     public void handleVisionMeasurement(String limelightName) {
@@ -140,7 +139,6 @@ public class VisionSubsystem extends SubsystemBase {
             lltable.set("status", "mt1 pose estimate is null");
             return;
         }
-        lltable.set("pigeon reset time", lastPigeonReset);
 
         Telemetry.field.getObject(limelightName + " mt1").setPose(mt1.pose2d);
 
