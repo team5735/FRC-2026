@@ -140,10 +140,10 @@ public class VisionSubsystem extends SubsystemBase {
 
         PoseEstimate mt1 = new PoseEstimate(limelightName);
         if (mt1.pose2d == null) {
-            table.set("status", "mt1 pose estimate is null");
+            lltable.set("status", "mt1 pose estimate is null");
             return;
         }
-        table.set("pigeon reset time", lastPigeonReset);
+        lltable.set("pigeon reset time", lastPigeonReset);
 
         Telemetry.field.getObject(limelightName + " mt1").setPose(mt1.pose2d);
 

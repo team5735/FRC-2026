@@ -12,6 +12,7 @@ import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilderImpl;
+import frc.robot.Robot;
 
 /**
  * A {@link NetworkTable}.
@@ -24,15 +25,14 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableBuilderImpl;
  *
  * <p>
  * Note that one invariant of this class is that every table of the
- * NetworkTables is represented by exactly one NTable. This ensures that every
- * NTable is effectively a singleton of sorts. Additionally, ths ensures that
+ * NetworkTables is represented by exactly one NTable. This ensures that
  * each {@link GenericEntry} managed by every NTable is only created once,
- * allowing much more flexibility in client code.
+ * allowing much more flexibility in client code. Additionally, this allows each
+ * class to keep its own {@link #tablesToData} map instead of having it be
+ * shared between all NTables.
  */
 public class NTable {
-    /**
-     * The root NTable, representing the root of all NetworkTables.
-     */
+    /** The root NTable, representing the root of all NetworkTables. */
     private static final NTable root = new NTable(NetworkTableInstance.getDefault().getTable(""), null);
 
     /**
@@ -53,14 +53,10 @@ public class NTable {
         return table;
     }
 
-    /**
-     * The subtables of this NTable. These are created on demand.
-     */
+    /** The subtables of this NTable. These are created on demand. */
     private HashMap<String, NTable> subs = new HashMap<>();
 
-    /**
-     * The entries of this NTable. These are created on demand.
-     */
+    /** The entries of this NTable. These are created on demand. */
     private HashMap<String, GenericEntry> entries = new HashMap<>();
 
     /**
@@ -74,9 +70,7 @@ public class NTable {
         System.out.println("created ntable for " + table.getPath());
     }
 
-    /**
-     * {@return the root NTable}
-     */
+    /** {@return the root NTable} */
     public static NTable root() {
         return root;
     }
@@ -92,6 +86,9 @@ public class NTable {
 
     /**
      * {@return a subtable of this NTable}
+     *
+     * <p>
+     * Creates the subtable if it does not already exist.
      * 
      * @param name the name of the subtable
      */
@@ -103,11 +100,9 @@ public class NTable {
      * {@return an entry of this NTable}
      *
      * <p>
-     * Adds the entry to {@link #entries} if it's not already present.
-     *
-     * <p>
-     * Note that unless this entry has been set, this function will see the topic as
-     * being of an unassigned type.
+     * Creates the entry if it does not already exist. Note that unless this entry
+     * has been set, this function will see the topic as being of an unassigned
+     * type.
      *
      * @param name the name of the entry
      * @param type the type of the entry
@@ -130,13 +125,11 @@ public class NTable {
 
     /**
      * {@return an entry of this NTable}
-     *
+     * 
      * <p>
-     * Adds the entry to {@link #entries} if it's not already present.
-     *
-     * <p>
-     * Note that unless this entry has been set, this function will see the topic as
-     * being of an unassigned type.
+     * Creates the entry if it does not already exist. Note that unless this entry
+     * has been set, this function will see the topic as being of an unassigned
+     * type.
      *
      * @param name the name of the entry
      * @param type the type of the entry
@@ -149,19 +142,20 @@ public class NTable {
      * Publishes a value of any accepted type to the NetworkTable.
      *
      * <p>
-     * The type of the value is inferred from the type of the object. If the type is
-     * not supported by NetworkTables, a warning is printed to DriverStation and
-     * nothing is published. If the type differs from the type previously posted to
-     * this entry in this NTable, a warning is printed and nothing is published.
+     * The type of the value is determined from the runtime type of the object. If
+     * the type is not supported by NetworkTables, a warning is printed to
+     * DriverStation and nothing is published. If the type differs from the type
+     * previously posted to this entry in this NTable, a warning is printed and
+     * nothing is published.
      *
      * <p>
      * Note that primitives such as `double` and `boolean` are automatically boxed
      * by Java into an {@link Object}, such as {@link Double} and {@link Boolean}.
-     * Primitive arrays can also be passed without issue as they are
-     * {@link Object}s.
+     * Primitive arrays can also be passed without any necessary client-side code as
+     * they are {@link Object}s.
      *
-     * @param name  the name of the entry.
-     * @param value the value to publish.
+     * @param name  the name of the entry to publish
+     * @param value the Object to publish
      */
     public void set(String name, Object value) {
         if (!NetworkTableEntry.isValidDataType(value)) {
@@ -180,10 +174,16 @@ public class NTable {
     }
 
     /**
-     * {@return the value of an entry of any type}
+     * Gets the value of the given type from the NetworkTable.
+     *
+     * <p>
+     * If the requested type differs from the type retrieved from the entry, a
+     * warning is printed and the current entry's type is returned.
      * 
      * @param name the name of the entry
      * @param type the type of the entry
+     *
+     * @return the requested value as a {@link NetworkTableValue}
      */
     public NetworkTableValue get(String name, NetworkTableType type) {
         NetworkTableValue value = getEntry(name, type).get();
@@ -196,57 +196,57 @@ public class NTable {
         return value;
     }
 
-    /** {@return the requested double} */
+    /** @see #get(String, NetworkTableType) */
     public double getDouble(String name) {
         return get(name, NetworkTableType.kDouble).getDouble();
     }
 
-    /** {@return the requested boolean} */
+    /** @see #get(String, NetworkTableType) */
     public boolean getBoolean(String name) {
         return get(name, NetworkTableType.kBoolean).getBoolean();
     }
 
-    /** {@return the requested string} */
+    /** @see #get(String, NetworkTableType) */
     public String getString(String name) {
         return get(name, NetworkTableType.kString).getString();
     }
 
-    /** {@return the requested int} */
+    /** @see #get(String, NetworkTableType) */
     public long getInt(String name) {
         return get(name, NetworkTableType.kInteger).getInteger();
     }
 
-    /** {@return the requested float} */
+    /** @see #get(String, NetworkTableType) */
     public float getLong(String name) {
         return get(name, NetworkTableType.kFloat).getFloat();
     }
 
-    /** {@return the requested raw bytes} */
+    /** @see #get(String, NetworkTableType) */
     public byte[] getRaw(String name) {
         return get(name, NetworkTableType.kRaw).getRaw();
     }
 
-    /** {@return the requested array of doubles} */
+    /** @see #get(String, NetworkTableType) */
     public double[] getDoubleArray(String name) {
         return get(name, NetworkTableType.kDoubleArray).getDoubleArray();
     }
 
-    /** {@return the requested array of booleans} */
+    /** @see #get(String, NetworkTableType) */
     public boolean[] getBooleanArray(String name) {
         return get(name, NetworkTableType.kBooleanArray).getBooleanArray();
     }
 
-    /** {@return the requested array of strings} */
+    /** @see #get(String, NetworkTableType) */
     public String[] getStringArray(String name) {
         return get(name, NetworkTableType.kStringArray).getStringArray();
     }
 
-    /** {@return the requested array of ints} */
+    /** @see #get(String, NetworkTableType) */
     public long[] getIntArray(String name) {
         return get(name, NetworkTableType.kIntegerArray).getIntegerArray();
     }
 
-    /** {@return the requested array of floats} */
+    /** @see #get(String, NetworkTableType) */
     public float[] getFloatArray(String name) {
         return get(name, NetworkTableType.kFloatArray).getFloatArray();
     }
@@ -258,8 +258,9 @@ public class NTable {
      * Publishes a Sendable object to the NetworkTables.
      *
      * <p>
-     * If the object has already been published, it will not be published again, as
-     * Sendables are automatically updated by the robot loop.
+     * If the object has already been published (determined by object identity), it
+     * will not be published again, as Sendables are automatically updated by
+     * {@link #updateAllSendables()}, called in {@link Robot#robotPeriodic()}.
      * 
      * @param name the name of the entry
      * @param data the object to publish
@@ -280,7 +281,7 @@ public class NTable {
     /**
      * Makes the specified entries persist through program restarts.
      * 
-     * @param name the name of the entry
+     * @param names the names of the entries
      */
     public void makePersistent(String... names) {
         for (String name : names) {
@@ -289,9 +290,9 @@ public class NTable {
     }
 
     /**
-     * Makes the specified entry not persist through program restarts.
+     * Makes the specified entries not persist through program restarts.
      * 
-     * @param name the name of the entry
+     * @param names the names of the entries
      */
     public void clearPersistent(String... names) {
         for (String name : names) {
@@ -299,7 +300,17 @@ public class NTable {
         }
     }
 
-    private static void updateAllSendables(NTable table) {
+    /**
+     * Updates all sendables in the given table and its subtables.
+     * 
+     * <p>
+     * Calling of this function is typically handled by
+     * {@link Robot#robotPeriodic()}. It must be in such a function in order for
+     * sendables that use the Sendable Property API to work.
+     * 
+     * @param table the table to update
+     */
+    public static void updateAllSendables(NTable table) {
         for (Sendable data : table.tablesToData.values()) {
             SendableRegistry.update(data);
         }
@@ -308,6 +319,14 @@ public class NTable {
         }
     }
 
+    /**
+     * Updates all sendables.
+     * 
+     * <p>
+     * Calling of this function is typically handled by
+     * {@link Robot#robotPeriodic()}. It must be in such a function in order for
+     * sendables that use the Sendable Property API to work.
+     */
     public static void updateAllSendables() {
         updateAllSendables(root());
     }

@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
@@ -878,11 +880,9 @@ public class LimelightHelpers {
 
     public static URL getLimelightURLString(String tableName, String request) {
         String urlString = "http://" + sanitizeName(tableName) + ".local:5807/" + request;
-        URL url;
         try {
-            url = new URL(urlString);
-            return url;
-        } catch (MalformedURLException e) {
+            return new URI(urlString).toURL();
+        } catch (URISyntaxException | MalformedURLException e) {
             System.err.println("bad LL URL");
         }
         return null;
