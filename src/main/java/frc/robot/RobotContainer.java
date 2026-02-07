@@ -26,6 +26,7 @@ import frc.robot.constants.Constants;
 import frc.robot.constants.drivetrain.CompbotTunerConstants;
 import frc.robot.constants.drivetrain.DevbotTunerConstants;
 import frc.robot.subsystems.DrivetrainSubsystem;
+import frc.robot.subsystems.TurretSubsystem;
 
 public class RobotContainer {
     private final CommandXboxController driveController = new CommandXboxController(
@@ -39,6 +40,7 @@ public class RobotContainer {
     private final Telemetry logger = new Telemetry();
 
     public static final DrivetrainSubsystem drivetrain;
+    public static final TurretSubsystem turret = new TurretSubsystem();
 
     static {
         switch (Constants.DRIVETRAIN_TYPE) {
@@ -78,6 +80,9 @@ public class RobotContainer {
                 () -> driveController.getHID().getBButton()));
 
         driveController.y().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+
+        driveController.a().whileTrue(turret.testForwardCommand());
+        driveController.b().whileTrue(turret.testReverseCommand());
 
         testController.a().whileTrue(drivetrain.sysIdDynamic(SysIdRoutine.Direction.kForward));
         testController.b().whileTrue(drivetrain.sysIdDynamic(SysIdRoutine.Direction.kReverse));
