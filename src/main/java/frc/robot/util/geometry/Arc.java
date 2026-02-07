@@ -1,5 +1,8 @@
 package frc.robot.util.geometry;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -70,16 +73,18 @@ public class Arc {
     }
 
     public void telemeterize(Pose2d robotPose) {
-        System.out.println("telemeterizing arc");
         Field2d field = new Field2d();
         field.setRobotPose(robotPose);
-        field.getObject("center").setPose(new Pose2d(center, Rotation2d.kZero));
-        Translation2d startPos = new Translation2d(radius, start).plus(center);
-        field.getObject("start").setPose(new Pose2d(startPos, startPos.minus(center).getAngle()));
-        Translation2d endPos = new Translation2d(radius, end).plus(center);
-        field.getObject("end").setPose(new Pose2d(endPos, endPos.minus(center).getAngle()));
+        field.getObject("center").setPose(new Pose2d(center, start.interpolate(end, 0.5)));
+        int numPoints = 100;
+        List<Pose2d> points = new ArrayList<>(numPoints);
+        for (int i = 0; i < numPoints; i++) {
+            Rotation2d theta = start.interpolate(end, i / (numPoints - 1.0));
+            points.add(new Pose2d(center.plus(new Translation2d(radius, theta)), Rotation2d.kZero));
+        }
+        field.getObject("arc").setPoses(points);
         Translation2d nearest = nearestPointOnArc(robotPose.getTranslation());
         field.getObject("nearest").setPose(new Pose2d(nearest, nearest.minus(center).getAngle()));
-        NTable.root().setSendable("arc as a field", field);
+        NTable.root("arc").setSendable("as a field", field);
     }
 }
