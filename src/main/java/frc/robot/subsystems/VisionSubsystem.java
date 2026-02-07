@@ -28,6 +28,7 @@ import edu.wpi.first.networktables.TimestampedDoubleArray;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotContainer;
 import frc.robot.Telemetry;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.VisionConstants;
@@ -133,6 +134,11 @@ public class VisionSubsystem extends SubsystemBase {
 
     public void handleVisionMeasurement(String limelightName) {
         NTable lltable = this.table.sub(limelightName);
+
+        if (RobotContainer.driveController.getHID().getAButton()) {
+            lltable.set("status", "a is pressed");
+            return;
+        }
 
         PoseEstimate mt1 = new PoseEstimate(limelightName);
         if (mt1.pose2d == null) {
