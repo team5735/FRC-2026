@@ -21,6 +21,10 @@ public interface DrivetrainConstants {
 
     public double getRotKa();
 
+    public double getOpenDriveKv();
+
+    public double getOpenDriveKa();
+
     public Distance getRobotTotalWidth();
 
     public Distance getRobotTotalLength();

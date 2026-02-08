@@ -47,6 +47,16 @@ public class CompbotConstants implements DrivetrainConstants {
     }
 
     @Override
+    public double getOpenDriveKv() {
+        return 1.8432;
+    }
+
+    @Override
+    public double getOpenDriveKa() {
+        return 0.47277;
+    }
+
+    @Override
     public Distance getRobotTotalWidth() {
         return Inches.of(38);
     }

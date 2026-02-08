@@ -50,8 +50,8 @@ public class DevbotTunerConstants {
     // When using closed-loop control, the drive motor uses the control output type
     // specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
     public static final Slot0Configs DEFAULT_DRIVE_CONSTANTS = new Slot0Configs()
-            .withKP(0.15).withKI(0).withKD(0)
-            .withKS(0.073922).withKV(2.4363).withKA(0.062414);
+            .withKP(0.25).withKI(0).withKD(0)
+            .withKS(0.073922).withKV(0.11439).withKA(0.0036946);
 
     // The closed-loop output type to use for the steer motors;
     // This affects the PID/FF gains for the steer motors
@@ -91,11 +91,12 @@ public class DevbotTunerConstants {
 
     // CAN bus that the devices are located on.
     // All swerve devices must share the same CAN bus
-    public static final CANBus CAN_BUS = new CANBus("rio", "./logs/example.hoot"); // TODO - physically swap to CANivore
+    public static final CANBus CAN_BUS = new CANBus("debbie", "./logs/example.hoot");
 
     // Theoretical free speed (m/s) at 12 V applied output.
     // This needs to be tuned to your individual robot
-    public static final LinearVelocity SPEED_AT_12_VOLTS = MetersPerSecond.of(12 / DEFAULT_DRIVE_CONSTANTS.kV);
+    public static final LinearVelocity SPEED_AT_12_VOLTS = MetersPerSecond.of(12 / 2.4363);
+    // 12v / 2.4363v per (m/s), approx. based on old sysid
 
     // Every 1 rotation of the azimuth results in kCoupleRatio drive motor turns;
     private static final double COUPLE_RATIO = 2.417;
@@ -154,7 +155,7 @@ public class DevbotTunerConstants {
     public static final Slot0Configs FL_STEER_CONSTANTS = DEFAULT_STEER_CONSTANTS
             .withKS(0.033023).withKV(2.391).withKA(0.10173);
     public static final Slot0Configs FL_DRIVE_CONSTANTS = DEFAULT_DRIVE_CONSTANTS
-            .withKS(0.0669).withKV(2.4304).withKA(0.10155);
+            .withKS(0.10995).withKV(0.11439).withKA(0.0036946);
 
     public static final Distance FL_XPOS = Inches.of(12.5);
     public static final Distance FL_YPOS = Inches.of(12.5);
@@ -170,7 +171,7 @@ public class DevbotTunerConstants {
     public static final Slot0Configs FR_STEER_CONSTANTS = DEFAULT_STEER_CONSTANTS
             .withKS(0.074886).withKV(2.3641).withKA(0.1937);
     public static final Slot0Configs FR_DRIVE_CONSTANTS = DEFAULT_DRIVE_CONSTANTS
-            .withKS(0.0640).withKV(2.4413).withKA(0.090446);
+            .withKS(0.048767).withKV(0.11516).withKA(0.009622);
 
     public static final Distance FR_XPOS = Inches.of(12.5);
     public static final Distance FR_YPOS = Inches.of(-12.5);
@@ -179,14 +180,14 @@ public class DevbotTunerConstants {
     private static final int BL_DRIVE_ID = 4;
     private static final int BL_STEER_ID = 3;
     private static final int BL_ENCODER_ID = 10;
-    private static final Angle BL_ENCODER_OFFSET = Rotations.of(0.048583984375);
+    private static final Angle BL_ENCODER_OFFSET = Rotations.of(0.047363);
     private static final boolean BL_STEER_INVERT = true;
     private static final boolean BL_ENCODER_INVERT = false;
 
     public static final Slot0Configs BL_STEER_CONSTANTS = DEFAULT_STEER_CONSTANTS
             .withKS(0.078373).withKV(2.3735).withKA(0.15668);
     public static final Slot0Configs BL_DRIVE_CONSTANTS = DEFAULT_DRIVE_CONSTANTS
-            .withKS(0.0795).withKV(2.3735).withKA(0.065728);
+            .withKS(0.064844).withKV(0.11532).withKA(0.0087942);
 
     public static final Distance BL_XPOS = Inches.of(-12.5);
     public static final Distance BL_YPOS = Inches.of(12.5);
@@ -202,7 +203,7 @@ public class DevbotTunerConstants {
     public static final Slot0Configs BR_STEER_CONSTANTS = DEFAULT_STEER_CONSTANTS
             .withKS(0.052225).withKV(2.3774).withKA(0.10977);
     public static final Slot0Configs BR_DRIVE_CONSTANTS = DEFAULT_DRIVE_CONSTANTS
-            .withKS(0.0784).withKV(2.447).withKA(0.067734);
+            .withKS(0.073175).withKV(0.11503).withKA(0.0069099);
 
     public static final Distance BR_XPOS = Inches.of(-12.5);
     public static final Distance BR_YPOS = Inches.of(-12.5);
