@@ -237,7 +237,10 @@ public class VisionSubsystem extends SubsystemBase {
         double ambiguityPenalty = 1 + Math.pow(1 * totalAmbiguity, 2);
         penalties.set("ambiguity", ambiguityPenalty);
 
-        double totalPenalty = distPenalty * speedPenalty * omegaPenalty * ambiguityPenalty;
+        double singleTagPenalty = estimate.fiducials.length == 1 ? 10 : 1;
+        penalties.set("one tag", singleTagPenalty);
+
+        double totalPenalty = distPenalty * speedPenalty * omegaPenalty * ambiguityPenalty * singleTagPenalty;
         penalties.set("total", totalPenalty);
 
         stddevs = stddevs.times(totalPenalty);
