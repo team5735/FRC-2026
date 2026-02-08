@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.commands.drivetrain.PIDToPose;
 import frc.robot.constants.Constants;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.drivetrain.CompbotTunerConstants;
@@ -88,7 +89,12 @@ public class RobotContainer {
                 () -> driveController.getRightTriggerAxis(),
                 () -> driveController.getHID().getBButton()));
 
-        driveController.y().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+        driveController.y()
+                .onTrue(new PIDToPose(drivetrain,
+                        () -> targetArc.getPoseFacingCenter(
+                                targetArc.nearestPointOnArc(
+                                        drivetrain.getEstimatedPosition().getTranslation())),
+                        "drive to arc"));
         driveController.x().onTrue(drivetrain
                 .runOnce(() -> drivetrain.resetPose(new Pose2d())));
 
