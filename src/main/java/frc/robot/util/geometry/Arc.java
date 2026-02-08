@@ -1,5 +1,8 @@
 package frc.robot.util.geometry;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -12,6 +15,8 @@ public class Arc {
     double radius;
     Rotation2d start, end;
 
+    NTable table = NTable.root("arc").sub("debugging");
+
     public Arc(Translation2d center, double radius, Rotation2d start, Rotation2d end) {
         this.center = center;
         this.radius = radius;
@@ -20,14 +25,17 @@ public class Arc {
     }
 
     public boolean angleInRange(Rotation2d theta_) {
-        double theta = MathUtil.angleModulus(theta_.getRadians());
-        double first = MathUtil.angleModulus(start.getRadians());
-        double second = MathUtil.angleModulus(end.getRadians());
+        double theta = MathUtil.inputModulus(theta_.getRadians(), 0, 2 * Math.PI);
+        double first = MathUtil.inputModulus(start.getRadians(), 0, 2 * Math.PI);
+        double second = MathUtil.inputModulus(end.getRadians(), 0, 2 * Math.PI);
 
-        if (first > second) {
-            return theta >= second && theta <= first;
+        table.set("theta wrapped", theta);
+        table.set("first wrapped", first);
+        table.set("second wrapped", second);
+        if (first <= second) {
+            return theta >= first && theta <= second;
         }
-        return theta >= first && theta <= second;
+        return theta >= first || theta <= second;
     }
 
     public Translation2d nearestPointOnArc(Translation2d position) {
@@ -39,14 +47,23 @@ public class Arc {
         Translation2d centerToGiven = position.minus(center);
         Rotation2d thetaA = centerToGiven.getAngle();
 
+        table.set("thetaA", thetaA.getDegrees());
+        table.set("start", start.getDegrees());
+        table.set("end", end.getDegrees());
         if (angleInRange(thetaA)) {
+            table.set("in range", true);
             return new Translation2d(radius, thetaA).plus(center);
         }
+        table.set("in range", false);
 
         Translation2d p1 = center.plus(new Translation2d(radius, start));
         Translation2d p2 = center.plus(new Translation2d(radius, end));
 
         return position.getDistance(p1) <= position.getDistance(p2) ? p1 : p2;
+    }
+
+    public Pose2d getPoseFacingCenter(Translation2d position) {
+        return new Pose2d(position, center.minus(position).getAngle());
     }
 
     public Translation2d getCenter() {
@@ -65,17 +82,20 @@ public class Arc {
         return end;
     }
 
+    Field2d field = new Field2d();
+
     public void telemeterize(Pose2d robotPose) {
-        System.out.println("telemeterizing arc");
-        Field2d field = new Field2d();
         field.setRobotPose(robotPose);
-        field.getObject("center").setPose(new Pose2d(center, Rotation2d.kZero));
-        Translation2d startPos = new Translation2d(radius, start).plus(center);
-        field.getObject("start").setPose(new Pose2d(startPos, startPos.minus(center).getAngle()));
-        Translation2d endPos = new Translation2d(radius, end).plus(center);
-        field.getObject("end").setPose(new Pose2d(endPos, endPos.minus(center).getAngle()));
+        field.getObject("center").setPose(new Pose2d(center, start.interpolate(end, 0.5)));
+        int numPoints = 100;
+        List<Pose2d> points = new ArrayList<>(numPoints);
+        for (int i = 0; i < numPoints; i++) {
+            Rotation2d theta = start.interpolate(end, i / (numPoints - 1.0));
+            points.add(new Pose2d(center.plus(new Translation2d(radius, theta)), Rotation2d.kZero));
+        }
+        field.getObject("arc").setPoses(points);
         Translation2d nearest = nearestPointOnArc(robotPose.getTranslation());
-        field.getObject("nearest").setPose(new Pose2d(nearest, nearest.minus(center).getAngle()));
-        NTable.root().setSendable("arc as a field", field);
+        field.getObject("nearest").setPose(getPoseFacingCenter(nearest));
+        table.getParent().setSendable("as a field", field);
     }
 }
