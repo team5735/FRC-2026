@@ -29,10 +29,10 @@ public class Arc {
         double first = MathUtil.inputModulus(start.getRadians(), 0, 2 * Math.PI);
         double second = MathUtil.inputModulus(end.getRadians(), 0, 2 * Math.PI);
 
-        if (first > second) {
-            return theta >= second && theta <= first;
+        if (first <= second) {
+            return theta >= first && theta <= second;
         }
-        return theta >= first && theta <= second;
+        return theta >= first || theta <= second;
     }
 
     public Translation2d nearestPointOnArc(Translation2d position) {
