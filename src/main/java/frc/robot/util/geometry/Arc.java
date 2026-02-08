@@ -15,6 +15,8 @@ public class Arc {
     double radius;
     Rotation2d start, end;
 
+    NTable table = NTable.root("arc");
+
     public Arc(Translation2d center, double radius, Rotation2d start, Rotation2d end) {
         this.center = center;
         this.radius = radius;
@@ -43,8 +45,10 @@ public class Arc {
         Rotation2d thetaA = centerToGiven.getAngle();
 
         if (angleInRange(thetaA)) {
+            table.set("in range", true);
             return new Translation2d(radius, thetaA).plus(center);
         }
+        table.set("in range", false);
 
         Translation2d p1 = center.plus(new Translation2d(radius, start));
         Translation2d p2 = center.plus(new Translation2d(radius, end));
@@ -85,6 +89,6 @@ public class Arc {
         field.getObject("arc").setPoses(points);
         Translation2d nearest = nearestPointOnArc(robotPose.getTranslation());
         field.getObject("nearest").setPose(new Pose2d(nearest, nearest.minus(center).getAngle()));
-        NTable.root("arc").setSendable("as a field", field);
+        table.setSendable("as a field", field);
     }
 }
