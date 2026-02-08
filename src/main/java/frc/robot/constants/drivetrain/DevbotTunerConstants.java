@@ -44,7 +44,7 @@ public class DevbotTunerConstants {
     // The steer motor uses any SwerveModule.SteerRequestType control request with
     // the output type specified by SwerveModuleConstants.SteerMotorClosedLoopOutput
     public static final Slot0Configs DEFAULT_STEER_CONSTANTS = new Slot0Configs()
-            .withKP(35).withKI(0).withKD(0.25)
+            .withKP(45).withKI(0).withKD(0.25)
             .withKS(0.045).withKV(2.4).withKA(0.125)
             .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
     // When using closed-loop control, the drive motor uses the control output type
@@ -96,7 +96,7 @@ public class DevbotTunerConstants {
     // Theoretical free speed (m/s) at 12 V applied output.
     // This needs to be tuned to your individual robot
     public static final LinearVelocity SPEED_AT_12_VOLTS = MetersPerSecond.of(12 / 2.4363);
-    // 12v / 2.4363v per (m/s), approx. based on old sysid
+    // 12v / 2.4363v/(m/s), approx. based on old sysid
 
     // Every 1 rotation of the azimuth results in kCoupleRatio drive motor turns;
     private static final double COUPLE_RATIO = 2.417;
@@ -153,7 +153,7 @@ public class DevbotTunerConstants {
     private static final boolean FL_ENCODER_INVERT = false;
 
     public static final Slot0Configs FL_STEER_CONSTANTS = DEFAULT_STEER_CONSTANTS
-            .withKS(0.033023).withKV(2.391).withKA(0.10173);
+            .withKS(0.04142).withKV(2.4104).withKA(0.10993);
     public static final Slot0Configs FL_DRIVE_CONSTANTS = DEFAULT_DRIVE_CONSTANTS
             .withKS(0.10995).withKV(0.11439).withKA(0.0036946);
 
@@ -169,7 +169,7 @@ public class DevbotTunerConstants {
     private static final boolean FR_ENCODER_INVERT = false;
 
     public static final Slot0Configs FR_STEER_CONSTANTS = DEFAULT_STEER_CONSTANTS
-            .withKS(0.074886).withKV(2.3641).withKA(0.1937);
+            .withKS(0.031821).withKV(2.3958).withKA(0.13771);
     public static final Slot0Configs FR_DRIVE_CONSTANTS = DEFAULT_DRIVE_CONSTANTS
             .withKS(0.048767).withKV(0.11516).withKA(0.009622);
 
@@ -185,7 +185,7 @@ public class DevbotTunerConstants {
     private static final boolean BL_ENCODER_INVERT = false;
 
     public static final Slot0Configs BL_STEER_CONSTANTS = DEFAULT_STEER_CONSTANTS
-            .withKS(0.078373).withKV(2.3735).withKA(0.15668);
+            .withKS(0.080491).withKV(2.3854).withKA(0.12801);
     public static final Slot0Configs BL_DRIVE_CONSTANTS = DEFAULT_DRIVE_CONSTANTS
             .withKS(0.064844).withKV(0.11532).withKA(0.0087942);
 
@@ -201,7 +201,7 @@ public class DevbotTunerConstants {
     private static final boolean BR_ENCODER_INVERT = false;
 
     public static final Slot0Configs BR_STEER_CONSTANTS = DEFAULT_STEER_CONSTANTS
-            .withKS(0.052225).withKV(2.3774).withKA(0.10977);
+            .withKS(0.11106).withKV(2.3842).withKA(0.053938);
     public static final Slot0Configs BR_DRIVE_CONSTANTS = DEFAULT_DRIVE_CONSTANTS
             .withKS(0.073175).withKV(0.11503).withKA(0.0069099);
 

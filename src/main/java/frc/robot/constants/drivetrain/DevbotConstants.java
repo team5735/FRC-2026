@@ -23,12 +23,12 @@ import edu.wpi.first.units.measure.Mass;
 public class DevbotConstants implements DrivetrainConstants {
     @Override
     public PIDConstants getAutoPosConstants() {
-        return new PIDConstants(15, 0); // TODO
+        return new PIDConstants(20, 0); // TODO
     }
 
     @Override
     public PIDConstants getAutoRotConstants() {
-        return new PIDConstants(10, 0); // TODO
+        return new PIDConstants(15, 0); // TODO
     }
 
     @Override
@@ -76,7 +76,7 @@ public class DevbotConstants implements DrivetrainConstants {
         return new PathConstraints(
                 MetersPerSecond.of(2),
                 MetersPerSecondPerSecond.of(0.5),
-                getDefaultRotationalRate(),
+                RotationsPerSecond.of(0.25),
                 RotationsPerSecondPerSecond.of(0.25));
     }
 

@@ -91,7 +91,6 @@ public class RobotContainer {
                     Angle theta = Radians.of(Math.atan(y / x));
                     return new SwerveRequest.PointWheelsAt().withModuleDirection(new Rotation2d(theta));
                 }));
-
     }
 
     public Command getAutonomousCommand() {
