@@ -5,24 +5,24 @@ import java.util.function.Supplier;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.DrivetrainSubsystem;
-import frc.robot.util.TunablePIDController;
+import frc.robot.util.TunableProfiledPIDController;
 
 public class PIDToPose extends Command {
     private Supplier<Pose2d> poseSupplier;
     private Pose2d targetPose;
 
-    private TunablePIDController pidX;
-    private TunablePIDController pidY;
-    private TunablePIDController pidTheta;
+    private TunableProfiledPIDController pidX;
+    private TunableProfiledPIDController pidY;
+    private TunableProfiledPIDController pidTheta;
 
     private DrivetrainSubsystem drivetrain;
 
     public PIDToPose(DrivetrainSubsystem drivetrain, Supplier<Pose2d> poseSupplier, String name) {
         this.drivetrain = drivetrain;
         this.poseSupplier = poseSupplier;
-        this.pidX = new TunablePIDController(name + " drive to pose x");
-        this.pidY = new TunablePIDController(name + " drive to pose y");
-        this.pidTheta = new TunablePIDController(name + " drive to pose theta");
+        this.pidX = new TunableProfiledPIDController(name + " drive to pose x");
+        this.pidY = new TunableProfiledPIDController(name + " drive to pose y");
+        this.pidTheta = new TunableProfiledPIDController(name + " drive to pose theta");
 
         addRequirements(drivetrain);
     }
@@ -47,7 +47,7 @@ public class PIDToPose extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        drivetrain.pidDrive(0, 0, 0);
+        drivetrain.setControl(drivetrain.brakeRequest);
     }
 
     @Override
