@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
@@ -363,9 +364,9 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
      * For use by PIDs. Speed limited for safety.
      */
     public void pidDrive(double vx, double vy, double omega) {
-        if (Math.abs(vx) > defaultSpeed || Math.abs(vy) > defaultSpeed || Math.abs(omega) > defaultAngularRate) {
-            setControl(brakeRequest);
-        }
+        vx = Math.min(CONSTANTS.getSlowSpeed().in(MetersPerSecond), vx);
+        vy = Math.min(CONSTANTS.getSlowSpeed().in(MetersPerSecond), vy);
+        omega = Math.min(CONSTANTS.getSlowRotationalRate().in(DegreesPerSecond), omega);
         setControl(fieldCentricRequest.withVelocityX(vx).withVelocityY(vy).withRotationalRate(omega));
     }
 
