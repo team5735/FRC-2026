@@ -213,24 +213,40 @@ public class VisionSubsystem extends SubsystemBase {
         Vector<N3> stddevs = VecBuilder.fill(estimate.stddevs.getX(), estimate.stddevs.getY(),
                 estimate.stddevs.getRotation().getMeasureZ().in(Radians));
 
-        // multiply stddevs by avg tag dist to camera: stddev * (1 + dist)
-        stddevs = stddevs.times(1 + estimate.distToCamera);
-        // multiply stddevs by drivetrain speed: stddev * (1 + speed)
-        stddevs = stddevs.times(1 + Math.hypot(
+        // ensure reasonable minimums (x, y: 5cm, theta: 5°)
+        stddevs.getData()[0] = Math.max(Centimeters.of(1).in(Meters), stddevs.getData()[0]);
+        stddevs.getData()[1] = Math.max(Centimeters.of(1).in(Meters), stddevs.getData()[1]);
+        stddevs.getData()[2] = Math.max(Degrees.of(5).in(Radians), stddevs.getData()[2]);
+
+        NTable est = table.sub("estimate");
+        NTable penalties = est.sub("penalties");
+
+        // multiply by 1 + average distance to camera
+        double distPenalty = 1 + estimate.distToCamera * 3;
+        penalties.set("distance", distPenalty);
+        // multiply by 1 + speed
+        double speedPenalty = 1 + Math.hypot(
                 drivetrain.getState().Speeds.vxMetersPerSecond,
-                drivetrain.getState().Speeds.vyMetersPerSecond));
+                drivetrain.getState().Speeds.vyMetersPerSecond) * 5;
+        penalties.set("speed", speedPenalty);
+        // multiply by 1 + omega
+        double omegaPenalty = 1 + Math.abs(drivetrain.getState().Speeds.omegaRadiansPerSecond) * 10;
+        penalties.set("omega", omegaPenalty);
+        // multiply by (1 + ambiguity)^2
+        double totalAmbiguity = Arrays.stream(estimate.fiducials).mapToDouble(fiducial -> fiducial.ambiguity).sum();
+        double ambiguityPenalty = 1 + Math.pow(1 * totalAmbiguity, 2);
+        penalties.set("ambiguity", ambiguityPenalty);
+
+        double totalPenalty = distPenalty * speedPenalty * omegaPenalty * ambiguityPenalty;
+        penalties.set("total", totalPenalty);
+
+        stddevs = stddevs.times(totalPenalty);
         // if robot is rotating, use 99999 for theta
         if (drivetrain.getPigeon2().getAngularVelocityZWorld().asSupplier().get()
                 .in(DegreesPerSecond) > VisionConstants.ROTATION_EPSILON.in(DegreesPerSecond)) {
             stddevs.getData()[2] = 99999;
         }
 
-        // ensure reasonable minimums (x, y: 5cm, theta: 5°)
-        stddevs.getData()[0] = Math.max(Centimeters.of(5).in(Meters), stddevs.getData()[0]);
-        stddevs.getData()[1] = Math.max(Centimeters.of(5).in(Meters), stddevs.getData()[1]);
-        stddevs.getData()[2] = Math.max(Degrees.of(5).in(Radians), stddevs.getData()[2]);
-
-        NTable est = table.sub("estimate");
         est.sub("stddev").set("x", stddevs.getData()[0]);
         est.sub("stddev").set("y", stddevs.getData()[1]);
         est.sub("stddev").set("theta", stddevs.getData()[2]);
