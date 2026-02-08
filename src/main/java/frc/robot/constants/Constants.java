@@ -25,4 +25,11 @@ public class Constants {
     public static final double PID_P = 6;
     public static final double PID_I = 2;
     public static final double PID_D = 0;
+
+    public static final double PROFILED_PID_P = 2;
+    public static final double PROFILED_PID_I = 0;
+    public static final double PROFILED_PID_D = 0;
+
+    public static final double MAX_VELOCITY = 1;
+    public static final double MAX_ACCELERATION = 1;
 }
