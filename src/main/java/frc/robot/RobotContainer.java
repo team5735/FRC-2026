@@ -4,6 +4,9 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Feet;
+import static edu.wpi.first.units.Units.Meters;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -72,9 +75,8 @@ public class RobotContainer {
     }
 
     private Arc targetArc = new Arc(
-            FieldConstants.APRILTAG_FIELD_LAYOUT.getTagPose(9)
-                    .get().getTranslation().toTranslation2d(),
-            1, Rotation2d.fromDegrees(-45), Rotation2d.fromDegrees(45));
+            FieldConstants.redElement(FieldConstants.BLUE_HUB_CENTER),
+            Feet.of(7.5).in(Meters), Rotation2d.fromDegrees(-45), Rotation2d.fromDegrees(45));
 
     private void configureBindings() {
         drivetrain.registerTelemetry(logger::telemeterize);
