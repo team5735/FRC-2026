@@ -427,7 +427,7 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
     }
 
     public void autoDriveRobotRelative(ChassisSpeeds robotChassisSpeeds) {
-        var discrete = ChassisSpeeds.discretize(robotChassisSpeeds, 0.01);
+        var discrete = ChassisSpeeds.discretize(robotChassisSpeeds, 0.02);
 
         setControl(
                 robotCentricRequest

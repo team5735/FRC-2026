@@ -28,7 +28,7 @@ public class DevbotConstants implements DrivetrainConstants {
 
     @Override
     public PIDConstants getAutoRotConstants() {
-        return new PIDConstants(15, 0); // TODO
+        return new PIDConstants(12.5, 0); // TODO
     }
 
     @Override
