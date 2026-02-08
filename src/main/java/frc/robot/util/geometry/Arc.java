@@ -63,7 +63,7 @@ public class Arc {
     }
 
     public Pose2d getPoseFacingCenter(Translation2d position) {
-        return new Pose2d(position, position.minus(center).getAngle());
+        return new Pose2d(position, center.minus(position).getAngle());
     }
 
     public Translation2d getCenter() {
