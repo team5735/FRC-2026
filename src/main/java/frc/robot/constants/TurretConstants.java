@@ -12,5 +12,5 @@ public class TurretConstants {
     public static final PIDController PID = new PIDController(0, 0, 0);
     public static final SimpleMotorFeedforward FF = new SimpleMotorFeedforward(0, 0, 0);
     public static final Angle LOWER_LIMIT = Rotations.of(0);
-    public static final Angle UPPER_LIMIT = Rotations.of(1)
+    public static final Angle UPPER_LIMIT = Rotations.of(1);
 }

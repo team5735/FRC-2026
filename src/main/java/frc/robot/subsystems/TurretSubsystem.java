@@ -42,7 +42,7 @@ public class TurretSubsystem extends SubsystemBase {
         .withTelemetry("turret", TelemetryVerbosity.HIGH);
         
 
-    private final Pivot turretMechanism = new Pivot(null)
+    private final Pivot turretMechanism = new Pivot(null);
 
     public TurretSubsystem() {
     }
