@@ -37,7 +37,8 @@ public class PathPlannerToPose extends Command {
         Pose2d currentRobotPos = drivetrain.getEstimatedPosition();
         Rotation2d botToTarget = targetPose.getTranslation().minus(currentRobotPos.getTranslation()).getAngle();
         Pose2d firstPose = new Pose2d(currentRobotPos.getTranslation(), botToTarget);
-        List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(firstPose, this.targetPose);
+        Pose2d lastPose = new Pose2d(this.targetPose.getTranslation(), botToTarget);
+        List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(firstPose, lastPose);
         PathPlannerPath path = new PathPlannerPath(waypoints, constraints,
                 new IdealStartingState(0, currentRobotPos.getRotation()),
                 new GoalEndState(0, this.targetPose.getRotation()));
