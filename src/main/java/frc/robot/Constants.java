@@ -17,11 +17,11 @@ package frc.robot;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
-    public static final int mot1 = 23;
+    public static final int mot1 = 55;
     public static final double upVolts = 1.0;
     public static final double downVolts = -1.0;
     public static final int upperLimitPin = 0;
     public static final int lowerLimitPin = 1;
 
-    public static final int DRIVE_CONTROLLER_PORT = 0;
+    public static final int DRIVE_CONTROLLER_PORT = 1;
 }

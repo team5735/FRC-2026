@@ -5,6 +5,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -26,6 +27,23 @@ public class ClimberSubsystem extends SubsystemBase{
 
   public void stop(){
     talon.setVoltage(0);
+  }
+
+  @Override
+  public void periodic(){
+    double current = talon.getSupplyCurrent().getValueAsDouble();
+    SmartDashboard.putNumber("Climber/Current", current);
+
+    double velocity = talon.getVelocity().getValueAsDouble();
+    SmartDashboard.putNumber("Climber/Velocity", velocity);
+
+    double forwardLimit = talon.getForwardLimit().getValueAsDouble();
+    SmartDashboard.putNumber("Climber/ForwardLimit", forwardLimit);
+
+    double reverseLimit = talon.getReverseLimit().getValueAsDouble();
+    SmartDashboard.putNumber("Climber/ReverseLimit", reverseLimit);
+
+
   }
 }
     
