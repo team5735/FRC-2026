@@ -5,24 +5,24 @@ import java.util.function.Supplier;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.DrivetrainSubsystem;
-import frc.robot.util.TunableProfiledPIDController;
+import frc.robot.util.TunablePIDController;
 
 public class PIDToPose extends Command {
     private Supplier<Pose2d> poseSupplier;
     private Pose2d targetPose;
 
-    private TunableProfiledPIDController pidX;
-    private TunableProfiledPIDController pidY;
-    private TunableProfiledPIDController pidTheta;
+    private TunablePIDController pidX;
+    private TunablePIDController pidY;
+    private TunablePIDController pidTheta;
 
     private DrivetrainSubsystem drivetrain;
 
     public PIDToPose(DrivetrainSubsystem drivetrain, Supplier<Pose2d> poseSupplier, String name) {
         this.drivetrain = drivetrain;
         this.poseSupplier = poseSupplier;
-        this.pidX = new TunableProfiledPIDController(name + " drive to pose x");
-        this.pidY = new TunableProfiledPIDController(name + " drive to pose y");
-        this.pidTheta = new TunableProfiledPIDController(name + " drive to pose theta");
+        this.pidX = new TunablePIDController(name + " drive to pose x");
+        this.pidY = new TunablePIDController(name + " drive to pose y");
+        this.pidTheta = new TunablePIDController(name + " drive to pose theta");
 
         addRequirements(drivetrain);
     }
