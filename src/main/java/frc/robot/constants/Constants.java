@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot;
+package frc.robot.constants;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -22,5 +22,8 @@ public final class Constants {
     public static final int LAUNCHER_VOLTS = 4;
     public static final int LAUNCHER_KRAKEN_ID = 1;
     public static final int LAUNCHER_LEFT_VORTEX_ID = 0;
-    public static final int LAUNCHER_RIGHT_VORTEX_ID = 26;
+    public static final int LAUNCHER_RIGHT_VORTEX_ID = 27;
+
+    // For PIDs
+    public static final double TOLERANCE = 0;
 }
