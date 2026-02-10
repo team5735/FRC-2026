@@ -69,13 +69,11 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
 
     private NTable table = NTable.root("drivetrain");
 
-    /* Keep track if we've ever applied the operator perspective before or not */
-    private boolean hasAppliedOperatorPerspective = false;
-
     /* Swerve requests to apply during SysId characterization */
     public final SwerveRequest.SysIdSwerveTranslation translationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
     public final SwerveRequest.SysIdSwerveSteerGains steerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
     public final SwerveRequest.SysIdSwerveRotation rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
+
     public final SwerveRequest.FieldCentric fieldCentricRequest = new SwerveRequest.FieldCentric()
             .withDeadband(defaultSpeed * 0.05).withRotationalDeadband(defaultAngularRate * 0.05) // Add a 5% deadband
             .withDriveRequestType(DriveRequestType.Velocity)
@@ -332,6 +330,8 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
         return sysIdRoutineToApply.dynamic(direction);
     }
 
+    private boolean hasAppliedOperatorPerspective = false;
+
     @Override
     public void periodic() {
         /*
@@ -435,11 +435,10 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
     public void autoDriveRobotRelative(ChassisSpeeds robotChassisSpeeds) {
         var discrete = ChassisSpeeds.discretize(robotChassisSpeeds, 0.02);
 
-        setControl(
-                robotCentricRequest
-                        .withVelocityX(discrete.vxMetersPerSecond)
-                        .withVelocityY(discrete.vyMetersPerSecond)
-                        .withRotationalRate(discrete.omegaRadiansPerSecond));
+        setControl(robotCentricRequest
+                .withVelocityX(discrete.vxMetersPerSecond)
+                .withVelocityY(discrete.vyMetersPerSecond)
+                .withRotationalRate(discrete.omegaRadiansPerSecond));
     }
 
     private void setUpAuto() {
