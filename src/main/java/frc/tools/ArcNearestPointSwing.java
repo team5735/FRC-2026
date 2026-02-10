@@ -16,7 +16,7 @@ import javax.swing.SwingUtilities;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import frc.robot.util.Arc;
+import frc.robot.util.geometry.Arc;
 
 public class ArcNearestPointSwing extends JPanel {
     private static final int WIDTH = 800;
@@ -50,8 +50,7 @@ public class ArcNearestPointSwing extends JPanel {
 
         int steps = 200;
         for (int i = 0; i <= steps; i++) {
-            Rotation2d t = arc.getThetaStart()
-                    .plus(arc.getThetaEnd().minus(arc.getThetaStart()).times(i / steps));
+            Rotation2d t = arc.getStart().plus(arc.getEnd().minus(arc.getStart()).times(i / steps));
             Translation2d p = new Translation2d(arc.getRadius(), t);
             if (i == 0) {
                 arcPath.moveTo(p.getX(), p.getY());

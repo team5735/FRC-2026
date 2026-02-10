@@ -322,7 +322,8 @@ def get_robot_pose(nt_smart_dashboard_table):
 
     # get robot pose from network tables
     if 'limelight' in nt_smart_dashboard_table.getPath():
-        nums = nt_smart_dashboard_table.getNumberArray('botpose_wpiblue', [])
+        nums = nt_smart_dashboard_table.getNumberArray('botpose_wpiblue', []) # mt1
+        # nums = nt_smart_dashboard_table.getNumberArray('botpose_orb_wpiblue', []) # mt2
         if not nums:
             return Pose2d(0, 0, 0)
         x,y,yaw = nums[0],nums[1],nums[5]
@@ -330,7 +331,7 @@ def get_robot_pose(nt_smart_dashboard_table):
         robot_pose = Pose2d(x,y,yaw)
         return robot_pose
     else:
-        x,y,yaw = nt_smart_dashboard_table.getNumberArray("Field/Robot", [0,0,0])
+        x,y,yaw = nt_smart_dashboard_table.getNumberArray("field/Robot", [0,0,0])
         yaw = d2r(yaw)
         robot_pose = Pose2d(x,y,yaw)
         return robot_pose
@@ -390,7 +391,7 @@ def ntvis1():
 
 
         # Table path (match robot code)
-        sd_table = NetworkTables.getTable("SmartDashboard")
+        sd_table = NetworkTables.getTable("telemetry")
         lll_table = NetworkTables.getTable("limelight-left")
 
     if 0: # stub april tags
@@ -426,8 +427,8 @@ def ntvis1():
     last_detected_fiducials = []
     last_detected_fiducials_ts = datetime.datetime.now()
     while True:
-        # robot_pose = get_robot_pose(sd_table)
-        robot_pose = get_robot_pose(lll_table)
+        # robot_pose = get_robot_pose(sd_table) # gets poseestimate pose
+        robot_pose = get_robot_pose(lll_table) # gets limelight pose
         # robot_pose = Pose2d(robot_pose.translation(), Rotation2d(d2r(-170)))
 
         # check if we detected new tags

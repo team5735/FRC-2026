@@ -1,13 +1,12 @@
 package frc.robot.constants.drivetrain;
 
-import static edu.wpi.first.units.Units.DegreesPerSecond;
-import static edu.wpi.first.units.Units.DegreesPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Kilograms;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
@@ -34,17 +33,27 @@ public class DevbotConstants implements DrivetrainConstants {
 
     @Override
     public double getRotKs() {
-        return 0; // TODO
+        return 0.07581;
     }
 
     @Override
     public double getRotKv() {
-        return 0; // TODO
+        return 7.1649;
     }
 
     @Override
     public double getRotKa() {
-        return 0; // TODO
+        return 0.42822;
+    }
+
+    @Override
+    public double getOpenDriveKv() {
+        return 2.37;
+    }
+
+    @Override
+    public double getOpenDriveKa() {
+        return 0.09;
     }
 
     @Override
@@ -65,10 +74,10 @@ public class DevbotConstants implements DrivetrainConstants {
     @Override
     public PathConstraints getPathFollowConstraints() {
         return new PathConstraints(
-                MetersPerSecond.of(4),
-                MetersPerSecondPerSecond.of(2),
-                DegreesPerSecond.of(540),
-                DegreesPerSecondPerSecond.of(270));
+                MetersPerSecond.of(2),
+                MetersPerSecondPerSecond.of(0.5),
+                getDefaultRotationalRate(),
+                RotationsPerSecondPerSecond.of(0.25));
     }
 
     @Override
@@ -104,7 +113,7 @@ public class DevbotConstants implements DrivetrainConstants {
     @Override
     public double getRobotMoiKgxMxM() {
         return getRobotMass().in(Kilograms) * getDrivetrainWidth().in(Meters) / 2 * getRotKa()
-                / DevbotTunerConstants.DEFAULT_DRIVE_CONSTANTS.kA;
+                / getOpenDriveKa();
     }
 
     @Override

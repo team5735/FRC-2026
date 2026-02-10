@@ -15,15 +15,20 @@ public class PathPlannerHelpers {
     /**
      * Creates a path that is a line from the start point to the end point, with the
      * robot ending with zero velocity and facing in the direction of
-     * endRobotHeading
+     * endRobotHeading.
      *
-     * @param startPoint      The start of the path in field coordinates
-     * @param endPoint        The end of the path in field coordinates
-     * @param endRobotHeading The direction the robot should be facing at the end of
+     * <p>
+     * If swerveIntoEnd is true, the robot will swerve into the end point. If it is
+     * false, then the final waypoint will be facing the same as the others, causing
+     * a linear path. It's a Bezier curve.
+     *
+     * @param startPoint      the start of the path in field coordinates
+     * @param endPoint        the end of the path in field coordinates
+     * @param endRobotHeading the direction the robot should be facing at the end of
      *                        the path
-     * @param constraints     The constraints to use for the path (eg
+     * @param constraints     the constraints to use for the path (eg
      *                        DrivetrainSubsystem.CONSTANTS.getPathFollowConstraints())
-     * @return The path
+     * @return the path
      */
     public static PathPlannerPath createPathBetween(Translation2d startPoint,
             Translation2d endPoint,
@@ -55,6 +60,19 @@ public class PathPlannerHelpers {
         return path;
     }
 
+    /**
+     * Creates a path that is a line from the start point to the end point, with the
+     * robot ending with zero velocity and facing in the direction of
+     * endRobotHeading.
+     *
+     * @param startPoint      the start of the path in field coordinates
+     * @param endPoint        the end of the path in field coordinates
+     * @param endRobotHeading the direction the robot should be facing at the end of
+     *                        the path
+     * @param constraints     the constraints to use for the path (eg
+     *                        DrivetrainSubsystem.CONSTANTS.getPathFollowConstraints())
+     * @return the path
+     */
     public static PathPlannerPath createLinearPath(Translation2d startPoint,
             Translation2d endPoint,
             Rotation2d endRobotHeading,

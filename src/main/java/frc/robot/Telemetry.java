@@ -15,25 +15,21 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.networktables.DoubleArrayPublisher;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
-import edu.wpi.first.wpilibj.smartdashboard.SendableBuilderImpl;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
+import frc.robot.constants.VisionConstants;
 import frc.robot.constants.drivetrain.CompbotTunerConstants;
-import frc.robot.util.LimelightHelpers;
-import frc.robot.util.NTDoubleSection;
+import frc.robot.util.NTable;
 
 public class Telemetry {
     // What to publish over networktables for telemetry
@@ -91,64 +87,39 @@ public class Telemetry {
         public void initSendable(SendableBuilder builder) {
             builder.setSmartDashboardType("SwerveDrive");
 
-            builder.addDoubleProperty(
-                    "Front Left Angle",
-                    () -> RobotContainer.drivetrain.getModule(0).getCurrentState().angle.getRadians(),
-                    null);
-            builder.addDoubleProperty(
-                    "Front Left Velocity",
-                    () -> RobotContainer.drivetrain.getModule(0).getCurrentState().speedMetersPerSecond,
-                    null);
+            SwerveModuleState[] states = Arrays.stream(new int[] { 0, 1, 2, 3 })
+                    .mapToObj(x -> RobotContainer.drivetrain.getModule(x).getCurrentState())
+                    .toArray(SwerveModuleState[]::new);
 
-            builder.addDoubleProperty(
-                    "Front Right Angle",
-                    () -> RobotContainer.drivetrain.getModule(1).getCurrentState().angle.getRadians(),
-                    null);
-            builder.addDoubleProperty(
-                    "Front Right Velocity",
-                    () -> RobotContainer.drivetrain.getModule(1).getCurrentState().speedMetersPerSecond,
-                    null);
+            builder.addDoubleProperty("Front Left Angle", () -> states[0].angle.getRadians(), null);
+            builder.addDoubleProperty("Front Left Velocity", () -> states[0].speedMetersPerSecond, null);
 
-            builder.addDoubleProperty(
-                    "Back Left Angle",
-                    () -> RobotContainer.drivetrain.getModule(2).getCurrentState().angle.getRadians(),
-                    null);
-            builder.addDoubleProperty(
-                    "Back Left Velocity",
-                    () -> RobotContainer.drivetrain.getModule(2).getCurrentState().speedMetersPerSecond,
-                    null);
+            builder.addDoubleProperty("Front Right Angle", () -> states[1].angle.getRadians(), null);
+            builder.addDoubleProperty("Front Right Velocity", () -> states[1].speedMetersPerSecond, null);
 
-            builder.addDoubleProperty(
-                    "Back Right Angle",
-                    () -> RobotContainer.drivetrain.getModule(3).getCurrentState().angle.getRadians(),
-                    null);
-            builder.addDoubleProperty(
-                    "Back Right Velocity",
-                    () -> RobotContainer.drivetrain.getModule(3).getCurrentState().speedMetersPerSecond,
-                    null);
+            builder.addDoubleProperty("Back Left Angle", () -> states[2].angle.getRadians(), null);
+            builder.addDoubleProperty("Back Left Velocity", () -> states[2].speedMetersPerSecond, null);
 
-            builder.addDoubleProperty(
-                    "Robot Angle",
-                    () -> RobotContainer.drivetrain.getPigeon2().getYaw().getValue().in(Radians),
-                    null);
+            builder.addDoubleProperty("Back Right Angle", () -> states[3].angle.getRadians(), null);
+            builder.addDoubleProperty("Back Right Velocity", () -> states[3].speedMetersPerSecond, null);
+
+            builder.addDoubleProperty("Robot Angle",
+                    () -> RobotContainer.drivetrain.getPigeon2().getYaw().getValue().in(Radians), null);
         }
     };
 
-    private void putData(NetworkTable table, String key, Sendable data) {
-        NetworkTable dataTable = table.getSubTable(key);
-        SendableBuilderImpl builder = new SendableBuilderImpl();
-        builder.setTable(dataTable);
-        SendableRegistry.publish(data, builder);
-        builder.startListeners();
-        dataTable.getEntry(".name").setString(key);
-    }
+    private final NTable table = NTable.root().sub("telemetry");
+    private final NTable stateTable = table.sub("drive state");
+    private final NTable moduleTable = table.sub("modules");
 
-    private final NetworkTable table = inst.getTable("telemetry");
-    private final NetworkTable stateTable = table.getSubTable("drive state");
-    private final NTDoubleSection doubles = new NTDoubleSection(table);
-    private final DoubleArrayPublisher fieldPub = table.getDoubleArrayTopic("robotPose").publish();
-    private final StringPublisher fieldTypePub = table.getStringTopic(".type").publish();
-    private final NetworkTable moduleTable = table.getSubTable("modules");
+    Telemetry() {
+        field.getRobotObject().setPose(new Pose2d());
+        for (String limelight : VisionConstants.LIMELIGHTS) {
+            field.getObject(limelight + " mt1").setPose(new Pose2d());
+        }
+        table.setSendable("field", field);
+        table.setSendable("swerve state", sendableState);
+    }
 
     // Accept the swerve drive state and telemeterize it to SmartDashboard.
     public void telemeterize(SwerveDriveState state) {
@@ -174,57 +145,39 @@ public class Telemetry {
 
         field.setRobotPose(AutoBuilder.getCurrentPose());
 
-        LimelightHelpers.PoseEstimate mt1Estimate = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-left");
-        if (mt1Estimate != null) {
-            field.getObject("limelightMt1Pos").setPose(mt1Estimate.pose);
-        }
-
-        LimelightHelpers.PoseEstimate mt2Estimate = LimelightHelpers
-                .getBotPoseEstimate_wpiBlue_MegaTag2("limelight-left");
-        if (mt2Estimate != null) {
-            field.getObject("limelightMt2Pos").setPose(mt2Estimate.pose);
-        }
-
-        putData(table, "field", field);
-        putData(table, "swerve state", sendableState);
-
-        stateTable.getDoubleArrayTopic("pose").publish().set(poseArray);
-        stateTable.getDoubleArrayTopic("module states").publish().set(moduleStatesArray);
-        stateTable.getDoubleArrayTopic("module targets").publish().set(moduleTargetsArray);
-        stateTable.getDoubleTopic("odometry period").publish().set(state.OdometryPeriod);
+        stateTable.set("pose", poseArray);
+        stateTable.set("module states", moduleStatesArray);
+        stateTable.set("module targets", moduleTargetsArray);
+        stateTable.set("odometry period", state.OdometryPeriod);
 
         var modules = RobotContainer.drivetrain.getModules();
-        NetworkTable[] tables = Arrays.stream(new String[] { "FL", "FR", "BL", "BR" })
-                .map(s -> moduleTable.getSubTable(s))
-                .toArray(NetworkTable[]::new);
+        NTable[] tables = Arrays.stream(new String[] { "FL", "FR", "BL", "BR" })
+                .map(s -> moduleTable.sub(s))
+                .toArray(NTable[]::new);
         for (int i = 0; i < modules.length; i++) {
             var module = modules[i];
-            NTDoubleSection section = new NTDoubleSection(tables[i]);
-            section.set("steer position", (module.getCurrentState().angle.getRotations() + 1) % 1);
-            section.set("steer setpoint", (module.getTargetState().angle.getRotations() + 1) % 1);
-            section.set("drive velocity", state.ModuleStates[i].speedMetersPerSecond);
-            section.set("drive voltage", module.getDriveMotor().getMotorVoltage().getValueAsDouble());
-            section.set("steer velocity", module.getSteerMotor().getVelocity().getValueAsDouble());
-            section.set("steer voltage", module.getSteerMotor().getMotorVoltage().getValueAsDouble());
-            section.set("drive motor rotations", module.getDriveMotor().getRotorPosition().getValue().in(Rotations));
+            NTable table = tables[i];
+            table.set("steer position", (module.getCurrentState().angle.getRotations() + 1) % 1);
+            table.set("steer setpoint", (module.getTargetState().angle.getRotations() + 1) % 1);
+            table.set("drive velocity", state.ModuleStates[i].speedMetersPerSecond);
+            table.set("drive voltage", module.getDriveMotor().getMotorVoltage().getValueAsDouble());
+            table.set("steer velocity", module.getSteerMotor().getVelocity().getValueAsDouble());
+            table.set("steer voltage", module.getSteerMotor().getMotorVoltage().getValueAsDouble());
+            table.set("drive motor rotations", module.getDriveMotor().getRotorPosition().getValue().in(Rotations));
 
             moduleSpeeds[i].setAngle(state.ModuleStates[i].angle);
             moduleDirections[i].setAngle(state.ModuleStates[i].angle);
             moduleSpeeds[i].setLength(state.ModuleStates[i].speedMetersPerSecond
                     / (2 * CompbotTunerConstants.SPEED_AT_12_VOLTS.in(MetersPerSecond)));
 
-            putData(tables[i], "mechanism", moduleMechanisms[i]);
+            table.setSendable("mechanism", moduleMechanisms[i]);
         }
 
-        doubles.set("translation_position", state.Pose.getY());
-        doubles.set("rotation_position", MathUtil.inputModulus(
+        table.set("translation_position", state.Pose.getY());
+        table.set("rotation_position", MathUtil.inputModulus(
                 RobotContainer.drivetrain.getPigeon2().getYaw().getValue().in(Radians),
                 -Math.PI, Math.PI));
-        doubles.set("rotation_velocity", RobotContainer.drivetrain.getPigeon2().getAngularVelocityZWorld().getValue()
+        table.set("rotation_velocity", RobotContainer.drivetrain.getPigeon2().getAngularVelocityZWorld().getValue()
                 .in(RadiansPerSecond));
-
-        // Telemeterize the pose to a Field2d
-        fieldTypePub.set("Field2d");
-        fieldPub.set(poseArray);
     }
 }
