@@ -8,6 +8,7 @@ package frc.robot;
  * The Constants class provides a convenient place for teams to hold robot-wide
  * numerical or boolean
  * constants. This class should not be used for any other purpose. All constants
+ * 
  * should be declared
  * globally (i.e. public static). Do not put anything functional in this class.
  *
@@ -19,7 +20,7 @@ package frc.robot;
 public final class Constants {
     public static final int DRIVE_CONTROLLER_PORT = 0;
     public static final int LAUNCHER_VOLTS = 4;
-    public static final int LAUNCHER_KRAKEN_ID = 25;
+    public static final int LAUNCHER_KRAKEN_ID = 1;
     public static final int LAUNCHER_LEFT_VORTEX_ID = 0;
-    public static final int LAUNCHER_RIGHT_VORTEX_ID = 27;
+    public static final int LAUNCHER_RIGHT_VORTEX_ID = 26;
 }
