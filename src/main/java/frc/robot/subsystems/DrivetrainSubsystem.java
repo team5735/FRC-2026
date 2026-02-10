@@ -4,8 +4,6 @@ import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.Rotations;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 
@@ -141,21 +139,21 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
 
     private final Consumer<SysIdRoutineLog> steerLogConsumer = (log) -> {
         log.motor("FL_steer")
-                .angularPosition(Rotations.of((getModule(0).getCurrentState().angle.getRotations() + 1) % 1))
-                .angularVelocity(RotationsPerSecond.of(getModule(0).getSteerMotor().getVelocity().getValueAsDouble()))
+                .angularPosition(getModule(0).getSteerMotor().getPosition().getValue())
+                .angularVelocity(getModule(0).getSteerMotor().getVelocity().getValue())
                 .voltage(getModule(0).getSteerMotor().getMotorVoltage().getValue());
         log.motor("FR_steer")
-                .angularPosition(Rotations.of((getModule(1).getCurrentState().angle.getRotations() + 1) % 1))
-                .angularVelocity(RotationsPerSecond.of(getModule(1).getSteerMotor().getVelocity().getValueAsDouble()))
-                .voltage(getModule(0).getSteerMotor().getMotorVoltage().getValue());
+                .angularPosition(getModule(1).getSteerMotor().getPosition().getValue())
+                .angularVelocity(getModule(1).getSteerMotor().getVelocity().getValue())
+                .voltage(getModule(1).getSteerMotor().getMotorVoltage().getValue());
         log.motor("BL_steer")
-                .angularPosition(Rotations.of((getModule(2).getCurrentState().angle.getRotations() + 1) % 1))
-                .angularVelocity(RotationsPerSecond.of(getModule(2).getSteerMotor().getVelocity().getValueAsDouble()))
-                .voltage(getModule(0).getSteerMotor().getMotorVoltage().getValue());
+                .angularPosition(getModule(2).getSteerMotor().getPosition().getValue())
+                .angularVelocity(getModule(2).getSteerMotor().getVelocity().getValue())
+                .voltage(getModule(2).getSteerMotor().getMotorVoltage().getValue());
         log.motor("BR_steer")
-                .angularPosition(Rotations.of((getModule(3).getCurrentState().angle.getRotations() + 1) % 1))
-                .angularVelocity(RotationsPerSecond.of(getModule(3).getSteerMotor().getVelocity().getValueAsDouble()))
-                .voltage(getModule(0).getSteerMotor().getMotorVoltage().getValue());
+                .angularPosition(getModule(3).getSteerMotor().getPosition().getValue())
+                .angularVelocity(getModule(3).getSteerMotor().getVelocity().getValue())
+                .voltage(getModule(3).getSteerMotor().getMotorVoltage().getValue());
     };
 
     /*
@@ -206,7 +204,7 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
                     this));
 
     /* The SysId routine to test */
-    private SysIdRoutine sysIdRoutineToApply = sysIdRoutineRotation;
+    private SysIdRoutine sysIdRoutineToApply = sysIdRoutineSteer;
 
     /**
      * Constructs a CTRE SwerveDrivetrain using the specified constants.
