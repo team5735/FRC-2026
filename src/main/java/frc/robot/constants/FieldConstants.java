@@ -124,7 +124,7 @@ public class FieldConstants {
 
     // right in front of tower, 1' away from it
     public static final Pose2d CLIMBER_BLUE_LOCALIZATION_POSE = new Pose2d(
-        BLUE_TOWER_FRONT_CENTER.plus(new Translation2d(inch(30+12),inch(0))),
+        BLUE_TOWER_FRONT_CENTER.plus(new Translation2d(inch(30/2.0+12),inch(0))),
         Rotation2d.fromDegrees(180));
 
     // center bot on rung, position 1' to left of tower
@@ -136,8 +136,11 @@ public class FieldConstants {
     // where we should be to actually do the climb
     //   todo: right now this is to center of bot, need to add offset to hook
     public static final Pose2d CLIMBER_BLUE_LEFT_CLIMB_POSE = new Pose2d(
-        CLIMBER_BLUE_LEFT_CLIMB_ALIGN_POSE.getX(),
-        BLUE_TOWER_FRONT_CENTER.getY()-TOWER_DIMENSION.getY()/2.0+inch(5.875).in(Meters)/2.0, // 5.875"=rung extent
+        CLIMBER_BLUE_LEFT_CLIMB_ALIGN_POSE.getX(), // center bot on rungs
+        BLUE_TOWER_FRONT_CENTER.getY() // robot Y position calculated here is relative to center of tower
+          -TOWER_DIMENSION.getY()/2.0  // left side of tower
+          +inch(5.875).in(Meters)/2.0  // 5.875"=rung extent, get center of outside rung
+          -inch(30/2.0+3).in(Meters),  // offset to edge of robot, and then assume climber is 3 inches inside robot
         CLIMBER_BLUE_LEFT_CLIMB_ALIGN_POSE.getRotation()
     );
     
