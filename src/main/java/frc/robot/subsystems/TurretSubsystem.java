@@ -1,10 +1,15 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.Second;
+import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.constants.TurretConstants.*;
+
+import java.util.function.Supplier;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 import frc.robot.constants.Constants;
+import frc.robot.constants.RobotConstants;
 import yams.mechanisms.config.MechanismPositionConfig;
 import yams.mechanisms.config.PivotConfig;
 import yams.mechanisms.positional.Pivot;
@@ -14,7 +19,10 @@ import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 import yams.motorcontrollers.remote.TalonFXWrapper;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -35,10 +43,15 @@ public class TurretSubsystem extends SubsystemBase {
     
     private final PivotConfig mechanismConfig = new PivotConfig()
         .withHardLimit(LOWER_LIMIT, UPPER_LIMIT)
+        .withSoftLimits(LOWER_LIMIT.plus(Rotations.of(0.05)), UPPER_LIMIT.minus(Rotations.of(0.05)))
         .withSmartMotorController(krakenController)
         .withTelemetry("turret", TelemetryVerbosity.HIGH)
         .withStartingPosition(Rotations.of(0))
-        .withMechanismPositionConfig(new MechanismPositionConfig().withRelativePosition())
+        .withMOI(MOI)
+        .withWrapping(Rotations.of(0), Rotations.of(1))
+        .withMechanismPositionConfig(
+            new MechanismPositionConfig().withRelativePosition(RobotConstants.ROBOT_TO_TURRET_CENTER)
+            );
         
 
     private final Pivot turretMechanism = new Pivot(mechanismConfig);
@@ -46,23 +59,46 @@ public class TurretSubsystem extends SubsystemBase {
     public TurretSubsystem() {
     }
 
-    private void testForward() {
-        kraken.setVoltage(TESTING_VOLTS);
+    @Override
+    public void periodic(){
+        turretMechanism.updateTelemetry();
     }
 
-    private void testReverse() {
-        kraken.setVoltage(-TESTING_VOLTS);
+    @Override
+    public void simulationPeriodic(){
+        turretMechanism.simIterate();
     }
 
-    private void stop() {
-        kraken.setVoltage(0);
+    public Command testForward() {
+        return turretMechanism.set(0.5);
     }
 
-    public Command testForwardCommand() {
-        return runEnd(this::testForward, this::stop);
+    public Command testReverse() {
+        return turretMechanism.set(-0.5);
     }
 
-    public Command testReverseCommand() {
-        return runEnd(this::testReverse, this::stop);
+    public Command stop(){
+        return turretMechanism.set(0);
     }
+
+    public Command sysId(){
+        return turretMechanism.sysId(Volts.of(7), Volts.of(0.1).per(Second), null);
+    }
+
+    public Command holdRobotRelative(Angle robotAngle){
+        return turretMechanism.run(robotAngle);
+    }
+
+    public Command holdFieldRelative(Angle fieldAngle, Supplier<Angle> robotAngleInField){
+        return turretMechanism.run(() -> {
+            return fieldAngle.minus(robotAngleInField.get());
+        });
+    }
+
+    // public Command trackFieldPos(Translation2d position, Supplier<Pose2d> robotPosInField){
+    //     return turretMechanism.run(() -> {
+    //         Angle fieldAngle = Rotations.of(Math.tan(position.getY()/position.getX()));
+    //         return fieldAngle.minus(robotPosInField.get().getRotation());
+    //     });
+    // }
 }

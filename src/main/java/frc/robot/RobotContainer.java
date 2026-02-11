@@ -81,8 +81,8 @@ public class RobotContainer {
 
         driveController.y().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
-        driveController.rightBumper().whileTrue(turret.testForwardCommand());
-        driveController.leftBumper().whileTrue(turret.testReverseCommand());
+        driveController.rightBumper().whileTrue(turret.testForward());
+        driveController.leftBumper().whileTrue(turret.testReverse());
 
         testController.a().whileTrue(drivetrain.sysIdDynamic(SysIdRoutine.Direction.kForward));
         testController.b().whileTrue(drivetrain.sysIdDynamic(SysIdRoutine.Direction.kReverse));
