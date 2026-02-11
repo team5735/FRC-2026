@@ -124,6 +124,8 @@ public class Telemetry {
         field.getObject("CLIMBER_BLUE_LOCALIZATION_POSE").setPose(FieldConstants.CLIMBER_BLUE_LOCALIZATION_POSE);
         field.getObject("CLIMBER_BLUE_LEFT_CLIMB_ALIGN_POSE").setPose(FieldConstants.CLIMBER_BLUE_LEFT_CLIMB_ALIGN_POSE);
         field.getObject("CLIMBER_BLUE_LEFT_CLIMB_POSE").setPose(FieldConstants.CLIMBER_BLUE_LEFT_CLIMB_POSE);
+
+        field.getObject("CLIMBER_RED_LEFT_CLIMB_POSE").setPose(FieldConstants.redElement(FieldConstants.CLIMBER_BLUE_LEFT_CLIMB_POSE));
     }
 
     // Accept the swerve drive state and telemeterize it to SmartDashboard.
