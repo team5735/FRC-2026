@@ -28,7 +28,6 @@ import edu.wpi.first.networktables.TimestampedDoubleArray;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.RobotContainer;
 import frc.robot.Telemetry;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.VisionConstants;
@@ -44,6 +43,8 @@ public class VisionSubsystem extends SubsystemBase {
 
     public VisionSubsystem(DrivetrainSubsystem drivetrain) {
         this.drivetrain = drivetrain;
+        this.table.set("enabled", true);
+        this.table.makePersistent("enabled");
     }
 
     private boolean trySeedPigeon(String name) {
@@ -135,37 +136,37 @@ public class VisionSubsystem extends SubsystemBase {
     public void handleVisionMeasurement(String limelightName) {
         NTable lltable = this.table.sub(limelightName);
 
-        if (RobotContainer.driveController.getHID().getAButton()) {
-            lltable.set("status", "a is pressed");
+        if (!this.table.getBoolean("enabled")) {
+            lltable.set("status", "disabled in network tables");
             return;
         }
 
         PoseEstimate mt1 = new PoseEstimate(limelightName);
         if (mt1.pose2d == null) {
-            lltable.set("status", "mt1 pose estimate is null");
+            lltable.set("status", "pose estimate is null");
             return;
         }
 
-        Telemetry.field.getObject(limelightName + " mt1").setPose(mt1.pose2d);
+        Telemetry.field.getObject(limelightName).setPose(mt1.pose2d);
 
         lltable.set("dist to ground", mt1.pose3d.getMeasureZ().abs(Meters));
         // mt1 pose estimate is more than 3cm off the ground
         if (mt1.pose3d.getMeasureZ().abs(Meters) > VisionConstants.TOLERATED_HEIGHT.in(Meters)) {
-            lltable.set("status", "mt1 pose estimate is more than 3cm away from the ground");
+            lltable.set("status", "pose estimate is more than 3cm away from the ground");
             return;
         }
 
         // mt1 pose estimate is off the field
-        double robotBoundingBox = Math.max(
+        double conservativeRobotRadius = Math.max(
                 DrivetrainSubsystem.CONSTANTS.getRobotTotalLength().in(Meters),
                 DrivetrainSubsystem.CONSTANTS.getRobotTotalWidth().in(Meters)) * Math.sqrt(2);
-        if (mt1.pose2d.getTranslation().getX() < robotBoundingBox / 2
+        if (mt1.pose2d.getTranslation().getX() < conservativeRobotRadius / 2
                 || mt1.pose2d.getTranslation()
-                        .getX() > (FieldConstants.FIELD_LENGTH_X.in(Meters) - robotBoundingBox / 2)
-                || mt1.pose2d.getTranslation().getY() < robotBoundingBox / 2
+                        .getX() > (FieldConstants.FIELD_LENGTH_X.in(Meters) - conservativeRobotRadius / 2)
+                || mt1.pose2d.getTranslation().getY() < conservativeRobotRadius / 2
                 || mt1.pose2d.getTranslation()
-                        .getY() > (FieldConstants.FIELD_LENGTH_Y.in(Meters) - robotBoundingBox / 2)) {
-            lltable.set("status", "mt1 pose estimate is off the field");
+                        .getY() > (FieldConstants.FIELD_LENGTH_Y.in(Meters) - conservativeRobotRadius / 2)) {
+            lltable.set("status", "pose estimate is off the field");
             return;
         }
 
@@ -173,27 +174,26 @@ public class VisionSubsystem extends SubsystemBase {
         lltable.set("multi tag pose ambiguity", ambiguities);
         // 1 tag pose estimate and ambiguity > 0.2
         if (mt1.fiducials.length == 1 && mt1.fiducials[0].ambiguity > VisionConstants.SINGLE_TAG_MAX_AMBIGUITY) {
-            lltable.set("status", "1 tag ambiguity > 0.2");
+            lltable.set("status", "one tag; ambiguity > 0.2");
             return;
         }
 
         // multi tag pose estimate and any tag ambiguity > 0.5
         if (mt1.fiducials.length > 1 && Arrays.stream(mt1.fiducials)
                 .anyMatch(tag -> tag.ambiguity > VisionConstants.MULTI_TAG_MAX_AMBIGUITY)) {
-            lltable.set("status", "multi tag ambiguity > 0.5");
+            lltable.set("status", "multi tag; any ambiguity > 0.5");
             return;
         }
 
-        lltable.set("robot angular velocity",
-                drivetrain.getPigeon2().getAngularVelocityZWorld().asSupplier().get().in(DegreesPerSecond));
+        lltable.set("robot angular velocity", drivetrain.getPigeon2().getAngularVelocityZWorld().getValueAsDouble());
         // robot is rotating (if we get angular velocity)
-        if (drivetrain.getPigeon2().getAngularVelocityZWorld().asSupplier().get()
-                .in(DegreesPerSecond) > VisionConstants.TOLERATED_ROTATIONAL_RATE.in(DegreesPerSecond)) {
-            lltable.set("status", "robot is rotating");
+        if (drivetrain.getPigeon2().getAngularVelocityZWorld()
+                .getValueAsDouble() > VisionConstants.TOLERATED_ROTATIONAL_RATE.in(DegreesPerSecond)) {
+            lltable.set("status", "exceeded tolerated rotational rate");
             return;
         }
 
-        lltable.set("status", "accepted! using mt1");
+        lltable.set("status", "accepted!");
         updateVisionMeasurement(limelightName, mt1);
     }
 
