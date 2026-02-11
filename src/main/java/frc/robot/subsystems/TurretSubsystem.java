@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
@@ -41,14 +42,12 @@ public class TurretSubsystem extends SubsystemBase {
 
     private final SmartMotorController krakenController = new TalonFXWrapper(kraken, DCMotor.getKrakenX44(1), krakenControllerConfig);
     
-    private final PivotConfig mechanismConfig = new PivotConfig()
+    private final PivotConfig mechanismConfig = new PivotConfig(krakenController)
         .withHardLimit(LOWER_LIMIT, UPPER_LIMIT)
         .withSoftLimits(LOWER_LIMIT.plus(Rotations.of(0.05)), UPPER_LIMIT.minus(Rotations.of(0.05)))
-        .withSmartMotorController(krakenController)
         .withTelemetry("turret", TelemetryVerbosity.HIGH)
         .withStartingPosition(Rotations.of(0))
         .withMOI(MOI)
-        .withWrapping(Rotations.of(0), Rotations.of(1))
         .withMechanismPositionConfig(
             new MechanismPositionConfig().withRelativePosition(RobotConstants.ROBOT_TO_TURRET_CENTER)
             );
@@ -89,16 +88,21 @@ public class TurretSubsystem extends SubsystemBase {
         return turretMechanism.run(robotAngle);
     }
 
-    public Command holdFieldRelative(Angle fieldAngle, Supplier<Angle> robotAngleInField){
+    public Command trackRobotRelative(Supplier<Angle> robotAngleSupplier){
+        return turretMechanism.run(robotAngleSupplier);
+    }
+
+    public Command holdFieldRelative(Angle fieldAngle, Supplier<Angle> robotAngleSupplier){
         return turretMechanism.run(() -> {
-            return fieldAngle.minus(robotAngleInField.get());
+            return fieldAngle.minus(robotAngleSupplier.get());
         });
     }
 
-    // public Command trackFieldPos(Translation2d position, Supplier<Pose2d> robotPosInField){
-    //     return turretMechanism.run(() -> {
-    //         Angle fieldAngle = Rotations.of(Math.tan(position.getY()/position.getX()));
-    //         return fieldAngle.minus(robotPosInField.get().getRotation());
-    //     });
-    // }
+    public Command trackFieldPos(Translation2d positionToTrack, Supplier<Pose2d> robotPosSupplier){
+        return turretMechanism.run(() -> {
+            Pose2d robotPos = robotPosSupplier.get();
+            Angle fieldAngle = Radians.of(Math.atan((positionToTrack.getY() - robotPos.getY())/(positionToTrack.getX() - robotPos.getX())));
+            return fieldAngle.minus(robotPos.getRotation().getMeasure());
+        });
+    }
 }

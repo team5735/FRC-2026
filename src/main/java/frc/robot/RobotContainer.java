@@ -5,24 +5,22 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.Rotations;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathfindingCommand;
 
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.constants.Constants;
+import frc.robot.constants.FieldConstants;
 import frc.robot.constants.drivetrain.CompbotTunerConstants;
 import frc.robot.constants.drivetrain.DevbotTunerConstants;
 import frc.robot.subsystems.DrivetrainSubsystem;
@@ -34,6 +32,8 @@ public class RobotContainer {
 
     private final CommandXboxController testController = new CommandXboxController(
             Constants.TEST_CONTROLLER_PORT);
+
+    
 
     private final SendableChooser<Command> autoChooser;
 
@@ -79,23 +79,23 @@ public class RobotContainer {
                 () -> driveController.getRightTriggerAxis(),
                 () -> driveController.getHID().getBButton()));
 
+        turret.setDefaultCommand(turret.holdFieldRelative(Rotations.of(1), () -> {
+            return drivetrain.getEstimatedPosition().getRotation().getMeasure();
+        }));
+
         driveController.y().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
-        driveController.rightBumper().whileTrue(turret.testForward());
-        driveController.leftBumper().whileTrue(turret.testReverse());
+        testController.a().whileTrue(turret.trackRobotRelative(() -> {
+            double x = testController.getRightX();
+            double y = testController.getRightY();
+            return Radians.of(Math.atan(y / x));
+        }));
+        testController.x()
+                .onTrue(turret.trackFieldPos(FieldConstants.BLUE_HUB_CENTER, drivetrain::getEstimatedPosition));
 
-        testController.a().whileTrue(drivetrain.sysIdDynamic(SysIdRoutine.Direction.kForward));
-        testController.b().whileTrue(drivetrain.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-        testController.x().whileTrue(drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-        testController.y().whileTrue(drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+        testController.rightBumper().whileTrue(turret.testForward());
+        testController.leftBumper().whileTrue(turret.testReverse());
 
-        testController.rightBumper().whileTrue(drivetrain.applyRequest(
-                () -> {
-                    double x = testController.getRightX();
-                    double y = testController.getRightY();
-                    Angle theta = Radians.of(Math.atan(y / x));
-                    return new SwerveRequest.PointWheelsAt().withModuleDirection(new Rotation2d(theta));
-                }));
     }
 
     public Command getAutonomousCommand() {
