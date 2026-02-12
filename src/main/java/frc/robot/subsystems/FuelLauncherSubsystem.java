@@ -3,7 +3,10 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot.subsystems;
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.MotorAlignmentValue;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -13,7 +16,8 @@ import frc.robot.util.TunablePIDController;
 
 
 public class FuelLauncherSubsystem extends SubsystemBase {
-    private final TalonFX krakenMotor = new TalonFX(Constants.LAUNCHER_KRAKEN_ID);
+    private final TalonFX krakenLeft = new TalonFX(Constants.LAUNCHER_LEFT_KRAKEN_ID);
+    private final TalonFX krakenRight = new TalonFX(Constants.LAUNCHER_RIGHT_KRAKEN_ID);
 
     private final TunablePIDController PIDController = new TunablePIDController("fuel_launcher", 0, 0, 0);
 
@@ -22,18 +26,19 @@ public class FuelLauncherSubsystem extends SubsystemBase {
     /** Creates a new ExampleSubsystem. */
     public FuelLauncherSubsystem() {
         SmartDashboard.putNumber("shooter_volts", Constants.LAUNCHER_VOLTS);
+        krakenRight.setControl(new Follower(Constants.LAUNCHER_LEFT_KRAKEN_ID, MotorAlignmentValue.Opposed));
     }
 
     public double getMotorRPM() {
-        return 60*krakenMotor.getVelocity().getValueAsDouble(); 
+        return 60*krakenLeft.getVelocity().getValueAsDouble(); 
     }
 
     public void activateVoltage() {
-        krakenMotor.setVoltage(SmartDashboard.getNumber("shooter_volts", Constants.LAUNCHER_VOLTS));
+        krakenLeft.setVoltage(SmartDashboard.getNumber("shooter_volts", Constants.LAUNCHER_VOLTS));
     }
 
     public void deactivateVoltage() {
-        krakenMotor.setVoltage(0);
+        krakenLeft.setVoltage(0);
     }
 
     public void setTargetRPM(double rpm) {
@@ -44,11 +49,11 @@ public class FuelLauncherSubsystem extends SubsystemBase {
     public void usePID() {
     double rpm = this.getMotorRPM(); 
     double output = PIDController.calculate(rpm);
-    krakenMotor.set(output);
+    krakenLeft.set(output);
   }
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("speed_rpm_raw", 60*krakenMotor.getVelocity().getValueAsDouble());
+        SmartDashboard.putNumber("speed_rpm_raw", 60*krakenLeft.getVelocity().getValueAsDouble());
     }
 }

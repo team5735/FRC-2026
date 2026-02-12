@@ -20,9 +20,8 @@ package frc.robot.constants;
 public final class Constants {
     public static final int DRIVE_CONTROLLER_PORT = 0;
     public static final int LAUNCHER_VOLTS = 4;
-    public static final int LAUNCHER_KRAKEN_ID = 1;
-    public static final int LAUNCHER_LEFT_VORTEX_ID = 0;
-    public static final int LAUNCHER_RIGHT_VORTEX_ID = 27;
+    public static final int LAUNCHER_LEFT_KRAKEN_ID = 1;
+    public static final int LAUNCHER_RIGHT_KRAKEN_ID = 0;
 
     // For PIDs
     public static final double TOLERANCE = 0;
