@@ -3,8 +3,6 @@ package frc.robot.commands.drivetrain;
 import java.util.function.Supplier;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.util.TunablePIDController;
@@ -40,13 +38,10 @@ public class PIDToPose extends Command {
 
     @Override
     public void execute() {
-        Translation2d deltaTrans = this.targetPose.getTranslation()
-                .minus(drivetrain.getEstimatedPosition().getTranslation());
-        Rotation2d deltaRot = this.targetPose.getRotation()
-                .minus(drivetrain.getEstimatedPosition().getRotation());
-        double vx = this.pidX.calculate(deltaTrans.getX());
-        double vy = this.pidY.calculate(deltaTrans.getY());
-        double omega = this.pidTheta.calculate(deltaRot.getRadians());
+        Pose2d robotPose = drivetrain.getEstimatedPosition();
+        double vx = this.pidX.calculate(robotPose.getX());
+        double vy = this.pidY.calculate(robotPose.getY());
+        double omega = this.pidTheta.calculate(robotPose.getRotation().getRadians());
         drivetrain.pidDrive(vx, vy, omega);
     }
 
