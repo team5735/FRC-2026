@@ -116,16 +116,18 @@ public class Telemetry {
     Telemetry() {
         field.getRobotObject().setPose(new Pose2d());
         for (String limelight : VisionConstants.LIMELIGHTS) {
-            field.getObject(limelight + " mt1").setPose(new Pose2d());
+            field.getObject(limelight).setPose(new Pose2d());
         }
         table.setSendable("field", field);
         table.setSendable("swerve state", sendableState);
 
         field.getObject("CLIMBER_BLUE_LOCALIZATION_POSE").setPose(FieldConstants.CLIMBER_BLUE_LOCALIZATION_POSE);
-        field.getObject("CLIMBER_BLUE_LEFT_CLIMB_ALIGN_POSE").setPose(FieldConstants.CLIMBER_BLUE_LEFT_CLIMB_ALIGN_POSE);
+        field.getObject("CLIMBER_BLUE_LEFT_CLIMB_ALIGN_POSE")
+                .setPose(FieldConstants.CLIMBER_BLUE_LEFT_CLIMB_ALIGN_POSE);
         field.getObject("CLIMBER_BLUE_LEFT_CLIMB_POSE").setPose(FieldConstants.CLIMBER_BLUE_LEFT_CLIMB_POSE);
 
-        field.getObject("CLIMBER_RED_LEFT_CLIMB_POSE").setPose(FieldConstants.redElement(FieldConstants.CLIMBER_BLUE_LEFT_CLIMB_POSE));
+        field.getObject("CLIMBER_RED_LEFT_CLIMB_POSE")
+                .setPose(FieldConstants.redElement(FieldConstants.CLIMBER_BLUE_LEFT_CLIMB_POSE));
     }
 
     // Accept the swerve drive state and telemeterize it to SmartDashboard.

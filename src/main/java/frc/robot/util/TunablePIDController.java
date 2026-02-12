@@ -1,6 +1,7 @@
 package frc.robot.util;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.networktables.NetworkTableType;
 import frc.robot.constants.Constants;
 
 public class TunablePIDController {
