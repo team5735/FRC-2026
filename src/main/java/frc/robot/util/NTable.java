@@ -11,6 +11,8 @@ import edu.wpi.first.networktables.NetworkTableType;
 import edu.wpi.first.networktables.NetworkTableValue;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableRegistry;
+import edu.wpi.first.util.struct.Struct;
+import edu.wpi.first.util.struct.StructBuffer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilderImpl;
 import frc.robot.Robot;
@@ -171,20 +173,31 @@ public class NTable {
         getEntry(name, NetworkTableType.getStringFromObject(value)).setValue(value);
     }
 
-    /** {@return whether the given name is present in this NTable with that type} */
-    public boolean isPresent(String name, NetworkTableType desiredType) {
-        NetworkTableValue entry = getEntry(name, desiredType, false).get();
-        return entry.getType().equals(desiredType);
-    }
+    /** A map of names to sent {@link Sendable}s. */
+    HashMap<String, Sendable> tablesToData = new HashMap<>();
 
-    /** {@return whether all of the given names are present in this NTable} */
-    public boolean isPresent(String name) {
-        return !getEntry(name, NetworkTableType.kRaw, false).get().getType().equals(NetworkTableType.kUnassigned);
-    }
-
-    /** {@return whether all of the given names are present in this NTable} */
-    public boolean isPresent(String... names) {
-        return Arrays.stream(names).allMatch(name -> isPresent(name));
+    /**
+     * Publishes a Sendable object to the NetworkTables.
+     *
+     * <p>
+     * If the object has already been published (determined by object identity), it
+     * will not be published again, as Sendables are automatically updated by
+     * {@link #updateAllSendables()}, called in {@link Robot#robotPeriodic()}.
+     * 
+     * @param name the name of the entry
+     * @param data the object to publish
+     */
+    public void setSendable(String name, Sendable data) {
+        if (tablesToData.get(name) == data) {
+            // this sendable has already been published and will automatically update
+            return;
+        }
+        tablesToData.put(name, data);
+        SendableBuilderImpl builder = new SendableBuilderImpl();
+        builder.setTable(sub(name).getTable());
+        SendableRegistry.publish(data, builder);
+        builder.startListeners();
+        sub(name).set(".name", name);
     }
 
     /**
@@ -258,31 +271,52 @@ public class NTable {
         return get(name, NetworkTableType.kFloatArray).getFloatArray();
     }
 
-    /** A map of names to sent {@link Sendable}s. */
-    HashMap<String, Sendable> tablesToData = new HashMap<>();
-
     /**
-     * Publishes a Sendable object to the NetworkTables.
+     * Attempts to retrieve and unpack a struct under the given path in
+     * NetworkTables.
      *
      * <p>
-     * If the object has already been published (determined by object identity), it
-     * will not be published again, as Sendables are automatically updated by
-     * {@link #updateAllSendables()}, called in {@link Robot#robotPeriodic()}.
-     * 
-     * @param name the name of the entry
-     * @param data the object to publish
+     * If the given entry name does not currently store a raw value, this function
+     * will error out like {@link #getRaw}. Further, if the value can be retrieved
+     * but not unpacked, a warning is reported to the DriverStation.
+     *
+     * <p>
+     * Note that this function is thoroughly untested as of now.
+     *
+     * @param name   the name of the entry
+     * @param struct the struct by whose rules to unpack the data
+     *
+     * @return the unpacked struct
      */
-    public void setSendable(String name, Sendable data) {
-        if (tablesToData.get(name) == data) {
-            // this sendable has already been published and will automatically update
-            return;
+    public <T> T getStruct(String name, Struct<T> struct) {
+        byte[] raw = getRaw(name);
+        if (raw.length == 0) {
+            return null;
         }
-        tablesToData.put(name, data);
-        SendableBuilderImpl builder = new SendableBuilderImpl();
-        builder.setTable(sub(name).getTable());
-        SendableRegistry.publish(data, builder);
-        builder.startListeners();
-        sub(name).set(".name", name);
+        try {
+            StructBuffer<T> buffer = StructBuffer.create(struct);
+            return buffer.read(raw);
+        } catch (RuntimeException e) {
+            DriverStation.reportWarning("NTable entry " + table.getPath() +
+                    "/" + name + " could not be unpacked: " + e.getMessage(), true);
+            return null;
+        }
+    }
+
+    /** {@return whether the given name is present in this NTable with that type} */
+    public boolean isPresent(String name, NetworkTableType desiredType) {
+        NetworkTableValue entry = getEntry(name, desiredType, false).get();
+        return entry.getType().equals(desiredType);
+    }
+
+    /** {@return whether all of the given names are present in this NTable} */
+    public boolean isPresent(String name) {
+        return !getEntry(name, NetworkTableType.kRaw, false).get().getType().equals(NetworkTableType.kUnassigned);
+    }
+
+    /** {@return whether all of the given names are present in this NTable} */
+    public boolean isPresent(String... names) {
+        return Arrays.stream(names).allMatch(name -> isPresent(name));
     }
 
     /**
