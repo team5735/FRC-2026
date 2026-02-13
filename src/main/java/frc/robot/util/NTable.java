@@ -1,5 +1,6 @@
 package frc.robot.util;
 
+import java.util.Arrays;
 import java.util.HashMap;
 
 import edu.wpi.first.networktables.GenericEntry;
@@ -163,14 +164,20 @@ public class NTable {
                     + " has invalid type; the passed object is of type " + value.getClass().getName(), true);
             return;
         }
-        GenericEntry entry = getEntry(name, NetworkTableType.getStringFromObject(value));
-        boolean success = entry.setValue(value);
-        if (!success) {
-            DriverStation.reportWarning(
-                    "NTable entry " + table.getPath() + "/" + name + " was not a "
-                            + NetworkTableType.getStringFromObject(value),
-                    true);
-        }
+        getEntry(name, NetworkTableType.getStringFromObject(value)).setValue(value);
+    }
+
+    public boolean isPresent(String name, NetworkTableType desiredType) {
+        NetworkTableValue entry = getEntry(name, desiredType, false).get();
+        return entry.getType().equals(desiredType);
+    }
+
+    public boolean isPresent(String name) {
+        return !getEntry(name, NetworkTableType.kRaw, false).get().getType().equals(NetworkTableType.kUnassigned);
+    }
+
+    public boolean isPresent(String... names) {
+        return Arrays.stream(names).allMatch(name -> isPresent(name));
     }
 
     /**
@@ -186,14 +193,7 @@ public class NTable {
      * @return the requested value as a {@link NetworkTableValue}
      */
     public NetworkTableValue get(String name, NetworkTableType type) {
-        NetworkTableValue value = getEntry(name, type).get();
-        if (!value.getType().equals(type)) {
-            DriverStation.reportWarning(
-                    "NTable entry " + table.getPath() + "/" + name + " was not a "
-                            + type.getValueStr(),
-                    true);
-        }
-        return value;
+        return getEntry(name, type, false).get();
     }
 
     /** @see #get(String, NetworkTableType) */
