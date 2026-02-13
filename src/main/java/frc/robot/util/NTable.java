@@ -12,6 +12,7 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.NetworkTableType;
 import edu.wpi.first.networktables.NetworkTableValue;
+import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.util.struct.Struct;
@@ -207,14 +208,9 @@ public class NTable {
 
     public <T> void setStruct(String name, T value, Struct<T> struct) {
         NetworkTableInstance.getDefault().addSchema(struct);
-        StructBuffer<T> buffer = StructBuffer.create(struct);
-        ByteBuffer bb = buffer.write(value);
-        if (!bb.hasArray()) {
-            DriverStation.reportWarning("cannot publish struct to " + name
-                    + " because its returned byte buffer doesn't use a backing array", true);
-            return;
-        }
-        set(name, bb.array());
+        ByteBuffer buffer = StructBuffer.create(struct).write(value);
+        int handle = getEntry(name, NetworkTableType.kRaw, true).getHandle();
+        NetworkTablesJNI.setRaw(handle, NetworkTablesJNI.now(), buffer);
     }
 
     public <T> void setStruct(String name, T value) {
