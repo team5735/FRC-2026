@@ -103,10 +103,13 @@ public class NTable {
      * <p>
      * Creates the entry if it does not already exist. Note that unless this entry
      * has been set, this function will see the topic as being of an unassigned
-     * type.
+     * type. If the entry already exists with a different type than the one given in
+     * type and warnOnWrongType is true, a warning will be printed.
      *
-     * @param name the name of the entry
-     * @param type the type of the entry
+     * @param name            the name of the entry
+     * @param type            the type of the entry
+     * @param warnOnWrongType whether to warn if the entry has a type different from
+     *                        the one specified
      */
     public GenericEntry getEntry(String name, NetworkTableType type, boolean warnOnWrongType) {
         boolean entryExisted = entries.containsKey(name);
@@ -130,7 +133,8 @@ public class NTable {
      * <p>
      * Creates the entry if it does not already exist. Note that unless this entry
      * has been set, this function will see the topic as being of an unassigned
-     * type.
+     * type. If the entry already exists with a different type than the one given in
+     * type, a warning will be printed.
      *
      * @param name the name of the entry
      * @param type the type of the entry
@@ -167,15 +171,18 @@ public class NTable {
         getEntry(name, NetworkTableType.getStringFromObject(value)).setValue(value);
     }
 
+    /** {@return whether the given name is present in this NTable with that type} */
     public boolean isPresent(String name, NetworkTableType desiredType) {
         NetworkTableValue entry = getEntry(name, desiredType, false).get();
         return entry.getType().equals(desiredType);
     }
 
+    /** {@return whether all of the given names are present in this NTable} */
     public boolean isPresent(String name) {
         return !getEntry(name, NetworkTableType.kRaw, false).get().getType().equals(NetworkTableType.kUnassigned);
     }
 
+    /** {@return whether all of the given names are present in this NTable} */
     public boolean isPresent(String... names) {
         return Arrays.stream(names).allMatch(name -> isPresent(name));
     }
