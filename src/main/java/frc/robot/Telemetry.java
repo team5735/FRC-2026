@@ -33,24 +33,6 @@ import frc.robot.constants.drivetrain.CompbotTunerConstants;
 import frc.robot.util.NTable;
 
 public class Telemetry {
-    // What to publish over networktables for telemetry
-    private final NetworkTableInstance inst = NetworkTableInstance.getDefault();
-
-    // Robot swerve drive state
-    private final NetworkTable driveStateTable = inst.getTable("DriveState");
-    private final StructPublisher<Pose2d> drivePose = driveStateTable.getStructTopic("Pose", Pose2d.struct).publish();
-    private final StructPublisher<ChassisSpeeds> driveSpeeds = driveStateTable
-            .getStructTopic("Speeds", ChassisSpeeds.struct).publish();
-    private final StructArrayPublisher<SwerveModuleState> driveModuleStates = driveStateTable
-            .getStructArrayTopic("ModuleStates", SwerveModuleState.struct).publish();
-    private final StructArrayPublisher<SwerveModuleState> driveModuleTargets = driveStateTable
-            .getStructArrayTopic("ModuleTargets", SwerveModuleState.struct).publish();
-    private final StructArrayPublisher<SwerveModulePosition> driveModulePositions = driveStateTable
-            .getStructArrayTopic("ModulePositions", SwerveModulePosition.struct).publish();
-    private final DoublePublisher driveTimestamp = driveStateTable.getDoubleTopic("Timestamp").publish();
-    private final DoublePublisher driveOdometryFrequency = driveStateTable.getDoubleTopic("OdometryFrequency")
-            .publish();
-
     // Mechanisms to represent the swerve module states
     private final Mechanism2d[] moduleMechanisms = new Mechanism2d[] {
             new Mechanism2d(1, 1),
@@ -133,13 +115,14 @@ public class Telemetry {
     // Accept the swerve drive state and telemeterize it to SmartDashboard.
     public void telemeterize(SwerveDriveState state) {
         // Telemeterize the swerve drive state
-        drivePose.set(state.Pose);
-        driveSpeeds.set(state.Speeds);
-        driveModuleStates.set(state.ModuleStates);
-        driveModuleTargets.set(state.ModuleTargets);
-        driveModulePositions.set(state.ModulePositions);
-        driveTimestamp.set(state.Timestamp);
-        driveOdometryFrequency.set(1.0 / state.OdometryPeriod);
+        stateTable.setStruct("pose", state.Pose);
+        stateTable.setStruct("speeds", state.Speeds);
+        stateTable.setStruct("module states", state.ModuleStates);
+        stateTable.setStruct("module targets", state.ModuleTargets);
+        stateTable.setStruct("module positions", state.ModulePositions);
+        stateTable.set("timestamp", state.Timestamp);
+        stateTable.set("odometry period", state.OdometryPeriod);
+        stateTable.set("odometry frequency", 1.0 / state.OdometryPeriod);
 
         // Also write to log file
         poseArray[0] = state.Pose.getX();
@@ -153,11 +136,6 @@ public class Telemetry {
         }
 
         field.setRobotPose(AutoBuilder.getCurrentPose());
-
-        stateTable.set("pose", poseArray);
-        stateTable.set("module states", moduleStatesArray);
-        stateTable.set("module targets", moduleTargetsArray);
-        stateTable.set("odometry period", state.OdometryPeriod);
 
         var modules = RobotContainer.drivetrain.getModules();
         NTable[] tables = Arrays.stream(new String[] { "FL", "FR", "BL", "BR" })
