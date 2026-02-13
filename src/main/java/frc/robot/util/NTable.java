@@ -107,13 +107,13 @@ public class NTable {
      * @param name the name of the entry
      * @param type the type of the entry
      */
-    public GenericEntry getEntry(String name, NetworkTableType type) {
+    public GenericEntry getEntry(String name, NetworkTableType type, boolean warnOnWrongType) {
         boolean entryExisted = entries.containsKey(name);
         GenericEntry entry = entries.computeIfAbsent(name,
                 n -> table.getTopic(n).getGenericEntry(type.getValueStr()));
 
         NetworkTableType entryType = entry.get().getType();
-        if (entryExisted && !entryType.equals(type)) {
+        if (warnOnWrongType && entryExisted && !entryType.equals(type)) {
             DriverStation.reportWarning(
                     "NTable entry " + table.getPath() + "/" + name + " had a type different from '"
                             + type + "'; its type was '" + entryType + "'",
@@ -135,7 +135,7 @@ public class NTable {
      * @param type the type of the entry
      */
     public GenericEntry getEntry(String name, String type) {
-        return getEntry(name, NetworkTableType.getFromString(type));
+        return getEntry(name, NetworkTableType.getFromString(type), true);
     }
 
     /**

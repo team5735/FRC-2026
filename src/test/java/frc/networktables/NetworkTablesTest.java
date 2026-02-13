@@ -18,8 +18,8 @@ public class NetworkTablesTest {
         Assertions.assertTrue(testTable == NTable.root("test"));
         Assertions.assertTrue(testTable.sub("sub") == testTable.sub("sub"));
         testTable.set("ent", true);
-        Assertions.assertTrue(testTable.getEntry("ent", NetworkTableType.kBoolean) == testTable.getEntry("ent",
-                NetworkTableType.kBoolean));
+        Assertions.assertTrue(testTable.getEntry("ent", NetworkTableType.kBoolean, false) == testTable.getEntry("ent",
+                NetworkTableType.kBoolean, false));
     }
 
     @Test
