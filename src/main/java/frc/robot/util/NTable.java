@@ -2,6 +2,9 @@ package frc.robot.util;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.nio.ByteBuffer;
 
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.networktables.NetworkTable;
@@ -174,7 +177,7 @@ public class NTable {
     }
 
     /** A map of names to sent {@link Sendable}s. */
-    HashMap<String, Sendable> tablesToData = new HashMap<>();
+    private HashMap<String, Sendable> tablesToData = new HashMap<>();
 
     /**
      * Publishes a Sendable object to the NetworkTables.
@@ -198,6 +201,75 @@ public class NTable {
         SendableRegistry.publish(data, builder);
         builder.startListeners();
         sub(name).set(".name", name);
+    }
+
+    private HashMap<String, Struct<?>> structs = new HashMap<>();
+
+    public <T> void setStruct(String name, T value, Struct<T> struct) {
+        NetworkTableInstance.getDefault().addSchema(struct);
+        StructBuffer<T> buffer = StructBuffer.create(struct);
+        ByteBuffer bb = buffer.write(value);
+        if (!bb.hasArray()) {
+            DriverStation.reportWarning("cannot publish struct to " + name
+                    + " because its returned byte buffer doesn't use a backing array", true);
+            return;
+        }
+        set(name, bb.array());
+    }
+
+    public <T> void setStruct(String name, T value) {
+        if (structs.containsKey(name)) {
+            // if the struct has already been extracted and cached by the rest of the
+            // function, use it
+            Struct<?> struct = structs.get(name);
+            if (!struct.getTypeClass().isInstance(value)) {
+                DriverStation.reportError(
+                        "tried to publish a " + value.getClass().getName() + " object to " + name
+                                + ", but a struct of type " + struct.getTypeClass().getName()
+                                + " had already been registered for this entry in " + table.getPath(),
+                        true);
+                return;
+            }
+            @SuppressWarnings("unchecked")
+            Struct<T> casted = (Struct<T>) struct;
+            setStruct(name, value, casted);
+            return;
+        }
+
+        // assuming that the struct is stored in T.struct, as is typical, get it using
+        // runtime reflection (exciting!)
+        Class<?> classType = value.getClass();
+        try {
+            Field field = classType.getField("struct");
+            if (!Modifier.isStatic(field.getModifiers())) {
+                DriverStation.reportWarning(
+                        "could not find static field `struct` in class " + classType.getName() + " for entry " + name,
+                        true);
+                return;
+            }
+            Object possibleStruct = field.get(null);
+            if (!(possibleStruct instanceof Struct<?> struct) ||
+                    !struct.getTypeClass().isInstance(value)) {
+                DriverStation.reportWarning(
+                        "could not find static field `struct` of correct type in class " + classType.getName()
+                                + " for entry " + name,
+                        true);
+                return;
+            }
+            @SuppressWarnings("unchecked")
+            Struct<T> casted = (Struct<T>) struct;
+            structs.put(name, struct);
+            setStruct(name, value, casted);
+
+        } catch (NoSuchFieldException e) {
+            DriverStation.reportWarning(
+                    "could not find static field `struct` in class " + classType.getName() + " for entry " + name,
+                    e.getStackTrace());
+        } catch (Exception e) {
+            DriverStation.reportError(
+                    "error retrieving static field `struct` in class " + classType.getName() + " for entry " + name,
+                    e.getStackTrace());
+        }
     }
 
     /**
