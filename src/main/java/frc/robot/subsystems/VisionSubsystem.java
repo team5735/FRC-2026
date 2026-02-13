@@ -13,7 +13,6 @@ import static edu.wpi.first.units.Units.Radians;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Supplier;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
@@ -25,7 +24,6 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.networktables.DoubleArrayEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.TimestampedDoubleArray;
-import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Telemetry;
@@ -130,8 +128,6 @@ public class VisionSubsystem extends SubsystemBase {
                             Degrees.of(stddevs[5])));
         }
     }
-
-    Supplier<AngularVelocity> angularVelocityZ = null;
 
     public void handleVisionMeasurement(String limelightName) {
         NTable lltable = this.table.sub(limelightName);
@@ -246,8 +242,8 @@ public class VisionSubsystem extends SubsystemBase {
 
         stddevs = stddevs.times(totalPenalty);
         // if robot is rotating, use 99999 for theta
-        if (drivetrain.getPigeon2().getAngularVelocityZWorld().asSupplier().get()
-                .in(DegreesPerSecond) > VisionConstants.ROTATION_EPSILON.in(DegreesPerSecond)) {
+        if (drivetrain.getPigeon2().getAngularVelocityZWorld().getValueAsDouble() > VisionConstants.MAX_ROTATION_SPEED
+                .in(DegreesPerSecond)) {
             stddevs.getData()[2] = 99999;
         }
 

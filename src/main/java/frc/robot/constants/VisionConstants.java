@@ -18,7 +18,7 @@ public class VisionConstants {
 
     public static final        Distance TOLERATED_HEIGHT                 = Centimeters.of(25);
     public static final AngularVelocity TOLERATED_ROTATIONAL_RATE        = DegreesPerSecond.of(10);
-    public static final AngularVelocity ROTATION_EPSILON                 = DegreesPerSecond.of(1);
+    public static final AngularVelocity MAX_ROTATION_SPEED               = DegreesPerSecond.of(1);
     public static final        Distance MAX_DISTANCE_BETWEEN_MT1_AND_MT2 = Centimeters.of(20);
 
     public static final            Time MT2_DRIFT_TOLERANCE              = Seconds.of(10);
