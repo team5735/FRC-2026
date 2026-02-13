@@ -64,6 +64,7 @@ public class TunablePIDController {
         controller.setSetpoint(setpoint);
         table.set("setpoint", setpoint);
         controller.setTolerance(tolerance);
+        table.set("tolerance", tolerance);
     }
 
     /** Resets the PID controller. */
@@ -84,6 +85,7 @@ public class TunablePIDController {
         double value = controller.calculate(measurement);
         table.set("measurement", measurement);
         table.set("output", value);
+        table.set("error", controller.getError());
         return value;
     }
 
