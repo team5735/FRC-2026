@@ -1,7 +1,6 @@
 package frc.robot.util;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.networktables.NetworkTableType;
 import frc.robot.constants.Constants;
 
 public class TunablePIDController {
@@ -29,10 +28,6 @@ public class TunablePIDController {
     /** Creates a new PID controller with the specified values in {table}/{name}. */
     public TunablePIDController(NTable table, String name, double _p, double _i, double _d) {
         this.table = table.sub(name);
-        this.table.set("kP", _p);
-        this.table.set("kI", _i);
-        this.table.set("kD", _d);
-        this.table.makePersistent("kP", "kI", "kD");
     }
 
     /**
