@@ -35,7 +35,7 @@ public class FieldMapTest {
     }
 
     private static String pretty(Pose3d p) {
-        return String.format("%s %.1f°", pretty(p.getTranslation()), pretty(p.getRotation()));
+        return String.format("%s %s", pretty(p.getTranslation()), pretty(p.getRotation()));
     }
 
     private static Translation2d red(Translation2d in) {
