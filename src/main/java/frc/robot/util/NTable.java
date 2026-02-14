@@ -206,56 +206,80 @@ public class NTable {
 
     private HashMap<String, Struct<?>> structs = new HashMap<>();
 
-    public <T> void setStruct(String name, T value, Struct<T> struct) {
-        NetworkTableInstance.getDefault().addSchema(struct);
-        ByteBuffer buffer = StructBuffer.create(struct).write(value);
+    private void publishRawBuffer(String name, ByteBuffer buffer) {
         int handle = getEntry(name, NetworkTableType.kRaw, true).getHandle();
         NetworkTablesJNI.setRaw(handle, NetworkTablesJNI.now(), buffer);
     }
 
+    public <T> void setStruct(String name, T value, Struct<T> struct) {
+        NetworkTableInstance.getDefault().addSchema(struct);
+        publishRawBuffer(name, StructBuffer.create(struct).write(value));
+    }
+
+    public <T> void setStructs(String name, T[] values, Struct<T> struct) {
+        NetworkTableInstance.getDefault().addSchema(struct);
+        publishRawBuffer(name, StructBuffer.create(struct).writeArray(values));
+    }
+
     public <T> void setStruct(String name, T value) {
+        Struct<T> struct = getStructForObject(name, value.getClass());
+        if (struct != null) {
+            setStruct(name, value, struct);
+        }
+    }
+
+    public <T> void setStructs(String name, T[] values) {
+        Struct<T> struct = getStructForObject(name, values.getClass().getComponentType());
+        if (struct != null) {
+            setStructs(name, values, struct);
+        }
+    }
+
+    private <T> Struct<T> getStructForObject(String name, Class<?> classType) {
         if (structs.containsKey(name)) {
             // if the struct has already been extracted and cached by the rest of the
             // function, use it
             Struct<?> struct = structs.get(name);
-            if (!struct.getTypeClass().isInstance(value)) {
+            if (!struct.getTypeClass().isAssignableFrom(classType)) {
                 DriverStation.reportError(
-                        "tried to publish a " + value.getClass().getName() + " object to " + name
+                        "tried to publish a " + classType.getName() + " object to " + name
                                 + ", but a struct of type " + struct.getTypeClass().getName()
                                 + " had already been registered for this entry in " + table.getPath(),
                         true);
-                return;
+                return null;
             }
             @SuppressWarnings("unchecked")
             Struct<T> casted = (Struct<T>) struct;
-            setStruct(name, value, casted);
-            return;
+            return casted;
         }
 
+        if (classType == null) {
+            DriverStation.reportWarning("null class type passed trying to retrieve struct for entry " + name, true);
+            return null;
+        }
         // assuming that the struct is stored in T.struct, as is typical, get it using
         // runtime reflection (exciting!)
-        Class<?> classType = value.getClass();
         try {
             Field field = classType.getField("struct");
             if (!Modifier.isStatic(field.getModifiers())) {
                 DriverStation.reportWarning(
                         "could not find static field `struct` in class " + classType.getName() + " for entry " + name,
                         true);
-                return;
+                return null;
             }
             Object possibleStruct = field.get(null);
             if (!(possibleStruct instanceof Struct<?> struct) ||
-                    !struct.getTypeClass().isInstance(value)) {
+                    !struct.getTypeClass().isAssignableFrom(classType)) {
                 DriverStation.reportWarning(
                         "could not find static field `struct` of correct type in class " + classType.getName()
                                 + " for entry " + name,
                         true);
-                return;
+                return null;
             }
             @SuppressWarnings("unchecked")
             Struct<T> casted = (Struct<T>) struct;
             structs.put(name, struct);
-            setStruct(name, value, casted);
+            return casted;
 
         } catch (NoSuchFieldException e) {
             DriverStation.reportWarning(
@@ -266,6 +290,7 @@ public class NTable {
                     "error retrieving static field `struct` in class " + classType.getName() + " for entry " + name,
                     e.getStackTrace());
         }
+        return null;
     }
 
     /**
