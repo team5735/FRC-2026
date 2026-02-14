@@ -28,6 +28,7 @@ public class PIDToPose extends Command {
         this.pidX = new TunablePIDController(name + " drive to pose x");
         this.pidY = new TunablePIDController(name + " drive to pose y");
         this.pidTheta = new TunablePIDController(name + " drive to pose theta");
+        this.pidTheta.setContinuous(-Math.PI, Math.PI);
 
         addRequirements(drivetrain);
     }
@@ -38,7 +39,6 @@ public class PIDToPose extends Command {
         this.pidX.setup(targetPose.getX(), Centimeters.of(2).in(Meters));
         this.pidY.setup(targetPose.getY(), Centimeters.of(2).in(Meters));
         this.pidTheta.setup(targetPose.getRotation().getRadians(), Degrees.of(2).in(Radians));
-        this.pidTheta.getController().enableContinuousInput(-Math.PI, Math.PI);
     }
 
     @Override
