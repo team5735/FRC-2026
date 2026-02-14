@@ -330,14 +330,14 @@ public class NTable {
         sub(name).set(".name", name);
     }
 
-    /** A map of class types to registered struct objects. */
-    private HashMap<Class<?>, Struct<?>> structs = new HashMap<>();
-
     /** Publishes a ByteBuffer to the NetworkTable. */
     private void publishRawBuffer(String name, ByteBuffer buffer) {
         int handle = getEntry(name, NetworkTableType.kRaw, true).getHandle();
         NetworkTablesJNI.setRaw(handle, NetworkTablesJNI.now(), buffer);
     }
+
+    /** A map of class types to registered struct objects. */
+    private HashMap<Class<?>, Struct<?>> cachedStructs = new HashMap<>();
 
     private <T> Struct<T> getStructForObject(Class<?> classType) {
         if (classType == null) {
@@ -345,10 +345,10 @@ public class NTable {
             return null;
         }
 
-        if (structs.containsKey(classType)) {
+        if (cachedStructs.containsKey(classType)) {
             // if the struct has already been extracted and cached by the rest of the
             // function, use it
-            Struct<?> struct = structs.get(classType);
+            Struct<?> struct = cachedStructs.get(classType);
             if (!struct.getTypeClass().isAssignableFrom(classType)) {
                 DriverStation.reportError(
                         "tried to publish a " + classType.getName() + ", but a struct of type "
@@ -375,7 +375,7 @@ public class NTable {
             }
             @SuppressWarnings("unchecked")
             Struct<T> casted = (Struct<T>) struct;
-            structs.put(classType, struct);
+            cachedStructs.put(classType, struct);
             return casted;
 
         } catch (Exception e) {
