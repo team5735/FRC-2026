@@ -406,6 +406,68 @@ public class NTable {
         }
     }
 
+    public <T> T get(String name, T defaultValue) {
+        // If the value is a simple type, retrieve it and attempt to cast it to the
+        // requested type.
+        if (NetworkTableEntry.isValidDataType(defaultValue)) {
+            NetworkTableType type = NetworkTableType.getFromString(NetworkTableType.getStringFromObject(defaultValue));
+            NetworkTableValue retrieved = getEntry(name, type, false).get();
+            Class<?> classType = defaultValue.getClass();
+            if (!classType.isInstance(retrieved.getValue())) {
+                return defaultValue;
+            }
+            @SuppressWarnings("unchecked")
+            T value = (T) defaultValue.getClass().cast(retrieved.getValue());
+            return value;
+        }
+
+        // If the value is a Sendable, it should be in the tablesToData map; otherwise
+        // you'll get a null, which is probably fine in terms of interface design.
+        if (defaultValue instanceof Sendable) {
+            @SuppressWarnings("unchecked")
+            T value = (T) tablesToData.get(name);
+            return value;
+        }
+
+        // getStructForObject returns null when the object doesn't have an associated
+        // struct for its class. Using this, we can verify that the object is a struct
+        // type.
+        Struct<?> possibleStruct = getStructForObject(defaultValue.getClass());
+        if (possibleStruct != null) {
+            @SuppressWarnings("unchecked")
+            Struct<T> casted = (Struct<T>) possibleStruct;
+            T result = getStruct(name, casted);
+            if (result == null) {
+                return defaultValue;
+            }
+            return result;
+        }
+
+        // If the object is an array, check whether it is an array of
+        // struct-deserializable objects.
+        if (defaultValue.getClass().isArray() && defaultValue instanceof Object[] casted) {
+            Struct<?> possibleStruct2 = getStructForObject(casted.getClass().getComponentType());
+            if (possibleStruct2 != null) {
+                // We already know that T is an array type, so it's safe to assume that and cast
+                // directry to it. Note that the 'T' in getStructs is different from the T here,
+                // and is in fact the value-type of the T here.
+                @SuppressWarnings("unchecked")
+                T result = (T) getStructs(name, possibleStruct2);
+                if (result == null) {
+                    return defaultValue;
+                }
+                return result;
+            }
+        }
+
+        // If none of the above cases apply, print a warning.
+        DriverStation.reportError(
+                "NTable: Could not retrieve value of type " + defaultValue.getClass().getName() + " to entry " + name
+                        + ": it is not supported.",
+                true);
+        return defaultValue;
+    }
+
     /**
      * Gets the value of the given type from the NetworkTable.
      *
@@ -502,6 +564,21 @@ public class NTable {
         try {
             StructBuffer<T> buffer = StructBuffer.create(struct);
             return buffer.read(raw);
+        } catch (RuntimeException e) {
+            DriverStation.reportWarning("NTable entry " + table.getPath() +
+                    "/" + name + " could not be unpacked: " + e.getMessage(), true);
+            return null;
+        }
+    }
+
+    public <T> T[] getStructs(String name, Struct<T> struct) {
+        byte[] raw = getRaw(name);
+        if (raw.length == 0) {
+            return null;
+        }
+        try {
+            StructBuffer<T> buffer = StructBuffer.create(struct);
+            return buffer.readArray(raw);
         } catch (RuntimeException e) {
             DriverStation.reportWarning("NTable entry " + table.getPath() +
                     "/" + name + " could not be unpacked: " + e.getMessage(), true);
