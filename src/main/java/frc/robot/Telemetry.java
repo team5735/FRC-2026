@@ -12,14 +12,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.networktables.DoublePublisher;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.StructArrayPublisher;
-import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -100,8 +93,8 @@ public class Telemetry {
         for (String limelight : VisionConstants.LIMELIGHTS) {
             field.getObject(limelight).setPose(new Pose2d());
         }
-        table.setSendable("field", field);
-        table.setSendable("swerve state", sendableState);
+        table.set("field", field);
+        table.set("swerve state", sendableState);
 
         field.getObject("CLIMBER_BLUE_LOCALIZATION_POSE").setPose(FieldConstants.CLIMBER_BLUE_LOCALIZATION_POSE);
         field.getObject("CLIMBER_BLUE_LEFT_CLIMB_ALIGN_POSE")
@@ -115,11 +108,11 @@ public class Telemetry {
     // Accept the swerve drive state and telemeterize it to SmartDashboard.
     public void telemeterize(SwerveDriveState state) {
         // Telemeterize the swerve drive state
-        stateTable.setStruct("pose", state.Pose);
-        stateTable.setStruct("speeds", state.Speeds);
-        stateTable.setStructs("module states", state.ModuleStates);
-        stateTable.setStructs("module targets", state.ModuleTargets);
-        stateTable.setStructs("module positions", state.ModulePositions);
+        stateTable.set("pose", state.Pose);
+        stateTable.set("speeds", state.Speeds);
+        stateTable.set("module states", state.ModuleStates);
+        stateTable.set("module targets", state.ModuleTargets);
+        stateTable.set("module positions", state.ModulePositions);
         stateTable.set("timestamp", state.Timestamp);
         stateTable.set("odometry period", state.OdometryPeriod);
         stateTable.set("odometry frequency", 1.0 / state.OdometryPeriod);
@@ -157,7 +150,7 @@ public class Telemetry {
             moduleSpeeds[i].setLength(state.ModuleStates[i].speedMetersPerSecond
                     / (2 * CompbotTunerConstants.SPEED_AT_12_VOLTS.in(MetersPerSecond)));
 
-            table.setSendable("mechanism", moduleMechanisms[i]);
+            table.set("mechanism", moduleMechanisms[i]);
         }
 
         table.set("translation_position", state.Pose.getY());
