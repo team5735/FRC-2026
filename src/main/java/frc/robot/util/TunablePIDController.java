@@ -30,6 +30,27 @@ public class TunablePIDController {
         this.table = table.sub(name);
     }
 
+    boolean continuous = false;
+    double continuousStart, continuousEnd;
+
+    /**
+     * Sets this PID controller to have a continuous input. This only takes effect
+     * the next time setup() is called.
+     */
+    public void setContinuous(double start, double end) {
+        continuous = true;
+        continuousStart = start;
+        continuousEnd = end;
+    }
+
+    /**
+     * Sets this PID controller to have a non-continuous input. This only takes
+     * effect the next time setup() is called.
+     */
+    public void unsetContinuous() {
+        continuous = false;
+    }
+
     /**
      * Set up this PID controller.
      *
@@ -60,6 +81,10 @@ public class TunablePIDController {
                 table.getDouble("kP"),
                 table.getDouble("kI"),
                 table.getDouble("kD"));
+
+        if (continuous) {
+            controller.enableContinuousInput(continuousStart, continuousEnd);
+        }
 
         controller.setSetpoint(setpoint);
         table.set("setpoint", setpoint);
