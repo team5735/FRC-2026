@@ -418,63 +418,63 @@ public class NTable {
      *
      * @return the requested value as a {@link NetworkTableValue}
      */
-    public NetworkTableValue get(String name, NetworkTableType type) {
-        return getEntry(name, type, false).get();
+    public NetworkTableValue getSimple(String name, NetworkTableType type) {
+        return getEntry(name, type, true).get();
     }
 
-    /** @see #get(String, NetworkTableType) */
+    /** @see #getSimple(String, NetworkTableType) */
     public double getDouble(String name) {
-        return get(name, NetworkTableType.kDouble).getDouble();
+        return getSimple(name, NetworkTableType.kDouble).getDouble();
     }
 
-    /** @see #get(String, NetworkTableType) */
+    /** @see #getSimple(String, NetworkTableType) */
     public boolean getBoolean(String name) {
-        return get(name, NetworkTableType.kBoolean).getBoolean();
+        return getSimple(name, NetworkTableType.kBoolean).getBoolean();
     }
 
-    /** @see #get(String, NetworkTableType) */
+    /** @see #getSimple(String, NetworkTableType) */
     public String getString(String name) {
-        return get(name, NetworkTableType.kString).getString();
+        return getSimple(name, NetworkTableType.kString).getString();
     }
 
-    /** @see #get(String, NetworkTableType) */
+    /** @see #getSimple(String, NetworkTableType) */
     public long getInt(String name) {
-        return get(name, NetworkTableType.kInteger).getInteger();
+        return getSimple(name, NetworkTableType.kInteger).getInteger();
     }
 
-    /** @see #get(String, NetworkTableType) */
+    /** @see #getSimple(String, NetworkTableType) */
     public float getLong(String name) {
-        return get(name, NetworkTableType.kFloat).getFloat();
+        return getSimple(name, NetworkTableType.kFloat).getFloat();
     }
 
-    /** @see #get(String, NetworkTableType) */
+    /** @see #getSimple(String, NetworkTableType) */
     public byte[] getRaw(String name) {
-        return get(name, NetworkTableType.kRaw).getRaw();
+        return getSimple(name, NetworkTableType.kRaw).getRaw();
     }
 
-    /** @see #get(String, NetworkTableType) */
+    /** @see #getSimple(String, NetworkTableType) */
     public double[] getDoubleArray(String name) {
-        return get(name, NetworkTableType.kDoubleArray).getDoubleArray();
+        return getSimple(name, NetworkTableType.kDoubleArray).getDoubleArray();
     }
 
-    /** @see #get(String, NetworkTableType) */
+    /** @see #getSimple(String, NetworkTableType) */
     public boolean[] getBooleanArray(String name) {
-        return get(name, NetworkTableType.kBooleanArray).getBooleanArray();
+        return getSimple(name, NetworkTableType.kBooleanArray).getBooleanArray();
     }
 
-    /** @see #get(String, NetworkTableType) */
+    /** @see #getSimple(String, NetworkTableType) */
     public String[] getStringArray(String name) {
-        return get(name, NetworkTableType.kStringArray).getStringArray();
+        return getSimple(name, NetworkTableType.kStringArray).getStringArray();
     }
 
-    /** @see #get(String, NetworkTableType) */
+    /** @see #getSimple(String, NetworkTableType) */
     public long[] getIntArray(String name) {
-        return get(name, NetworkTableType.kIntegerArray).getIntegerArray();
+        return getSimple(name, NetworkTableType.kIntegerArray).getIntegerArray();
     }
 
-    /** @see #get(String, NetworkTableType) */
+    /** @see #getSimple(String, NetworkTableType) */
     public float[] getFloatArray(String name) {
-        return get(name, NetworkTableType.kFloatArray).getFloatArray();
+        return getSimple(name, NetworkTableType.kFloatArray).getFloatArray();
     }
 
     /**
