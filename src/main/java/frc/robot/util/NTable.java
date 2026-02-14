@@ -520,8 +520,9 @@ public class NTable {
      * example, this function will accept a {@code Byte} (not an array of byte;
      * that would fall under the previous paragraph!) and send it as a double.
      * 
-     * @param name  the name of the entry to publish
-     * @param value the Object to publish
+     * @param name         the name of the entry to retrieve from
+     * @param defaultValue the default value to return if the entry does not exist
+     *                     or is invalid
      *
      * @bug This function does not properly handle classes that are only
      *      de/serializable with Protobuffers.
