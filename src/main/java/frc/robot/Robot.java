@@ -30,7 +30,7 @@ public class Robot extends TimedRobot {
         // and put our autonomous chooser on the dashboard.
         robotContainer = new RobotContainer();
 
-        NTable.root().setSendable("scheduler", CommandScheduler.getInstance());
+        NTable.root().set("scheduler", CommandScheduler.getInstance());
     }
 
     /**
