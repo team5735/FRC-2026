@@ -1,10 +1,10 @@
 package frc.robot.util;
 
-import java.util.Arrays;
-import java.util.HashMap;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.HashMap;
 
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.networktables.NetworkTable;
@@ -153,6 +153,132 @@ public class NTable {
      * Publishes a value of any accepted type to the NetworkTable.
      *
      * <p>
+     * The type of the value is determined from the runtime type of the object
+     * passed to the parameter 'value'. This function acts as a catch-all for
+     * anything that can be posted to NetworkTables, in the spirit of this class's
+     * 'set and forget' philosophy.
+     * 
+     * <p>
+     * If the type is a so-called 'simple' type, it is passed to
+     * {@link #setSimple(String, Object)}. See the end of this function's
+     * documentation for a discussion of the term 'simple'.
+     * 
+     * <p>
+     * If the type is a {@link Sendable}, it is passed to
+     * {@link #setSendable(String, Sendable)}.
+     *
+     * <p>
+     * Otherwise, the type is checked to see whether it has a registered
+     * {@code Struct<T>} associated with its class type.
+     * If so, it is passed to {@link #setStruct(String, Struct)}.
+     * set also attempts to automatically detect if the passed object's class type
+     * has a static member named 'struct', and if so, that struct is registered for
+     * the passed class type and the object is then passed to
+     * {@link #setStruct(String, Struct)}.
+     *
+     * <p>
+     * If the object is of array type, it is checked whether it is an array of
+     * struct-serializable objects. If that is the case, then it is serialized as an
+     * array of structs.
+     *
+     * <p>
+     * If none of the above cases apply, a warning is printed and the object is
+     * ignored.
+     *
+     * <p>
+     * The following types are considered 'simple':
+     * 
+     * <ul>
+     * <li>{@code Boolean}</li>
+     * <li>{@code Float}</li>
+     * <li>{@code Long}</li>
+     * <li>{@code Double}</li>
+     * <li>{@code String}</li>
+     * </ul>
+     * 
+     * Arrays of any of the above, as well as arrays of their respective primitive
+     * types (except for String, which does not have an associated primitive type)
+     * are also considered 'simple'. For example, the following types are 'simple':
+     * {@code String[]}, {@code double[]}, {@code int}, etc. Note that primitive
+     * types such as {@code int} automatically get 'boxed' into their corresponding
+     * {@link Object} type, such as {@link Integer} in the case of int. Therefore,
+     * passing a primitive to the value parameter of this function will work as
+     * expected.
+     * 
+     * <p>
+     * There are two other types considered 'simple': {@code byte[]} and
+     * {@code Byte[]}. These are classified as 'raw' data and are typically used to
+     * send structs across NetworkTables (see {@link #setStruct(String, Struct)}).
+     *
+     * <p>
+     * Furthermore, any numeric primitive box type that extends {@code Number} is
+     * also considered primitive and will be sent as a double, except for the
+     * non-double numerics mentioned above, {@code Float} and {@code Long}. For
+     * example, this function will accept a {@code Byte} (not an array of byte;
+     * that would fall under the previous paragraph!) and send it as a double.
+     * 
+     * @param name  the name of the entry to publish
+     * @param value the Object to publish
+     *
+     * @bug This function does not properly handle classes that are only
+     *      de/serializable with Protobuffers.
+     */
+    public <T> void set(String name, T value) {
+        // If the value is a simple type, publish it simply.
+        if (NetworkTableEntry.isValidDataType(value)) {
+            setSimple(name, value);
+            return;
+        }
+
+        // If the value is a Sendable, use setSendable().
+        if (value instanceof Sendable casted) {
+            setSendable(name, casted);
+            return;
+        }
+
+        // getStructForObject returns null when the object doesn't have an associated
+        // struct for its class. Using this, we can verify that the object is a struct
+        // type.
+        Struct<?> possibleStruct = getStructForObject(value.getClass());
+        if (possibleStruct != null) {
+            @SuppressWarnings("unchecked")
+            Struct<T> casted = (Struct<T>) possibleStruct;
+            setStruct(name, value, casted);
+            return;
+        }
+
+        // If the object is an array, check whether it is an array of
+        // struct-serializable
+        // objects.
+        if (value.getClass().isArray() && value instanceof Object[] casted) {
+            possibleStruct = getStructForObject(casted.getClass().getComponentType());
+            if (possibleStruct != null) {
+                // If we got this far, we know that castedStruct is Struct<T> where T is the
+                // component type of value. Due to Java generics being a pile of type-erasing
+                // bullshit, we can cast everything to be in terms of Object and it should just
+                // work.
+                @SuppressWarnings("unchecked")
+                Struct<Object> castedStruct = (Struct<Object>) possibleStruct;
+                setStructs(name, casted, castedStruct);
+                return;
+            }
+        }
+
+        // If none of the above cases apply, print a warning.
+        DriverStation.reportError(
+                "NTable: Could not publish value of type " + value.getClass().getName() + " to entry " + name
+                        + ": it is not supported.",
+                false);
+    }
+
+    /**
+     * Publishes a value of any accepted 'simple' type to the NetworkTable.
+     *
+     * <p>
+     * See the documentation for {@link #set(String, Object)} for a discussion of
+     * 'simple' types.
+     *
+     * <p>
      * The type of the value is determined from the runtime type of the object. If
      * the type is not supported by NetworkTables, a warning is printed to
      * DriverStation and nothing is published. If the type differs from the type
@@ -168,7 +294,7 @@ public class NTable {
      * @param name  the name of the entry to publish
      * @param value the Object to publish
      */
-    public void set(String name, Object value) {
+    public void setSimple(String name, Object value) {
         if (!NetworkTableEntry.isValidDataType(value)) {
             DriverStation.reportWarning("NTable entry " + table.getPath() + "/" + name
                     + " has invalid type; the passed object is of type " + value.getClass().getName(), true);
@@ -204,7 +330,8 @@ public class NTable {
         sub(name).set(".name", name);
     }
 
-    private HashMap<String, Struct<?>> structs = new HashMap<>();
+    /** A map of class types to registered struct objects. */
+    private HashMap<Class<?>, Struct<?>> structs = new HashMap<>();
 
     private void publishRawBuffer(String name, ByteBuffer buffer) {
         int handle = getEntry(name, NetworkTableType.kRaw, true).getHandle();
@@ -222,29 +349,34 @@ public class NTable {
     }
 
     public <T> void setStruct(String name, T value) {
-        Struct<T> struct = getStructForObject(name, value.getClass());
+        Struct<T> struct = getStructForObject(value.getClass());
         if (struct != null) {
             setStruct(name, value, struct);
         }
     }
 
     public <T> void setStructs(String name, T[] values) {
-        Struct<T> struct = getStructForObject(name, values.getClass().getComponentType());
+        Struct<T> struct = getStructForObject(values.getClass().getComponentType());
         if (struct != null) {
             setStructs(name, values, struct);
         }
     }
 
-    private <T> Struct<T> getStructForObject(String name, Class<?> classType) {
-        if (structs.containsKey(name)) {
+    private <T> Struct<T> getStructForObject(Class<?> classType) {
+        if (classType == null) {
+            DriverStation.reportWarning("null class type passed trying to retrieve struct", true);
+            return null;
+        }
+
+        if (structs.containsKey(classType)) {
             // if the struct has already been extracted and cached by the rest of the
             // function, use it
-            Struct<?> struct = structs.get(name);
+            Struct<?> struct = structs.get(classType);
             if (!struct.getTypeClass().isAssignableFrom(classType)) {
                 DriverStation.reportError(
-                        "tried to publish a " + classType.getName() + " object to " + name
-                                + ", but a struct of type " + struct.getTypeClass().getName()
-                                + " had already been registered for this entry in " + table.getPath(),
+                        "tried to publish a " + classType.getName() + ", but a struct of type "
+                                + struct.getTypeClass().getName() + " had already been registered for this entry in "
+                                + table.getPath(),
                         true);
                 return null;
             }
@@ -253,44 +385,25 @@ public class NTable {
             return casted;
         }
 
-        if (classType == null) {
-            DriverStation.reportWarning("null class type passed trying to retrieve struct for entry " + name, true);
-            return null;
-        }
-        // assuming that the struct is stored in T.struct, as is typical, get it using
-        // runtime reflection (exciting!)
+        // assuming that the struct is stored in T.struct, as is the convention, get it
+        // using runtime reflection (exciting!)
         try {
             Field field = classType.getField("struct");
             if (!Modifier.isStatic(field.getModifiers())) {
-                DriverStation.reportWarning(
-                        "could not find static field `struct` in class " + classType.getName() + " for entry " + name,
-                        true);
                 return null;
             }
             Object possibleStruct = field.get(null);
-            if (!(possibleStruct instanceof Struct<?> struct) ||
-                    !struct.getTypeClass().isAssignableFrom(classType)) {
-                DriverStation.reportWarning(
-                        "could not find static field `struct` of correct type in class " + classType.getName()
-                                + " for entry " + name,
-                        true);
+            if (!(possibleStruct instanceof Struct<?> struct) || !struct.getTypeClass().isAssignableFrom(classType)) {
                 return null;
             }
             @SuppressWarnings("unchecked")
             Struct<T> casted = (Struct<T>) struct;
-            structs.put(name, struct);
+            structs.put(classType, struct);
             return casted;
 
-        } catch (NoSuchFieldException e) {
-            DriverStation.reportWarning(
-                    "could not find static field `struct` in class " + classType.getName() + " for entry " + name,
-                    e.getStackTrace());
         } catch (Exception e) {
-            DriverStation.reportError(
-                    "error retrieving static field `struct` in class " + classType.getName() + " for entry " + name,
-                    e.getStackTrace());
+            return null;
         }
-        return null;
     }
 
     /**
