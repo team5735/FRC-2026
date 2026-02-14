@@ -518,7 +518,9 @@ public class NTable {
      *
      * <p>
      * If the requested type differs from the type retrieved from the entry, a
-     * warning is printed and the current entry's type is returned.
+     * warning is printed and a value of the current entry's type is returned. If no
+     * value has been published under this name, returns a NetworkTableValue with
+     * type kUnassigned.
      * 
      * @param name the name of the entry
      * @param type the type of the entry
@@ -616,6 +618,23 @@ public class NTable {
         }
     }
 
+    /**
+     * Attempts to retrieve and unpack an array of structs under the given path in
+     * NetworkTables.
+     *
+     * <p>
+     * If the given entry name does not currently store a raw value, this function
+     * will error out like {@link #getRaw}. Further, if the value can be retrieved
+     * but not unpacked, a warning is reported to the DriverStation.
+     *
+     * <p>
+     * Note that this function is thoroughly untested as of now.
+     *
+     * @param name   the name of the entry
+     * @param struct the struct by whose rules to unpack the data
+     *
+     * @return the unpacked struct
+     */
     public <T> T[] getStructs(String name, Struct<T> struct) {
         byte[] raw = getRaw(name);
         if (raw.length == 0) {
@@ -637,7 +656,7 @@ public class NTable {
         return entry.getType().equals(desiredType);
     }
 
-    /** {@return whether all of the given names are present in this NTable} */
+    /** {@return whether the given name is present in this NTable} */
     public boolean isPresent(String name) {
         return !getEntry(name, NetworkTableType.kRaw, false).get().getType().equals(NetworkTableType.kUnassigned);
     }
