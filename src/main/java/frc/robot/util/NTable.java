@@ -333,33 +333,10 @@ public class NTable {
     /** A map of class types to registered struct objects. */
     private HashMap<Class<?>, Struct<?>> structs = new HashMap<>();
 
+    /** Publishes a ByteBuffer to the NetworkTable. */
     private void publishRawBuffer(String name, ByteBuffer buffer) {
         int handle = getEntry(name, NetworkTableType.kRaw, true).getHandle();
         NetworkTablesJNI.setRaw(handle, NetworkTablesJNI.now(), buffer);
-    }
-
-    public <T> void setStruct(String name, T value, Struct<T> struct) {
-        NetworkTableInstance.getDefault().addSchema(struct);
-        publishRawBuffer(name, StructBuffer.create(struct).write(value));
-    }
-
-    public <T> void setStructs(String name, T[] values, Struct<T> struct) {
-        NetworkTableInstance.getDefault().addSchema(struct);
-        publishRawBuffer(name, StructBuffer.create(struct).writeArray(values));
-    }
-
-    public <T> void setStruct(String name, T value) {
-        Struct<T> struct = getStructForObject(value.getClass());
-        if (struct != null) {
-            setStruct(name, value, struct);
-        }
-    }
-
-    public <T> void setStructs(String name, T[] values) {
-        Struct<T> struct = getStructForObject(values.getClass().getComponentType());
-        if (struct != null) {
-            setStructs(name, values, struct);
-        }
     }
 
     private <T> Struct<T> getStructForObject(Class<?> classType) {
@@ -403,6 +380,74 @@ public class NTable {
 
         } catch (Exception e) {
             return null;
+        }
+    }
+
+    /**
+     * Publishes a struct to the NetworkTable.
+     *
+     * <p>
+     * This function uses its struct parameter to serialize the passed value and
+     * then publishes the raw value to NetworkTables as a 'raw' entry.
+     *
+     * @param name   the name of the entry to publish
+     * @param value  the value to publish
+     * @param struct the struct with which to serialize the value
+     */
+    public <T> void setStruct(String name, T value, Struct<T> struct) {
+        NetworkTableInstance.getDefault().addSchema(struct);
+        publishRawBuffer(name, StructBuffer.create(struct).write(value));
+    }
+
+    /**
+     * Publishes an array of structs to the NetworkTable.
+     *
+     * <p>
+     * This function uses its struct parameter to serialize the passed value and
+     * then publishes the raw value to NetworkTables as a 'raw' entry.
+     *
+     * @param name   the name of the entry to publish
+     * @param values the values to publish
+     * @param struct the struct with which to serialize the values
+     */
+    public <T> void setStructs(String name, T[] values, Struct<T> struct) {
+        NetworkTableInstance.getDefault().addSchema(struct);
+        publishRawBuffer(name, StructBuffer.create(struct).writeArray(values));
+    }
+
+    /**
+     * Publishes a struct to the NetworkTable.
+     *
+     * <p>
+     * This function uses runtime reflection to try and figure out the right
+     * {@code Struct<T>} object to use to serialize the passed value. It expects to
+     * find this as a static member {@code T.value}.
+     *
+     * @param name  the name of the entry to publish
+     * @param value the value to publish
+     */
+    public <T> void setStruct(String name, T value) {
+        Struct<T> struct = getStructForObject(value.getClass());
+        if (struct != null) {
+            setStruct(name, value, struct);
+        }
+    }
+
+    /**
+     * Publishes an array of structs to the NetworkTable.
+     *
+     * <p>
+     * This function uses runtime reflection to try and figure out the right
+     * {@code Struct<T>} object to use to serialize the passed value. It expects to
+     * find this as a static member {@code T.value}.
+     *
+     * @param name   the name of the entry to publish
+     * @param values the values to publish
+     */
+    public <T> void setStructs(String name, T[] values) {
+        Struct<T> struct = getStructForObject(values.getClass().getComponentType());
+        if (struct != null) {
+            setStructs(name, values, struct);
         }
     }
 
