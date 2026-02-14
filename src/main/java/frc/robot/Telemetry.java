@@ -117,9 +117,9 @@ public class Telemetry {
         // Telemeterize the swerve drive state
         stateTable.setStruct("pose", state.Pose);
         stateTable.setStruct("speeds", state.Speeds);
-        stateTable.setStruct("module states", state.ModuleStates);
-        stateTable.setStruct("module targets", state.ModuleTargets);
-        stateTable.setStruct("module positions", state.ModulePositions);
+        stateTable.setStructs("module states", state.ModuleStates);
+        stateTable.setStructs("module targets", state.ModuleTargets);
+        stateTable.setStructs("module positions", state.ModulePositions);
         stateTable.set("timestamp", state.Timestamp);
         stateTable.set("odometry period", state.OdometryPeriod);
         stateTable.set("odometry frequency", 1.0 / state.OdometryPeriod);
