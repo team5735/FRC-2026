@@ -72,20 +72,22 @@ public class TunablePIDController {
         controller.reset();
     }
 
-    /**
-     * Returns the next output of the PID controller.
-     * 
-     * <p>
-     * Also telemeterizes the given and PID controller output.
-     * 
-     * @param measurement
-     * @return The controller output, or zero if atSetpoint.
-     */
+    /** {@return the next output of the PID controller} */
     public double calculate(double measurement) {
         double value = controller.calculate(measurement);
         table.set("measurement", measurement);
         table.set("output", value);
         table.set("error", controller.getError());
+        return value;
+    }
+
+    /** {@return the next output of the PID controller} */
+    public double calculate(double measurement, double setpoint) {
+        double value = controller.calculate(measurement, setpoint);
+        table.set("measurement", measurement);
+        table.set("output", value);
+        table.set("error", controller.getError());
+        table.set("setpoint", setpoint);
         return value;
     }
 
