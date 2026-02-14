@@ -339,6 +339,20 @@ public class NTable {
     /** A map of class types to registered struct objects. */
     private HashMap<Class<?>, Struct<?>> cachedStructs = new HashMap<>();
 
+    /**
+     * Uses runtime reflection on classType to retrieve its static 'struct' member,
+     * if it exists.
+     *
+     * <p>
+     * If in any case the associated struct for this class type cannot be resolved,
+     * null is returned. This function also caches results it resolves to avoid
+     * repeated reflection. The cache key is the passed class type. See
+     * {@link #cachedStructs} for the cache.
+     *
+     * @param classType the class type to get the struct for
+     * 
+     * @return the struct for the given class type
+     */
     private <T> Struct<T> getStructForObject(Class<?> classType) {
         if (classType == null) {
             DriverStation.reportWarning("null class type passed trying to retrieve struct", true);
