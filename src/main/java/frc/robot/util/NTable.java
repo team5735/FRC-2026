@@ -154,7 +154,7 @@ public class NTable {
      *
      * <p>
      * The type of the value is determined from the runtime type of the object
-     * passed to the parameter 'value'. This function acts as a catch-all for
+     * passed to the parameter {@code value}. This function acts as a catch-all for
      * anything that can be posted to NetworkTables, in the spirit of this class's
      * 'set and forget' philosophy.
      * 
@@ -451,6 +451,81 @@ public class NTable {
         }
     }
 
+    /**
+     * Retrieves a value of any accepted type from NetworkTables.
+     *
+     * <p>
+     * The type of the value is determined from the runtime type of the object
+     * passed to the parameter {@code defaultValue}. This function acts as a
+     * catch-all for anything that can be retrieved from NetworkTables, in the
+     * spirit of this class's 'set and forget' philosophy.
+     * 
+     * <p>
+     * If the type is a so-called 'simple' type, this function defers to
+     * {@link #getSimple(String, NetworkTableType)}. See the end of this function's
+     * documentation for a discussion of the term 'simple'.
+     * 
+     * <p>
+     * If the type is a {@link Sendable}, this function returns the stored sendable
+     * as was last set under this name. In other words, setting a sendable then
+     * getting it should return the exact same object back to the caller.
+     *
+     * <p>
+     * Otherwise, the type is checked to see whether it has a registered
+     * {@code Struct<T>} associated with its class type.
+     * If so, this function defers to {@link #getStruct(String, Struct)}.
+     * set also attempts to automatically detect if the passed object's class type
+     * has a static member named 'struct', and if so, that struct is registered for
+     * the passed class type and the function then defers to
+     * {@link #getStruct(String, Struct)}.
+     *
+     * <p>
+     * If the object is of array type, it is checked whether it is an array of
+     * struct-serializable objects. If that is the case, then it is deserialized as
+     * an array of structs by deferring to {@link #getStructs(String, Struct)}.
+     *
+     * <p>
+     * If none of the above cases apply, a warning is printed and the defalut value
+     * is returned.
+     * 
+     * <p>
+     * The following types are considered 'simple':
+     * 
+     * <ul>
+     * <li>{@code Boolean}</li>
+     * <li>{@code Float}</li>
+     * <li>{@code Long}</li>
+     * <li>{@code Double}</li>
+     * <li>{@code String}</li>
+     * </ul>
+     * 
+     * Arrays of any of the above, as well as arrays of their respective primitive
+     * types (except for String, which does not have an associated primitive type)
+     * are also considered 'simple'. For example, the following types are 'simple':
+     * {@code String[]}, {@code double[]}, {@code int}, etc. Note that primitive
+     * types such as {@code int} automatically get 'boxed' into their corresponding
+     * {@link Object} type, such as {@link Integer} in the case of int. Therefore,
+     * passing a primitive to the value parameter of this function will work as
+     * expected.
+     * 
+     * <p>
+     * There are two other types considered 'simple': {@code byte[]} and
+     * {@code Byte[]}. These are classified as 'raw' data and are typically used to
+     * send structs across NetworkTables (see {@link #setStruct(String, Struct)}).
+     *
+     * <p>
+     * Furthermore, any numeric primitive box type that extends {@code Number} is
+     * also considered primitive and will be sent as a double, except for the
+     * non-double numerics mentioned above, {@code Float} and {@code Long}. For
+     * example, this function will accept a {@code Byte} (not an array of byte;
+     * that would fall under the previous paragraph!) and send it as a double.
+     * 
+     * @param name  the name of the entry to publish
+     * @param value the Object to publish
+     *
+     * @bug This function does not properly handle classes that are only
+     *      de/serializable with Protobuffers.
+     */
     public <T> T get(String name, T defaultValue) {
         // If the value is a simple type, retrieve it and attempt to cast it to the
         // requested type.
