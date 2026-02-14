@@ -79,7 +79,6 @@ public class VisionSubsystem extends SubsystemBase {
         private DoubleArrayEntry getDoubleArrayEntry(String table, String topic) {
             String asPath = table + "/" + topic;
             return entriesCache.computeIfAbsent(asPath, k -> {
-                System.out.println("creating subscriber for " + asPath);
                 return NetworkTableInstance.getDefault().getTable(table)
                         .getDoubleArrayTopic(topic).getEntry(new double[0]);
             });

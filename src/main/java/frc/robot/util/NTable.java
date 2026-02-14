@@ -74,7 +74,11 @@ public class NTable {
     private NTable(NetworkTable table, NTable parent) {
         this.table = table;
         this.parent = parent;
-        System.out.println("created ntable for " + table.getPath());
+        long depth = this.table.getPath().chars().filter(c -> c == '/').count();
+        if (depth > 50) {
+            DriverStation.reportWarning("very long NTable created of depth " + depth
+                    + " created! be careful. its path is " + this.table.getPath() + ". stack trace:", true);
+        }
     }
 
     /** {@return the root NTable} */
