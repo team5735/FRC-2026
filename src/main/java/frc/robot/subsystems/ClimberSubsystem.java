@@ -18,16 +18,18 @@ public class ClimberSubsystem extends SubsystemBase{
   }
   private final DigitalInput limitUp = new DigitalInput(Constants.upperLimitPin);
   private final DigitalInput limitDown = new DigitalInput(Constants.lowerLimitPin);
+  private boolean canMoveUp;
+  private boolean canMoveDown;
 
   public void climbUp() {
-    if (!limitUp.get()){
+    if (canMoveUp){
       talon.setVoltage(Constants.upVolts);
     }else {talon.setVoltage(0);}
     
   }
 
   public void climbDown(){
-    if (!limitDown.get()){
+    if (canMoveDown){
       talon.setVoltage(Constants.downVolts);
     }else {talon.setVoltage(0);}
   
@@ -37,8 +39,26 @@ public class ClimberSubsystem extends SubsystemBase{
     talon.setVoltage(0);
   }
 
+  public boolean isAtUpLimit(){
+    return !limitUp.get();
+  }
+
+  public boolean isAtDownLimit(){
+    return !limitDown.get();
+  }
+
   @Override
   public void periodic(){
+    //DIO
+    canMoveUp=limitUp.get();
+    canMoveDown=limitDown.get();
+
+    if (!canMoveDown && talon.getMotorVoltage().getValueAsDouble()<0){
+        talon.setVoltage(0);
+    }else if (!canMoveUp && talon.getMotorVoltage().getValueAsDouble()>0){
+        talon.setVoltage(0);
+    }
+    
     
 
     //for elastic
