@@ -33,8 +33,9 @@ public class TurretConstants {
 
     public static final SimpleMotorFeedforward FF = new SimpleMotorFeedforward(0, 0, 0);
     public static final Angle LOWER_LIMIT = Rotations.of(0);
-    public static final Angle UPPER_LIMIT = Rotations.of(1);
+    public static final Angle UPPER_LIMIT = Rotations.of(0.75);
     // VERY rough estimate based on ABS density and disc approximation for the gear
     // TODO - Recalc for real turret
     public static final MomentOfInertia MOI = KilogramSquareMeters.of(1.490e-4); 
+    public static final Angle SOFT_PADDING = Rotations.of(0.05);
 }

@@ -33,8 +33,6 @@ public class RobotContainer {
     private final CommandXboxController testController = new CommandXboxController(
             Constants.TEST_CONTROLLER_PORT);
 
-    
-
     private final SendableChooser<Command> autoChooser;
 
     private final Telemetry logger = new Telemetry();
@@ -79,18 +77,15 @@ public class RobotContainer {
                 () -> driveController.getRightTriggerAxis(),
                 () -> driveController.getHID().getBButton()));
 
-        turret.setDefaultCommand(turret.holdFieldRelative(Rotations.of(1), () -> {
+        turret.setDefaultCommand(turret.holdFieldRelative(Rotations.of(0), () -> {
             return drivetrain.getEstimatedPosition().getRotation().getMeasure();
         }));
 
         driveController.y().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
-        testController.a().whileTrue(turret.trackRobotRelative(() -> {
-            double x = testController.getRightX();
-            double y = testController.getRightY();
-            return Radians.of(Math.atan(y / x));
-        }));
-        testController.x()
+        driveController.a().whileTrue(turret.sysId());
+
+        driveController.x()
                 .onTrue(turret.trackFieldPos(FieldConstants.BLUE_HUB_CENTER, drivetrain::getEstimatedPosition));
 
         testController.rightBumper().whileTrue(turret.testForward());
