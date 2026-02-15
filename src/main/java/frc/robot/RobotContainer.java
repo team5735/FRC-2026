@@ -83,9 +83,9 @@ public class RobotContainer {
 
         driveController.y().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
-        driveController.a().whileTrue(turret.sysId());
+        testController.a().whileTrue(turret.sysId());
 
-        driveController.x()
+        testController.x()
                 .onTrue(turret.trackFieldPos(FieldConstants.BLUE_HUB_CENTER, drivetrain::getEstimatedPosition));
 
         testController.rightBumper().whileTrue(turret.testForward());

@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
@@ -23,7 +22,13 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import frc.robot.constants.Constants;
 import frc.robot.constants.RobotConstants;
 import yams.mechanisms.config.MechanismPositionConfig;
@@ -78,11 +83,11 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     public Command testForward() {
-        return turretMechanism.set(0.5);
+        return turretMechanism.set(0.05);
     }
 
     public Command testReverse() {
-        return turretMechanism.set(-0.5);
+        return turretMechanism.set(-0.05);
     }
 
     public Command stop() {
@@ -90,7 +95,26 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     public Command sysId() {
-        return turretMechanism.sysId(Volts.of(0.25), Volts.of(0.1).per(Second), null);
+        SysIdRoutine routine = new SysIdRoutine(
+                new Config(Volts.of(0.05).per(Second), Volts.of(0.5), null),
+                new Mechanism(turretMechanism::setVoltage, log -> {
+                    log.motor("turret_motor")
+                            .voltage(krakenController.getVoltage())
+                            .angularVelocity(krakenController.getMechanismVelocity())
+                            .angularPosition(krakenController.getMechanismPosition());
+                }, this));
+
+        Trigger maxTrigger = turretMechanism.gte(UPPER_LIMIT);
+        Trigger minTrigger = turretMechanism.lte(LOWER_LIMIT);
+        
+        return Commands.print("Starting Turret SysId")
+                .andThen(Commands.runOnce(krakenController::stopClosedLoopController))
+                .andThen(routine.dynamic(Direction.kForward).until(maxTrigger))
+                .andThen(routine.dynamic(Direction.kReverse).until(minTrigger))
+                .andThen(routine.quasistatic(Direction.kForward).until(maxTrigger))
+                .andThen(routine.quasistatic(Direction.kReverse).until(minTrigger))
+                .finallyDo(krakenController::startClosedLoopController);
+
     }
 
     public Command holdRobotRelative(Angle robotAngle) {
@@ -123,7 +147,7 @@ public class TurretSubsystem extends SubsystemBase {
      * 
      * @param input the goal position to be clamped
      * 
-     * @return 
+     * @return
      */
     public Angle clampInput(Angle input) {
         double softLowerLimit = MathUtil.inputModulus(LOWER_LIMIT.plus(SOFT_PADDING).in(Rotations), 0, 1);
