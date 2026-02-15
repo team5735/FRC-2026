@@ -23,27 +23,27 @@ import edu.wpi.first.units.measure.Mass;
 public class DevbotConstants implements DrivetrainConstants {
     @Override
     public PIDConstants getAutoPosConstants() {
-        return new PIDConstants(20, 0); // TODO
+        return new PIDConstants(15, 0); // TODO
     }
 
     @Override
     public PIDConstants getAutoRotConstants() {
-        return new PIDConstants(12.5, 0); // TODO
+        return new PIDConstants(15, 0); // TODO
     }
 
     @Override
     public double getRotKs() {
-        return 0.07581;
+        return 0.082104;
     }
 
     @Override
     public double getRotKv() {
-        return 7.1649;
+        return 7.1488;
     }
 
     @Override
     public double getRotKa() {
-        return 0.42822;
+        return 0.28448;
     }
 
     @Override
@@ -102,7 +102,7 @@ public class DevbotConstants implements DrivetrainConstants {
 
     @Override
     public Mass getRobotMass() {
-        return Kilograms.of(24.75);
+        return Kilograms.of(28.00);
     }
 
     @Override
