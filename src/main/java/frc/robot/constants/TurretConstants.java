@@ -12,7 +12,6 @@ import edu.wpi.first.units.measure.MomentOfInertia;
 import yams.math.ExponentialProfilePIDController;
 
 public class TurretConstants {
-    public static final int TESTING_VOLTS = 1;
     public static final double GEAR_REDUCTION = 200/20; // initial gear 20T, secondary gear 200T
     public static final ExponentialProfilePIDController EXPO_PID = new ExponentialProfilePIDController(
             0,
@@ -20,8 +19,8 @@ public class TurretConstants {
             0,
             ExponentialProfilePIDController.createConstraints(
                     Volts.of(10),
-                    RotationsPerSecond.of(0),
-                    RotationsPerSecondPerSecond.of(0)));
+                    RotationsPerSecond.of(0.25),
+                    RotationsPerSecondPerSecond.of(0.5)));
     public static final ExponentialProfilePIDController SIM_EXPO_PID = new ExponentialProfilePIDController(
             0,
             0,
@@ -31,7 +30,7 @@ public class TurretConstants {
                     RotationsPerSecond.of(0.25),
                     RotationsPerSecondPerSecond.of(0.5)));
 
-    public static final SimpleMotorFeedforward FF = new SimpleMotorFeedforward(0, 0, 0);
+    public static final SimpleMotorFeedforward FF = new SimpleMotorFeedforward(0.15013, 0.74708, 0.10888);
     public static final Angle LOWER_LIMIT = Rotations.of(0);
     public static final Angle UPPER_LIMIT = Rotations.of(0.75);
     // VERY rough estimate based on ABS density and disc approximation for the gear

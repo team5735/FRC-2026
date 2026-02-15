@@ -83,38 +83,37 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     public Command testForward() {
-        return turretMechanism.set(0.05);
+        return turretMechanism.setVoltage(Volts.of(2));
     }
 
     public Command testReverse() {
-        return turretMechanism.set(-0.05);
+        return turretMechanism.setVoltage(Volts.of(-2));
     }
 
     public Command stop() {
         return turretMechanism.set(0);
     }
 
-    public Command sysId() {
-        SysIdRoutine routine = new SysIdRoutine(
-                new Config(Volts.of(0.05).per(Second), Volts.of(0.5), null),
-                new Mechanism(turretMechanism::setVoltage, log -> {
+    private SysIdRoutine routine = new SysIdRoutine(
+                new Config(Volts.of(0.05).per(Second), Volts.of(0.5), null, null),
+                new Mechanism(krakenController::setVoltage, log -> {
                     log.motor("turret_motor")
                             .voltage(krakenController.getVoltage())
                             .angularVelocity(krakenController.getMechanismVelocity())
                             .angularPosition(krakenController.getMechanismPosition());
                 }, this));
+    private Trigger maxTrigger = turretMechanism.gte(UPPER_LIMIT);
+    private Trigger minTrigger = turretMechanism.lte(LOWER_LIMIT);
 
-        Trigger maxTrigger = turretMechanism.gte(UPPER_LIMIT);
-        Trigger minTrigger = turretMechanism.lte(LOWER_LIMIT);
-        
+    public Command sysId() {        
         return Commands.print("Starting Turret SysId")
                 .andThen(Commands.runOnce(krakenController::stopClosedLoopController))
                 .andThen(routine.dynamic(Direction.kForward).until(maxTrigger))
                 .andThen(routine.dynamic(Direction.kReverse).until(minTrigger))
                 .andThen(routine.quasistatic(Direction.kForward).until(maxTrigger))
                 .andThen(routine.quasistatic(Direction.kReverse).until(minTrigger))
+                .andThen(Commands.print("SysId End"))
                 .finallyDo(krakenController::startClosedLoopController);
-
     }
 
     public Command holdRobotRelative(Angle robotAngle) {
