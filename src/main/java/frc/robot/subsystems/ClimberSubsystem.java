@@ -12,17 +12,25 @@ import frc.robot.Constants;
 public class ClimberSubsystem extends SubsystemBase{
   public final TalonFX talon = new TalonFX(Constants.mot1);
 
+
   public ClimberSubsystem() {
     talon.getConfigurator().apply(new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Brake));
   }
   private final DigitalInput limitUp = new DigitalInput(Constants.upperLimitPin);
+  private final DigitalInput limitDown = new DigitalInput(Constants.lowerLimitPin);
 
   public void climbUp() {
-    talon.setVoltage(Constants.upVolts);
+    if (!limitUp.get()){
+      talon.setVoltage(Constants.upVolts);
+    }else {talon.setVoltage(0);}
+    
   }
 
   public void climbDown(){
-    talon.setVoltage(Constants.downVolts);
+    if (!limitDown.get()){
+      talon.setVoltage(Constants.downVolts);
+    }else {talon.setVoltage(0);}
+  
   }
 
   public void stop(){
@@ -31,6 +39,12 @@ public class ClimberSubsystem extends SubsystemBase{
 
   @Override
   public void periodic(){
+    
+
+    //for elastic
+    SmartDashboard.putBoolean("limitDown", limitDown.get());
+    SmartDashboard.putBoolean("limitUp", limitUp.get());
+
     double current = talon.getSupplyCurrent().getValueAsDouble();
     SmartDashboard.putNumber("Climber/Current", current);
 
