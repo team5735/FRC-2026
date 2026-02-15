@@ -102,7 +102,7 @@ public class DevbotConstants implements DrivetrainConstants {
 
     @Override
     public Mass getRobotMass() {
-        return Kilograms.of(24.75);
+        return Kilograms.of(28.00);
     }
 
     @Override
