@@ -28,6 +28,12 @@ public class TunablePIDController {
     /** Creates a new PID controller with the specified values in {table}/{name}. */
     public TunablePIDController(NTable table, String name, double _p, double _i, double _d) {
         this.table = table.sub(name);
+        if (!this.table.exists("kP", "kI", "kD")) {
+            this.table.set("kP", _p);
+            this.table.set("kI", _i);
+            this.table.set("kD", _d);
+            this.table.makePersistent("kP", "kI", "kD");
+        }
     }
 
     boolean continuous = false;
