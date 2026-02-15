@@ -6,7 +6,6 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.HashMap;
 
-import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -33,7 +32,7 @@ import frc.robot.Robot;
  * <p>
  * Note that one invariant of this class is that every table of the
  * NetworkTables is represented by exactly one NTable. This ensures that
- * each {@link GenericEntry} managed by every NTable is only created once,
+ * each {@link NetworkTableEntry} managed by every NTable is only created once,
  * allowing much more flexibility in client code. Additionally, this allows each
  * class to keep its own {@link #tablesToData} map instead of having it be
  * shared between all NTables.
@@ -64,7 +63,7 @@ public class NTable {
     private HashMap<String, NTable> subs = new HashMap<>();
 
     /** The entries of this NTable. These are created on demand. */
-    private HashMap<String, GenericEntry> entries = new HashMap<>();
+    private HashMap<String, NetworkTableEntry> entries = new HashMap<>();
 
     /**
      * Creates a new NTable.
@@ -76,8 +75,12 @@ public class NTable {
         this.parent = parent;
         long depth = this.table.getPath().chars().filter(c -> c == '/').count();
         if (depth > 50) {
-            DriverStation.reportWarning("very long NTable created of depth " + depth
-                    + " created! be careful. its path is " + this.table.getPath() + ". stack trace:", true);
+            DriverStation.reportWarning("very long NTable of depth " + depth
+                    + " created! be careful! its path is " + this.table.getPath(), true);
+        }
+
+        for (String entry : this.table.getKeys()) {
+            entries.put(entry, this.table.getEntry(entry));
         }
     }
 
@@ -116,41 +119,10 @@ public class NTable {
      * type. If the entry already exists with a different type than the one given in
      * type and warnOnWrongType is true, a warning will be printed.
      *
-     * @param name            the name of the entry
-     * @param type            the type of the entry
-     * @param warnOnWrongType whether to warn if the entry has a type different from
-     *                        the one specified
-     */
-    public GenericEntry getEntry(String name, NetworkTableType type, boolean warnOnWrongType) {
-        boolean entryExisted = entries.containsKey(name);
-        GenericEntry entry = entries.computeIfAbsent(name,
-                n -> table.getTopic(n).getGenericEntry(type.getValueStr()));
-
-        NetworkTableType entryType = entry.get().getType();
-        if (warnOnWrongType && entryExisted && !entryType.equals(type)) {
-            DriverStation.reportWarning(
-                    "NTable entry " + table.getPath() + "/" + name + " had a type different from '"
-                            + type + "'; its type was '" + entryType + "'",
-                    false);
-        }
-
-        return entry;
-    }
-
-    /**
-     * {@return an entry of this NTable}
-     * 
-     * <p>
-     * Creates the entry if it does not already exist. Note that unless this entry
-     * has been set, this function will see the topic as being of an unassigned
-     * type. If the entry already exists with a different type than the one given in
-     * type, a warning will be printed.
-     *
      * @param name the name of the entry
-     * @param type the type of the entry
      */
-    public GenericEntry getEntry(String name, String type) {
-        return getEntry(name, NetworkTableType.getFromString(type), true);
+    public NetworkTableEntry getEntry(String name) {
+        return entries.computeIfAbsent(name, n -> table.getEntry(n));
     }
 
     /**
@@ -304,7 +276,7 @@ public class NTable {
                     + " has invalid type; the passed object is of type " + value.getClass().getName(), true);
             return;
         }
-        getEntry(name, NetworkTableType.getStringFromObject(value)).setValue(value);
+        getEntry(name).setValue(value);
     }
 
     /** A map of names to sent {@link Sendable}s. */
@@ -336,8 +308,7 @@ public class NTable {
 
     /** Publishes a ByteBuffer to the NetworkTable. */
     private void publishRawBuffer(String name, ByteBuffer buffer) {
-        int handle = getEntry(name, NetworkTableType.kRaw, true).getHandle();
-        NetworkTablesJNI.setRaw(handle, NetworkTablesJNI.now(), buffer);
+        NetworkTablesJNI.setRaw(getEntry(name).getHandle(), NetworkTablesJNI.now(), buffer);
     }
 
     /** A map of class types to registered struct objects. */
@@ -549,8 +520,7 @@ public class NTable {
         // If the value is a simple type, retrieve it and attempt to cast it to the
         // requested type.
         if (NetworkTableEntry.isValidDataType(defaultValue)) {
-            NetworkTableType type = NetworkTableType.getFromString(NetworkTableType.getStringFromObject(defaultValue));
-            NetworkTableValue retrieved = getEntry(name, type, false).get();
+            NetworkTableValue retrieved = getEntry(name).getValue();
             Class<?> classType = defaultValue.getClass();
             if (!classType.isInstance(retrieved.getValue())) {
                 return defaultValue;
@@ -622,7 +592,7 @@ public class NTable {
      * @return the requested value as a {@link NetworkTableValue}
      */
     public NetworkTableValue getSimple(String name, NetworkTableType type) {
-        return getEntry(name, type, true).get();
+        return getEntry(name).getValue();
     }
 
     /** @see #getSimple(String, NetworkTableType) */
@@ -745,19 +715,18 @@ public class NTable {
     }
 
     /** {@return whether the given name is present in this NTable with that type} */
-    public boolean isPresent(String name, NetworkTableType desiredType) {
-        NetworkTableValue entry = getEntry(name, desiredType, false).get();
-        return entry.getType().equals(desiredType);
+    public boolean existsAs(String name, NetworkTableType desiredType) {
+        return getEntry(name).getType().equals(desiredType);
     }
 
     /** {@return whether the given name is present in this NTable} */
-    public boolean isPresent(String name) {
-        return !getEntry(name, NetworkTableType.kRaw, false).get().getType().equals(NetworkTableType.kUnassigned);
+    public boolean exists(String name) {
+        return getEntry(name).exists();
     }
 
     /** {@return whether all of the given names are present in this NTable} */
-    public boolean isPresent(String... names) {
-        return Arrays.stream(names).allMatch(name -> isPresent(name));
+    public boolean exists(String... names) {
+        return Arrays.stream(names).allMatch(name -> exists(name));
     }
 
     /**
