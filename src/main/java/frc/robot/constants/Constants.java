@@ -32,4 +32,8 @@ public class Constants {
 
     public static final double MAX_VELOCITY = 0;
     public static final double MAX_ACCELERATION = 0;
+
+
+    public static final int motor6 =6;
+    public static final int motor27= 27;
 }
