@@ -2,26 +2,24 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.SpinDexSubsystem;
-import frc.robot.util.TunablePIDController;
 
 public class SpinDexCommand extends Command {
     public final SpinDexSubsystem spindex;
 
     public SpinDexCommand(SpinDexSubsystem spindex) {
         this.spindex = spindex;
-
     }
 
     @Override
     public void initialize() {
-        spindex.talon6.setVoltage(4);
-        spindex.talon27.setVoltage(2);
-
+        spindex.Motor6Run();
+        spindex.Motor27Run();
     }
 
     @Override
-    public void execute() {
-
+    public void end(boolean interrupted) {
+        spindex.Motor27stop();
+        spindex.Motor6stop();
     }
 
 }
