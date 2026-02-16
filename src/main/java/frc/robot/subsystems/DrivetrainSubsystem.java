@@ -76,6 +76,9 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
             .withDeadband(defaultSpeed * 0.05).withRotationalDeadband(defaultAngularRate * 0.05) // Add a 5% deadband
             .withDriveRequestType(DriveRequestType.Velocity)
             .withCenterOfRotation(CONSTANTS.getPigeonToCenterOfRotation());
+    public final SwerveRequest.FieldCentric pidRequest = new SwerveRequest.FieldCentric()
+            .withDriveRequestType(DriveRequestType.Velocity)
+            .withCenterOfRotation(CONSTANTS.getPigeonToCenterOfRotation());
     public final SwerveRequest.SwerveDriveBrake brakeRequest = new SwerveRequest.SwerveDriveBrake();
     public final SwerveRequest.RobotCentric robotCentricRequest = new SwerveRequest.RobotCentric()
             .withDeadband(defaultSpeed * 0.05).withRotationalDeadband(defaultAngularRate * 0.05)
@@ -160,7 +163,6 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
      * SysId routine for characterizing steer. This is used to find PID gains for
      * the steer motors.
      */
-    @SuppressWarnings("unused")
     private final SysIdRoutine sysIdRoutineSteer = new SysIdRoutine(
             new SysIdRoutine.Config(
                     null, // Use default ramp rate (1 V/s)
@@ -366,7 +368,7 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
         vx = Math.min(CONSTANTS.getSlowSpeed().in(MetersPerSecond), vx);
         vy = Math.min(CONSTANTS.getSlowSpeed().in(MetersPerSecond), vy);
         omega = Math.min(CONSTANTS.getSlowRotationalRate().in(DegreesPerSecond), omega);
-        setControl(fieldCentricRequest.withVelocityX(vx).withVelocityY(vy).withRotationalRate(omega));
+        setControl(pidRequest.withVelocityX(vx).withVelocityY(vy).withRotationalRate(omega));
     }
 
     public void pidDrive(Translation2d trans, double omega) {
