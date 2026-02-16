@@ -320,8 +320,9 @@ public class NTable {
     }
 
     /** Publishes a ByteBuffer to the NetworkTable. */
-    private void publishRawBuffer(String name, ByteBuffer buffer) {
-        NetworkTablesJNI.setRaw(getEntry(name).getHandle(), NetworkTablesJNI.now(), buffer);
+    private void publishRawBuffer(String name, ByteBuffer buffer, String typeString) {
+        NetworkTablesJNI.setRaw(getEntry(name, NetworkTableType.kRaw, typeString).getHandle(),
+                NetworkTablesJNI.now(), buffer, 0, buffer.position());
     }
 
     /** A map of class types to registered struct objects. */
@@ -398,7 +399,11 @@ public class NTable {
      */
     public <T> void setStruct(String name, T value, Struct<T> struct) {
         NetworkTableInstance.getDefault().addSchema(struct);
-        publishRawBuffer(name, StructBuffer.create(struct).write(value));
+        StructBuffer<T> buf = StructBuffer.create(struct);
+        synchronized (buf) {
+            ByteBuffer raw = buf.write(value);
+            publishRawBuffer(name, raw, struct.getTypeString());
+        }
     }
 
     /**
@@ -414,7 +419,7 @@ public class NTable {
      */
     public <T> void setStructs(String name, T[] values, Struct<T> struct) {
         NetworkTableInstance.getDefault().addSchema(struct);
-        publishRawBuffer(name, StructBuffer.create(struct).writeArray(values));
+        publishRawBuffer(name, StructBuffer.create(struct).writeArray(values), struct.getTypeString());
     }
 
     /**
