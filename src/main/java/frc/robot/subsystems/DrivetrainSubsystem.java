@@ -392,7 +392,7 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
                     .withVelocityY(-deadband(stickX.get()) * speedMPS)
                     .withRotationalRate(
                             deadband(leftTrigger.get() - rightTrigger.get()) * rotationMPS);
-        });
+        }).withName("Joystick Drive");
     }
 
     public Command brakeCommand() {
