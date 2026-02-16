@@ -50,7 +50,6 @@ public class DriveOnArc extends Command {
         Translation2d tangentialMovement = new Translation2d(2 * movement,
                 nearestPose.getRotation().plus(Rotation2d.kCCW_90deg));
 
-        double pidFactor = Math.abs(movement) + 0.2;
         Translation2d radialWish = nearestPose.getTranslation().minus(robotPose.getTranslation());
         this.table.set("radial wish", radialWish);
         if (radialWish.getNorm() < Centimeters.of(2).in(Meters)) {
@@ -58,7 +57,7 @@ public class DriveOnArc extends Command {
         }
 
         double omega = this.pidTheta.calculate(robotPose.getRotation().getRadians(),
-                nearestPose.getRotation().getRadians()) * pidFactor;
+                nearestPose.getRotation().getRadians());
 
         this.table.set("tangential movement", tangentialMovement);
         Translation2d horizontal = tangentialMovement.plus(radialWish);
