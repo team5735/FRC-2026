@@ -12,6 +12,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.DrivetrainSubsystem;
+import frc.robot.util.NTable;
 import frc.robot.util.TunablePIDController;
 import frc.robot.util.geometry.Arc;
 
@@ -23,6 +24,8 @@ public class DriveOnArc extends Command {
     private TunablePIDController pidX = new TunablePIDController("drive on arc x");
     private TunablePIDController pidY = new TunablePIDController("drive on arc y");
     private TunablePIDController pidTheta = new TunablePIDController("drive on arc theta");
+
+    private NTable table = NTable.root("drive on arc");
 
     public DriveOnArc(DrivetrainSubsystem drivetrain, Arc arc, Supplier<Double> movement) {
         this.drivetrain = drivetrain;
@@ -57,6 +60,7 @@ public class DriveOnArc extends Command {
         double omega = this.pidTheta.calculate(robotPose.getRotation().getRadians(),
                 nearestPose.getRotation().getRadians()) * movement;
 
+        this.table.set("tangential movement", tangentialMovement);
         drivetrain.pidDrive(vx + tangentialMovement.getX(), vy + tangentialMovement.getY(), omega);
     }
 }
