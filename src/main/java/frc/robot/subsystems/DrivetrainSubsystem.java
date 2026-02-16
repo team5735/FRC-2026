@@ -1,10 +1,9 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.Rotations;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 
@@ -64,24 +63,22 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
     private Notifier simNotifier = null;
     private double lastSimTime;
     private double defaultSpeed = CONSTANTS.getDefaultSpeed().in(MetersPerSecond);
-    private double defaulyAngularRate = CONSTANTS.getDefaultRotationalRate().in(RadiansPerSecond);
+    private double defaultAngularRate = CONSTANTS.getDefaultRotationalRate().in(RadiansPerSecond);
 
     private NTable table = NTable.root("drivetrain");
-
-    /* Keep track if we've ever applied the operator perspective before or not */
-    private boolean hasAppliedOperatorPerspective = false;
 
     /* Swerve requests to apply during SysId characterization */
     public final SwerveRequest.SysIdSwerveTranslation translationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
     public final SwerveRequest.SysIdSwerveSteerGains steerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
     public final SwerveRequest.SysIdSwerveRotation rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
+
     public final SwerveRequest.FieldCentric fieldCentricRequest = new SwerveRequest.FieldCentric()
-            .withDeadband(defaultSpeed * 0.05).withRotationalDeadband(defaulyAngularRate * 0.05) // Add a 5% deadband
+            .withDeadband(defaultSpeed * 0.05).withRotationalDeadband(defaultAngularRate * 0.05) // Add a 5% deadband
             .withDriveRequestType(DriveRequestType.Velocity)
             .withCenterOfRotation(CONSTANTS.getPigeonToCenterOfRotation());
     public final SwerveRequest.SwerveDriveBrake brakeRequest = new SwerveRequest.SwerveDriveBrake();
     public final SwerveRequest.RobotCentric robotCentricRequest = new SwerveRequest.RobotCentric()
-            .withDeadband(defaultSpeed * 0.05).withRotationalDeadband(defaulyAngularRate * 0.05)
+            .withDeadband(defaultSpeed * 0.05).withRotationalDeadband(defaultAngularRate * 0.05)
             .withDriveRequestType(DriveRequestType.Velocity);
 
     @SuppressWarnings("unused")
@@ -142,21 +139,21 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
 
     private final Consumer<SysIdRoutineLog> steerLogConsumer = (log) -> {
         log.motor("FL_steer")
-                .angularPosition(Rotations.of((getModule(0).getCurrentState().angle.getRotations() + 1) % 1))
-                .angularVelocity(RotationsPerSecond.of(getModule(0).getSteerMotor().getVelocity().getValueAsDouble()))
+                .angularPosition(getModule(0).getSteerMotor().getPosition().getValue())
+                .angularVelocity(getModule(0).getSteerMotor().getVelocity().getValue())
                 .voltage(getModule(0).getSteerMotor().getMotorVoltage().getValue());
         log.motor("FR_steer")
-                .angularPosition(Rotations.of((getModule(1).getCurrentState().angle.getRotations() + 1) % 1))
-                .angularVelocity(RotationsPerSecond.of(getModule(1).getSteerMotor().getVelocity().getValueAsDouble()))
-                .voltage(getModule(0).getSteerMotor().getMotorVoltage().getValue());
+                .angularPosition(getModule(1).getSteerMotor().getPosition().getValue())
+                .angularVelocity(getModule(1).getSteerMotor().getVelocity().getValue())
+                .voltage(getModule(1).getSteerMotor().getMotorVoltage().getValue());
         log.motor("BL_steer")
-                .angularPosition(Rotations.of((getModule(2).getCurrentState().angle.getRotations() + 1) % 1))
-                .angularVelocity(RotationsPerSecond.of(getModule(2).getSteerMotor().getVelocity().getValueAsDouble()))
-                .voltage(getModule(0).getSteerMotor().getMotorVoltage().getValue());
+                .angularPosition(getModule(2).getSteerMotor().getPosition().getValue())
+                .angularVelocity(getModule(2).getSteerMotor().getVelocity().getValue())
+                .voltage(getModule(2).getSteerMotor().getMotorVoltage().getValue());
         log.motor("BR_steer")
-                .angularPosition(Rotations.of((getModule(3).getCurrentState().angle.getRotations() + 1) % 1))
-                .angularVelocity(RotationsPerSecond.of(getModule(3).getSteerMotor().getVelocity().getValueAsDouble()))
-                .voltage(getModule(0).getSteerMotor().getMotorVoltage().getValue());
+                .angularPosition(getModule(3).getSteerMotor().getPosition().getValue())
+                .angularVelocity(getModule(3).getSteerMotor().getVelocity().getValue())
+                .voltage(getModule(3).getSteerMotor().getMotorVoltage().getValue());
     };
 
     /*
@@ -189,6 +186,7 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
      * See the documentation of SwerveRequest.SysIdSwerveRotation for info on
      * importing the log to SysId.
      */
+    @SuppressWarnings("unused")
     private final SysIdRoutine sysIdRoutineRotation = new SysIdRoutine(
             new SysIdRoutine.Config(
                     /* This is in radians per second², but SysId only supports "volts per second" */
@@ -207,7 +205,7 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
                     this));
 
     /* The SysId routine to test */
-    private SysIdRoutine sysIdRoutineToApply = sysIdRoutineRotation;
+    private SysIdRoutine sysIdRoutineToApply = sysIdRoutineSteer;
 
     /**
      * Constructs a CTRE SwerveDrivetrain using the specified constants.
@@ -331,6 +329,8 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
         return sysIdRoutineToApply.dynamic(direction);
     }
 
+    private boolean hasAppliedOperatorPerspective = false;
+
     @Override
     public void periodic() {
         /*
@@ -363,9 +363,9 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
      * For use by PIDs. Speed limited for safety.
      */
     public void pidDrive(double vx, double vy, double omega) {
-        if (Math.abs(vx) > defaultSpeed || Math.abs(vy) > defaultSpeed || Math.abs(omega) > defaulyAngularRate) {
-            setControl(brakeRequest);
-        }
+        vx = Math.min(CONSTANTS.getSlowSpeed().in(MetersPerSecond), vx);
+        vy = Math.min(CONSTANTS.getSlowSpeed().in(MetersPerSecond), vy);
+        omega = Math.min(CONSTANTS.getSlowRotationalRate().in(DegreesPerSecond), omega);
         setControl(fieldCentricRequest.withVelocityX(vx).withVelocityY(vy).withRotationalRate(omega));
     }
 
@@ -384,7 +384,7 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
                     : defaultSpeed;
             double rotationMPS = (isSlowMode.get().booleanValue())
                     ? CONSTANTS.getSlowRotationalRate().in(RadiansPerSecond)
-                    : defaulyAngularRate;
+                    : defaultAngularRate;
             return fieldCentricRequest
                     .withVelocityX(-deadband(stickY.get()) * speedMPS)
                     .withVelocityY(-deadband(stickX.get()) * speedMPS)
@@ -434,11 +434,10 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
     public void autoDriveRobotRelative(ChassisSpeeds robotChassisSpeeds) {
         var discrete = ChassisSpeeds.discretize(robotChassisSpeeds, 0.02);
 
-        setControl(
-                robotCentricRequest
-                        .withVelocityX(discrete.vxMetersPerSecond)
-                        .withVelocityY(discrete.vyMetersPerSecond)
-                        .withRotationalRate(discrete.omegaRadiansPerSecond));
+        setControl(robotCentricRequest
+                .withVelocityX(discrete.vxMetersPerSecond)
+                .withVelocityY(discrete.vyMetersPerSecond)
+                .withRotationalRate(discrete.omegaRadiansPerSecond));
     }
 
     private void setUpAuto() {

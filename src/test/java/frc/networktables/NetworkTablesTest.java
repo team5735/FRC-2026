@@ -1,12 +1,15 @@
 package frc.networktables;
 
+import static edu.wpi.first.units.Units.MetersPerSecond;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.NetworkTableType;
 import frc.robot.util.NTable;
 
 public class NetworkTablesTest {
@@ -18,8 +21,7 @@ public class NetworkTablesTest {
         Assertions.assertTrue(testTable == NTable.root("test"));
         Assertions.assertTrue(testTable.sub("sub") == testTable.sub("sub"));
         testTable.set("ent", true);
-        Assertions.assertTrue(testTable.getEntry("ent", NetworkTableType.kBoolean) == testTable.getEntry("ent",
-                NetworkTableType.kBoolean));
+        Assertions.assertTrue(testTable.getEntry("ent") == testTable.getEntry("ent"));
     }
 
     @Test
@@ -35,6 +37,13 @@ public class NetworkTablesTest {
         DoublePublisher pub = table.getDoubleTopic("test").publish();
         pub.set(1.0);
         Assertions.assertEquals(1.0, table.getDoubleTopic("test").subscribe(0.0).get());
+    }
+
+    @Test
+    void structTest() {
+        NTable root = NTable.root("test");
+        SwerveModuleState state = new SwerveModuleState(MetersPerSecond.of(1), Rotation2d.kCW_90deg);
+        root.setStruct("test", state);
     }
 
     public static void main(String[] args) {

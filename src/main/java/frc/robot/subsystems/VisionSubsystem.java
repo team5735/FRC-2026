@@ -13,7 +13,6 @@ import static edu.wpi.first.units.Units.Radians;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Supplier;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
@@ -25,7 +24,6 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.networktables.DoubleArrayEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.TimestampedDoubleArray;
-import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Telemetry;
@@ -43,6 +41,8 @@ public class VisionSubsystem extends SubsystemBase {
 
     public VisionSubsystem(DrivetrainSubsystem drivetrain) {
         this.drivetrain = drivetrain;
+        this.table.set("enabled", true);
+        this.table.makePersistent("enabled");
     }
 
     private boolean trySeedPigeon(String name) {
@@ -79,7 +79,6 @@ public class VisionSubsystem extends SubsystemBase {
         private DoubleArrayEntry getDoubleArrayEntry(String table, String topic) {
             String asPath = table + "/" + topic;
             return entriesCache.computeIfAbsent(asPath, k -> {
-                System.out.println("creating subscriber for " + asPath);
                 return NetworkTableInstance.getDefault().getTable(table)
                         .getDoubleArrayTopic(topic).getEntry(new double[0]);
             });
@@ -93,12 +92,10 @@ public class VisionSubsystem extends SubsystemBase {
 
             double[] array = atomicArray.value;
             if (array.length == 0) {
-                this.pose3d = null;
-                this.pose2d = null;
-                this.timestamp = 0;
-                this.fiducials = new RawFiducial[0];
-                this.distToCamera = 0;
-                this.stddevs = null;
+                return;
+            }
+            int nFiducials = (int) array[7];
+            if (nFiducials == 0) {
                 return;
             }
             Translation3d translation = new Translation3d(Meters.of(array[0]),
@@ -109,7 +106,6 @@ public class VisionSubsystem extends SubsystemBase {
                     Degrees.of(array[5]));
             double latency = array[6];
 
-            int nFiducials = (int) array[7];
             RawFiducial[] fiducials = new RawFiducial[nFiducials];
             for (int i = 0; i < nFiducials; i++) {
                 double[] fiducial = Arrays.copyOfRange(array, 11 + 7 * i, 18 + 7 * i);
@@ -132,39 +128,40 @@ public class VisionSubsystem extends SubsystemBase {
         }
     }
 
-    private double lastPigeonReset = 0;
-    Supplier<AngularVelocity> angularVelocityZ = null;
-
     public void handleVisionMeasurement(String limelightName) {
         NTable lltable = this.table.sub(limelightName);
 
-        PoseEstimate mt1 = new PoseEstimate(limelightName);
-        if (mt1.pose2d == null) {
-            lltable.set("status", "mt1 pose estimate is null");
+        if (!this.table.getBoolean("enabled")) {
+            lltable.set("status", "disabled in network tables");
             return;
         }
-        lltable.set("pigeon reset time", lastPigeonReset);
 
-        Telemetry.field.getObject(limelightName + " mt1").setPose(mt1.pose2d);
+        PoseEstimate mt1 = new PoseEstimate(limelightName);
+        if (mt1.pose2d == null) {
+            lltable.set("status", "pose estimate is null");
+            return;
+        }
+
+        Telemetry.field.getObject(limelightName).setPose(mt1.pose2d);
 
         lltable.set("dist to ground", mt1.pose3d.getMeasureZ().abs(Meters));
         // mt1 pose estimate is more than 3cm off the ground
         if (mt1.pose3d.getMeasureZ().abs(Meters) > VisionConstants.TOLERATED_HEIGHT.in(Meters)) {
-            lltable.set("status", "mt1 pose estimate is more than 3cm away from the ground");
+            lltable.set("status", "pose estimate is more than 3cm away from the ground");
             return;
         }
 
         // mt1 pose estimate is off the field
-        double robotBoundingBox = Math.max(
+        double conservativeRobotRadius = Math.max(
                 DrivetrainSubsystem.CONSTANTS.getRobotTotalLength().in(Meters),
                 DrivetrainSubsystem.CONSTANTS.getRobotTotalWidth().in(Meters)) * Math.sqrt(2);
-        if (mt1.pose2d.getTranslation().getX() < robotBoundingBox / 2
+        if (mt1.pose2d.getTranslation().getX() < conservativeRobotRadius / 2
                 || mt1.pose2d.getTranslation()
-                        .getX() > (FieldConstants.FIELD_LENGTH_X.in(Meters) - robotBoundingBox / 2)
-                || mt1.pose2d.getTranslation().getY() < robotBoundingBox / 2
+                        .getX() > (FieldConstants.FIELD_LENGTH_X.in(Meters) - conservativeRobotRadius / 2)
+                || mt1.pose2d.getTranslation().getY() < conservativeRobotRadius / 2
                 || mt1.pose2d.getTranslation()
-                        .getY() > (FieldConstants.FIELD_LENGTH_Y.in(Meters) - robotBoundingBox / 2)) {
-            lltable.set("status", "mt1 pose estimate is off the field");
+                        .getY() > (FieldConstants.FIELD_LENGTH_Y.in(Meters) - conservativeRobotRadius / 2)) {
+            lltable.set("status", "pose estimate is off the field");
             return;
         }
 
@@ -172,26 +169,26 @@ public class VisionSubsystem extends SubsystemBase {
         lltable.set("multi tag pose ambiguity", ambiguities);
         // 1 tag pose estimate and ambiguity > 0.2
         if (mt1.fiducials.length == 1 && mt1.fiducials[0].ambiguity > VisionConstants.SINGLE_TAG_MAX_AMBIGUITY) {
-            lltable.set("status", "1 tag ambiguity > 0.2");
+            lltable.set("status", "one tag; ambiguity > 0.2");
             return;
         }
 
         // multi tag pose estimate and any tag ambiguity > 0.5
         if (mt1.fiducials.length > 1 && Arrays.stream(mt1.fiducials)
                 .anyMatch(tag -> tag.ambiguity > VisionConstants.MULTI_TAG_MAX_AMBIGUITY)) {
-            lltable.set("status", "multi tag ambiguity > 0.5");
+            lltable.set("status", "multi tag; any ambiguity > 0.5");
             return;
         }
 
-        lltable.set("robot angular velocity", drivetrain.getPigeon2().getAngularVelocityZWorld().asSupplier().get());
+        lltable.set("robot angular velocity", drivetrain.getPigeon2().getAngularVelocityZWorld().getValueAsDouble());
         // robot is rotating (if we get angular velocity)
-        if (drivetrain.getPigeon2().getAngularVelocityZWorld().asSupplier().get()
-                .in(DegreesPerSecond) > VisionConstants.TOLERATED_ROTATIONAL_RATE.in(DegreesPerSecond)) {
-            lltable.set("status", "robot is rotating");
+        if (drivetrain.getPigeon2().getAngularVelocityZWorld()
+                .getValueAsDouble() > VisionConstants.TOLERATED_ROTATIONAL_RATE.in(DegreesPerSecond)) {
+            lltable.set("status", "exceeded tolerated rotational rate");
             return;
         }
 
-        lltable.set("status", "accepted! using mt1");
+        lltable.set("status", "accepted!");
         updateVisionMeasurement(limelightName, mt1);
     }
 
@@ -212,24 +209,43 @@ public class VisionSubsystem extends SubsystemBase {
         Vector<N3> stddevs = VecBuilder.fill(estimate.stddevs.getX(), estimate.stddevs.getY(),
                 estimate.stddevs.getRotation().getMeasureZ().in(Radians));
 
-        // multiply stddevs by avg tag dist to camera: stddev * (1 + dist)
-        stddevs = stddevs.times(1 + estimate.distToCamera);
-        // multiply stddevs by drivetrain speed: stddev * (1 + speed)
-        stddevs = stddevs.times(1 + Math.hypot(
-                drivetrain.getState().Speeds.vxMetersPerSecond,
-                drivetrain.getState().Speeds.vyMetersPerSecond));
-        // if robot is rotating, use 99999 for theta
-        if (drivetrain.getPigeon2().getAngularVelocityZWorld().asSupplier().get()
-                .in(DegreesPerSecond) > VisionConstants.ROTATION_EPSILON.in(DegreesPerSecond)) {
-            stddevs.getData()[2] = 99999;
-        }
-
         // ensure reasonable minimums (x, y: 5cm, theta: 5°)
-        stddevs.getData()[0] = Math.max(Centimeters.of(5).in(Meters), stddevs.getData()[0]);
-        stddevs.getData()[1] = Math.max(Centimeters.of(5).in(Meters), stddevs.getData()[1]);
+        stddevs.getData()[0] = Math.max(Centimeters.of(1).in(Meters), stddevs.getData()[0]);
+        stddevs.getData()[1] = Math.max(Centimeters.of(1).in(Meters), stddevs.getData()[1]);
         stddevs.getData()[2] = Math.max(Degrees.of(5).in(Radians), stddevs.getData()[2]);
 
         NTable est = table.sub("estimate");
+        NTable penalties = est.sub("penalties");
+
+        // multiply by 1 + average distance to camera
+        double distPenalty = 1 + estimate.distToCamera * 3;
+        penalties.set("distance", distPenalty);
+        // multiply by 1 + speed
+        double speedPenalty = 1 + Math.hypot(
+                drivetrain.getState().Speeds.vxMetersPerSecond,
+                drivetrain.getState().Speeds.vyMetersPerSecond) * 5;
+        penalties.set("speed", speedPenalty);
+        // multiply by 1 + omega
+        double omegaPenalty = 1 + Math.abs(drivetrain.getState().Speeds.omegaRadiansPerSecond) * 10;
+        penalties.set("omega", omegaPenalty);
+        // multiply by (1 + ambiguity)^2
+        double totalAmbiguity = Arrays.stream(estimate.fiducials).mapToDouble(fiducial -> fiducial.ambiguity).sum();
+        double ambiguityPenalty = 1 + Math.pow(1 * totalAmbiguity, 2);
+        penalties.set("ambiguity", ambiguityPenalty);
+
+        double singleTagPenalty = estimate.fiducials.length == 1 ? 10 : 1;
+        penalties.set("one tag", singleTagPenalty);
+
+        double totalPenalty = distPenalty * speedPenalty * omegaPenalty * ambiguityPenalty * singleTagPenalty;
+        penalties.set("total", totalPenalty);
+
+        stddevs = stddevs.times(totalPenalty);
+        // if robot is rotating, use 99999 for theta
+        if (drivetrain.getPigeon2().getAngularVelocityZWorld().getValueAsDouble() > VisionConstants.MAX_ROTATION_SPEED
+                .in(DegreesPerSecond)) {
+            stddevs.getData()[2] = 99999;
+        }
+
         est.sub("stddev").set("x", stddevs.getData()[0]);
         est.sub("stddev").set("y", stddevs.getData()[1]);
         est.sub("stddev").set("theta", stddevs.getData()[2]);

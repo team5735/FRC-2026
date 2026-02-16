@@ -1,3 +1,5 @@
+./gradlew simulateJava --no-configuration-cache
+
  Set-NetConnectionProfile -Name "Unidentified Network" -NetworkCategory Private
 
 IP 10.57.35.2 # roborio

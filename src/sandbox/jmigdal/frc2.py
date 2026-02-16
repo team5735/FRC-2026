@@ -427,8 +427,8 @@ def ntvis1():
     last_detected_fiducials = []
     last_detected_fiducials_ts = datetime.datetime.now()
     while True:
-        # robot_pose = get_robot_pose(sd_table) # gets poseestimate pose
-        robot_pose = get_robot_pose(lll_table) # gets limelight pose
+        robot_pose = get_robot_pose(sd_table) # gets poseestimate pose
+        ll_pose = get_robot_pose(lll_table) # gets limelight pose
         # robot_pose = Pose2d(robot_pose.translation(), Rotation2d(d2r(-170)))
 
         # check if we detected new tags
@@ -464,6 +464,8 @@ def ntvis1():
         for tagid in id2tag:
             draw_tag(img, tagid, p322d(id2tag[tagid].pose), ppm, pad_x=pad_x, pad_y=pad_y)
 
+        # draw limelight pose
+        draw_bot(img, ll_pose, ppm, 0.8*robot_len_x, 0.8*robot_len_y, pad_x, pad_y)
         # put robot on image
         draw_bot(img, robot_pose, ppm, robot_len_x, robot_len_y, pad_x, pad_y)
 
@@ -495,7 +497,7 @@ def ntvis1():
         # hub_center_shooting_arc = Pose2d(in2m(181.56), in2m(158.32), d2r(180))
         hub_center_shooting_arc = Pose2d(11.91, 4.02, d2r(0))
         span = 90
-        draw_arc(img, hub_center_shooting_arc, in2m(10*12), span, ppm, pad_x=pad_x, pad_y=pad_y)
+        draw_arc(img, hub_center_shooting_arc, in2m(7.5*12), span, ppm, pad_x=pad_x, pad_y=pad_y)
 
         # draw animations
         for A in animations:
