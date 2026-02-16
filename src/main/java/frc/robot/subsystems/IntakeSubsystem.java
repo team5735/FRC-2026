@@ -17,21 +17,21 @@ import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkMax;
 
 public class IntakeSubsystem extends SubsystemBase {
-  private final TalonFX intake_up_and_down = new TalonFX(Constants.MOTOR_ID_TALONFX);
-  private final SparkMax intake_motor = new SparkMax(Constants.MOTOR_ID_SPARKMAX, MotorType.kBrushless);
+  private final TalonFX intake_slapdown = new TalonFX(Constants.INTAKE_TALONFX_ID);
+  private final SparkMax intake_roller = new SparkMax(Constants.INTAKE_SPARKMAX_ID, MotorType.kBrushless);
   private final SparkBaseConfig theConfig = new SparkMaxConfig().inverted(true);
   private final PIDController pidController = new PIDController(0, 0, 0);
   
   public IntakeSubsystem() {
-    intake_motor.configure(theConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+    intake_roller.configure(theConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
   }
 
   public void intake_run() {
-    intake_motor.setVoltage(1);
+    intake_roller.setVoltage(1);
   }
 
   public void intake_stop() {
-    intake_motor.setVoltage(0);
+    intake_roller.setVoltage(0);
   }
 
   public void setGoal(double goal) {
@@ -39,9 +39,9 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   public void usePID() {
-    double pos = intake_motor.getEncoder().getPosition();
+    double pos = intake_roller.getEncoder().getPosition();
     double output = pidController.calculate(pos);
-    intake_motor.set(output);
+    intake_slapdown.set(output);
   }
 
   @Override

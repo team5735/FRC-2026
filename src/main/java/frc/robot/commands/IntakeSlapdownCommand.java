@@ -3,27 +3,29 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.IntakeSubsystem;
 
-public class IntakeCommand extends Command {
-    
-    private IntakeSubsystem i;    
+public class IntakeSlapdownCommand extends Command {
+    private double targetPosition;
+    private IntakeSubsystem intake;
 
-    public IntakeCommand(IntakeSubsystem i) {
-        this.i = i;
+
+    public IntakeSlapdownCommand(double targetPosition, IntakeSubsystem intake) {
+        this.intake = intake;
+        this.targetPosition = targetPosition;
     }
 
     @Override
     public void initialize() {
-      i.intake_run();
+        intake.setGoal(targetPosition);
     }
     
     @Override
     public void execute() {
-
+        intake.usePID();
     }
 
     @Override
     public void end(boolean interrupted) {
-        i.intake_stop();
+        intake.intake_stop();
     }
 
     @Override

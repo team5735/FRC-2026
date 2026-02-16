@@ -13,18 +13,12 @@ public class Constants {
     public static final int DRIVE_CONTROLLER_PORT = 0;
     public static final int SUBSYSTEM_CONTROLLER_PORT = 1;
     public static final int TEST_CONTROLLER_PORT = 2;
-    public static final int MOTOR_ID_TALONFX = 58;
-    public static final int MOTOR_ID_SPARKMAX = 23;
+
+    public static final int INTAKE_TALONFX_ID = 58;
+    public static final int INTAKE_SPARKMAX_ID = 23;
 
     public static final double DEADBAND = 0.1;
 
     public static final Rotation2d BLUE_ALLIANCE_PERSPECTIVE_ROTATION = Rotation2d.kZero;
     public static final Rotation2d RED_ALLIANCE_PERSPECTIVE_ROTATION = Rotation2d.k180deg;
-
-    // if you don't feel like picking for PIDs
-    public static final double TOLERANCE = 0.005;
-
-    public static final double PID_P = 6;
-    public static final double PID_I = 2;
-    public static final double PID_D = 0;
 }
