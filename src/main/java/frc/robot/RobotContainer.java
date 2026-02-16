@@ -15,6 +15,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathfindingCommand;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -76,9 +77,8 @@ public class RobotContainer {
         configureBindings();
     }
 
-    private Arc targetArc = new Arc(
-            FieldConstants.redElement(FieldConstants.BLUE_HUB_CENTER),
-            Feet.of(7.5).in(Meters), Rotation2d.fromDegrees(-45), Rotation2d.fromDegrees(45));
+    public static Arc targetArc = new Arc(FieldConstants.BLUE_HUB_CENTER,
+            Feet.of(7.5).in(Meters), Rotation2d.fromDegrees(90), Rotation2d.fromDegrees(270));
 
     private void configureBindings() {
         drivetrain.registerTelemetry(logger::telemeterize);
