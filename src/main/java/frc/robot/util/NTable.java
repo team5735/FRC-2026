@@ -38,8 +38,10 @@ import frc.robot.Robot;
  * shared between all NTables.
  */
 public class NTable {
+    private static final NetworkTableInstance instance = NetworkTableInstance.getDefault();
+
     /** The root NTable, representing the root of all NetworkTables. */
-    private static final NTable root = new NTable(NetworkTableInstance.getDefault().getTable(""), null);
+    private static final NTable root = new NTable(instance.getTable(""), null);
 
     /**
      * The NetworkTable this NTable represents. This NTable object can be seen as a
