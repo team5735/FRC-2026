@@ -52,7 +52,9 @@ public class DriveOnArc extends Command {
 
         Translation2d radialWish = nearestPose.getTranslation().minus(robotPose.getTranslation());
         this.table.set("radial wish", radialWish);
-        if (radialWish.getNorm() < Centimeters.of(2).in(Meters)) {
+        if (radialWish.getNorm() < Centimeters.of(25).in(Meters)) {
+            radialWish = new Translation2d(Centimeters.of(25).in(Meters), radialWish.getAngle());
+        } else if (radialWish.getNorm() < Centimeters.of(2).in(Meters)) {
             radialWish = new Translation2d();
         }
 
