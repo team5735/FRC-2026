@@ -21,8 +21,6 @@ public class DriveOnArc extends Command {
     private Arc arc;
     private Supplier<Double> movement;
 
-    private TunablePIDController pidX = new TunablePIDController("drive on arc x");
-    private TunablePIDController pidY = new TunablePIDController("drive on arc y");
     private TunablePIDController pidTheta = new TunablePIDController("drive on arc theta");
 
     private NTable table = NTable.root("drive on arc");
@@ -39,8 +37,6 @@ public class DriveOnArc extends Command {
         Pose2d target = arc.getPoseFacingCenter(
                 arc.nearestPointOnArc(drivetrain.getEstimatedPosition().getTranslation()));
 
-        this.pidX.setup(target.getX(), Centimeters.of(2).in(Meters));
-        this.pidY.setup(target.getY(), Centimeters.of(2).in(Meters));
         this.pidTheta.setup(target.getRotation().getRadians(), Degrees.of(2).in(Radians));
         this.pidTheta.getController().enableContinuousInput(-Math.PI, Math.PI);
     }
@@ -54,13 +50,19 @@ public class DriveOnArc extends Command {
         Translation2d tangentialMovement = new Translation2d(2 * movement,
                 nearestPose.getRotation().plus(Rotation2d.kCCW_90deg));
 
-        movement = Math.abs(movement) + 0.2;
-        double vx = this.pidX.calculate(robotPose.getX(), nearestPose.getX()) * movement;
-        double vy = this.pidY.calculate(robotPose.getY(), nearestPose.getY()) * movement;
+        double pidFactor = Math.abs(movement) + 0.2;
+        Translation2d radialWish = nearestPose.getTranslation().minus(robotPose.getTranslation());
+        this.table.set("radial wish", radialWish);
+        if (radialWish.getNorm() < Centimeters.of(2).in(Meters)) {
+            radialWish = new Translation2d();
+        }
+
         double omega = this.pidTheta.calculate(robotPose.getRotation().getRadians(),
-                nearestPose.getRotation().getRadians()) * movement;
+                nearestPose.getRotation().getRadians()) * pidFactor;
 
         this.table.set("tangential movement", tangentialMovement);
-        drivetrain.pidDrive(vx + tangentialMovement.getX(), vy + tangentialMovement.getY(), omega);
+        Translation2d horizontal = tangentialMovement.plus(radialWish);
+        this.table.set("horizontal", horizontal);
+        drivetrain.pidDrive(horizontal, omega);
     }
 }
