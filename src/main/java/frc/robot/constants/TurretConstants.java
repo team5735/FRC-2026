@@ -6,7 +6,9 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.MomentOfInertia;
 import yams.math.ExponentialProfilePIDController;
@@ -30,7 +32,7 @@ public class TurretConstants {
                     RotationsPerSecond.of(0.25),
                     RotationsPerSecondPerSecond.of(0.5)));
 
-    public static final SimpleMotorFeedforward FF = new SimpleMotorFeedforward(0.15013, 0.74708, 0.10888);
+    public static final SimpleMotorFeedforward FF = new SimpleMotorFeedforward(0.15013, 0.375, 0.10888);
     public static final Angle LOWER_LIMIT = Rotations.of(0);
     public static final Angle UPPER_LIMIT = Rotations.of(0.75);
     // VERY rough estimate based on ABS density and disc approximation for the gear

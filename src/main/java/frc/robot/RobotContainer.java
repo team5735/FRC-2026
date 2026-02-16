@@ -77,17 +77,13 @@ public class RobotContainer {
                 () -> driveController.getRightTriggerAxis(),
                 () -> driveController.getHID().getBButton()));
 
-        // turret.setDefaultCommand(turret.holdFieldRelative(Rotations.of(0), () -> {
-        //     return drivetrain.getEstimatedPosition().getRotation().getMeasure();
-        // }));
-
         driveController.y().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
-        testController.a().whileTrue(turret.sysId());
+        testController.a().whileTrue(turret.holdRobotRelative(Rotations.of(0.125)));
+        testController.b().whileTrue(turret.holdRobotRelative(Rotations.of(0.375)));
+        testController.x().whileTrue(turret.holdRobotRelative(Rotations.of(0.625)));
 
-        testController.x()
-                .onTrue(turret.trackFieldPos(FieldConstants.BLUE_HUB_CENTER, drivetrain::getEstimatedPosition));
-
+        testController.povDown().whileTrue(turret.sysId());
         testController.rightBumper().whileTrue(turret.testForward());
         testController.leftBumper().whileTrue(turret.testReverse());
 

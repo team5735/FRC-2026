@@ -3,14 +3,7 @@ package frc.robot.subsystems;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
-import static frc.robot.constants.TurretConstants.EXPO_PID;
-import static frc.robot.constants.TurretConstants.FF;
-import static frc.robot.constants.TurretConstants.GEAR_REDUCTION;
-import static frc.robot.constants.TurretConstants.LOWER_LIMIT;
-import static frc.robot.constants.TurretConstants.MOI;
-import static frc.robot.constants.TurretConstants.SIM_EXPO_PID;
-import static frc.robot.constants.TurretConstants.SOFT_PADDING;
-import static frc.robot.constants.TurretConstants.UPPER_LIMIT;
+import static frc.robot.constants.TurretConstants.*;
 
 import java.util.function.Supplier;
 
@@ -21,6 +14,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -52,7 +46,7 @@ public class TurretSubsystem extends SubsystemBase {
             .withTelemetry("turret_motor", TelemetryVerbosity.HIGH)
             .withGearing(GEAR_REDUCTION)
             .withIdleMode(MotorMode.BRAKE)
-            .withMotorInverted(false)
+            .withMotorInverted(true)
             .withStartingPosition(Rotations.of(0.5));
 
     private final SmartMotorController krakenController = new TalonFXWrapper(kraken, DCMotor.getKrakenX44(1),
@@ -83,11 +77,11 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     public Command testForward() {
-        return turretMechanism.setVoltage(Volts.of(2));
+        return turretMechanism.setVoltage(Volts.of(0.5)).finallyDo(() -> krakenController.setVoltage(Volts.of(0)));
     }
 
     public Command testReverse() {
-        return turretMechanism.setVoltage(Volts.of(-2));
+        return turretMechanism.setVoltage(Volts.of(-0.5)).finallyDo(() -> krakenController.setVoltage(Volts.of(0)));
     }
 
     public Command stop() {
@@ -95,15 +89,15 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     private SysIdRoutine routine = new SysIdRoutine(
-                new Config(Volts.of(0.05).per(Second), Volts.of(0.5), null, null),
+                new Config(Volts.of(0.15).per(Second), Volts.of(0.5), null, null),
                 new Mechanism(krakenController::setVoltage, log -> {
                     log.motor("turret_motor")
                             .voltage(krakenController.getVoltage())
                             .angularVelocity(krakenController.getMechanismVelocity())
                             .angularPosition(krakenController.getMechanismPosition());
                 }, this));
-    private Trigger maxTrigger = turretMechanism.gte(UPPER_LIMIT);
-    private Trigger minTrigger = turretMechanism.lte(LOWER_LIMIT);
+    private Trigger maxTrigger = turretMechanism.gte(UPPER_LIMIT.minus(SOFT_PADDING));
+    private Trigger minTrigger = turretMechanism.lte(LOWER_LIMIT.plus(SOFT_PADDING));
 
     public Command sysId() {        
         return Commands.print("Starting Turret SysId")
