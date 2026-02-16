@@ -6,20 +6,26 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class ClimberSubsystem extends SubsystemBase{
   public final TalonFX talon = new TalonFX(Constants.mot1);
 
-
-  public ClimberSubsystem() {
-    talon.getConfigurator().apply(new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Brake));
-  }
   private final DigitalInput limitUp = new DigitalInput(Constants.upperLimitPin);
   private final DigitalInput limitDown = new DigitalInput(Constants.lowerLimitPin);
   private boolean canMoveUp;
   private boolean canMoveDown;
+
+
+  public ClimberSubsystem() {
+    talon.getConfigurator().apply(new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Brake));
+  }
+  
+  public Command getClimbDownCommand(){
+    return run(()->climbDown()).finallyDo(a->stop());
+  }
 
   public void climbUp() {
     if (canMoveUp){
