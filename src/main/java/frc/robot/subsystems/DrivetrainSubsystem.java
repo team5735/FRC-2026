@@ -13,6 +13,7 @@ import java.util.function.Supplier;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -78,7 +79,8 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
             .withCenterOfRotation(CONSTANTS.getPigeonToCenterOfRotation());
     public final SwerveRequest.FieldCentric pidRequest = new SwerveRequest.FieldCentric()
             .withDriveRequestType(DriveRequestType.Velocity)
-            .withCenterOfRotation(CONSTANTS.getPigeonToCenterOfRotation());
+            .withCenterOfRotation(CONSTANTS.getPigeonToCenterOfRotation())
+            .withForwardPerspective(ForwardPerspectiveValue.BlueAlliance);
     public final SwerveRequest.SwerveDriveBrake brakeRequest = new SwerveRequest.SwerveDriveBrake();
     public final SwerveRequest.RobotCentric robotCentricRequest = new SwerveRequest.RobotCentric()
             .withDeadband(defaultSpeed * 0.05).withRotationalDeadband(defaultAngularRate * 0.05)
