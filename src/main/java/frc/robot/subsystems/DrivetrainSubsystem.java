@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
@@ -363,18 +362,17 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
         return getState().Pose;
     }
 
-    /**
-     * For use by PIDs. Speed limited for safety.
-     */
+    /** For use by PIDs. Speed limited for safety. */
     public void pidDrive(double vx, double vy, double omega) {
-        vx = Math.min(CONSTANTS.getSlowSpeed().in(MetersPerSecond), vx);
-        vy = Math.min(CONSTANTS.getSlowSpeed().in(MetersPerSecond), vy);
-        omega = Math.min(CONSTANTS.getSlowRotationalRate().in(DegreesPerSecond), omega);
-        setControl(pidRequest.withVelocityX(vx).withVelocityY(vy).withRotationalRate(omega));
+        pidDrive(new Translation2d(vx, vy), omega);
     }
 
     public void pidDrive(Translation2d trans, double omega) {
-        pidDrive(trans.getX(), trans.getY(), omega);
+        if (trans.getNorm() > CONSTANTS.getSlowSpeed().in(MetersPerSecond)) {
+            trans = trans.times(CONSTANTS.getSlowSpeed().in(MetersPerSecond) / trans.getNorm());
+        }
+        omega = Math.min(CONSTANTS.getSlowRotationalRate().in(RadiansPerSecond), omega);
+        setControl(pidRequest.withVelocityX(trans.getX()).withVelocityY(trans.getY()).withRotationalRate(omega));
     }
 
     public Command joystickDriveCommand(
