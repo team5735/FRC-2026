@@ -99,7 +99,8 @@ public class RobotContainer {
         driveController.x().onTrue(drivetrain
                 .runOnce(() -> drivetrain.resetPose(new Pose2d())));
 
-        driveController.a().whileTrue(new DriveOnArc(drivetrain, targetArc, () -> driveController.getLeftX()));
+        driveController.a().whileTrue(
+                new DriveOnArc(drivetrain, targetArc, () -> MathUtil.applyDeadband(driveController.getLeftX(), 0.02)));
         driveController.b().onTrue(Commands.runOnce(() -> {
             targetArc.telemeterize(drivetrain.getEstimatedPosition());
         }));
