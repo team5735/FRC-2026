@@ -44,16 +44,18 @@ public class DriveOnArc extends Command {
 
     @Override
     public void execute() {
+        double movement = this.movement.get();
         Pose2d robotPose = drivetrain.getEstimatedPosition();
         Pose2d nearestPose = arc.getPoseFacingCenter(
                 arc.nearestPointOnArc(robotPose.getTranslation()));
-        Translation2d tangentialMovement = new Translation2d(2 * this.movement.get(),
+        Translation2d tangentialMovement = new Translation2d(2 * movement,
                 nearestPose.getRotation().plus(Rotation2d.kCCW_90deg));
 
-        double vx = this.pidX.calculate(robotPose.getX(), nearestPose.getX());
-        double vy = this.pidY.calculate(robotPose.getY(), nearestPose.getY());
+        movement = Math.abs(movement) + 0.2;
+        double vx = this.pidX.calculate(robotPose.getX(), nearestPose.getX()) * movement;
+        double vy = this.pidY.calculate(robotPose.getY(), nearestPose.getY()) * movement;
         double omega = this.pidTheta.calculate(robotPose.getRotation().getRadians(),
-                nearestPose.getRotation().getRadians());
+                nearestPose.getRotation().getRadians()) * movement;
 
         drivetrain.pidDrive(vx + tangentialMovement.getX(), vy + tangentialMovement.getY(), omega);
     }
