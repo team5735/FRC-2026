@@ -52,7 +52,6 @@ public class RobotContainer {
         m_driverController.b().whileTrue(climber.getClimbDownCommand());
         m_driverController.x().onTrue(climber.getFullyExtendCommand());
         m_driverController.y().onTrue(climber.getFullyDetractCommand());
-    
 
     }
 
