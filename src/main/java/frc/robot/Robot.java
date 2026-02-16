@@ -7,7 +7,6 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.constants.VisionConstants;
 import frc.robot.util.NTable;
 
 /**
@@ -51,9 +50,6 @@ public class Robot extends TimedRobot {
         // the Command-based framework to work.
         CommandScheduler.getInstance().run();
 
-        for (String limelight : VisionConstants.LIMELIGHTS) {
-            RobotContainer.vision.handleVisionMeasurement(limelight);
-        }
 
         NTable.updateAllSendables();
     }
