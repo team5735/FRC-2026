@@ -93,6 +93,7 @@ public class Telemetry {
         for (String limelight : VisionConstants.LIMELIGHTS) {
             field.getObject(limelight).setPose(new Pose2d());
         }
+        field.getObject("arc").setPoses(RobotContainer.targetArc.getAsPoses());
         table.set("field", field);
         table.set("swerve state", sendableState);
 
