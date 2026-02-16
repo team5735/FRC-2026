@@ -4,7 +4,6 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import frc.robot.util.NTable;
 
 public class Arc {
@@ -86,16 +85,5 @@ public class Arc {
             result[i] = new Pose2d(center.plus(new Translation2d(radius, theta)), Rotation2d.kZero);
         }
         return result;
-    }
-
-    Field2d field = new Field2d();
-
-    public void telemeterize(Pose2d robotPose) {
-        field.setRobotPose(robotPose);
-        field.getObject("center").setPose(new Pose2d(center, start.interpolate(end, 0.5)));
-        field.getObject("arc").setPoses(getAsPoses());
-        Translation2d nearest = nearestPointOnArc(robotPose.getTranslation());
-        field.getObject("nearest").setPose(getPoseFacingCenter(nearest));
-        table.getParent().setSendable("as a field", field);
     }
 }

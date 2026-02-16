@@ -23,7 +23,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.DriveOnArc;
 import frc.robot.commands.drivetrain.PIDToPose;
@@ -71,7 +70,7 @@ public class RobotContainer {
         autoChooser = AutoBuilder.buildAutoChooser();
 
         SmartDashboard.putData("Choose an Auto", autoChooser);
-        CommandScheduler.getInstance().schedule(PathfindingCommand.warmupCommand());
+        CommandScheduler.getInstance().schedule(PathfindingCommand.warmupCommand().withName("Warmup Pathfinding"));
 
         DriverStation.silenceJoystickConnectionWarning(true);
         configureBindings();
@@ -97,13 +96,10 @@ public class RobotContainer {
                                         drivetrain.getEstimatedPosition().getTranslation())),
                         "drive to arc"));
         driveController.x().onTrue(drivetrain
-                .runOnce(() -> drivetrain.resetPose(new Pose2d())));
+                .runOnce(() -> drivetrain.resetPose(new Pose2d())).withName("Resetting Pose"));
 
         driveController.a().whileTrue(
                 new DriveOnArc(drivetrain, targetArc, () -> MathUtil.applyDeadband(driveController.getLeftX(), 0.02)));
-        driveController.b().onTrue(Commands.runOnce(() -> {
-            targetArc.telemeterize(drivetrain.getEstimatedPosition());
-        }));
 
         testController.rightBumper().whileTrue(drivetrain.applyRequest(
                 () -> {

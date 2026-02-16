@@ -122,6 +122,10 @@ public class Telemetry {
 
         field.setRobotPose(AutoBuilder.getCurrentPose());
 
+        field.getObject("nearest point on arc")
+                .setPose(RobotContainer.targetArc.getPoseFacingCenter(RobotContainer.targetArc
+                        .nearestPointOnArc(RobotContainer.drivetrain.getEstimatedPosition().getTranslation())));
+
         var modules = RobotContainer.drivetrain.getModules();
         NTable[] tables = Arrays.stream(new String[] { "FL", "FR", "BL", "BR" })
                 .map(s -> moduleTable.sub(s))
