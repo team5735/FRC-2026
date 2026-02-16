@@ -368,10 +368,10 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
     }
 
     public void pidDrive(Translation2d trans, double omega) {
-        if (trans.getNorm() > CONSTANTS.getSlowSpeed().in(MetersPerSecond)) {
-            trans = trans.times(CONSTANTS.getSlowSpeed().in(MetersPerSecond) / trans.getNorm());
+        if (trans.getNorm() > CONSTANTS.getDefaultSpeed().in(MetersPerSecond)) {
+            trans = trans.times(CONSTANTS.getDefaultSpeed().in(MetersPerSecond) / trans.getNorm());
         }
-        omega = Math.min(CONSTANTS.getSlowRotationalRate().in(RadiansPerSecond), omega);
+        omega = Math.min(CONSTANTS.getDefaultRotationalRate().in(RadiansPerSecond), omega);
         setControl(pidRequest.withVelocityX(trans.getX()).withVelocityY(trans.getY()).withRotationalRate(omega));
     }
 
