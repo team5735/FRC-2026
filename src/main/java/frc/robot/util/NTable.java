@@ -124,7 +124,18 @@ public class NTable {
      * @param name the name of the entry
      */
     public NetworkTableEntry getEntry(String name) {
-        return entries.computeIfAbsent(name, n -> table.getEntry(n));
+        return entries.computeIfAbsent(name, n -> new NetworkTableEntry(instance,
+                NetworkTablesJNI.getEntry(
+                        instance.getHandle(),
+                        this.table.getPath() + "/" + name)));
+    }
+
+    public NetworkTableEntry getEntry(String name, NetworkTableType type, String typeName) {
+        return entries.computeIfAbsent(name, n -> new NetworkTableEntry(instance,
+                NetworkTablesJNI.getEntry(
+                        NetworkTablesJNI.getTopic(instance.getHandle(), name),
+                        type.getValue(),
+                        typeName)));
     }
 
     /**
