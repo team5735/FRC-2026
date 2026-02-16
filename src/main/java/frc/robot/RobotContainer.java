@@ -4,10 +4,6 @@
 
 package frc.robot;
 
-import frc.robot.commands.ClimbDownCommand;
-import frc.robot.commands.ClimbUpCommand;
-import frc.robot.commands.FullyDetractCommand;
-import frc.robot.commands.FullyExtendCommand;
 import frc.robot.subsystems.ClimberSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -52,10 +48,10 @@ public class RobotContainer {
      * joysticks}.
      */
     private void configureBindings() {
-        m_driverController.a().whileTrue(new ClimbUpCommand(climber));
-        m_driverController.b().whileTrue(new ClimbDownCommand(climber));
-        m_driverController.x().onTrue(new FullyExtendCommand(climber));
-        m_driverController.y().onTrue(new FullyDetractCommand(climber));
+        m_driverController.a().whileTrue(climber.getClimbUpCommand());
+        m_driverController.b().whileTrue(climber.getClimbDownCommand());
+        m_driverController.x().onTrue(climber.getFullyExtendCommand());
+        m_driverController.y().onTrue(climber.getFullyDetractCommand());
     
 
     }
