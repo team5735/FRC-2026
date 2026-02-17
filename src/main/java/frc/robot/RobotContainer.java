@@ -31,8 +31,6 @@ import frc.robot.subsystems.VisionSubsystem;
 public class RobotContainer {
     public FuelLauncherSubsystem launcher = new FuelLauncherSubsystem();
 
-    private final CommandXboxController m_driverController = new CommandXboxController(Constants.DRIVE_CONTROLLER_PORT);
-
     public static final CommandXboxController driveController = new CommandXboxController(
             Constants.DRIVE_CONTROLLER_PORT);
 
