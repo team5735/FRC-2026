@@ -99,7 +99,7 @@ public class RobotContainer {
                 .runOnce(() -> drivetrain.resetPose(new Pose2d())).withName("Resetting Pose"));
 
         driveController.a().whileTrue(
-                new DriveOnArc(drivetrain, targetArc, () -> MathUtil.applyDeadband(driveController.getLeftX(), 0.02)));
+                new DriveOnArc(drivetrain, targetArc, () -> MathUtil.applyDeadband(driveController.getLeftX(), 0.1)));
 
         testController.rightBumper().whileTrue(drivetrain.applyRequest(
                 () -> {
