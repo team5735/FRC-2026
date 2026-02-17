@@ -12,7 +12,7 @@ public class Constants {
 
     public static final int DRIVE_CONTROLLER_PORT = 0;
     public static final int SUBSYSTEM_CONTROLLER_PORT = 1;
-    public static final int TEST_CONTROLLER_PORT = 2;
+    public static final int SERVO_CONTROLLER_PORT = 2;
 
     public static final double DEADBAND = 0.1;
 
