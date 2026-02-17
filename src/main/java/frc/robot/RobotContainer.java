@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.constants.Constants;
+import frc.robot.subsystems.IntakeSubsystem;
 
 public class RobotContainer {
     public static final CommandXboxController driveController = new CommandXboxController(
@@ -28,12 +29,7 @@ public class RobotContainer {
             Constants.TEST_CONTROLLER_PORT);
 
     private final SendableChooser<Command> autoChooser;
-
-
-
-
-
-
+    private IntakeSubsystem intake;
 
     public RobotContainer() {
         Map<String, Command> commandsForAuto = new HashMap<>();
@@ -52,7 +48,8 @@ public class RobotContainer {
 
 
     private void configureBindings() {
-        
+        driveController.a().whileTrue(intake.getIntakeRollerCommand());
+        driveController.b().whileTrue(intake.getIntakeReverseCommand());
     }
 
     public Command getAutonomousCommand() {

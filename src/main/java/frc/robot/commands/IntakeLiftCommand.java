@@ -3,31 +3,32 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.IntakeSubsystem;
 
-public class IntakeRollerCommand extends Command {
-    
-    private IntakeSubsystem intake;    
+public class IntakeLiftCommand extends Command {
+    private double targetPosition;
+    private IntakeSubsystem intake;
 
-    public IntakeRollerCommand(IntakeSubsystem intake) {
+    public IntakeLiftCommand(double targetPosition, IntakeSubsystem intake) {
         this.intake = intake;
+        this.targetPosition = targetPosition;
     }
 
     @Override
     public void initialize() {
-      intake.intake_run();
+        intake.setGoal(targetPosition);
     }
-    
+
     @Override
     public void execute() {
-
+        intake.usePID();
     }
 
     @Override
     public void end(boolean interrupted) {
-        intake.intake_stop();
+        intake.stop();
     }
 
     @Override
     public boolean isFinished() {
-      return false;
-    }    
+        return false;
+    }
 }

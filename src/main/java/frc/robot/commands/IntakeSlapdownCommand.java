@@ -7,7 +7,6 @@ public class IntakeSlapdownCommand extends Command {
     private double targetPosition;
     private IntakeSubsystem intake;
 
-
     public IntakeSlapdownCommand(double targetPosition, IntakeSubsystem intake) {
         this.intake = intake;
         this.targetPosition = targetPosition;
@@ -17,7 +16,7 @@ public class IntakeSlapdownCommand extends Command {
     public void initialize() {
         intake.setGoal(targetPosition);
     }
-    
+
     @Override
     public void execute() {
         intake.usePID();
@@ -25,11 +24,11 @@ public class IntakeSlapdownCommand extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        intake.intake_stop();
+        intake.stop();
     }
 
     @Override
     public boolean isFinished() {
-      return false;
-    }    
+        return false;
+    }
 }
