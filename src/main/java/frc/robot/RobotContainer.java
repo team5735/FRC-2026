@@ -68,7 +68,7 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-        // drivetrain.registerTelemetry(logger::telemeterize);
+        drivetrain.registerTelemetry(logger::telemeterize);
 
         drivetrain.setDefaultCommand(drivetrain.joystickDriveCommand(
                 () -> driveController.getLeftX(),
@@ -79,9 +79,9 @@ public class RobotContainer {
 
         driveController.y().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
-        testController.a().whileTrue(turret.holdRobotRelative(Rotations.of(0.125)));
-        testController.b().whileTrue(turret.holdRobotRelative(Rotations.of(0.375)));
-        testController.x().whileTrue(turret.holdRobotRelative(Rotations.of(0.625)));
+        testController.x().onTrue(turret.holdRobotRel(Rotations.of(0.125)));
+        testController.a().onTrue(turret.holdRobotRel(Rotations.of(0.375)));
+        testController.b().onTrue(turret.holdRobotRel(Rotations.of(0.625)));
 
         testController.povDown().whileTrue(turret.sysId());
         testController.rightBumper().whileTrue(turret.testForward());
