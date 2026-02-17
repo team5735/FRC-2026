@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.5,
-        "y": 2.0
+        "x": 2.7281870814732145,
+        "y": 6.2751652599516365
       },
       "isLocked": false,
       "linkedName": "Right Bump"
@@ -20,8 +20,8 @@
         "y": 4.80024408249628
       },
       "prevControl": {
-        "x": 2.1435102190290176,
-        "y": 5.54749261765253
+        "x": 1.49725086030639,
+        "y": 5.448032807844902
       },
       "nextControl": null,
       "isLocked": false,
