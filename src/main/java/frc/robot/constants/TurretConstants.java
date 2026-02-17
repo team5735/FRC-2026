@@ -20,7 +20,7 @@ public class TurretConstants {
     public static final double KS = 0.21;
     public static final double KV = 0.65;
     public static final double KA = 0.15;
-    public static final AngularVelocity MAX_VEL = RotationsPerSecond.of(0.5);
+    public static final AngularVelocity MAX_VEL = RotationsPerSecond.of(1);
     public static final AngularAcceleration MAX_ACC = RotationsPerSecondPerSecond.of(1.5);
     public static final Angle LOWER_LIMIT = Rotations.of(0);
     public static final Angle UPPER_LIMIT = Rotations.of(0.75);

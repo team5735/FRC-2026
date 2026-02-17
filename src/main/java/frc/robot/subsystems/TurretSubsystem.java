@@ -104,7 +104,7 @@ public class TurretSubsystem extends SubsystemBase {
                 .andThen(Commands.print("SysId End"));
     }
 
-    private Command trackGoalRobotRel(Supplier<State> goalSupplier) {
+    private Command trackStateRobotRel(Supplier<State> goalSupplier) {
         return run(
                 () -> {
                     double voltsToSet = pid.calculate(kraken.getPosition().getValue().in(Rotations), goalSupplier.get())
@@ -114,11 +114,17 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     public Command trackRobotRel(Supplier<Angle> angleSupplier) {
-        return trackGoalRobotRel(() -> new State(clampInput(angleSupplier.get()).in(Rotations), 0));
+        return trackStateRobotRel(() -> new State(clampInput(angleSupplier.get()).in(Rotations), 0));
     }
 
     public Command holdRobotRel(Angle goal) {
-        return trackRobotRel(() -> goal);
+        return startRun(
+                () -> pid.setGoal(clampInput(goal).in(Rotations)),
+                () -> {
+                    double voltsToSet = pid.calculate(kraken.getPosition().getValue().in(Rotations))
+                            + ff.calculate(pid.getSetpoint().velocity);
+                    kraken.setVoltage(voltsToSet);
+                });
     }
 
     public Command holdFieldRelative(Angle fieldAngle, Supplier<Angle> robotAngleSupplier) {

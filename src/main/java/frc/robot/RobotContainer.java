@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Rotations;
 
 import java.util.HashMap;
@@ -12,15 +11,15 @@ import java.util.Map;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.commands.PathfindingCommand;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.constants.Constants;
-import frc.robot.constants.FieldConstants;
 import frc.robot.constants.drivetrain.CompbotTunerConstants;
 import frc.robot.constants.drivetrain.DevbotTunerConstants;
 import frc.robot.subsystems.DrivetrainSubsystem;
@@ -79,9 +78,18 @@ public class RobotContainer {
 
         driveController.y().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
+        turret.setDefaultCommand(turret.holdRobotRel(Rotations.of(0.5)));
+
         testController.x().onTrue(turret.holdRobotRel(Rotations.of(0.125)));
         testController.a().onTrue(turret.holdRobotRel(Rotations.of(0.375)));
         testController.b().onTrue(turret.holdRobotRel(Rotations.of(0.625)));
+        testController.y().whileTrue(turret.trackRobotRel(() -> {
+            double x = -testController.getRightY();
+            double y = -testController.getRightX();
+            Angle theta = new Rotation2d(x, y).getMeasure();
+            SmartDashboard.putNumber("testTheta", theta.in(Rotations));
+            return theta;
+        }));
 
         testController.povDown().whileTrue(turret.sysId());
         testController.rightBumper().whileTrue(turret.testForward());
