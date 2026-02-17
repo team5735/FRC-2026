@@ -12,6 +12,7 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.Constants;
 import frc.robot.util.TunablePIDController;
@@ -26,11 +27,23 @@ public class IntakeSubsystem extends SubsystemBase {
         intake_roller.configure(theConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
     }
 
-    public void intake_run() {
+    public Command getIntakeRollerCommand() {
+        return run(() -> run()).finallyDo(a -> stop());
+    }
+
+    public Command getIntakeReverseCommand() {
+        return run(() -> reverse()).finallyDo(a -> stop());
+    }
+
+    public void run() {
         intake_roller.setVoltage(1);
     }
 
-    public void intake_stop() {
+    public void reverse() {
+        intake_roller.setVoltage(-1);
+    }
+
+    public void stop() {
         intake_roller.setVoltage(0);
     }
 
