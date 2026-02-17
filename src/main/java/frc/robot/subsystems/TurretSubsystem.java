@@ -4,17 +4,7 @@ import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
-import static frc.robot.constants.TurretConstants.CONSTRAINTS;
-import static frc.robot.constants.TurretConstants.KA;
-import static frc.robot.constants.TurretConstants.KD;
-import static frc.robot.constants.TurretConstants.KI;
-import static frc.robot.constants.TurretConstants.KP;
-import static frc.robot.constants.TurretConstants.KS;
-import static frc.robot.constants.TurretConstants.KV;
-import static frc.robot.constants.TurretConstants.LOWER_LIMIT;
-import static frc.robot.constants.TurretConstants.SOFT_PADDING;
-import static frc.robot.constants.TurretConstants.START_POS;
-import static frc.robot.constants.TurretConstants.UPPER_LIMIT;
+import static frc.robot.constants.TurretConstants.*;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
@@ -67,14 +57,32 @@ public class TurretSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("turret/posErrorRots", pid.getPositionError());
     }
 
+    /**
+     * Tests the turret's turning capability at a constant voltage
+     * 
+     * @return {@link Command} that sets the motor to a constant forward voltage on
+     *         scheduling and stops it on ending
+     */
     public Command testForward() {
         return startEnd(() -> kraken.setVoltage(0.5), () -> kraken.setVoltage(0));
     }
 
+    /**
+     * Tests the turret's turning capability at a constant voltage
+     * 
+     * @return {@link Command} that sets the motor to a constant backward voltage on
+     *         scheduling and stops it on ending
+     */
     public Command testReverse() {
         return startEnd(() -> kraken.setVoltage(-0.5), () -> kraken.setVoltage(0));
     }
 
+    /**
+     * Stops the turret motor completely
+     * 
+     * @return {@link Command} that sets the motor to a voltage of zero on
+     *         scheduling and does not deschedule itself unless interrupted
+     */
     public Command stop() {
         return startRun(() -> kraken.setVoltage(0), () -> {
         });
@@ -88,22 +96,40 @@ public class TurretSubsystem extends SubsystemBase {
                         .angularVelocity(kraken.getVelocity().getValue())
                         .angularPosition(kraken.getPosition().getValue());
             }, this));
-    private BooleanSupplier maxTrigger = () -> {
+    public final BooleanSupplier isAtMax = () -> {
         return kraken.getPosition().getValue().gte(UPPER_LIMIT.minus(SOFT_PADDING));
     };
-    private BooleanSupplier minTrigger = () -> {
+    public final BooleanSupplier isAtMin = () -> {
         return kraken.getPosition().getValue().lte(UPPER_LIMIT.minus(SOFT_PADDING));
     };
 
+    /**
+     * SysId command for this subsystem
+     * 
+     * @return {@link Command} that runs a {@link SysIdRoutine} for this subsystem,
+     *         forward and backward, dynamic and quasistatic. All parts of the
+     *         routine end when they hit the upper and lower limit of this
+     *         subsystem.
+     */
     public Command sysId() {
         return Commands.print("Starting Turret SysId")
-                .andThen(routine.dynamic(Direction.kForward).until(maxTrigger))
-                .andThen(routine.dynamic(Direction.kReverse).until(minTrigger))
-                .andThen(routine.quasistatic(Direction.kForward).until(maxTrigger))
-                .andThen(routine.quasistatic(Direction.kReverse).until(minTrigger))
+                .andThen(routine.dynamic(Direction.kForward).until(isAtMax))
+                .andThen(routine.dynamic(Direction.kReverse).until(isAtMin))
+                .andThen(routine.quasistatic(Direction.kForward).until(isAtMax))
+                .andThen(routine.quasistatic(Direction.kReverse).until(isAtMin))
                 .andThen(Commands.print("SysId End"));
     }
 
+    /**
+     * Runs the turret until a specified, moving {@link State}. Private because the
+     * positional aspect is not clamped. Use {@link trackRobotRelWithVelocity}
+     * instead.
+     * 
+     * @param goalSupplier Combined position/velocity supplier in the form of a
+     *                     {@link State}.
+     * @return {@link Command} that repeatedly applies the output of the
+     *         {@link ProfiledPIDController} to the motor.
+     */
     private Command trackStateRobotRel(Supplier<State> goalSupplier) {
         return run(
                 () -> {
@@ -113,10 +139,28 @@ public class TurretSubsystem extends SubsystemBase {
                 });
     }
 
+    /**
+     * Runs the turret to a specified, moving {@link Angle}.
+     * 
+     * @param angleSupplier Supplier for a robot-relative {@link Angle}, will be
+     *                      clamped to the functional range of this subsystem
+     *                      automatically.
+     * @return {@link Command} that repeatedly applies the output of the
+     *         {@link ProfiledPIDController} to the motor.
+     */
     public Command trackRobotRel(Supplier<Angle> angleSupplier) {
         return trackStateRobotRel(() -> new State(clampInput(angleSupplier.get()).in(Rotations), 0));
     }
 
+    /**
+     * Runs the turret to a specified, moving {@link Angle}.
+     * 
+     * @param goal Robot-relative {@link Angle}, will be
+     *             clamped to the functional range of this subsystem
+     *             automatically.
+     * @return {@link Command} that sets the {@link ProfiledPIDController}'s goal to
+     *         the parameter, then repeatedly applies its output to the motor.
+     */
     public Command holdRobotRel(Angle goal) {
         return startRun(
                 () -> pid.setGoal(clampInput(goal).in(Rotations)),
@@ -127,9 +171,31 @@ public class TurretSubsystem extends SubsystemBase {
                 });
     }
 
+    /**
+     * Runs the turret to a specified, static {@link Angle}.
+     * 
+     * @param fieldAngle         Field-relative {@link Angle}.
+     * @param robotAngleSupplier Supplier for the field-relative {@link Angle} of
+     *                           the robot.
+     * 
+     * @return {@link Command} that repeatedly applies the output of the
+     *         {@link ProfiledPIDController} to the motor.
+     */
+
     public Command holdFieldRelative(Angle fieldAngle, Supplier<Angle> robotAngleSupplier) {
         return trackRobotRel(() -> clampInput(fieldAngle.minus(robotAngleSupplier.get())));
     }
+
+    /**
+     * Runs the turret to aim at a specified, static {@link Translation2d}.
+     * 
+     * @param positionToTrack   Field-relative {@link Translation2d}.
+     * @param robotPoseSupplier Supplier for the field-relative {@link Pose2d} of
+     *                          the robot.
+     * 
+     * @return {@link Command} that repeatedly applies the output of the
+     *         {@link ProfiledPIDController} to the motor.
+     */
 
     public Command trackFieldPos(Translation2d positionToTrack, Supplier<Pose2d> robotPoseSupplier) {
         return trackRobotRel(() -> {
@@ -143,11 +209,13 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     /**
-     * Clamps a goal angle to the acceptable range of this subsystem
+     * Clamps a goal angle to the functional range of this subsystem.
      * 
-     * @param input the goal position to be clamped
+     * @param input the goal position to be clamped.
      * 
-     * @return
+     * @return {@link Angle} inclusively between the upper and lower bounds of this
+     *         subsystem, either the rotational equivalent of the input, or one of
+     *         the bounds.
      */
     public Angle clampInput(Angle input) {
         double softLowerLimit = MathUtil.inputModulus(LOWER_LIMIT.plus(SOFT_PADDING).in(Rotations), 0, 1);
