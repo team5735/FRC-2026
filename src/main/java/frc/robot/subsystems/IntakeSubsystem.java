@@ -3,53 +3,45 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot.subsystems;
-import com.ctre.phoenix6.hardware.TalonFX;
 
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.constants.Constants;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.SparkBaseConfig;
-import com.revrobotics.spark.config.SparkMaxConfig;
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkBaseConfig;
+import com.revrobotics.spark.config.SparkMaxConfig;
+
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.constants.Constants;
+import frc.robot.util.TunablePIDController;
 
 public class IntakeSubsystem extends SubsystemBase {
-  private final TalonFX intake_slapdown = new TalonFX(Constants.INTAKE_TALONFX_ID);
-  private final SparkMax intake_roller = new SparkMax(Constants.INTAKE_SPARKMAX_ID, MotorType.kBrushless);
-  private final SparkBaseConfig theConfig = new SparkMaxConfig().inverted(true);
-  private final PIDController pidController = new PIDController(0, 0, 0);
-  
-  public IntakeSubsystem() {
-    intake_roller.configure(theConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
-  }
+    private final TalonFX intake_slapdown = new TalonFX(Constants.INTAKE_TALONFX_ID);
+    private final SparkMax intake_roller = new SparkMax(Constants.INTAKE_SPARKMAX_ID, MotorType.kBrushless);
+    private final SparkBaseConfig theConfig = new SparkMaxConfig().inverted(true);
+    private final TunablePIDController pidController = new TunablePIDController("Intake Up and Down");
 
-  public void intake_run() {
-    intake_roller.setVoltage(1);
-  }
+    public IntakeSubsystem() {
+        intake_roller.configure(theConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+    }
 
-  public void intake_stop() {
-    intake_roller.setVoltage(0);
-  }
+    public void intake_run() {
+        intake_roller.setVoltage(1);
+    }
 
-  public void setGoal(double goal) {
-    pidController.setSetpoint(goal);
-  }
+    public void intake_stop() {
+        intake_roller.setVoltage(0);
+    }
 
-  public void usePID() {
-    double pos = intake_roller.getEncoder().getPosition();
-    double output = pidController.calculate(pos);
-    intake_slapdown.set(output);
-  }
+    public void setGoal(double goal) {
+        pidController.setup(goal);
+    }
 
-  @Override
-  public void periodic() {
-    double kP = SmartDashboard.getNumber("PID kP", 0.1);
-    double kI = SmartDashboard.getNumber("PID kI", 0);
-    double kD = SmartDashboard.getNumber("PID kD", 0);
-    pidController.setPID(kP, kI, kD);
-  }
+    public void usePID() {
+        double pos = intake_roller.getEncoder().getPosition();
+        double output = pidController.calculate(pos);
+        intake_slapdown.set(output);
+    }
+
 }
-
