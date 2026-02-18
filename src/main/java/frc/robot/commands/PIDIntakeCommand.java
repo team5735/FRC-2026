@@ -23,11 +23,6 @@ public class PIDIntakeCommand extends Command {
         launcher.usePID();
     }
 
-    // @Override
-    // public void end(boolean interrupted) {
-    //     launcher.intake_stop();
-    // }
-
     @Override
     public boolean isFinished() {
       return false;

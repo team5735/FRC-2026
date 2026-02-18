@@ -22,7 +22,6 @@ public class FuelLauncherSubsystem extends SubsystemBase {
 
 
 
-    /** Creates a new ExampleSubsystem. */
     public FuelLauncherSubsystem() {
         SmartDashboard.putNumber("shooter_volts", Constants.LAUNCHER_VOLTS);
         krakenRight.setControl(new Follower(Constants.LAUNCHER_LEFT_KRAKEN_ID, MotorAlignmentValue.Opposed));
