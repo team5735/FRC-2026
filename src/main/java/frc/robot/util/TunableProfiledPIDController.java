@@ -36,6 +36,16 @@ public class TunableProfiledPIDController {
     }
 
     /** Creates a new PID controller with the specified values in {table}/{name}. */
+    public TunableProfiledPIDController(NTable table, String name, double p, double i, double d) {
+        this(table, name, p, i, d, 0, 0);
+    }
+
+    /** Creates a new PID controller with the specified values in {table}/{name}. */
+    public TunableProfiledPIDController(NTable table, String name, double vel, double accel) {
+        this(table, name, 0, 0, 0, vel, accel);
+    }
+
+    /** Creates a new PID controller with the specified values in {table}/{name}. */
     public TunableProfiledPIDController(NTable table, String name, double p, double i, double d,
             double maxVelocity, double maxAcceleration) {
         this.table = table.sub(name);
