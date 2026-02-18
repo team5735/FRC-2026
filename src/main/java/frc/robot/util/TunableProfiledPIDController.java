@@ -130,12 +130,12 @@ public class TunableProfiledPIDController {
         return value;
     }
 
-    /** {@return whether this PIDController is within tolerance of the setpoint} */
+    /** {@return whether this ProfiledPIDController is within tolerance of the setpoint} */
     public boolean atSetpoint() {
         return this.controller.atSetpoint();
     }
 
-    /** {@return the wrapped PIDController} */
+    /** {@return the wrapped ProfiledPIDController} */
     public ProfiledPIDController getController() {
         return controller;
     }
