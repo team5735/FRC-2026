@@ -26,7 +26,6 @@ import frc.robot.constants.FieldConstants;
 import frc.robot.constants.drivetrain.CompbotTunerConstants;
 import frc.robot.constants.drivetrain.DevbotTunerConstants;
 import frc.robot.subsystems.DrivetrainSubsystem;
-import frc.robot.subsystems.SpinDexSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 
@@ -58,7 +57,6 @@ public class RobotContainer {
     }
 
     public static final VisionSubsystem vision = new VisionSubsystem(drivetrain);
-    public static final SpinDexSubsystem spindex = new SpinDexSubsystem();
 
     public RobotContainer() {
         Map<String, Command> commandsForAuto = new HashMap<>();
@@ -87,7 +85,7 @@ public class RobotContainer {
         turret.setDefaultCommand(turret.holdRobotRel(Rotations.of(0.5)));
 
         driveController.a().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
-        driveController.b().onTrue(spindex.getStart());
+
         driveController.x().onTrue(turret.holdFieldRelative(Rotations.of(0),
                 () -> drivetrain.getEstimatedPosition().getRotation().getMeasure()));
         driveController.y()
@@ -116,5 +114,4 @@ public class RobotContainer {
 
         return auto;
     }
-
 }

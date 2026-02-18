@@ -8,6 +8,8 @@ public class Constants {
         COMPBOT
     }
 
+    // disables drivetrain and autos initialization
+    public static boolean BREADBOARD_MODE = false;
     public static DrivetrainType DRIVETRAIN_TYPE = DrivetrainType.DEVBOT;
 
     public static final int DRIVE_CONTROLLER_PORT = 0;
