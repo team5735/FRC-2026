@@ -45,7 +45,7 @@ public class RobotContainer {
 
     public static final VisionSubsystem vision = new VisionSubsystem(drivetrain);
 
-    public RobotContainer() {
+    public RobotContainer() { // Sebastian bug
         DriverStation.silenceJoystickConnectionWarning(true);
         configureBindings();
     }
