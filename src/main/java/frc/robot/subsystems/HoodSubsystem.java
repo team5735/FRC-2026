@@ -10,15 +10,15 @@ public class HoodSubsystem extends SubsystemBase {
 
     // Runs one time when the robot starts
     public HoodSubsystem() {
-        
-    }
+        setPosition(0.4);  // default safe position at startup
+}
 
     //Pos is set anywhere from 0 to 1
     public void setPosition(double position) {
-        servo.set(position);
-    }
+    double safePosition = Math.max(0.1, Math.min(0.9, position));
+    servo.set(safePosition);
+}
 
-    
     // Returns raw voltage from analog feedback wire
     public double getVoltage() {
         return feedback.getVoltage();
