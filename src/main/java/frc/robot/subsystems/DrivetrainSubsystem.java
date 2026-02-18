@@ -17,7 +17,6 @@ import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
-import com.pathplanner.lib.util.DriveFeedforwards;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -123,7 +122,6 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
      * SysId routine for characterizing translation. This is used to find PID gains
      * for the drive motors.
      */
-    @SuppressWarnings("unused")
     private final SysIdRoutine sysIdRoutineTranslation = new SysIdRoutine(
             new SysIdRoutine.Config(
                     null, // Use default ramp rate (1 V/s)
