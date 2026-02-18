@@ -87,7 +87,7 @@ public class DevbotConstants implements DrivetrainConstants {
 
     @Override
     public LinearVelocity getSlowSpeed() {
-        return MetersPerSecond.of(1);
+        return MetersPerSecond.of(.5);
     }
 
     @Override

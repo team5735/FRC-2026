@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
@@ -37,7 +38,7 @@ import frc.robot.constants.drivetrain.CompbotConstants;
 import frc.robot.constants.drivetrain.CompbotTunerConstants.TunerSwerveDrivetrain;
 import frc.robot.constants.drivetrain.DevbotConstants;
 import frc.robot.constants.drivetrain.DrivetrainConstants;
-import frc.robot.util.NTDoubleSection;
+import frc.robot.util.NTable;
 
 /**
  * Class that extends the Phoenix 6 SwerveDrivetrain class and implements
@@ -64,15 +65,13 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
     private double defaultSpeed = CONSTANTS.getDefaultSpeed().in(MetersPerSecond);
     private double defaultAngularRate = CONSTANTS.getDefaultRotationalRate().in(RadiansPerSecond);
 
-    private NTDoubleSection doubles = new NTDoubleSection("drivetrain", "timestampIn", "timestampOut", "timestampDiff");
-
-    /* Keep track if we've ever applied the operator perspective before or not */
-    private boolean hasAppliedOperatorPerspective = false;
+    private NTable table = NTable.root("drivetrain");
 
     /* Swerve requests to apply during SysId characterization */
     public final SwerveRequest.SysIdSwerveTranslation translationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
     public final SwerveRequest.SysIdSwerveSteerGains steerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
     public final SwerveRequest.SysIdSwerveRotation rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
+
     public final SwerveRequest.FieldCentric fieldCentricRequest = new SwerveRequest.FieldCentric()
             .withDriveRequestType(DriveRequestType.Velocity)
             .withCenterOfRotation(CONSTANTS.getPigeonToCenterOfRotation());
@@ -80,6 +79,7 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
     public final SwerveRequest.RobotCentric robotCentricRequest = new SwerveRequest.RobotCentric()
             .withDriveRequestType(DriveRequestType.Velocity);
 
+    @SuppressWarnings("unused")
     private final Consumer<SysIdRoutineLog> openTranslationLogConsumer = (log) -> {
         log.motor("FL_drive")
                 .linearPosition(Meters.of(getState().Pose.getY()))
@@ -157,6 +157,7 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
      * SysId routine for characterizing steer. This is used to find PID gains for
      * the steer motors.
      */
+    @SuppressWarnings("unused")
     private final SysIdRoutine sysIdRoutineSteer = new SysIdRoutine(
             new SysIdRoutine.Config(
                     null, // Use default ramp rate (1 V/s)
@@ -182,6 +183,7 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
      * See the documentation of SwerveRequest.SysIdSwerveRotation for info on
      * importing the log to SysId.
      */
+    @SuppressWarnings("unused")
     private final SysIdRoutine sysIdRoutineRotation = new SysIdRoutine(
             new SysIdRoutine.Config(
                     /* This is in radians per second², but SysId only supports "volts per second" */
@@ -324,6 +326,8 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
         return sysIdRoutineToApply.dynamic(direction);
     }
 
+    private boolean hasAppliedOperatorPerspective = false;
+
     @Override
     public void periodic() {
         /*
@@ -356,9 +360,9 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
      * For use by PIDs. Speed limited for safety.
      */
     public void pidDrive(double vx, double vy, double omega) {
-        if (Math.abs(vx) > defaultSpeed || Math.abs(vy) > defaultSpeed || Math.abs(omega) > defaultAngularRate) {
-            setControl(brakeRequest);
-        }
+        vx = Math.min(CONSTANTS.getSlowSpeed().in(MetersPerSecond), vx);
+        vy = Math.min(CONSTANTS.getSlowSpeed().in(MetersPerSecond), vy);
+        omega = Math.min(CONSTANTS.getSlowRotationalRate().in(DegreesPerSecond), omega);
         setControl(fieldCentricRequest.withVelocityX(vx).withVelocityY(vy).withRotationalRate(omega));
     }
 
@@ -427,11 +431,10 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
     public void autoDriveRobotRelative(ChassisSpeeds robotChassisSpeeds) {
         var discrete = ChassisSpeeds.discretize(robotChassisSpeeds, 0.02);
 
-        setControl(
-                robotCentricRequest
-                        .withVelocityX(discrete.vxMetersPerSecond)
-                        .withVelocityY(discrete.vyMetersPerSecond)
-                        .withRotationalRate(discrete.omegaRadiansPerSecond));
+        setControl(robotCentricRequest
+                .withVelocityX(discrete.vxMetersPerSecond)
+                .withVelocityY(discrete.vyMetersPerSecond)
+                .withRotationalRate(discrete.omegaRadiansPerSecond));
     }
 
     private void setUpAuto() {
@@ -479,8 +482,8 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
      */
     @Override
     public void addVisionMeasurement(Pose2d visionRobotPoseMeters, double timestampSeconds) {
-        doubles.set("timestampIn", timestampSeconds);
-        doubles.set("timestampOut", Utils.fpgaToCurrentTime(timestampSeconds));
+        table.set("timestampIn", timestampSeconds);
+        table.set("timestampOut", Utils.fpgaToCurrentTime(timestampSeconds));
         super.addVisionMeasurement(visionRobotPoseMeters, Utils.fpgaToCurrentTime(timestampSeconds));
     }
 
@@ -520,9 +523,9 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
     @Override
     public void addVisionMeasurement(Pose2d visionRobotPoseMeters, double timestampSeconds,
             Matrix<N3, N1> visionMeasurementStdDevs) {
-        doubles.set("timestampIn", timestampSeconds);
-        doubles.set("timestampOut", Utils.fpgaToCurrentTime(timestampSeconds));
-        doubles.set("timestampDiff", Utils.fpgaToCurrentTime(timestampSeconds) - Utils.getCurrentTimeSeconds());
+        table.set("timestampIn", timestampSeconds);
+        table.set("timestampOut", Utils.fpgaToCurrentTime(timestampSeconds));
+        table.set("timestampDiff", Utils.fpgaToCurrentTime(timestampSeconds) - Utils.getCurrentTimeSeconds());
         super.addVisionMeasurement(visionRobotPoseMeters, Utils.fpgaToCurrentTime(timestampSeconds),
                 visionMeasurementStdDevs);
     }

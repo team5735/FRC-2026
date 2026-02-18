@@ -1,4 +1,4 @@
-package frc.tools;
+package inkly.integration;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -24,7 +24,7 @@ public class ArcNearestPointSwing extends JPanel {
 
     private Point clickPoint = null;
 
-    private Arc arc = new Arc(new Translation2d(400, 300), 200, Rotation2d.kZero, Rotation2d.kCW_90deg);
+    private Arc arc = new Arc(new Translation2d(400, 300), 200, Rotation2d.kZero, Rotation2d.kCCW_90deg);
 
     // ---------- Drawing ----------
 
@@ -50,8 +50,8 @@ public class ArcNearestPointSwing extends JPanel {
 
         int steps = 200;
         for (int i = 0; i <= steps; i++) {
-            Rotation2d t = arc.getStart().plus(arc.getEnd().minus(arc.getStart()).times(i / steps));
-            Translation2d p = new Translation2d(arc.getRadius(), t);
+            Rotation2d t = arc.getStart().interpolate(arc.getEnd(), (double) i / steps);
+            Translation2d p = new Translation2d(arc.getRadius(), t).plus(arc.getCenter());
             if (i == 0) {
                 arcPath.moveTo(p.getX(), p.getY());
             } else {
@@ -74,12 +74,9 @@ public class ArcNearestPointSwing extends JPanel {
 
         Translation2d closest = arc.nearestPointOnArc(new Translation2d(clickPoint.x, clickPoint.y));
 
-        if (closest == null) {
-            return;
-        }
-
         // Closest point
         g2.setColor(Color.RED);
+        g2.fillOval((int) closest.getX() - 4, (int) closest.getY() - 4, 8, 8);
         // Connecting line
         g2.setColor(Color.YELLOW);
         g2.drawLine(clickPoint.x, clickPoint.y,

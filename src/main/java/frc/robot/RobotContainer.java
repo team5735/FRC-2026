@@ -9,8 +9,10 @@ import static edu.wpi.first.units.Units.Rotations;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathfindingCommand;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
@@ -18,18 +20,21 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.constants.Constants;
 import frc.robot.constants.drivetrain.CompbotTunerConstants;
 import frc.robot.constants.drivetrain.DevbotTunerConstants;
 import frc.robot.subsystems.DrivetrainSubsystem;
+import frc.robot.subsystems.SpinDexSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
+import frc.robot.subsystems.VisionSubsystem;
 
 public class RobotContainer {
-    private final CommandXboxController driveController = new CommandXboxController(
+    public static final CommandXboxController driveController = new CommandXboxController(
             Constants.DRIVE_CONTROLLER_PORT);
 
-    private final CommandXboxController testController = new CommandXboxController(
+    public static final CommandXboxController testController = new CommandXboxController(
             Constants.TEST_CONTROLLER_PORT);
 
     private final SendableChooser<Command> autoChooser;
@@ -52,6 +57,9 @@ public class RobotContainer {
         }
     }
 
+    public static final VisionSubsystem vision = new VisionSubsystem(drivetrain);
+    public static final SpinDexSubsystem spindex = new SpinDexSubsystem();
+
     public RobotContainer() {
         Map<String, Command> commandsForAuto = new HashMap<>();
 
@@ -60,7 +68,7 @@ public class RobotContainer {
         autoChooser = AutoBuilder.buildAutoChooser();
 
         SmartDashboard.putData("Choose an Auto", autoChooser);
-        // PathfindingCommand.warmupCommand().schedule();
+        CommandScheduler.getInstance().schedule(PathfindingCommand.warmupCommand());
 
         DriverStation.silenceJoystickConnectionWarning(true);
         configureBindings();
@@ -76,7 +84,7 @@ public class RobotContainer {
                 () -> driveController.getRightTriggerAxis(),
                 () -> driveController.getHID().getBButton()));
 
-        driveController.y().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+        driveController.a().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
         turret.setDefaultCommand(turret.holdRobotRel(Rotations.of(0.5)));
 
@@ -95,6 +103,14 @@ public class RobotContainer {
         testController.rightBumper().whileTrue(turret.testForward());
         testController.leftBumper().whileTrue(turret.testReverse());
 
+        driveController.b().onTrue(spindex.getStart());
+
+        testController.rightBumper().whileTrue(drivetrain.applyRequest(
+                () -> {
+                    double x = testController.getRightX();
+                    double y = testController.getRightY();
+                    return new SwerveRequest.PointWheelsAt().withModuleDirection(new Rotation2d(x, y));
+                }));
     }
 
     public Command getAutonomousCommand() {
@@ -106,4 +122,5 @@ public class RobotContainer {
 
         return auto;
     }
+
 }

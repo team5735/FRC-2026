@@ -17,8 +17,6 @@ public class PathPlannerTest {
     void linePathTest() throws Exception {
         CompbotConstants bot = new CompbotConstants();
 
-        PathConstraints constraints = bot.getPathFollowConstraints();
-
         PathPlannerPath path = PathPlannerHelpers.createPathBetween(
                 new Translation2d(0, 0),
                 new Translation2d(1, 1),
