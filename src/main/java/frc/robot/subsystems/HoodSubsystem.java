@@ -3,6 +3,8 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.constants.Constants;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class HoodSubsystem extends SubsystemBase {
     private final Servo servo = new Servo(0);  
@@ -10,7 +12,9 @@ public class HoodSubsystem extends SubsystemBase {
 
     // Runs one time when the robot starts
     public HoodSubsystem() {
-        setPosition(0.4);  // default safe position at startup
+        SmartDashboard.putNumber("Start Revolution Posiiton", Constants.START_REVOLUTION_POSITION);
+        SmartDashboard.putNumber("End Revolution Posiiton", Constants.END_REVOLUTION_POSITION);
+        setPosition(Constants.START_REVOLUTION_POSITION);  // default safe position at startup
 }
 
     //Pos is set anywhere from 0 to 1

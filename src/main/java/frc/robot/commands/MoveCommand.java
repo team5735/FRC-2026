@@ -5,6 +5,7 @@ import frc.robot.subsystems.HoodSubsystem;
 
 public class MoveCommand extends InstantCommand {
 
-    public MoveCommand(HoodSubsystem subsystem, double position) {super(() -> subsystem.setPosition(position), subsystem);
+    public MoveCommand(HoodSubsystem subsystem, double position) {
+        super(() -> subsystem.setPosition(position), subsystem);
     }
 }
