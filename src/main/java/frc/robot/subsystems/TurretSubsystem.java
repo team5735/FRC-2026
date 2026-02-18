@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.constants.TurretConstants.*;
@@ -22,6 +23,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -32,11 +34,13 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import frc.robot.constants.Constants;
 import frc.robot.constants.RobotConstants;
+import frc.robot.util.TunableProfiledPIDController;
 
 public class TurretSubsystem extends SubsystemBase {
     private final TalonFX kraken = new TalonFX(Constants.TURRET_MOTOR_ID);
 
-    private final ProfiledPIDController pid = new ProfiledPIDController(KP, KI, KD, CONSTRAINTS);
+    private final TunableProfiledPIDController pid = new TunableProfiledPIDController("turret", KP, KI, KD,
+            MAX_VEL.in(RotationsPerSecond), MAX_ACC.in(RotationsPerSecondPerSecond));
     private final SimpleMotorFeedforward ff = new SimpleMotorFeedforward(KS, KV, KA);
 
     public TurretSubsystem() {
@@ -44,6 +48,7 @@ public class TurretSubsystem extends SubsystemBase {
                 .withInverted(InvertedValue.Clockwise_Positive));
         kraken.getConfigurator().apply(new FeedbackConfigs().withSensorToMechanismRatio(10));
         kraken.setPosition(START_POS);
+        pid.setup(START_POS.in(Rotations));
         pid.reset(START_POS.in(Rotations));
     }
 
@@ -51,10 +56,10 @@ public class TurretSubsystem extends SubsystemBase {
     public void periodic() {
         SmartDashboard.putNumber("turret/posRots", kraken.getPosition().getValue().in(Rotations));
         SmartDashboard.putNumber("turret/velRPS", kraken.getVelocity().getValue().in(RotationsPerSecond));
-        SmartDashboard.putNumber("turret/setpointPosRots", pid.getSetpoint().position);
-        SmartDashboard.putNumber("turret/setpointVelRPS", pid.getSetpoint().velocity);
+        SmartDashboard.putNumber("turret/setpointPosRots", pid.getController().getSetpoint().position);
+        SmartDashboard.putNumber("turret/setpointVelRPS", pid.getController().getSetpoint().velocity);
         SmartDashboard.putNumber("turret/volts", kraken.getMotorVoltage().getValueAsDouble());
-        SmartDashboard.putNumber("turret/posErrorRots", pid.getPositionError());
+        SmartDashboard.putNumber("turret/posErrorRots", pid.getController().getPositionError());
     }
 
     /**
@@ -121,8 +126,9 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     /**
-     * Runs the turret until a specified, moving {@link State}. Private because the
-     * positional aspect is not clamped. Use {@link trackRobotRelWithVelocity}
+     * Runs the turret to track a specified, moving {@link State}. Private because
+     * the
+     * positional aspect is not clamped. Use {@link #trackRobotRelWithVelocity()}
      * instead.
      * 
      * @param goalSupplier Combined position/velocity supplier in the form of a
@@ -134,7 +140,7 @@ public class TurretSubsystem extends SubsystemBase {
         return run(
                 () -> {
                     double voltsToSet = pid.calculate(kraken.getPosition().getValue().in(Rotations), goalSupplier.get())
-                            + ff.calculate(pid.getSetpoint().velocity);
+                            + ff.calculate(pid.getController().getSetpoint().velocity);
                     kraken.setVoltage(voltsToSet);
                 });
     }
@@ -153,6 +159,25 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     /**
+     * Runs the turret to a specified, moving {@link Angle}, with a goal velocity at
+     * said angle..
+     * 
+     * @param angleSupplier   supplier for a robot-relative {@link Angle}, will be
+     *                        clamped to the functional range of this subsystem
+     *                        automatically.
+     * @param velocitySuppler supplier for a robot-relative {@link AngularVelocity}
+     *                        that should be reached at the goal position
+     * @return {@link Command} that repeatedly applies the output of the
+     *         {@link ProfiledPIDController} to the motor.
+     */
+
+    public Command trackRobotRelWithVelocity(Supplier<Angle> angleSupplier,
+            Supplier<AngularVelocity> velocitySupplier) {
+        return trackStateRobotRel(() -> new State(clampInput(angleSupplier.get()).in(Rotations),
+                velocitySupplier.get().in(RotationsPerSecond)));
+    }
+
+    /**
      * Runs the turret to a specified, moving {@link Angle}.
      * 
      * @param goal Robot-relative {@link Angle}, will be
@@ -163,10 +188,10 @@ public class TurretSubsystem extends SubsystemBase {
      */
     public Command holdRobotRel(Angle goal) {
         return startRun(
-                () -> pid.setGoal(clampInput(goal).in(Rotations)),
+                () -> pid.setGoal(new State(clampInput(goal).in(Rotations), 0)),
                 () -> {
                     double voltsToSet = pid.calculate(kraken.getPosition().getValue().in(Rotations))
-                            + ff.calculate(pid.getSetpoint().velocity);
+                            + ff.calculate(pid.getController().getSetpoint().velocity);
                     kraken.setVoltage(voltsToSet);
                 });
     }
