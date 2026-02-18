@@ -57,7 +57,6 @@ public class RobotContainer {
     }
 
     public static final VisionSubsystem vision = new VisionSubsystem(drivetrain);
-    public static final SpinDexSubsystem spindex = new SpinDexSubsystem();
 
     public RobotContainer() {
         Map<String, Command> commandsForAuto = new HashMap<>();
@@ -84,8 +83,6 @@ public class RobotContainer {
                 () -> driveController.getHID().getBButton()));
 
         driveController.a().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
-
-        driveController.b().onTrue(new LaunchFuelCommand(launcher));
 
         testController.rightBumper().whileTrue(drivetrain.applyRequest(
                 () -> {
