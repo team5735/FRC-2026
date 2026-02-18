@@ -23,7 +23,6 @@ import frc.robot.constants.Constants;
 import frc.robot.constants.drivetrain.CompbotTunerConstants;
 import frc.robot.constants.drivetrain.DevbotTunerConstants;
 import frc.robot.subsystems.DrivetrainSubsystem;
-import frc.robot.subsystems.SpinDexSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 
 public class RobotContainer {
@@ -53,7 +52,6 @@ public class RobotContainer {
     }
 
     public static final VisionSubsystem vision = new VisionSubsystem(drivetrain);
-    public static final SpinDexSubsystem spindex = new SpinDexSubsystem();
 
     public RobotContainer() {
         Map<String, Command> commandsForAuto = new HashMap<>();
@@ -81,8 +79,6 @@ public class RobotContainer {
 
         driveController.a().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
-        driveController.b().onTrue(spindex.getStart());
-
         testController.rightBumper().whileTrue(drivetrain.applyRequest(
                 () -> {
                     double x = testController.getRightX();
@@ -100,5 +96,4 @@ public class RobotContainer {
 
         return auto;
     }
-
 }
