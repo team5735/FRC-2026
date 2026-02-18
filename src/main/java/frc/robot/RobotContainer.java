@@ -4,9 +4,6 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Feet;
-import static edu.wpi.first.units.Units.Meters;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,23 +12,18 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathfindingCommand;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.commands.drivetrain.PIDToPose;
 import frc.robot.constants.Constants;
-import frc.robot.constants.FieldConstants;
 import frc.robot.constants.drivetrain.CompbotTunerConstants;
 import frc.robot.constants.drivetrain.DevbotTunerConstants;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
-import frc.robot.util.geometry.Arc;
 
 public class RobotContainer {
     public static final CommandXboxController driveController = new CommandXboxController(
@@ -76,10 +68,6 @@ public class RobotContainer {
         DriverStation.silenceJoystickConnectionWarning(true);
     }
 
-    private Arc targetArc = new Arc(
-            FieldConstants.redElement(FieldConstants.BLUE_HUB_CENTER),
-            Feet.of(7.5).in(Meters), Rotation2d.fromDegrees(-45), Rotation2d.fromDegrees(45));
-
     private void configureBindings() {
         drivetrain.registerTelemetry(logger::telemeterize);
 
@@ -90,18 +78,7 @@ public class RobotContainer {
                 () -> driveController.getRightTriggerAxis(),
                 () -> driveController.getHID().getBButton()));
 
-        driveController.y()
-                .onTrue(new PIDToPose(drivetrain,
-                        () -> targetArc.getPoseFacingCenter(
-                                targetArc.nearestPointOnArc(
-                                        drivetrain.getEstimatedPosition().getTranslation())),
-                        "drive to arc"));
-        driveController.x().onTrue(drivetrain
-                .runOnce(() -> drivetrain.resetPose(new Pose2d())));
-
-        driveController.b().onTrue(Commands.runOnce(() -> {
-            targetArc.telemeterize(drivetrain.getEstimatedPosition());
-        }));
+        driveController.a().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
         testController.rightBumper().whileTrue(drivetrain.applyRequest(
                 () -> {
