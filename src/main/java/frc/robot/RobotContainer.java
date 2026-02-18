@@ -19,19 +19,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.LaunchFuelCommand;
-import frc.robot.commands.SpinDexCommand;
 import frc.robot.constants.Constants;
 import frc.robot.constants.drivetrain.CompbotTunerConstants;
 import frc.robot.constants.drivetrain.DevbotTunerConstants;
 import frc.robot.subsystems.DrivetrainSubsystem;
-import frc.robot.subsystems.FuelLauncherSubsystem;
-import frc.robot.subsystems.SpinDexSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 
 public class RobotContainer {
-    public FuelLauncherSubsystem launcher = new FuelLauncherSubsystem();
 
     public static final CommandXboxController driveController = new CommandXboxController(
             Constants.DRIVE_CONTROLLER_PORT);
@@ -40,7 +34,6 @@ public class RobotContainer {
             Constants.TEST_CONTROLLER_PORT);
 
     private final SendableChooser<Command> autoChooser;
-
     private final Telemetry logger = new Telemetry();
 
     public static final DrivetrainSubsystem drivetrain;

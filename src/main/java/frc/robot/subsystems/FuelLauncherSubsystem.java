@@ -19,7 +19,6 @@ public class FuelLauncherSubsystem extends SubsystemBase {
 
     private final TunablePIDController PIDController = new TunablePIDController("fuel_launcher", 0, 0, 0);
 
-    /** Creates a new ExampleSubsystem. */
     public FuelLauncherSubsystem() {
         SmartDashboard.putNumber("shooter_volts", FuelLauncherConstants.LAUNCHER_VOLTS);
         krakenRight
@@ -42,8 +41,6 @@ public class FuelLauncherSubsystem extends SubsystemBase {
         PIDController.setup(rpm, FuelLauncherConstants.RPM_TOLERANCE);
     }
 
-    // Multiplying krakenMotor by 60 to turn rotations per second into rotations per
-    // minute (RPM)
     public void usePID() {
         double rpm = this.getMotorRPM();
         double output = PIDController.calculate(rpm);
@@ -51,6 +48,8 @@ public class FuelLauncherSubsystem extends SubsystemBase {
     }
 
     @Override
+    // Multiplying krakenMotor by 60 to turn rotations per second into rotations per
+    // minute (RPM)
     public void periodic() {
         SmartDashboard.putNumber("speed_rpm_raw", 60 * krakenLeft.getVelocity().getValueAsDouble());
     }

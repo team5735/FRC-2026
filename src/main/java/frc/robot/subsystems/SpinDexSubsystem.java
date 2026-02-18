@@ -31,7 +31,7 @@ public class SpinDexSubsystem extends SubsystemBase {
     public void stopInner() {
         innerMotor.setVoltage(0);
     }
-
+    
     public Command getStart() {
         return runOnce(() -> {
             runInner();

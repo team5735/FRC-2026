@@ -12,13 +12,11 @@ public class LaunchFuelCommand extends Command {
         this.launcher = launcher;
     }
 
-    // Starts
     @Override
     public void initialize() {
         launcher.activateVoltage();
     }
 
-    // Stops the motor
     @Override
     public void end(boolean interrupted) {
         launcher.deactivateVoltage();

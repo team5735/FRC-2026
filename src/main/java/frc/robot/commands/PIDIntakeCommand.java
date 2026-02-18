@@ -7,7 +7,6 @@ public class PIDIntakeCommand extends Command {
     private double targetRPM;
     private FuelLauncherSubsystem launcher;
 
-
     public PIDIntakeCommand(double targetRPM, FuelLauncherSubsystem launcher) {
         this.launcher = launcher;
         this.targetRPM = targetRPM;
@@ -17,19 +16,14 @@ public class PIDIntakeCommand extends Command {
     public void initialize() {
         launcher.setTargetRPM(this.targetRPM);
     }
-    
+
     @Override
     public void execute() {
         launcher.usePID();
     }
 
-    // @Override
-    // public void end(boolean interrupted) {
-    //     launcher.intake_stop();
-    // }
-
     @Override
     public boolean isFinished() {
-      return false;
-    }    
+        return false;
+    }
 }
