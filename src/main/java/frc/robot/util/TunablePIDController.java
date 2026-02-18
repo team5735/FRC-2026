@@ -1,7 +1,6 @@
 package frc.robot.util;
 
 import edu.wpi.first.math.controller.PIDController;
-import frc.robot.constants.Constants;
 
 public class TunablePIDController {
     /** The wrapped PID controller. */
@@ -10,19 +9,19 @@ public class TunablePIDController {
     /** The table used to manage PID values. */
     private NTable table;
 
-    /** Creates a new PID controller with the default values in /pid/{name}. */
+    /** Creates a new PID controller with zeroed defaults in /pid/{name}. */
     public TunablePIDController(String name) {
-        this(NTable.root("pid"), name, Constants.PID_P, Constants.PID_I, Constants.PID_D);
+        this(NTable.root("pid"), name, 0, 0, 0);
     }
 
-    /** Creates a new PID controller with the specified values in /pid/{name}. */
+    /** Creates a new PID controller with the specified defaults in /pid/{name}. */
     public TunablePIDController(String name, double _p, double _i, double _d) {
         this(NTable.root("pid"), name, _p, _i, _d);
     }
 
-    /** Creates a new PID controller with the default values in {table}/{name}. */
+    /** Creates a new PID controller with zeroed defaults in {table}/{name}. */
     public TunablePIDController(NTable table, String name) {
-        this(table, name, Constants.PID_P, Constants.PID_I, Constants.PID_D);
+        this(table, name, 0, 0, 0);
     }
 
     /** Creates a new PID controller with the specified values in {table}/{name}. */
@@ -68,7 +67,7 @@ public class TunablePIDController {
      * @param setpoint
      */
     public void setup(double setpoint) {
-        setup(setpoint, Constants.TOLERANCE);
+        setup(setpoint, 0);
     }
 
     /**

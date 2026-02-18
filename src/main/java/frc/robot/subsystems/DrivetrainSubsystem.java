@@ -73,7 +73,6 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
     public final SwerveRequest.SysIdSwerveRotation rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
 
     public final SwerveRequest.FieldCentric fieldCentricRequest = new SwerveRequest.FieldCentric()
-            .withDeadband(defaultSpeed * 0.05).withRotationalDeadband(defaultAngularRate * 0.05) // Add a 5% deadband
             .withDriveRequestType(DriveRequestType.Velocity)
             .withCenterOfRotation(CONSTANTS.getPigeonToCenterOfRotation());
     public final SwerveRequest.FieldCentric pidRequest = new SwerveRequest.FieldCentric()
@@ -82,7 +81,6 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
             .withForwardPerspective(ForwardPerspectiveValue.BlueAlliance);
     public final SwerveRequest.SwerveDriveBrake brakeRequest = new SwerveRequest.SwerveDriveBrake();
     public final SwerveRequest.RobotCentric robotCentricRequest = new SwerveRequest.RobotCentric()
-            .withDeadband(defaultSpeed * 0.05).withRotationalDeadband(defaultAngularRate * 0.05)
             .withDriveRequestType(DriveRequestType.Velocity);
 
     @SuppressWarnings("unused")
@@ -128,7 +126,6 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
      * SysId routine for characterizing translation. This is used to find PID gains
      * for the drive motors.
      */
-    @SuppressWarnings("unused")
     private final SysIdRoutine sysIdRoutineTranslation = new SysIdRoutine(
             new SysIdRoutine.Config(
                     null, // Use default ramp rate (1 V/s)
@@ -208,7 +205,7 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
                     this));
 
     /* The SysId routine to test */
-    private SysIdRoutine sysIdRoutineToApply = sysIdRoutineSteer;
+    private SysIdRoutine sysIdRoutineToApply = sysIdRoutineTranslation;
 
     /**
      * Constructs a CTRE SwerveDrivetrain using the specified constants.

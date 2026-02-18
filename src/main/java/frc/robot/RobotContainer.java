@@ -4,9 +4,6 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Feet;
-import static edu.wpi.first.units.Units.Meters;
-
 import java.util.HashMap;
 import java.util.Map;
 
