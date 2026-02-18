@@ -23,14 +23,14 @@ public class TurretConstants {
     public static final double KV = 0.65;
     public static final double KA = 0.15;
 
-    public static final AngularVelocity MAX_VEL = RotationsPerSecond.of(1);
-    public static final AngularAcceleration MAX_ACC = RotationsPerSecondPerSecond.of(1.5);
+    public static final AngularVelocity MAX_VEL = RotationsPerSecond.of(5);
+    public static final AngularAcceleration MAX_ACC = RotationsPerSecondPerSecond.of(7.5);
     public static final TrapezoidProfile.Constraints CONSTRAINTS = new TrapezoidProfile.Constraints(
             MAX_VEL.in(RotationsPerSecond), MAX_ACC.in(RotationsPerSecondPerSecond));
 
     // Imaginary hard stops for the turret; all setpoints are to be within a set padding of these
     public static final Angle LOWER_LIMIT = Rotations.of(0);
-    public static final Angle UPPER_LIMIT = Rotations.of(0.75);
+    public static final Angle UPPER_LIMIT = Rotations.of(1);
     public static final Angle SOFT_PADDING = Rotations.of(0.05);
     
     // Robot-relative starting angle

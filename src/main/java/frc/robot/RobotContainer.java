@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.constants.Constants;
+import frc.robot.constants.FieldConstants;
 import frc.robot.constants.drivetrain.CompbotTunerConstants;
 import frc.robot.constants.drivetrain.DevbotTunerConstants;
 import frc.robot.subsystems.DrivetrainSubsystem;
@@ -84,13 +85,16 @@ public class RobotContainer {
                 () -> driveController.getRightTriggerAxis(),
                 () -> driveController.getHID().getBButton()));
 
-        driveController.a().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
-
         turret.setDefaultCommand(turret.holdRobotRel(Rotations.of(0.5)));
 
-        testController.x().onTrue(turret.holdRobotRel(Rotations.of(0.125)));
-        testController.a().onTrue(turret.holdRobotRel(Rotations.of(0.375)));
-        testController.b().onTrue(turret.holdRobotRel(Rotations.of(0.625)));
+        driveController.a().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+        driveController.b().onTrue(spindex.getStart());
+        driveController.x().onTrue(turret.holdFieldRelative(Rotations.of(0),
+                () -> drivetrain.getEstimatedPosition().getRotation().getMeasure()));
+        driveController.y()
+                .onTrue(turret.trackFieldPos(FieldConstants.BLUE_HUB_CENTER, drivetrain::getEstimatedPosition));
+
+        testController.x().onTrue(turret.holdRobotRel(Rotations.of(0.5)));
         testController.y().whileTrue(turret.trackRobotRel(() -> {
             double x = -testController.getRightY();
             double y = -testController.getRightX();
@@ -102,15 +106,6 @@ public class RobotContainer {
         testController.povDown().whileTrue(turret.sysId());
         testController.rightBumper().whileTrue(turret.testForward());
         testController.leftBumper().whileTrue(turret.testReverse());
-
-        driveController.b().onTrue(spindex.getStart());
-
-        testController.rightBumper().whileTrue(drivetrain.applyRequest(
-                () -> {
-                    double x = testController.getRightX();
-                    double y = testController.getRightY();
-                    return new SwerveRequest.PointWheelsAt().withModuleDirection(new Rotation2d(x, y));
-                }));
     }
 
     public Command getAutonomousCommand() {

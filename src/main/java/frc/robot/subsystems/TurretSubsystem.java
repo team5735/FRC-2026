@@ -181,7 +181,6 @@ public class TurretSubsystem extends SubsystemBase {
      * @return {@link Command} that repeatedly applies the output of the
      *         {@link ProfiledPIDController} to the motor.
      */
-
     public Command holdFieldRelative(Angle fieldAngle, Supplier<Angle> robotAngleSupplier) {
         return trackRobotRel(() -> clampInput(fieldAngle.minus(robotAngleSupplier.get())));
     }
