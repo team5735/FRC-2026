@@ -82,7 +82,7 @@ public class RobotContainer {
 
         driveController.a().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
-        driveController.b().onTrue(new SpinDexCommand(spindex));
+        driveController.b().onTrue(spindex.getStart());
 
         testController.rightBumper().whileTrue(drivetrain.applyRequest(
                 () -> {
