@@ -1,35 +1,44 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix6.configs.MotorOutputConfigs;
-import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.revrobotics.spark.SparkFlex;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
 
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.Constants;
 
 public class SpinDexSubsystem extends SubsystemBase {
-
-    public final TalonFX talon6 = new TalonFX(Constants.motor6);
-    public final TalonFX talon27 = new TalonFX(Constants.motor27);
+    public final SparkFlex outerMotor = new SparkFlex(Constants.motor6, MotorType.kBrushless);
+    public final SparkFlex innerMotor = new SparkFlex(Constants.motor27, MotorType.kBrushless);
 
     public SpinDexSubsystem() {
-        talon6.getConfigurator().apply(new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Brake));
-        talon27.getConfigurator().apply(new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Brake));
+        outerMotor.clearFaults();
+        innerMotor.clearFaults();
     }
 
-    public void Motor6Run() {
-        talon6.setVoltage(4);
+    public void runOuter() {
+        outerMotor.setVoltage(-5);
     }
 
-    public void Motor6stop() {
-        talon6.setVoltage(0);
+    public void stopOuter() {
+        outerMotor.setVoltage(0);
     }
 
-    public void Motor27Run() {
-        talon6.setVoltage(2);
+    public void runInner() {
+        innerMotor.setVoltage(-3);
     }
 
-    public void Motor27stop() {
-        talon6.setVoltage(0);
+    public void stopInner() {
+        innerMotor.setVoltage(0);
+    }
+
+    public Command getStart() {
+        return runOnce(() -> {
+            runInner();
+            runOuter();
+        }).finallyDo(() -> {
+            stopInner();
+            stopOuter();
+        });
     }
 }

@@ -3,28 +3,28 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 6.0,
-        "y": 1.0
+        "x": 3.5,
+        "y": 7.0
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.0,
-        "y": 1.25
+        "x": 1.7383809988839287,
+        "y": 2.2819889904203876
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Left Trench"
     },
     {
       "anchor": {
-        "x": 6.0,
-        "y": 5.0
+        "x": 1.0790200660342262,
+        "y": 2.573996058872768
       },
       "prevControl": {
-        "x": 6.0,
-        "y": 4.75
+        "x": 1.4381153506324404,
+        "y": 2.0323963564918155
       },
       "nextControl": null,
-      "isLocked": true,
+      "isLocked": false,
       "linkedName": null
     }
   ],
@@ -33,7 +33,7 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 1.0,
+    "maxVelocity": 2.0,
     "maxAcceleration": 3.5,
     "maxAngularVelocity": 180.0,
     "maxAngularAcceleration": 180.0,
@@ -45,10 +45,10 @@
     "rotation": -90.0
   },
   "reversed": false,
-  "folder": "Calibration",
+  "folder": "Left Trench",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 90.0
+    "rotation": 0.0
   },
-  "useDefaultConstraints": false
+  "useDefaultConstraints": true
 }

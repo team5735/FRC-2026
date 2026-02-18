@@ -16,6 +16,18 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.DrivetrainSubsystem;
 
+/**
+ * This is a relatively generic command that uses PathPlannerLib's on-the-fly
+ * pathing capabilities to create a path and follow it.
+ *
+ * <p> This class utilizes a supplier so that the target pose can be set
+ * multiple times during program execution, instead of just at robot startup.
+ *
+ * <p>
+ * The poses are always assumed to be in blue-alliance space, and PathPlanner
+ * is requested to not flip the path this command generates in order to enforce
+ * consistency.
+ */
 public class PathPlannerToPose extends Command {
     private DrivetrainSubsystem drivetrain;
     private Supplier<Pose2d> poseSupplier;
