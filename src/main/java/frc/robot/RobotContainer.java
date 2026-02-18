@@ -4,63 +4,96 @@
 
 package frc.robot;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathfindingCommand;
+
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.LaunchFuelCommand;
 import frc.robot.constants.Constants;
-import frc.robot.subsystems.FuelLauncherSubsystem;
+import frc.robot.constants.drivetrain.CompbotTunerConstants;
+import frc.robot.constants.drivetrain.DevbotTunerConstants;
+import frc.robot.subsystems.DrivetrainSubsystem;
+import frc.robot.subsystems.VisionSubsystem;
 
-/**
- * This class is where the bulk of the robot should be declared. Since
- * Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in
- * the {@link Robot}
- * periodic methods (other than the scheduler calls). Instead, the structure of
- * the robot (including
- * subsystems, commands, and trigger mappings) should be declared here.
- */
 public class RobotContainer {
-  public FuelLauncherSubsystem launcher = new FuelLauncherSubsystem();
-  private final CommandXboxController m_driverController = new CommandXboxController(Constants.DRIVE_CONTROLLER_PORT);
+    public static final CommandXboxController driveController = new CommandXboxController(
+            Constants.DRIVE_CONTROLLER_PORT);
 
-  /**
-   * The container for the robot. Contains subsystems, OI devices, and commands.
-   */
-  public RobotContainer() {
-    // Configure the trigger bindings
-    configureBindings();
-  }
+    public static final CommandXboxController testController = new CommandXboxController(
+            Constants.TEST_CONTROLLER_PORT);
 
-  /**
-   * Use this method to define your trigger->command mappings. Triggers can be
-   * created via the
-   * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with
-   * an arbitrary
-   * predicate, or via the named factories in {@link
-   * edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses for
-   * {@link
-   * CommandXboxController
-   * Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller
-   * PS4} controllers or
-   * {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
-   * joysticks}.
-   */
-  private void configureBindings() {
-    // Schedule `exampleMethodCommand` when the Xbox controller's B button is
-    // pressed,
-    // cancelling on release.
-    m_driverController.b().whileTrue(new LaunchFuelCommand(launcher));
-  }
+    private final SendableChooser<Command> autoChooser;
 
-  /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
-   *
-   * @return the command to run in autonomous
-   */
-  public Command getAutonomousCommand() {
-    // An example command will be run in autonomous
-    return Commands.none();
-  }
+    private final Telemetry logger = new Telemetry();
+
+    public static final DrivetrainSubsystem drivetrain;
+
+    static {
+        switch (Constants.DRIVETRAIN_TYPE) {
+            case COMPBOT:
+                drivetrain = CompbotTunerConstants.createDrivetrain();
+                break;
+            case DEVBOT:
+                drivetrain = DevbotTunerConstants.createDrivetrain();
+                break;
+            default:
+                throw new RuntimeException("Unknown drivetrain type");
+        }
+    }
+
+    public static final VisionSubsystem vision = new VisionSubsystem(drivetrain);
+
+    public RobotContainer() {
+        Map<String, Command> commandsForAuto = new HashMap<>();
+
+        NamedCommands.registerCommands(commandsForAuto);
+
+        autoChooser = AutoBuilder.buildAutoChooser();
+
+        SmartDashboard.putData("Choose an Auto", autoChooser);
+        CommandScheduler.getInstance().schedule(PathfindingCommand.warmupCommand());
+
+        DriverStation.silenceJoystickConnectionWarning(true);
+        configureBindings();
+    }
+
+    private void configureBindings() {
+        drivetrain.registerTelemetry(logger::telemeterize);
+
+        drivetrain.setDefaultCommand(drivetrain.joystickDriveCommand(
+                () -> driveController.getLeftX(),
+                () -> driveController.getLeftY(),
+                () -> driveController.getLeftTriggerAxis(),
+                () -> driveController.getRightTriggerAxis(),
+                () -> driveController.getHID().getBButton()));
+
+        driveController.a().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+
+        testController.rightBumper().whileTrue(drivetrain.applyRequest(
+                () -> {
+                    double x = testController.getRightX();
+                    double y = testController.getRightY();
+                    return new SwerveRequest.PointWheelsAt().withModuleDirection(new Rotation2d(x, y));
+                }));
+    }
+
+    public Command getAutonomousCommand() {
+        Command auto = autoChooser.getSelected();
+        if (auto == null) {
+            System.out.println("auto is null");
+            return drivetrain.brakeCommand();
+        }
+
+        return auto;
+    }
 }
