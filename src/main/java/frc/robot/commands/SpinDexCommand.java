@@ -8,6 +8,7 @@ public class SpinDexCommand extends Command {
 
     public SpinDexCommand(SpinDexSubsystem spindex) {
         this.spindex = spindex;
+        addRequirements(spindex);
     }
 
     @Override
