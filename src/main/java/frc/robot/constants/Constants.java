@@ -19,20 +19,6 @@ public class Constants {
     public static final Rotation2d BLUE_ALLIANCE_PERSPECTIVE_ROTATION = Rotation2d.kZero;
     public static final Rotation2d RED_ALLIANCE_PERSPECTIVE_ROTATION = Rotation2d.k180deg;
 
-    // these numbers are 0 so you notice when you haven't paid attention to them
-    public static final double TOLERANCE = 0;
-
-    public static final double PID_P = 0;
-    public static final double PID_I = 0;
-    public static final double PID_D = 0;
-
-    public static final double PROFILED_PID_P = 0;
-    public static final double PROFILED_PID_I = 0;
-    public static final double PROFILED_PID_D = 0;
-
-    public static final double MAX_VELOCITY = 0;
-    public static final double MAX_ACCELERATION = 0;
-
     public static final int motor6 = 15;
     public static final int motor27 = 27;
 }

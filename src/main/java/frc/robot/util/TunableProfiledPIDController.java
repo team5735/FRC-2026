@@ -2,7 +2,6 @@ package frc.robot.util;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import frc.robot.constants.Constants;
 
 public class TunableProfiledPIDController {
     /** The wrapped PID controller. */
@@ -11,45 +10,44 @@ public class TunableProfiledPIDController {
     /** The table used to manage PID values. */
     private NTable table;
 
-    /** Creates a new PID controller with the default values in /pid/{name}. */
+    /** Creates a new PID controller with the zeroed defaults in /pid/{name}. */
     public TunableProfiledPIDController(String name) {
-        this(NTable.root("pid"), name, Constants.PID_P, Constants.PID_I, Constants.PID_D,
-                Constants.MAX_VELOCITY, Constants.MAX_ACCELERATION);
+        this(NTable.root("pid"), name, 0, 0, 0, 0, 0);
     }
 
-    /** Creates a new PID controller with the specified values in /pid/{name}. */
+    /** Creates a new PID controller with the specified defaults in /pid/{name}. */
     public TunableProfiledPIDController(String name, double p, double i, double d) {
-        this(NTable.root("pid"), name, p, i, d, Constants.MAX_VELOCITY, Constants.MAX_ACCELERATION);
+        this(NTable.root("pid"), name, p, i, d, 0, 0);
     }
 
-    /** Creates a new PID controller with the specified values in /pid/{name}. */
+    /** Creates a new PID controller with the specified defaults in /pid/{name}. */
     public TunableProfiledPIDController(String name, double vel, double accel) {
-        this(NTable.root("pid"), name, Constants.PID_P, Constants.PID_I, Constants.PID_D, vel, accel);
+        this(NTable.root("pid"), name, 0, 0, 0, vel, accel);
     }
 
-    /** Creates a new PID controller with the specified values in /pid/{name}. */
+    /** Creates a new PID controller with the specified defaults in /pid/{name}. */
     public TunableProfiledPIDController(String name, double p, double i, double d, double vel, double accel) {
         this(NTable.root("pid"), name, p, i, d, vel, accel);
     }
 
-    /** Creates a new PID controller with the default values in {table}/{name}. */
+    /** Creates a new PID controller with the zeroed defaults in {table}/{name}. */
     public TunableProfiledPIDController(NTable table, String name) {
-        this(table, name, Constants.PID_P, Constants.PID_I, Constants.PID_D,
-                Constants.MAX_VELOCITY, Constants.MAX_ACCELERATION);
+        this(table, name, 0, 0, 0, 0, 0);
     }
 
     /** Creates a new PID controller with the specified values in {table}/{name}. */
     public TunableProfiledPIDController(NTable table, String name, double p, double i, double d,
             double maxVelocity, double maxAcceleration) {
         this.table = table.sub(name);
-        this.table.set("kP", p);
-        this.table.set("kI", i);
-        this.table.set("kD", d);
+        if (!this.table.exists("kP", "kI", "kD", "max velocity", "max acceleration")) {
+            this.table.set("kP", p);
+            this.table.set("kI", i);
+            this.table.set("kD", d);
 
-        this.table.set("max velocity", maxVelocity);
-        this.table.set("max acceleration", maxAcceleration);
-
-        this.table.makePersistent("kP", "kI", "kD", "max velocity", "max acceleration");
+            this.table.set("max velocity", maxVelocity);
+            this.table.set("max acceleration", maxAcceleration);
+            this.table.makePersistent("kP", "kI", "kD", "max velocity", "max acceleration");
+        }
     }
 
     /**
@@ -63,7 +61,7 @@ public class TunableProfiledPIDController {
      * @param setpoint
      */
     public void setup(double setpoint) {
-        setup(setpoint, Constants.TOLERANCE);
+        setup(setpoint, 0);
     }
 
     /**
