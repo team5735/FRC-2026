@@ -50,7 +50,7 @@ public class TunableProfiledPIDController {
     public TunableProfiledPIDController(NTable table, String name, double p, double i, double d,
             double maxVelocity, double maxAcceleration) {
         this.table = table.sub(name);
-        if (!this.table.exists("kP", "kI", "kD", "max velocity", "max acceleration")) {
+        // if (!this.table.exists("kP", "kI", "kD", "max velocity", "max acceleration")) {
             this.table.set("kP", p);
             this.table.set("kI", i);
             this.table.set("kD", d);
@@ -58,7 +58,7 @@ public class TunableProfiledPIDController {
             this.table.set("max velocity", maxVelocity);
             this.table.set("max acceleration", maxAcceleration);
             this.table.makePersistent("kP", "kI", "kD", "max velocity", "max acceleration");
-        }
+        // }
     }
 
     /**

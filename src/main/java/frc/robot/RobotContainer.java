@@ -91,7 +91,9 @@ public class RobotContainer {
         driveController.y()
                 .onTrue(turret.trackFieldPos(FieldConstants.BLUE_HUB_CENTER, drivetrain::getEstimatedPosition));
 
-        testController.x().onTrue(turret.holdRobotRel(Rotations.of(0.5)));
+        testController.a().onTrue(turret.holdRobotRel(Rotations.of(0.25)));
+        testController.b().onTrue(turret.holdRobotRel(Rotations.of(0.5)));
+        testController.x().onTrue(turret.holdRobotRel(Rotations.of(0.75)));
         testController.y().whileTrue(turret.trackRobotRel(() -> {
             double x = -testController.getRightY();
             double y = -testController.getRightX();
@@ -100,6 +102,7 @@ public class RobotContainer {
             return theta;
         }));
 
+        testController.povUp().onTrue(turret.runOnce(() -> turret.remakePID()));
         testController.povDown().whileTrue(turret.sysId());
         testController.rightBumper().whileTrue(turret.testForward());
         testController.leftBumper().whileTrue(turret.testReverse());

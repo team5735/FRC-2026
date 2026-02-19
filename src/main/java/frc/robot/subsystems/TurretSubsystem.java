@@ -22,8 +22,10 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -42,6 +44,8 @@ public class TurretSubsystem extends SubsystemBase {
     private final TunableProfiledPIDController pid = new TunableProfiledPIDController("turret", KP, KI, KD,
             MAX_VEL.in(RotationsPerSecond), MAX_ACC.in(RotationsPerSecondPerSecond));
     private final SimpleMotorFeedforward ff = new SimpleMotorFeedforward(KS, KV, KA);
+
+    private double prevVel = 0;
 
     public TurretSubsystem() {
         kraken.getConfigurator().apply(new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Brake)
@@ -94,7 +98,7 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     private SysIdRoutine routine = new SysIdRoutine(
-            new Config(Volts.of(0.15).per(Second), Volts.of(0.5), null, null),
+            new Config(Volts.of(0.15).per(Second), Volts.of(1), null, null),
             new Mechanism(v -> kraken.setVoltage(v.in(Volts)), log -> {
                 log.motor("turret_motor")
                         .voltage(kraken.getMotorVoltage().getValue())
@@ -118,10 +122,10 @@ public class TurretSubsystem extends SubsystemBase {
      */
     public Command sysId() {
         return Commands.print("Starting Turret SysId")
-                .andThen(routine.dynamic(Direction.kForward).until(isAtMax))
-                .andThen(routine.dynamic(Direction.kReverse).until(isAtMin))
-                .andThen(routine.quasistatic(Direction.kForward).until(isAtMax))
-                .andThen(routine.quasistatic(Direction.kReverse).until(isAtMin))
+                .andThen(routine.dynamic(Direction.kForward)/* .until(isAtMax) */)
+                .andThen(routine.dynamic(Direction.kReverse)/* .until(isAtMin) */)
+                .andThen(routine.quasistatic(Direction.kForward)/* .until(isAtMax) */)
+                .andThen(routine.quasistatic(Direction.kReverse)/* .until(isAtMin) */)
                 .andThen(Commands.print("SysId End"));
     }
 
@@ -137,11 +141,42 @@ public class TurretSubsystem extends SubsystemBase {
      *         {@link ProfiledPIDController} to the motor.
      */
     private Command trackStateRobotRel(Supplier<State> goalSupplier) {
-        return run(
+        return startRun(
+                () -> pid.reset(new State(kraken.getPosition().getValue().in(Rotations),
+                        kraken.getVelocity().getValue().in(RotationsPerSecond))),
                 () -> {
+                    double newVel = pid.getController().getSetpoint().velocity;
                     double voltsToSet = pid.calculate(kraken.getPosition().getValue().in(Rotations), goalSupplier.get())
-                            + ff.calculate(pid.getController().getSetpoint().velocity);
+                            + ff.calculateWithVelocities(newVel, newVel
+                                    + 0.02 * MAX_ACC.in(RotationsPerSecondPerSecond) * Math.signum(newVel - prevVel));
                     kraken.setVoltage(voltsToSet);
+                    prevVel = newVel;
+                });
+    }
+
+    /**
+     * Runs the turret to a specified, moving {@link Angle}.
+     * 
+     * @param goal Robot-relative {@link Angle}, will be
+     *             clamped to the functional range of this subsystem
+     *             automatically.
+     * @return {@link Command} that sets the {@link ProfiledPIDController}'s goal to
+     *         the parameter, then repeatedly applies its output to the motor.
+     */
+    public Command holdRobotRel(Angle goal) {
+        return startRun(
+                () -> {
+                    pid.reset(new State(kraken.getPosition().getValue().in(Rotations),
+                            kraken.getVelocity().getValue().in(RotationsPerSecond)));
+                    pid.setGoal(new State(clampInput(goal).in(Rotations), 0));
+                },
+                () -> {
+                    double newVel = pid.getController().getSetpoint().velocity;
+                    double voltsToSet = pid.calculate(kraken.getPosition().getValue().in(Rotations))
+                            + ff.calculateWithVelocities(newVel, newVel
+                                    + 0.02 * MAX_ACC.in(RotationsPerSecondPerSecond) * Math.signum(newVel - prevVel));
+                    kraken.setVoltage(voltsToSet);
+                    prevVel = newVel;
                 });
     }
 
@@ -170,30 +205,10 @@ public class TurretSubsystem extends SubsystemBase {
      * @return {@link Command} that repeatedly applies the output of the
      *         {@link ProfiledPIDController} to the motor.
      */
-
     public Command trackRobotRelWithVelocity(Supplier<Angle> angleSupplier,
             Supplier<AngularVelocity> velocitySupplier) {
         return trackStateRobotRel(() -> new State(clampInput(angleSupplier.get()).in(Rotations),
                 velocitySupplier.get().in(RotationsPerSecond)));
-    }
-
-    /**
-     * Runs the turret to a specified, moving {@link Angle}.
-     * 
-     * @param goal Robot-relative {@link Angle}, will be
-     *             clamped to the functional range of this subsystem
-     *             automatically.
-     * @return {@link Command} that sets the {@link ProfiledPIDController}'s goal to
-     *         the parameter, then repeatedly applies its output to the motor.
-     */
-    public Command holdRobotRel(Angle goal) {
-        return startRun(
-                () -> pid.setGoal(new State(clampInput(goal).in(Rotations), 0)),
-                () -> {
-                    double voltsToSet = pid.calculate(kraken.getPosition().getValue().in(Rotations))
-                            + ff.calculate(pid.getController().getSetpoint().velocity);
-                    kraken.setVoltage(voltsToSet);
-                });
     }
 
     /**
@@ -246,5 +261,11 @@ public class TurretSubsystem extends SubsystemBase {
         double softUpperLimit = MathUtil.inputModulus(UPPER_LIMIT.minus(SOFT_PADDING).in(Rotations), 0, 1);
         double moddedInput = MathUtil.inputModulus(input.in(Rotations), 0, 1);
         return Rotations.of(MathUtil.clamp(moddedInput, softLowerLimit, softUpperLimit));
+    }
+
+    public void remakePID() {
+        State currentState = new State(kraken.getPosition().getValue().in(Rotations), 0);
+        pid.setup(currentState, 0);
+        pid.reset(currentState);
     }
 }
