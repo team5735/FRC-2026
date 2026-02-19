@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.RPM;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,6 +25,7 @@ import frc.robot.constants.Constants;
 import frc.robot.constants.drivetrain.CompbotTunerConstants;
 import frc.robot.constants.drivetrain.DevbotTunerConstants;
 import frc.robot.subsystems.DrivetrainSubsystem;
+import frc.robot.subsystems.FuelLauncherSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 
 public class RobotContainer {
@@ -37,6 +40,7 @@ public class RobotContainer {
     private final Telemetry logger = new Telemetry();
 
     public static final DrivetrainSubsystem drivetrain;
+    public static final FuelLauncherSubsystem launcher = new FuelLauncherSubsystem();
 
     static {
         switch (Constants.DRIVETRAIN_TYPE) {
@@ -78,6 +82,12 @@ public class RobotContainer {
                 () -> driveController.getHID().getBButton()));
 
         driveController.a().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+
+        launcher.setDefaultCommand(launcher.launchFuel(RPM.of(0)));
+        testController.a().whileTrue(launcher.launchFuel(RPM.of(3000)));
+        testController.b().whileTrue(launcher.launchFuel(RPM.of(1500)));
+
+        testController.povUp().onTrue(launcher.retunePID());
 
         testController.rightBumper().whileTrue(drivetrain.applyRequest(
                 () -> {

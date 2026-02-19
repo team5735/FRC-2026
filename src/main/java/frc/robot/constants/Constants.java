@@ -34,5 +34,5 @@ public class Constants {
     public static final int motor27 = 27;
 
     public static final int LAUNCHER_LEFT_KRAKEN_ID = 1;
-    public static final int LAUNCHER_RIGHT_KRAKEN_ID = 0;
+    public static final int LAUNCHER_RIGHT_KRAKEN_ID = 2;
 }
