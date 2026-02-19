@@ -50,6 +50,7 @@ public class TunableProfiledPIDController {
     public TunableProfiledPIDController(NTable table, String name, double p, double i, double d,
             double maxVelocity, double maxAcceleration) {
         this.table = table.sub(name);
+        //TODO reimplement with boolean enable/disable
         // if (!this.table.exists("kP", "kI", "kD", "max velocity", "max acceleration")) {
             this.table.set("kP", p);
             this.table.set("kI", i);
