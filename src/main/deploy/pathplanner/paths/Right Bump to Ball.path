@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.472325904477159,
-        "y": 7.172342703689281
+        "x": 3.5,
+        "y": 2.0
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.248789062494272,
-        "y": 5.3985153924913645
+        "x": 2.291450950985863,
+        "y": 1.4507272484188989
       },
       "isLocked": false,
-      "linkedName": "Left Trench"
+      "linkedName": "Right Bump"
     },
     {
       "anchor": {
-        "x": 1.6031340099516367,
-        "y": 4.242687988281251
+        "x": 0.5831994047619047,
+        "y": 0.6578526088169645
       },
       "prevControl": {
-        "x": 2.327442045665922,
-        "y": 4.947318173363096
+        "x": 1.5817738560267856,
+        "y": 1.3349032156808038
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Ball"
     }
   ],
   "rotationTargets": [],
@@ -42,10 +42,10 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 180.0
   },
   "reversed": false,
-  "folder": "Left Trench",
+  "folder": "Ball",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 0.0

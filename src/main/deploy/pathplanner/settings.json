@@ -5,10 +5,12 @@
   "pathFolders": [
     "Calibration",
     "Hub",
+    "Intake ",
     "Left Bump",
     "Left Trench",
-    "Right Trench",
-    "Right Bump"
+    "Ball",
+    "Right Bump",
+    "Right Trench"
   ],
   "autoFolders": [],
   "defaultMaxVel": 2.0,
@@ -36,6 +38,7 @@
   "bumperOffsetX": 0.0,
   "bumperOffsetY": 0.0,
   "robotFeatures": [
-    "{\"name\":\"Rectangle\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":-0.35,\"y\":0.0},\"size\":{\"width\":0.2,\"length\":0.2},\"borderRadius\":0.05,\"strokeWidth\":0.02,\"filled\":false}}"
+    "{\"name\":\"Climber\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":-0.35,\"y\":0.0},\"size\":{\"width\":0.2,\"length\":0.2},\"borderRadius\":0.05,\"strokeWidth\":0.02,\"filled\":false}}",
+    "{\"name\":\"Shooter\",\"type\":\"circle\",\"data\":{\"center\":{\"x\":0.35,\"y\":0.0},\"radius\":0.1,\"strokeWidth\":0.02,\"filled\":false}}"
   ]
 }

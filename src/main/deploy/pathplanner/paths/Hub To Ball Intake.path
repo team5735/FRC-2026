@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.472325904477159,
-        "y": 7.172342703689281
+        "x": 3.5,
+        "y": 4.0
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.248789062494272,
-        "y": 5.3985153924913645
+        "x": 2.8445209030877976,
+        "y": 4.842097749255952
       },
       "isLocked": false,
-      "linkedName": "Left Trench"
+      "linkedName": "Hub"
     },
     {
       "anchor": {
-        "x": 1.6031340099516367,
-        "y": 4.242687988281251
+        "x": 1.139837878999256,
+        "y": 5.957617768787202
       },
       "prevControl": {
-        "x": 2.327442045665922,
-        "y": 4.947318173363096
+        "x": 2.6710907273065474,
+        "y": 4.985909191313244
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Ball Intake"
     }
   ],
   "rotationTargets": [],
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 180.0
   },
   "reversed": false,
-  "folder": "Left Trench",
+  "folder": "Intake ",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": -0.2941049721494235
   },
   "useDefaultConstraints": true
 }
