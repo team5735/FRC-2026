@@ -161,6 +161,7 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
      * SysId routine for characterizing steer. This is used to find PID gains for
      * the steer motors.
      */
+    @SuppressWarnings("unused")
     private final SysIdRoutine sysIdRoutineSteer = new SysIdRoutine(
             new SysIdRoutine.Config(
                     null, // Use default ramp rate (1 V/s)
