@@ -126,7 +126,7 @@ public class VisionSubsystem extends SubsystemBase {
     public void handleVisionMeasurement(String limelightName) {
         this.table = NTable.root("vision").sub(limelightName);
 
-        if (!this.table.getBoolean("enabled")) {
+        if (!NTable.root("vision").get("enabled", true)) {
             table.sub("checks").set("enabled in network tables", false);
             return;
         }
@@ -203,7 +203,7 @@ public class VisionSubsystem extends SubsystemBase {
         stddevs.getData()[2] = Math.max(Degrees.of(5).in(Radians), stddevs.getData()[2]);
 
         // multiply by 1 + average distance to camera
-        double distPenalty = 1 + estimate.distToCamera * 3;
+        double distPenalty = 1 + estimate.distToCamera;
         penalties.set("distance", distPenalty);
         // multiply by 1 + speed
         double speedPenalty = 1 + Math.hypot(
@@ -226,7 +226,7 @@ public class VisionSubsystem extends SubsystemBase {
 
         stddevs = stddevs.times(totalPenalty);
         // if robot is rotating, use 99999 for theta
-        if (drivetrain.getPigeon2().getAngularVelocityZWorld().getValueAsDouble() > this.table.sub("limits")
+        if (drivetrain.getPigeon2().getAngularVelocityZWorld().getValueAsDouble() > NTable.root("vision").sub("limits")
                 .getDouble("(stddevs) angular velocity")) {
             stddevs.getData()[2] = 99999;
         }
