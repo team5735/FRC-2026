@@ -41,13 +41,13 @@ import frc.robot.subsystems.DrivetrainSubsystem;
 public class CompbotTunerConstants {
     // The steer motor uses any SwerveModule.SteerRequestType control request with
     // the output type specified by SwerveModuleConstants.SteerMotorClosedLoopOutput
-    public static final Slot0Configs DEFAULT_STEER_GAINS = new Slot0Configs() //TODO
+    public static final Slot0Configs DEFAULT_STEER_GAINS = new Slot0Configs() // TODO
             .withKP(0).withKI(0).withKD(0)
-            .withKS(0).withKV(0).withKA(0)
+            .withKS(0.12).withKV(1.41).withKA(0.12)
             .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
     // When using closed-loop control, the drive motor uses the control
     // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
-    public static final Slot0Configs DRIVE_GAINS = new Slot0Configs() //TODO
+    public static final Slot0Configs DRIVE_GAINS = new Slot0Configs() // TODO
             .withKP(0).withKI(0).withKD(0)
             .withKS(0).withKV(0).withKA(0);
 
@@ -68,7 +68,7 @@ public class CompbotTunerConstants {
 
     // The stator current at which the wheels start to slip;
     // This needs to be tuned to your individual robot
-    private static final Current SLIP_CURRENT = Amps.of(120.0); //TODO
+    private static final Current SLIP_CURRENT = Amps.of(120.0); // TODO
 
     // Initial configs for the drive and steer motors and the azimuth encoder; these
     // cannot be null.
@@ -149,13 +149,11 @@ public class CompbotTunerConstants {
     private static final boolean FRONT_LEFT_STEER_MOTOR_INVERTED = false;
     private static final boolean FRONT_LEFT_ENCODER_INVERTED = false;
 
-    public static final Slot0Configs FL_STEER_GAINS = new Slot0Configs(); //TODO
-        //     .withKP(32.227).withKI(0).withKD(0.3)
-        //     .withKS(0.077652).withKV(1.3923).withKA(0.18848)
-        //     .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
+    public static final Slot0Configs FL_STEER_GAINS = new Slot0Configs()
+            .withKS(0.0082359).withKV(1.4135).withKA(0.16887);
 
     public static final Distance FRONT_LEFT_XPOS = Inches.of(10);
-    public static final Distance FRONT_LEFT_YPOS = Inches.of(12.5);
+    public static final Distance FRONT_LEFT_YPOS = Inches.of(12.25);
 
     // Front Right
     private static final int FRONT_RIGHT_DRIVE_MOTOR_ID = 3;
@@ -165,10 +163,8 @@ public class CompbotTunerConstants {
     private static final boolean FRONT_RIGHT_STEER_MOTOR_INVERTED = false;
     private static final boolean FRONT_RIGHT_ENCODER_INVERTED = false;
 
-    public static final Slot0Configs FR_STEER_GAINS = new Slot0Configs(); //TODO
-        //     .withKP(30.398).withKI(0).withKD(0.3)
-        //     .withKS(0.041413).withKV(1.4116).withKA(0.10013)
-        //     .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
+    public static final Slot0Configs FR_STEER_GAINS = new Slot0Configs()
+            .withKS(0.18209).withKV(1.4045).withKA(0.080639);
 
     public static final Distance FRONT_RIGHT_XPOS = Inches.of(10);
     public static final Distance FRONT_RIGHT_YPOS = Inches.of(-12.25);
@@ -181,10 +177,8 @@ public class CompbotTunerConstants {
     private static final boolean BACK_LEFT_STEER_MOTOR_INVERTED = false;
     private static final boolean BACK_LEFT_ENCODER_INVERTED = false;
 
-    public static final Slot0Configs BL_STEER_GAINS = new Slot0Configs(); //TODO
-        //     .withKP(28.073).withKI(0).withKD(0.3)
-        //     .withKS(0.12149).withKV(1.3951).withKA(0.083189)
-        //     .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
+    public static final Slot0Configs BL_STEER_GAINS = new Slot0Configs()
+            .withKS(0.14556).withKV(1.4084).withKA(0.10604);
 
     public static final Distance BACK_LEFT_XPOS = Inches.of(-10);
     public static final Distance BACK_LEFT_YPOS = Inches.of(12.25);
@@ -197,10 +191,8 @@ public class CompbotTunerConstants {
     private static final boolean BACK_RIGHT_STEER_MOTOR_INVERTED = false;
     private static final boolean BACK_RIGHT_ENCODER_INVERTED = false;
 
-    public static final Slot0Configs BR_STEER_GAINS = new Slot0Configs(); //TODO
-        //     .withKP(29.344).withKI(0).withKD(0.3)
-        //     .withKS(0.068374).withKV(1.4079).withKA(0.09265)
-        //     .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
+    public static final Slot0Configs BR_STEER_GAINS = new Slot0Configs()
+            .withKS(0.016316).withKV(1.435).withKA(0.24407);
 
     public static final Distance BACK_RIGHT_XPOS = Inches.of(-10);
     public static final Distance BACK_RIGHT_YPOS = Inches.of(-12.25);
