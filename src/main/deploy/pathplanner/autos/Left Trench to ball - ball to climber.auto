@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Left Bump To Ball Intake"
+            "pathName": "Left Trench to Ball"
           }
         },
         {
@@ -19,13 +19,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Intake to Climber"
+            "pathName": "Ball to Climber"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "Intake",
+  "folder": "ball",
   "choreoAuto": false
 }

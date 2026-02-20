@@ -12,7 +12,11 @@
     "Right Bump",
     "Right Trench"
   ],
-  "autoFolders": [],
+  "autoFolders": [
+    "Intake",
+    "Test",
+    "ball"
+  ],
   "defaultMaxVel": 2.0,
   "defaultMaxAccel": 3.5,
   "defaultMaxAngVel": 180.0,
