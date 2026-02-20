@@ -35,7 +35,7 @@ public class FuelLauncherSubsystem extends SubsystemBase {
     private final TalonFX krakenLeft = new TalonFX(Constants.LAUNCHER_LEFT_KRAKEN_ID);
     private final TalonFX krakenRight = new TalonFX(Constants.LAUNCHER_RIGHT_KRAKEN_ID);
 
-    private final TunablePIDController pid = new TunablePIDController("fuel_launcher", 0, 0, 0);
+    private final TunablePIDController pid = new TunablePIDController("fuel_launcher", FuelLauncherConstants.KP, 0, 0);
     private final SimpleMotorFeedforward ff = new SimpleMotorFeedforward(FuelLauncherConstants.KS,
             FuelLauncherConstants.KV);
 

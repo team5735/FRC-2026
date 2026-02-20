@@ -84,8 +84,8 @@ public class RobotContainer {
         driveController.a().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
         launcher.setDefaultCommand(launcher.launchFuel(RPM.of(0)));
-        testController.a().whileTrue(launcher.launchFuel(RPM.of(3000)));
-        testController.b().whileTrue(launcher.launchFuel(RPM.of(1500)));
+        testController.a().whileTrue(launcher.launchFuel(RPM.of(3000-23))); //the experimental error that we are now accounting for
+        testController.b().whileTrue(launcher.launchFuel(RPM.of(1500-10)));
 
         testController.povUp().onTrue(launcher.retunePID());
 

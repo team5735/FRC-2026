@@ -3,7 +3,7 @@ package frc.robot.constants;
 public class FuelLauncherConstants {
     public static final double RPM_TOLERANCE = 35; // 35 is 1% of expected RPM
 
-    public static final double KP = 0;
+    public static final double KP = 0.003;
     public static final double KI = 0;
     public static final double KD = 0;
 
