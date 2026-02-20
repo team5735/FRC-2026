@@ -96,7 +96,7 @@ public class CompbotTunerConstants {
     public static final LinearVelocity SPEED_AT_12_VOLTS = MetersPerSecond.of(12 / DRIVE_GAINS.kV);
 
     // Every 1 rotation of the azimuth results in kCoupleRatio drive motor turns;
-    private static final double COUPLE_RATIO = 3.7; //TODO
+    private static final double COUPLE_RATIO = 4.277;
 
     public static final double DRIVE_GEAR_RATIO = 4.725;
     private static final double STEER_GEAR_RATIO = 12.1;
