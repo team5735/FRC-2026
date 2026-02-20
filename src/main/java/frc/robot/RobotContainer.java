@@ -83,11 +83,12 @@ public class RobotContainer {
 
         driveController.a().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
-        launcher.setDefaultCommand(launcher.getLaunchFuel(RPM.of(0)));
+        launcher.setDefaultCommand(launcher.getLaunchFuel(RPM.of(0), RPM.of(0)));
 
         // subtract experimental error to actually reach setpoint
-        testController.a().whileTrue(launcher.getLaunchFuel(RPM.of(3000 - 23)));
-        testController.b().whileTrue(launcher.getLaunchFuel(RPM.of(1500 - 10)));
+        testController.x().whileTrue(launcher.getLaunchFuel(RPM.of(6000), RPM.of(48)));
+        testController.a().whileTrue(launcher.getLaunchFuel(RPM.of(3000), RPM.of(24)));
+        testController.b().whileTrue(launcher.getLaunchFuel(RPM.of(1500), RPM.of(12)));
 
         testController.rightBumper().whileTrue(drivetrain.applyRequest(
                 () -> {

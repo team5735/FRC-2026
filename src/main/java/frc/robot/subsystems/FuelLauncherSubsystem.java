@@ -6,7 +6,6 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Second;
-import static edu.wpi.first.units.Units.Volt;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
@@ -21,7 +20,6 @@ import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
@@ -29,6 +27,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import frc.robot.constants.Constants;
 import frc.robot.constants.FuelLauncherConstants;
+import frc.robot.util.NTable;
 import frc.robot.util.TunablePIDController;
 
 public class FuelLauncherSubsystem extends SubsystemBase {
@@ -38,6 +37,8 @@ public class FuelLauncherSubsystem extends SubsystemBase {
     private final TunablePIDController pid = new TunablePIDController("fuel_launcher", FuelLauncherConstants.KP, 0, 0);
     private final SimpleMotorFeedforward ff = new SimpleMotorFeedforward(FuelLauncherConstants.KS,
             FuelLauncherConstants.KV);
+
+    private final NTable table = NTable.root("fuel_launcher");
 
     public FuelLauncherSubsystem() {
         SmartDashboard.putNumber("shooter_volts", FuelLauncherConstants.LAUNCHER_VOLTS);
@@ -52,14 +53,6 @@ public class FuelLauncherSubsystem extends SubsystemBase {
         return krakenLeft.getVelocity().getValue().in(RPM) * FuelLauncherConstants.GEARING;
     }
 
-    private void activateVoltage() {
-        krakenLeft.setVoltage(SmartDashboard.getNumber("shooter_volts", FuelLauncherConstants.LAUNCHER_VOLTS));
-    }
-
-    private void deactivateVoltage() {
-        krakenLeft.setVoltage(0);
-    }
-
     private void setTargetRPM(double rpm) {
         pid.setup(rpm, FuelLauncherConstants.RPM_TOLERANCE);
     }
@@ -72,18 +65,42 @@ public class FuelLauncherSubsystem extends SubsystemBase {
 
     LinearFilter filter = LinearFilter.movingAverage(50);
 
+    double lastMax = 0, lastMin = 0;
+    double realSetpoint = 0;
+    int ticksSinceMax = 0, ticksSinceMin = 0;
+    LinearFilter errorAverage = LinearFilter.movingAverage(50);
+
     @Override
     public void periodic() {
         double currentRPM = getRPM();
-        SmartDashboard.putNumber("launcher/speed_rpm", currentRPM);
-        SmartDashboard.putNumber("launcher/target_speed", pid.getController().getSetpoint());
-        SmartDashboard.putNumber("launcher/moving_average", filter.calculate(currentRPM));
+        this.table.set("speed_rpm", currentRPM);
+        this.table.set("target_speed", pid.getController().getSetpoint());
+        this.table.set("moving_average", filter.calculate(currentRPM));
+
+        ticksSinceMax++;
+        ticksSinceMin++;
+        double error = Math.abs(currentRPM - realSetpoint);
+        if (error > lastMax || ticksSinceMax >= 50) {
+            lastMax = error;
+            ticksSinceMax = 0;
+        }
+        if (error < lastMin || ticksSinceMin >= 50) {
+            lastMin = error;
+            ticksSinceMin = 0;
+        }
+        NTable errorTable = this.table.sub("error");
+        errorTable.set("mean", errorAverage.calculate(error));
+        errorTable.set("max", lastMax);
+        errorTable.set("min", lastMin);
     }
 
-    public Command getLaunchFuel(AngularVelocity speed) {
+    public Command getLaunchFuel(AngularVelocity speed, AngularVelocity correction) {
         return runOnce(this::retunePID)
                 .andThen(
-                        startRun(() -> setTargetRPM(speed.in(RPM)), this::usePID))
+                        startRun(() -> {
+                            this.realSetpoint = speed.in(RPM);
+                            setTargetRPM(speed.minus(correction).in(RPM));
+                        }, this::usePID))
                 .withName("Launch Fuel at " + speed);
     }
 
