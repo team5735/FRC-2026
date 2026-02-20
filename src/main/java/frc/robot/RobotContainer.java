@@ -12,6 +12,8 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathfindingCommand;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -19,11 +21,15 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.commands.DriveOnArc;
+import frc.robot.commands.drivetrain.PIDToPose;
 import frc.robot.constants.Constants;
+import frc.robot.constants.FieldConstants;
 import frc.robot.constants.drivetrain.CompbotTunerConstants;
 import frc.robot.constants.drivetrain.DevbotTunerConstants;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
+import frc.robot.util.geometry.Arc;
 
 public class RobotContainer {
     public static final CommandXboxController driveController = new CommandXboxController(
@@ -61,11 +67,14 @@ public class RobotContainer {
         autoChooser = AutoBuilder.buildAutoChooser();
 
         SmartDashboard.putData("Choose an Auto", autoChooser);
-        CommandScheduler.getInstance().schedule(PathfindingCommand.warmupCommand());
+        CommandScheduler.getInstance().schedule(PathfindingCommand.warmupCommand().withName("Warmup Pathfinding"));
 
         DriverStation.silenceJoystickConnectionWarning(true);
         configureBindings();
     }
+
+    public static Arc targetArc = new Arc(FieldConstants.BLUE_HUB_CENTER,
+            Feet.of(7.5).in(Meters), Rotation2d.fromDegrees(90), Rotation2d.fromDegrees(270));
 
     private void configureBindings() {
         drivetrain.registerTelemetry(logger::telemeterize);
@@ -77,7 +86,17 @@ public class RobotContainer {
                 () -> driveController.getRightTriggerAxis(),
                 () -> driveController.getHID().getBButton()));
 
-        driveController.a().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+        driveController.y()
+                .onTrue(new PIDToPose(drivetrain,
+                        () -> targetArc.getPoseFacingCenter(
+                                targetArc.nearestPointOnArc(
+                                        drivetrain.getEstimatedPosition().getTranslation())),
+                        "drive to arc"));
+        driveController.x().onTrue(drivetrain
+                .runOnce(() -> drivetrain.resetPose(new Pose2d())).withName("Resetting Pose"));
+
+        driveController.a().whileTrue(
+                new DriveOnArc(drivetrain, targetArc, () -> MathUtil.applyDeadband(driveController.getLeftX(), 0.1)));
 
         testController.rightBumper().whileTrue(drivetrain.applyRequest(
                 () -> {

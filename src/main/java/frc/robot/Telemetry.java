@@ -20,7 +20,6 @@ import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
-import frc.robot.constants.FieldConstants;
 import frc.robot.constants.VisionConstants;
 import frc.robot.constants.drivetrain.CompbotTunerConstants;
 import frc.robot.util.NTable;
@@ -93,16 +92,9 @@ public class Telemetry {
         for (String limelight : VisionConstants.LIMELIGHTS) {
             field.getObject(limelight).setPose(new Pose2d());
         }
+        field.getObject("arc").setPoses(RobotContainer.targetArc.getAsPoses());
         table.set("field", field);
         table.set("swerve state", sendableState);
-
-        field.getObject("CLIMBER_BLUE_LOCALIZATION_POSE").setPose(FieldConstants.CLIMBER_BLUE_LOCALIZATION_POSE);
-        field.getObject("CLIMBER_BLUE_LEFT_CLIMB_ALIGN_POSE")
-                .setPose(FieldConstants.CLIMBER_BLUE_LEFT_CLIMB_ALIGN_POSE);
-        field.getObject("CLIMBER_BLUE_LEFT_CLIMB_POSE").setPose(FieldConstants.CLIMBER_BLUE_LEFT_CLIMB_POSE);
-
-        field.getObject("CLIMBER_RED_LEFT_CLIMB_POSE")
-                .setPose(FieldConstants.redElement(FieldConstants.CLIMBER_BLUE_LEFT_CLIMB_POSE));
     }
 
     // Accept the swerve drive state and telemeterize it to SmartDashboard.
@@ -129,6 +121,10 @@ public class Telemetry {
         }
 
         field.setRobotPose(AutoBuilder.getCurrentPose());
+
+        field.getObject("nearest point on arc")
+                .setPose(RobotContainer.targetArc.getPoseFacingCenter(RobotContainer.targetArc
+                        .nearestPointOnArc(RobotContainer.drivetrain.getEstimatedPosition().getTranslation())));
 
         var modules = RobotContainer.drivetrain.getModules();
         NTable[] tables = Arrays.stream(new String[] { "FL", "FR", "BL", "BR" })
