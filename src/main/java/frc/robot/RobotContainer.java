@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.constants.Constants;
 import frc.robot.constants.drivetrain.CompbotTunerConstants;
 import frc.robot.constants.drivetrain.DevbotTunerConstants;
@@ -78,6 +79,11 @@ public class RobotContainer {
                 () -> driveController.getHID().getBButton()));
 
         driveController.a().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+
+        testController.a().whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
+        testController.b().whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
+        testController.x().whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
+        testController.y().whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
         testController.rightBumper().whileTrue(drivetrain.applyRequest(
                 () -> {
