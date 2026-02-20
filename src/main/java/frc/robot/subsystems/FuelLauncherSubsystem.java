@@ -17,6 +17,7 @@ import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -68,10 +69,14 @@ public class FuelLauncherSubsystem extends SubsystemBase {
         krakenLeft.setVoltage(output);
     }
 
+    LinearFilter filter = LinearFilter.movingAverage(50);
+
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("launcher/speed_rpm", getRPM());
+        double currentRPM = getRPM(); 
+        SmartDashboard.putNumber("launcher/speed_rpm", currentRPM);
         SmartDashboard.putNumber("launcher/target_speed", pid.getController().getSetpoint());
+        SmartDashboard.putNumber("launcher/moving_average", filter.calculate(currentRPM));
     }
 
     public Command launchFuel(AngularVelocity speed) {
