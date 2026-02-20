@@ -23,47 +23,47 @@ import edu.wpi.first.units.measure.Mass;
 public class CompbotConstants implements DrivetrainConstants {
     @Override
     public PIDConstants getAutoPosConstants() {
-        return new PIDConstants(17.5, 0);
+        return new PIDConstants(0, 0); //TODO
     }
 
     @Override
     public PIDConstants getAutoRotConstants() {
-        return new PIDConstants(12, 0);
+        return new PIDConstants(0, 0); //TODO
     }
 
     @Override
     public double getRotKs() {
-        return 0.16327;
+        return 0; //TODO
     }
 
     @Override
     public double getRotKv() {
-        return 0.80246;
+        return 0; //TODO
     }
 
     @Override
     public double getRotKa() {
-        return 0.185;
+        return 0; //TODO
     }
 
     @Override
     public double getOpenDriveKv() {
-        return 1.8432;
+        return 0; //TODO
     }
 
     @Override
     public double getOpenDriveKa() {
-        return 0.47277;
+        return 0; //TODO
     }
 
     @Override
     public Distance getRobotTotalWidth() {
-        return Inches.of(38);
+        return Inches.of(29.5 + 7); //TODO - recalc w/ bumpers
     }
 
     @Override
     public Distance getRobotTotalLength() {
-        return Inches.of(38);
+        return Inches.of(20 + 7); //TODO - recalc w/ bumpers
     }
 
     @Override
@@ -102,12 +102,12 @@ public class CompbotConstants implements DrivetrainConstants {
 
     @Override
     public Mass getRobotMass() {
-        return Kilograms.of(59.05);
+        return Kilograms.of(59.05); //TODO - reweigh under load
     }
 
     @Override
     public Distance getDrivetrainWidth() {
-        return Inches.of(25);
+        return Inches.of(29.5);
     }
 
     @Override
