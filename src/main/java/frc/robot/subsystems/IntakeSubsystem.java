@@ -16,16 +16,19 @@ import frc.robot.util.TunablePIDController;
 
 public class IntakeSubsystem extends SubsystemBase {
     private final TalonFX intake_slapdown = new TalonFX(Constants.INTAKE_TALONFX_ID);
-    private final TalonFX intake_roller = new TalonFX(Constants.INTAKE_ROLLER_TALONFX_ID);
-    private final DutyCycleOut rollerRequest = new DutyCycleOut(0); // Ima be honest idek what this line does but the
-                                                                    // code doesnt work without it so if someone can
-                                                                    // explain it to be that would be amazing.
+    private final TalonFX intakeRoller = new TalonFX(Constants.INTAKE_ROLLER_TALONFX_ID);
+    private final DutyCycleOut rollerRequest = new DutyCycleOut(0);
+    private final DutyCycleOut slapdownRequest = new DutyCycleOut(0);
     private final TunablePIDController pidController = new TunablePIDController("Intake Up and Down");
 
     public IntakeSubsystem() {
-        TalonFXConfiguration config = new TalonFXConfiguration();
-        config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-        intake_roller.getConfigurator().apply(config);
+        TalonFXConfiguration rollerConfig = new TalonFXConfiguration();
+        rollerConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        intakeRoller.getConfigurator().apply(rollerConfig);
+
+        TalonFXConfiguration slapdownConfig = new TalonFXConfiguration();
+        slapdownConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        intake_slapdown.getConfigurator().apply(slapdownConfig);
     }
 
     public Command getIntakeRollerCommand() {
@@ -45,15 +48,15 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public void forward() {
-        intake_roller.setControl(rollerRequest.withOutput(1));
+        intakeRoller.setControl(rollerRequest.withOutput(1));
     }
 
     public void reverse() {
-        intake_roller.setControl(rollerRequest.withOutput(-1));
+        intakeRoller.setControl(rollerRequest.withOutput(-1));
     }
 
     public void stop() {
-        intake_roller.setControl(rollerRequest.withOutput(0));
+        intakeRoller.setControl(rollerRequest.withOutput(0));
     }
 
     public void setGoal(double goal) {
@@ -61,8 +64,8 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public void usePID() {
-        double pos = intake_roller.getPosition().getValueAsDouble();
+        double pos = intakeRoller.getPosition().getValueAsDouble();
         double output = pidController.calculate(pos);
-        intake_slapdown.set(output);
+        intake_slapdown.setControl(slapdownRequest.withOutput(output));
     }
 }
