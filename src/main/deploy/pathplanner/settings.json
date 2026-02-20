@@ -9,9 +9,10 @@
     "Intake ",
     "Left Bump",
     "Left Trench",
-    "Sweep",
+    "Test Sweep",
     "Right Bump",
-    "Right Trench"
+    "Right Trench",
+    "Sweep"
   ],
   "autoFolders": [
     "Bottom Sweep",
