@@ -42,14 +42,14 @@ public class CompbotTunerConstants {
     // The steer motor uses any SwerveModule.SteerRequestType control request with
     // the output type specified by SwerveModuleConstants.SteerMotorClosedLoopOutput
     public static final Slot0Configs DEFAULT_STEER_CONSTANTS = new Slot0Configs() // TODO redo sysid with new treads
-            .withKP(42.5).withKI(0).withKD(0.1)
+            .withKP(40).withKI(0).withKD(0.075)
             .withKS(0.12).withKV(1.41).withKA(0.12)
             .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
     // When using closed-loop control, the drive motor uses the control
     // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
     public static final Slot0Configs DEFAULT_DRIVE_CONSTANTS = new Slot0Configs() // TODO
-            .withKP(0).withKI(0).withKD(0)
-            .withKS(0).withKV(0).withKA(0);
+            .withKP(0.15).withKI(0).withKD(0)
+            .withKS(0.12).withKV(0.11).withKA(0.012);
 
     // The closed-loop output type to use for the steer motors;
     // This affects the PID/FF gains for the steer motors
@@ -145,14 +145,14 @@ public class CompbotTunerConstants {
     private static final int FRONT_LEFT_DRIVE_MOTOR_ID = 1;
     private static final int FRONT_LEFT_STEER_MOTOR_ID = 2;
     private static final int FRONT_LEFT_ENCODER_ID = 9;
-    private static final Angle FRONT_LEFT_ENCODER_OFFSET = Rotations.of(0.07958984375);
+    private static final Angle FRONT_LEFT_ENCODER_OFFSET = Rotations.of(0.081299);
     private static final boolean FRONT_LEFT_STEER_MOTOR_INVERTED = false;
     private static final boolean FRONT_LEFT_ENCODER_INVERTED = false;
 
     public static final Slot0Configs FL_STEER_CONSTANTS = DEFAULT_STEER_CONSTANTS
             .withKS(0.0082359).withKV(1.4135).withKA(0.16887);
-    public static final Slot0Configs FL_DRIVE_CONSTANTS = DEFAULT_DRIVE_CONSTANTS;
-        //     .withKS(0.10995).withKV(0.11439).withKA(0.0036946);
+    public static final Slot0Configs FL_DRIVE_CONSTANTS = DEFAULT_DRIVE_CONSTANTS
+            .withKS(0.12737).withKV(0.11121).withKA(0.011079);
 
     public static final Distance FRONT_LEFT_XPOS = Inches.of(10);
     public static final Distance FRONT_LEFT_YPOS = Inches.of(12.25);
@@ -167,8 +167,8 @@ public class CompbotTunerConstants {
 
     public static final Slot0Configs FR_STEER_GAINS = DEFAULT_STEER_CONSTANTS
             .withKS(0.18209).withKV(1.4045).withKA(0.080639);
-    public static final Slot0Configs FR_DRIVE_CONSTANTS = DEFAULT_DRIVE_CONSTANTS;
-        //     .withKS(0.10995).withKV(0.11439).withKA(0.0036946);
+    public static final Slot0Configs FR_DRIVE_CONSTANTS = DEFAULT_DRIVE_CONSTANTS
+            .withKS(0.13152).withKV(0.11285).withKA(0.01173);
 
     public static final Distance FRONT_RIGHT_XPOS = Inches.of(10);
     public static final Distance FRONT_RIGHT_YPOS = Inches.of(-12.25);
@@ -183,8 +183,8 @@ public class CompbotTunerConstants {
 
     public static final Slot0Configs BL_STEER_GAINS = DEFAULT_STEER_CONSTANTS
             .withKS(0.14556).withKV(1.4084).withKA(0.10604);
-    public static final Slot0Configs BL_DRIVE_CONSTANTS = DEFAULT_DRIVE_CONSTANTS;
-        //     .withKS(0.10995).withKV(0.11439).withKA(0.0036946);
+    public static final Slot0Configs BL_DRIVE_CONSTANTS = DEFAULT_DRIVE_CONSTANTS
+            .withKS(0.12809).withKV(0.112).withKA(0.013784);
 
     public static final Distance BACK_LEFT_XPOS = Inches.of(-10);
     public static final Distance BACK_LEFT_YPOS = Inches.of(12.25);
@@ -193,14 +193,14 @@ public class CompbotTunerConstants {
     private static final int BACK_RIGHT_DRIVE_MOTOR_ID = 5;
     private static final int BACK_RIGHT_STEER_MOTOR_ID = 6;
     private static final int BACK_RIGHT_ENCODER_ID = 11;
-    private static final Angle BACK_RIGHT_ENCODER_OFFSET = Rotations.of(-0.303711);
+    private static final Angle BACK_RIGHT_ENCODER_OFFSET = Rotations.of(-0.305908);
     private static final boolean BACK_RIGHT_STEER_MOTOR_INVERTED = false;
     private static final boolean BACK_RIGHT_ENCODER_INVERTED = false;
 
     public static final Slot0Configs BR_STEER_GAINS = DEFAULT_STEER_CONSTANTS
             .withKS(0.016316).withKV(1.435).withKA(0.24407);
-    public static final Slot0Configs BR_DRIVE_CONSTANTS = DEFAULT_DRIVE_CONSTANTS;
-        //     .withKS(0.10995).withKV(0.11439).withKA(0.0036946);
+    public static final Slot0Configs BR_DRIVE_CONSTANTS = DEFAULT_DRIVE_CONSTANTS
+            .withKS(0.12907).withKV(0.11147).withKA(0.011227);
 
     public static final Distance BACK_RIGHT_XPOS = Inches.of(-10);
     public static final Distance BACK_RIGHT_YPOS = Inches.of(-12.25);

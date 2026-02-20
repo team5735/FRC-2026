@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Second;
+import static edu.wpi.first.units.Units.Volt;
 import static edu.wpi.first.units.Units.Volts;
 
 import java.util.function.Consumer;
@@ -122,10 +123,11 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
      * SysId routine for characterizing translation. This is used to find PID gains
      * for the drive motors.
      */
+    @SuppressWarnings("unused")
     private final SysIdRoutine sysIdRoutineTranslation = new SysIdRoutine(
             new SysIdRoutine.Config(
-                    null, // Use default ramp rate (1 V/s)
-                    Volts.of(4), // Reduce dynamic step voltage to 4 V to prevent brownout
+                    Volts.of(0.5).per(Second), 
+                    Volts.of(2.5), 
                     null, // Use default timeout (10 s)
                     // Log state by default
                     null),
@@ -202,7 +204,7 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
                     this));
 
     /* The SysId routine to test */
-    private SysIdRoutine sysIdRoutineToApply = sysIdRoutineSteer;
+    private SysIdRoutine sysIdRoutineToApply = sysIdRoutineTranslation;
 
     /**
      * Constructs a CTRE SwerveDrivetrain using the specified constants.

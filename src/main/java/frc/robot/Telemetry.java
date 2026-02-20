@@ -139,7 +139,7 @@ public class Telemetry {
             NTable table = tables[i]; 
             table.set("steer position", Units.radiansToRotations(MathUtil.angleModulus(module.getCurrentState().angle.getMeasure().in(Radians))));
             table.set("steer setpoint", Units.radiansToRotations(MathUtil.angleModulus(module.getTargetState().angle.getMeasure().in(Radians))));
-            table.set("drive velocity", state.ModuleStates[i].speedMetersPerSecond);
+            table.set("drive velocity", Math.abs(state.ModuleStates[i].speedMetersPerSecond));
             table.set("drive voltage", module.getDriveMotor().getMotorVoltage().getValueAsDouble());
             table.set("steer voltage", module.getSteerMotor().getMotorVoltage().getValueAsDouble());
 
@@ -150,12 +150,5 @@ public class Telemetry {
 
             table.set("mechanism", moduleMechanisms[i]);
         }
-
-        table.set("translation_position", state.Pose.getY());
-        table.set("rotation_position", MathUtil.inputModulus(
-                RobotContainer.drivetrain.getPigeon2().getYaw().getValue().in(Radians),
-                -Math.PI, Math.PI));
-        table.set("rotation_velocity", RobotContainer.drivetrain.getPigeon2().getAngularVelocityZWorld().getValue()
-                .in(RadiansPerSecond));
     }
 }
