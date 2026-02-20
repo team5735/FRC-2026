@@ -730,6 +730,18 @@ public class NTable {
     }
 
     /**
+     * {@return whether the given name is present in this NTable, and if not, sets
+     * it to the passed value}
+     */
+    public <T> boolean ensure(String name, T value) {
+        if (!exists(name)) {
+            set(name, value);
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Makes the specified entries persist through program restarts.
      * 
      * @param names the names of the entries
