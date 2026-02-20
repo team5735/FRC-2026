@@ -40,15 +40,14 @@ import frc.robot.subsystems.DrivetrainSubsystem;
 // https://v6.docs.ctr-electronics.com/en/stable/docs/tuner/tuner-swerve/index.html
 public class CompbotTunerConstants {
     // The steer motor uses any SwerveModule.SteerRequestType control request with
-    // the
-    // output type specified by SwerveModuleConstants.SteerMotorClosedLoopOutput
-    public static final Slot0Configs DEFAULT_STEER_GAINS = new Slot0Configs()
-            .withKP(29.519).withKI(0).withKD(1.7115)
-            .withKS(0.052654).withKV(1.3981).withKA(0.092636)
+    // the output type specified by SwerveModuleConstants.SteerMotorClosedLoopOutput
+    public static final Slot0Configs DEFAULT_STEER_GAINS = new Slot0Configs() //TODO
+            .withKP(0).withKI(0).withKD(0)
+            .withKS(0).withKV(0).withKA(0)
             .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
     // When using closed-loop control, the drive motor uses the control
     // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
-    public static final Slot0Configs DRIVE_GAINS = new Slot0Configs()
+    public static final Slot0Configs DRIVE_GAINS = new Slot0Configs() //TODO
             .withKP(1.1).withKI(0).withKD(0)
             .withKS(0.058773).withKV(1.8432).withKA(0.47277);
 
@@ -65,13 +64,11 @@ public class CompbotTunerConstants {
     private static final SteerMotorArrangement STEER_MOTOR_TYPE = SteerMotorArrangement.TalonFX_Integrated;
 
     // The remote sensor feedback type to use for the steer motors;
-    // When not Pro-licensed, FusedCANcoder/SyncCANcoder automatically fall back to
-    // RemoteCANcoder
-    private static final SteerFeedbackType STEER_FEEDBACK_TYPE = SteerFeedbackType.FusedCANcoder;
+    private static final SteerFeedbackType STEER_FEEDBACK_TYPE = SteerFeedbackType.RemoteCANcoder;
 
     // The stator current at which the wheels start to slip;
     // This needs to be tuned to your individual robot
-    private static final Current SLIP_CURRENT = Amps.of(120.0);
+    private static final Current SLIP_CURRENT = Amps.of(120.0); //TODO
 
     // Initial configs for the drive and steer motors and the azimuth encoder; these
     // cannot be null.
@@ -92,18 +89,18 @@ public class CompbotTunerConstants {
 
     // CAN bus that the devices are located on;
     // All swerve devices must share the same CAN bus
-    public static final CANBus CANBus = new CANBus("Boat", "./logs/example.hoot");
+    public static final CANBus CANBus = new CANBus("Canopy", "./logs/example.hoot");
 
     // Theoretical free speed (m/s) at 12 V applied output;
     // This needs to be tuned to your individual robot
     public static final LinearVelocity SPEED_AT_12_VOLTS = MetersPerSecond.of(12 / DRIVE_GAINS.kV);
 
     // Every 1 rotation of the azimuth results in kCoupleRatio drive motor turns;
-    private static final double COUPLE_RATIO = 3.7;
+    private static final double COUPLE_RATIO = 3.7; //TODO
 
     public static final double DRIVE_GEAR_RATIO = 4.725;
     private static final double STEER_GEAR_RATIO = 12.1;
-    public static final Distance WHEEL_RADIUS = Inches.of(1.95);
+    public static final Distance WHEEL_RADIUS = Inches.of(2);
 
     private static final boolean INVERT_LEFT_SIDE = false;
     private static final boolean INVERT_RIGHT_SIDE = true;
@@ -145,68 +142,68 @@ public class CompbotTunerConstants {
             .withDriveFrictionVoltage(DRIVE_FRICTION_VOLTAGE);
 
     // Front Left
-    private static final int FRONT_LEFT_DRIVE_MOTOR_ID = 8;
-    private static final int FRONT_LEFT_STEER_MOTOR_ID = 7;
+    private static final int FRONT_LEFT_DRIVE_MOTOR_ID = 1;
+    private static final int FRONT_LEFT_STEER_MOTOR_ID = 2;
     private static final int FRONT_LEFT_ENCODER_ID = 9;
-    private static final Angle FRONT_LEFT_ENCODER_OFFSET = Rotations.of(-0.138427734375);
-    private static final boolean FRONT_LEFT_STEER_MOTOR_INVERTED = true;
+    private static final Angle FRONT_LEFT_ENCODER_OFFSET = Rotations.of(0.07958984375);
+    private static final boolean FRONT_LEFT_STEER_MOTOR_INVERTED = false;
     private static final boolean FRONT_LEFT_ENCODER_INVERTED = false;
 
-    public static final Slot0Configs FL_STEER_GAINS = new Slot0Configs()
-            .withKP(32.227).withKI(0).withKD(0.3)
-            .withKS(0.077652).withKV(1.3923).withKA(0.18848)
-            .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
+    public static final Slot0Configs FL_STEER_GAINS = new Slot0Configs(); //TODO
+        //     .withKP(32.227).withKI(0).withKD(0.3)
+        //     .withKS(0.077652).withKV(1.3923).withKA(0.18848)
+        //     .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
 
-    public static final Distance FRONT_LEFT_XPOS = Inches.of(12.5);
+    public static final Distance FRONT_LEFT_XPOS = Inches.of(10);
     public static final Distance FRONT_LEFT_YPOS = Inches.of(12.5);
 
     // Front Right
-    private static final int FRONT_RIGHT_DRIVE_MOTOR_ID = 10;
-    private static final int FRONT_RIGHT_STEER_MOTOR_ID = 11;
-    private static final int FRONT_RIGHT_ENCODER_ID = 12;
-    private static final Angle FRONT_RIGHT_ENCODER_OFFSET = Rotations.of(0.475341796875);
-    private static final boolean FRONT_RIGHT_STEER_MOTOR_INVERTED = true;
+    private static final int FRONT_RIGHT_DRIVE_MOTOR_ID = 3;
+    private static final int FRONT_RIGHT_STEER_MOTOR_ID = 4;
+    private static final int FRONT_RIGHT_ENCODER_ID = 10;
+    private static final Angle FRONT_RIGHT_ENCODER_OFFSET = Rotations.of(0.363037109375);
+    private static final boolean FRONT_RIGHT_STEER_MOTOR_INVERTED = false;
     private static final boolean FRONT_RIGHT_ENCODER_INVERTED = false;
 
-    public static final Slot0Configs FR_STEER_GAINS = new Slot0Configs()
-            .withKP(30.398).withKI(0).withKD(0.3)
-            .withKS(0.041413).withKV(1.4116).withKA(0.10013)
-            .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
+    public static final Slot0Configs FR_STEER_GAINS = new Slot0Configs(); //TODO
+        //     .withKP(30.398).withKI(0).withKD(0.3)
+        //     .withKS(0.041413).withKV(1.4116).withKA(0.10013)
+        //     .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
 
-    public static final Distance FRONT_RIGHT_XPOS = Inches.of(12.5);
-    public static final Distance FRONT_RIGHT_YPOS = Inches.of(-12.5);
+    public static final Distance FRONT_RIGHT_XPOS = Inches.of(10);
+    public static final Distance FRONT_RIGHT_YPOS = Inches.of(-12.25);
 
     // Back Left
-    private static final int BACK_LEFT_DRIVE_MOTOR_ID = 4;
-    private static final int BACK_LEFT_STEER_MOTOR_ID = 5;
-    private static final int BACK_LEFT_ENCODER_ID = 6;
-    private static final Angle BACK_LEFT_ENCODER_OFFSET = Rotations.of(-0.038330);
-    private static final boolean BACK_LEFT_STEER_MOTOR_INVERTED = true;
+    private static final int BACK_LEFT_DRIVE_MOTOR_ID = 7;
+    private static final int BACK_LEFT_STEER_MOTOR_ID = 8;
+    private static final int BACK_LEFT_ENCODER_ID = 12;
+    private static final Angle BACK_LEFT_ENCODER_OFFSET = Rotations.of(-0.037353515625);
+    private static final boolean BACK_LEFT_STEER_MOTOR_INVERTED = false;
     private static final boolean BACK_LEFT_ENCODER_INVERTED = false;
 
-    public static final Slot0Configs BL_STEER_GAINS = new Slot0Configs()
-            .withKP(28.073).withKI(0).withKD(0.3)
-            .withKS(0.12149).withKV(1.3951).withKA(0.083189)
-            .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
+    public static final Slot0Configs BL_STEER_GAINS = new Slot0Configs(); //TODO
+        //     .withKP(28.073).withKI(0).withKD(0.3)
+        //     .withKS(0.12149).withKV(1.3951).withKA(0.083189)
+        //     .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
 
-    public static final Distance BACK_LEFT_XPOS = Inches.of(-12.5);
-    public static final Distance BACK_LEFT_YPOS = Inches.of(12.5);
+    public static final Distance BACK_LEFT_XPOS = Inches.of(-10);
+    public static final Distance BACK_LEFT_YPOS = Inches.of(12.25);
 
     // Back Right
-    private static final int BACK_RIGHT_DRIVE_MOTOR_ID = 2;
-    private static final int BACK_RIGHT_STEER_MOTOR_ID = 1;
-    private static final int BACK_RIGHT_ENCODER_ID = 3;
-    private static final Angle BACK_RIGHT_ENCODER_OFFSET = Rotations.of(-0.422607421875);
-    private static final boolean BACK_RIGHT_STEER_MOTOR_INVERTED = true;
+    private static final int BACK_RIGHT_DRIVE_MOTOR_ID = 5;
+    private static final int BACK_RIGHT_STEER_MOTOR_ID = 6;
+    private static final int BACK_RIGHT_ENCODER_ID = 11;
+    private static final Angle BACK_RIGHT_ENCODER_OFFSET = Rotations.of(-0.306640625);
+    private static final boolean BACK_RIGHT_STEER_MOTOR_INVERTED = false;
     private static final boolean BACK_RIGHT_ENCODER_INVERTED = false;
 
-    public static final Slot0Configs BR_STEER_GAINS = new Slot0Configs()
-            .withKP(29.344).withKI(0).withKD(0.3)
-            .withKS(0.068374).withKV(1.4079).withKA(0.09265)
-            .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
+    public static final Slot0Configs BR_STEER_GAINS = new Slot0Configs(); //TODO
+        //     .withKP(29.344).withKI(0).withKD(0.3)
+        //     .withKS(0.068374).withKV(1.4079).withKA(0.09265)
+        //     .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
 
-    public static final Distance BACK_RIGHT_XPOS = Inches.of(-12.5);
-    public static final Distance BACK_RIGHT_YPOS = Inches.of(-12.5);
+    public static final Distance BACK_RIGHT_XPOS = Inches.of(-10);
+    public static final Distance BACK_RIGHT_YPOS = Inches.of(-12.25);
 
     public static final SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> FRONT_LEFT = ConstantCreator
             .createModuleConstants(
