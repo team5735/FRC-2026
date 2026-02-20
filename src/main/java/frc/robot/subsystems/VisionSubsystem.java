@@ -9,6 +9,7 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -28,8 +29,6 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Telemetry;
 import frc.robot.constants.FieldConstants;
-import frc.robot.constants.VisionConstants;
-import frc.robot.util.LimelightHelpers;
 import frc.robot.util.NTable;
 
 public class VisionSubsystem extends SubsystemBase {
@@ -43,24 +42,13 @@ public class VisionSubsystem extends SubsystemBase {
         this.drivetrain = drivetrain;
         this.table.set("enabled", true);
         this.table.makePersistent("enabled");
-    }
 
-    private boolean trySeedPigeon(String name) {
-        if (!LimelightHelpers.getTV(name)) {
-            return false;
-        }
-        drivetrain.getPigeon2()
-                .setYaw(LimelightHelpers.getBotPoseEstimate_wpiBlue(name).pose.getRotation().getDegrees());
-        drivetrain.resetPose(
-                new Pose2d(LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(name).pose.getTranslation(),
-                        drivetrain.getPigeon2().getRotation2d()));
-        return true;
-    }
-
-    public void seedPigeon() {
-        for (String limelight : VisionConstants.LIMELIGHTS) {
-            trySeedPigeon(limelight);
-        }
+        NTable limits = this.table.sub("limits");
+        limits.ensure("distance from ground", Centimeters.of(25).in(Meters));
+        limits.ensure("angular velocity", DegreesPerSecond.of(10).in(RadiansPerSecond));
+        limits.ensure("single tag ambiguity", 0.2);
+        limits.ensure("multi tag ambiguity", 0.5);
+        limits.ensure("(stddevs) angular velocity", DegreesPerSecond.of(1).in(RadiansPerSecond));
     }
 
     public record RawFiducial(double ambiguity, Distance distToCamera) {
@@ -128,9 +116,9 @@ public class VisionSubsystem extends SubsystemBase {
         }
     }
 
-    private boolean check(double measurement, double limit, String name) {
+    private boolean check(double measurement, String name) {
         this.table.sub("measurements").set(name, measurement);
-        boolean ok = measurement <= limit;
+        boolean ok = measurement <= this.table.sub("limits").getDouble(name);
         this.table.sub("checks").set(name, ok);
         return ok;
     }
@@ -144,58 +132,49 @@ public class VisionSubsystem extends SubsystemBase {
         }
         table.sub("checks").set("enabled in network tables", true);
 
-        PoseEstimate mt1 = new PoseEstimate(limelightName);
-        if (mt1.pose2d == null) {
+        PoseEstimate estimate = new PoseEstimate(limelightName);
+        if (estimate.pose2d == null) {
             table.sub("checks").set("could retrieve pose estimate", false);
             return;
         }
         table.sub("checks").set("could retrieve pose estimate", true);
 
-        Telemetry.field.getObject(limelightName).setPose(mt1.pose2d);
+        Telemetry.field.getObject(limelightName).setPose(estimate.pose2d);
 
         boolean accepted = true;
 
-        accepted = accepted || check(
-                mt1.pose3d.getMeasureZ().in(Meters), VisionConstants.TOLERATED_HEIGHT.in(Meters),
-                "distance to ground");
+        accepted = accepted || check(estimate.pose3d.getMeasureZ().in(Meters), "distance from ground");
 
-        // mt1 pose estimate is off the field
+        // pose estimate is off the field
         double conservativeRobotRadius = Math.max(
                 DrivetrainSubsystem.CONSTANTS.getRobotTotalLength().in(Meters),
                 DrivetrainSubsystem.CONSTANTS.getRobotTotalWidth().in(Meters)) * Math.sqrt(2) / 2;
-        if (mt1.pose2d.getTranslation().getX() < conservativeRobotRadius
-                || mt1.pose2d.getTranslation()
+        if (estimate.pose2d.getTranslation().getX() < conservativeRobotRadius
+                || estimate.pose2d.getTranslation()
                         .getX() > (FieldConstants.FIELD_LENGTH_X.in(Meters) - conservativeRobotRadius)
-                || mt1.pose2d.getTranslation().getY() < conservativeRobotRadius
-                || mt1.pose2d.getTranslation()
+                || estimate.pose2d.getTranslation().getY() < conservativeRobotRadius
+                || estimate.pose2d.getTranslation()
                         .getY() > (FieldConstants.FIELD_LENGTH_Y.in(Meters) - conservativeRobotRadius)) {
             this.table.sub("checks").set("in field", false);
             accepted = false;
         }
         this.table.sub("checks").set("in field", true);
 
-        double[] ambiguities = Arrays.stream(mt1.fiducials).mapToDouble(tag -> tag.ambiguity).toArray();
+        double[] ambiguities = Arrays.stream(estimate.fiducials).mapToDouble(tag -> tag.ambiguity).toArray();
         if (ambiguities.length == 1) {
-            accepted = accepted || check(
-                    ambiguities[0], VisionConstants.SINGLE_TAG_MAX_AMBIGUITY,
-                    "single tag ambiguity");
+            accepted = accepted || check(ambiguities[0], "single tag ambiguity");
         } else if (ambiguities.length > 1) {
-            accepted = accepted || check(
-                    Arrays.stream(ambiguities).max().getAsDouble(),
-                    VisionConstants.MULTI_TAG_MAX_AMBIGUITY,
-                    "multi tag ambiguity");
+            accepted = accepted || check(Arrays.stream(ambiguities).max().getAsDouble(), "multi tag ambiguity");
         }
 
-        accepted = accepted || check(
-                drivetrain.getPigeon2().getAngularVelocityZWorld().getValueAsDouble(),
-                VisionConstants.TOLERATED_ROTATIONAL_RATE.in(DegreesPerSecond),
+        accepted = accepted || check(drivetrain.getPigeon2().getAngularVelocityZWorld().getValueAsDouble(),
                 "angular velocity");
 
         if (!accepted) {
             return;
         }
 
-        updateVisionMeasurement(limelightName, mt1);
+        updateVisionMeasurement(limelightName, estimate);
     }
 
     private boolean drivetrainIsNaNOrInf() {
@@ -212,6 +191,9 @@ public class VisionSubsystem extends SubsystemBase {
             drivetrain.resetPose(estimate.pose2d);
         }
 
+        NTable estimateTable = table.sub("estimate");
+        NTable penalties = estimateTable.sub("penalties");
+
         Vector<N3> stddevs = VecBuilder.fill(estimate.stddevs.getX(), estimate.stddevs.getY(),
                 estimate.stddevs.getRotation().getMeasureZ().in(Radians));
 
@@ -219,9 +201,6 @@ public class VisionSubsystem extends SubsystemBase {
         stddevs.getData()[0] = Math.max(Centimeters.of(1).in(Meters), stddevs.getData()[0]);
         stddevs.getData()[1] = Math.max(Centimeters.of(1).in(Meters), stddevs.getData()[1]);
         stddevs.getData()[2] = Math.max(Degrees.of(5).in(Radians), stddevs.getData()[2]);
-
-        NTable est = table.sub("estimate");
-        NTable penalties = est.sub("penalties");
 
         // multiply by 1 + average distance to camera
         double distPenalty = 1 + estimate.distToCamera * 3;
@@ -247,20 +226,18 @@ public class VisionSubsystem extends SubsystemBase {
 
         stddevs = stddevs.times(totalPenalty);
         // if robot is rotating, use 99999 for theta
-        if (drivetrain.getPigeon2().getAngularVelocityZWorld().getValueAsDouble() > VisionConstants.MAX_ROTATION_SPEED
-                .in(DegreesPerSecond)) {
+        if (drivetrain.getPigeon2().getAngularVelocityZWorld().getValueAsDouble() > this.table.sub("limits")
+                .getDouble("(stddevs) angular velocity")) {
             stddevs.getData()[2] = 99999;
         }
 
-        est.sub("stddev").set("x", stddevs.getData()[0]);
-        est.sub("stddev").set("y", stddevs.getData()[1]);
-        est.sub("stddev").set("theta", stddevs.getData()[2]);
+        estimateTable.set("x", stddevs.getData()[0]);
+        estimateTable.set("y", stddevs.getData()[1]);
+        estimateTable.set("theta", stddevs.getData()[2]);
 
-        est.set("x", estimate.pose2d.getX());
-        est.set("y", estimate.pose2d.getY());
-        est.set("theta", estimate.pose2d.getRotation().getDegrees());
+        estimateTable.set("pose", estimate.pose2d);
 
-        est.set("timestamp", estimate.timestamp);
+        estimateTable.set("timestamp", estimate.timestamp);
 
         drivetrain.addVisionMeasurement(estimate.pose2d, estimate.timestamp, stddevs);
     }
