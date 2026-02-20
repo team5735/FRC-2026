@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.294052734375,
-        "y": 0.690428118024554
+        "x": 7.705612734840029,
+        "y": 1.1227290852864587
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.3872477213541665,
-        "y": 1.2781866164434528
+        "x": 7.705612734840029,
+        "y": 0.8727290852864584
       },
       "isLocked": false,
-      "linkedName": "Right Trench"
+      "linkedName": "start Sweep Bottom"
     },
     {
       "anchor": {
-        "x": 1.1072113909040178,
-        "y": 2.7119959077380953
+        "x": 7.644489048549106,
+        "y": 7.036891799200149
       },
       "prevControl": {
-        "x": 2.6210804385230655,
-        "y": 1.5864330473400297
+        "x": 7.730439453124999,
+        "y": 5.795250011625744
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "End Bottom Sweep"
     }
   ],
   "rotationTargets": [],
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -90.0
+    "rotation": 90.0
   },
   "reversed": false,
-  "folder": "Right Trench",
+  "folder": "Sweep",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 90.0
   },
   "useDefaultConstraints": true
 }

@@ -3,29 +3,45 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.294052734375,
-        "y": 0.690428118024554
+        "x": 3.5,
+        "y": 4.0
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.3872477213541665,
-        "y": 1.2781866164434528
+        "x": 3.1847030203683033,
+        "y": 2.896692417689733
       },
       "isLocked": false,
-      "linkedName": "Right Trench"
+      "linkedName": "Hub"
     },
     {
       "anchor": {
-        "x": 1.1072113909040178,
-        "y": 2.7119959077380953
+        "x": 3.5,
+        "y": 1.0130734979538694
       },
       "prevControl": {
-        "x": 2.6210804385230655,
-        "y": 1.5864330473400297
+        "x": 3.3997829473586307,
+        "y": 2.186556512741815
+      },
+      "nextControl": {
+        "x": 3.5782861104645822,
+        "y": 0.09638897668031765
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 7.705612734840029,
+        "y": 1.1227290852864587
+      },
+      "prevControl": {
+        "x": 6.705612734840029,
+        "y": 1.1227290852864584
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "start Sweep Bottom"
     }
   ],
   "rotationTargets": [],
@@ -42,13 +58,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -90.0
+    "rotation": 90.0
   },
   "reversed": false,
-  "folder": "Right Trench",
+  "folder": "Sweep",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": -0.2941049721494235
   },
   "useDefaultConstraints": true
 }

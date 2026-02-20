@@ -3,18 +3,21 @@
   "robotLength": 0.94,
   "holonomicMode": true,
   "pathFolders": [
+    "Ball",
     "Calibration",
     "Hub",
     "Intake ",
     "Left Bump",
     "Left Trench",
-    "Ball",
+    "Sweep",
     "Right Bump",
     "Right Trench"
   ],
   "autoFolders": [
     "Intake",
+    "Bottom Sweep",
     "Test",
+    "Top Sweep",
     "ball"
   ],
   "defaultMaxVel": 2.0,
