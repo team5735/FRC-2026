@@ -41,13 +41,13 @@ import frc.robot.subsystems.DrivetrainSubsystem;
 public class CompbotTunerConstants {
     // The steer motor uses any SwerveModule.SteerRequestType control request with
     // the output type specified by SwerveModuleConstants.SteerMotorClosedLoopOutput
-    public static final Slot0Configs DEFAULT_STEER_GAINS = new Slot0Configs() // TODO
-            .withKP(0).withKI(0).withKD(0)
+    public static final Slot0Configs DEFAULT_STEER_CONSTANTS = new Slot0Configs() // TODO redo sysid with new treads
+            .withKP(42.5).withKI(0).withKD(0.1)
             .withKS(0.12).withKV(1.41).withKA(0.12)
             .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
     // When using closed-loop control, the drive motor uses the control
     // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
-    public static final Slot0Configs DRIVE_GAINS = new Slot0Configs() // TODO
+    public static final Slot0Configs DEFAULT_DRIVE_CONSTANTS = new Slot0Configs() // TODO
             .withKP(0).withKI(0).withKD(0)
             .withKS(0).withKV(0).withKA(0);
 
@@ -93,7 +93,7 @@ public class CompbotTunerConstants {
 
     // Theoretical free speed (m/s) at 12 V applied output;
     // This needs to be tuned to your individual robot
-    public static final LinearVelocity SPEED_AT_12_VOLTS = MetersPerSecond.of(12 / DRIVE_GAINS.kV);
+    public static final LinearVelocity SPEED_AT_12_VOLTS = MetersPerSecond.of(12 / DEFAULT_DRIVE_CONSTANTS.kV);
 
     // Every 1 rotation of the azimuth results in kCoupleRatio drive motor turns;
     private static final double COUPLE_RATIO = 4.277;
@@ -124,8 +124,8 @@ public class CompbotTunerConstants {
             .withSteerMotorGearRatio(STEER_GEAR_RATIO)
             .withCouplingGearRatio(COUPLE_RATIO)
             .withWheelRadius(WHEEL_RADIUS)
-            .withSteerMotorGains(DEFAULT_STEER_GAINS)
-            .withDriveMotorGains(DRIVE_GAINS)
+            .withSteerMotorGains(DEFAULT_STEER_CONSTANTS)
+            .withDriveMotorGains(DEFAULT_DRIVE_CONSTANTS)
             .withSteerMotorClosedLoopOutput(STEER_CLOSED_LOOP_OUTPUT)
             .withDriveMotorClosedLoopOutput(DRIVE_CLOSED_LOOP_OUTPUT)
             .withSlipCurrent(SLIP_CURRENT)
@@ -149,8 +149,10 @@ public class CompbotTunerConstants {
     private static final boolean FRONT_LEFT_STEER_MOTOR_INVERTED = false;
     private static final boolean FRONT_LEFT_ENCODER_INVERTED = false;
 
-    public static final Slot0Configs FL_STEER_GAINS = new Slot0Configs()
+    public static final Slot0Configs FL_STEER_CONSTANTS = DEFAULT_STEER_CONSTANTS
             .withKS(0.0082359).withKV(1.4135).withKA(0.16887);
+    public static final Slot0Configs FL_DRIVE_CONSTANTS = DEFAULT_DRIVE_CONSTANTS;
+        //     .withKS(0.10995).withKV(0.11439).withKA(0.0036946);
 
     public static final Distance FRONT_LEFT_XPOS = Inches.of(10);
     public static final Distance FRONT_LEFT_YPOS = Inches.of(12.25);
@@ -163,8 +165,10 @@ public class CompbotTunerConstants {
     private static final boolean FRONT_RIGHT_STEER_MOTOR_INVERTED = false;
     private static final boolean FRONT_RIGHT_ENCODER_INVERTED = false;
 
-    public static final Slot0Configs FR_STEER_GAINS = new Slot0Configs()
+    public static final Slot0Configs FR_STEER_GAINS = DEFAULT_STEER_CONSTANTS
             .withKS(0.18209).withKV(1.4045).withKA(0.080639);
+    public static final Slot0Configs FR_DRIVE_CONSTANTS = DEFAULT_DRIVE_CONSTANTS;
+        //     .withKS(0.10995).withKV(0.11439).withKA(0.0036946);
 
     public static final Distance FRONT_RIGHT_XPOS = Inches.of(10);
     public static final Distance FRONT_RIGHT_YPOS = Inches.of(-12.25);
@@ -177,8 +181,10 @@ public class CompbotTunerConstants {
     private static final boolean BACK_LEFT_STEER_MOTOR_INVERTED = false;
     private static final boolean BACK_LEFT_ENCODER_INVERTED = false;
 
-    public static final Slot0Configs BL_STEER_GAINS = new Slot0Configs()
+    public static final Slot0Configs BL_STEER_GAINS = DEFAULT_STEER_CONSTANTS
             .withKS(0.14556).withKV(1.4084).withKA(0.10604);
+    public static final Slot0Configs BL_DRIVE_CONSTANTS = DEFAULT_DRIVE_CONSTANTS;
+        //     .withKS(0.10995).withKV(0.11439).withKA(0.0036946);
 
     public static final Distance BACK_LEFT_XPOS = Inches.of(-10);
     public static final Distance BACK_LEFT_YPOS = Inches.of(12.25);
@@ -187,12 +193,14 @@ public class CompbotTunerConstants {
     private static final int BACK_RIGHT_DRIVE_MOTOR_ID = 5;
     private static final int BACK_RIGHT_STEER_MOTOR_ID = 6;
     private static final int BACK_RIGHT_ENCODER_ID = 11;
-    private static final Angle BACK_RIGHT_ENCODER_OFFSET = Rotations.of(-0.306640625);
+    private static final Angle BACK_RIGHT_ENCODER_OFFSET = Rotations.of(-0.303711);
     private static final boolean BACK_RIGHT_STEER_MOTOR_INVERTED = false;
     private static final boolean BACK_RIGHT_ENCODER_INVERTED = false;
 
-    public static final Slot0Configs BR_STEER_GAINS = new Slot0Configs()
+    public static final Slot0Configs BR_STEER_GAINS = DEFAULT_STEER_CONSTANTS
             .withKS(0.016316).withKV(1.435).withKA(0.24407);
+    public static final Slot0Configs BR_DRIVE_CONSTANTS = DEFAULT_DRIVE_CONSTANTS;
+        //     .withKS(0.10995).withKV(0.11439).withKA(0.0036946);
 
     public static final Distance BACK_RIGHT_XPOS = Inches.of(-10);
     public static final Distance BACK_RIGHT_YPOS = Inches.of(-12.25);
@@ -202,14 +210,14 @@ public class CompbotTunerConstants {
                     FRONT_LEFT_STEER_MOTOR_ID, FRONT_LEFT_DRIVE_MOTOR_ID, FRONT_LEFT_ENCODER_ID,
                     FRONT_LEFT_ENCODER_OFFSET, FRONT_LEFT_XPOS, FRONT_LEFT_YPOS, INVERT_LEFT_SIDE,
                     FRONT_LEFT_STEER_MOTOR_INVERTED, FRONT_LEFT_ENCODER_INVERTED)
-            .withSteerMotorGains(FL_STEER_GAINS);
+            .withSteerMotorGains(FL_STEER_CONSTANTS).withDriveMotorGains(FL_DRIVE_CONSTANTS);
     public static final SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> FRONT_RIGHT = ConstantCreator
             .createModuleConstants(
                     FRONT_RIGHT_STEER_MOTOR_ID, FRONT_RIGHT_DRIVE_MOTOR_ID, FRONT_RIGHT_ENCODER_ID,
                     FRONT_RIGHT_ENCODER_OFFSET, FRONT_RIGHT_XPOS, FRONT_RIGHT_YPOS,
                     INVERT_RIGHT_SIDE,
                     FRONT_RIGHT_STEER_MOTOR_INVERTED, FRONT_RIGHT_ENCODER_INVERTED)
-            .withSteerMotorGains(FR_STEER_GAINS);
+            .withSteerMotorGains(FR_STEER_GAINS).withDriveMotorGains(FR_DRIVE_CONSTANTS);
     public static final SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> BACK_LEFT = ConstantCreator
             .createModuleConstants(
                     BACK_LEFT_STEER_MOTOR_ID, BACK_LEFT_DRIVE_MOTOR_ID, BACK_LEFT_ENCODER_ID,
@@ -217,13 +225,13 @@ public class CompbotTunerConstants {
                     BACK_LEFT_XPOS, BACK_LEFT_YPOS, INVERT_LEFT_SIDE,
                     BACK_LEFT_STEER_MOTOR_INVERTED,
                     BACK_LEFT_ENCODER_INVERTED)
-            .withSteerMotorGains(BL_STEER_GAINS);
+            .withSteerMotorGains(BL_STEER_GAINS).withDriveMotorGains(BL_DRIVE_CONSTANTS);
     public static final SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> BACK_RIGHT = ConstantCreator
             .createModuleConstants(
                     BACK_RIGHT_STEER_MOTOR_ID, BACK_RIGHT_DRIVE_MOTOR_ID, BACK_RIGHT_ENCODER_ID,
                     BACK_RIGHT_ENCODER_OFFSET, BACK_RIGHT_XPOS, BACK_RIGHT_YPOS, INVERT_RIGHT_SIDE,
                     BACK_RIGHT_STEER_MOTOR_INVERTED, BACK_RIGHT_ENCODER_INVERTED)
-            .withSteerMotorGains(BR_STEER_GAINS);
+            .withSteerMotorGains(BR_STEER_GAINS).withDriveMotorGains(BR_DRIVE_CONSTANTS);
 
     /**
      * Creates a CommandSwerveDrivetrain instance.

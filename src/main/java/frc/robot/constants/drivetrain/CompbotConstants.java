@@ -113,7 +113,7 @@ public class CompbotConstants implements DrivetrainConstants {
     @Override
     public double getRobotMoiKgxMxM() {
         return getRobotMass().in(Kilograms) * getDrivetrainWidth().in(Meters) / 2 * getRotKa()
-                / CompbotTunerConstants.DRIVE_GAINS.kA;
+                / CompbotTunerConstants.DEFAULT_DRIVE_CONSTANTS.kA;
     }
 
     @Override
