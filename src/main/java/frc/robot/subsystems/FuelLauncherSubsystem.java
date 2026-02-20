@@ -41,7 +41,8 @@ public class FuelLauncherSubsystem extends SubsystemBase {
 
     public FuelLauncherSubsystem() {
         SmartDashboard.putNumber("shooter_volts", FuelLauncherConstants.LAUNCHER_VOLTS);
-        krakenLeft.getConfigurator().apply(new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive).withNeutralMode(NeutralModeValue.Coast));
+        krakenLeft.getConfigurator().apply(new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive)
+                .withNeutralMode(NeutralModeValue.Coast));
         krakenRight.setControl(new Follower(Constants.LAUNCHER_LEFT_KRAKEN_ID, MotorAlignmentValue.Opposed));
         pid.setup(0);
     }
@@ -73,14 +74,17 @@ public class FuelLauncherSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        double currentRPM = getRPM(); 
+        double currentRPM = getRPM();
         SmartDashboard.putNumber("launcher/speed_rpm", currentRPM);
         SmartDashboard.putNumber("launcher/target_speed", pid.getController().getSetpoint());
         SmartDashboard.putNumber("launcher/moving_average", filter.calculate(currentRPM));
     }
 
-    public Command launchFuel(AngularVelocity speed) {
-        return startRun(() -> setTargetRPM(speed.in(RPM)), this::usePID);
+    public Command getLaunchFuel(AngularVelocity speed) {
+        return runOnce(this::retunePID)
+                .andThen(
+                        startRun(() -> setTargetRPM(speed.in(RPM)), this::usePID))
+                .withName("Launch Fuel at " + speed);
     }
 
     private SysIdRoutine routine = new SysIdRoutine(
@@ -94,15 +98,15 @@ public class FuelLauncherSubsystem extends SubsystemBase {
         return routine.dynamic(direction);
     }
 
-    public Command sysIdQuasistatic(Direction direction){
+    public Command sysIdQuasistatic(Direction direction) {
         return routine.quasistatic(direction);
     }
 
-    public Command runAtSpeed(AngularVelocity speed){
+    public Command runAtSpeed(AngularVelocity speed) {
         return startRun(() -> pid.setup(speed.in(RPM)), this::usePID);
     }
 
-    public Command retunePID() {
-        return Commands.runOnce(() -> pid.setup(pid.getController().getSetpoint()));
+    public void retunePID() {
+        pid.setup(pid.getController().getSetpoint());
     }
 }
