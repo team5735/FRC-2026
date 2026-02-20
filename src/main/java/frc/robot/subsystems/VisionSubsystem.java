@@ -49,6 +49,7 @@ public class VisionSubsystem extends SubsystemBase {
         limits.ensure("single tag ambiguity", 0.2);
         limits.ensure("multi tag ambiguity", 0.5);
         limits.ensure("(stddevs) angular velocity", DegreesPerSecond.of(1).in(RadiansPerSecond));
+        limits.ensure("drivetrain distance from estimate", 1);
     }
 
     public record RawFiducial(double ambiguity, Distance distToCamera) {
@@ -118,7 +119,7 @@ public class VisionSubsystem extends SubsystemBase {
 
     private boolean check(double measurement, String name) {
         this.table.sub("measurements").set(name, measurement);
-        boolean ok = measurement <= this.table.sub("limits").getDouble(name);
+        boolean ok = measurement <= this.table.sub("limits").get(name, 0.0);
         this.table.sub("checks").set(name, ok);
         return ok;
     }
@@ -169,6 +170,10 @@ public class VisionSubsystem extends SubsystemBase {
 
         accepted = accepted || check(drivetrain.getPigeon2().getAngularVelocityZWorld().getValueAsDouble(),
                 "angular velocity");
+
+        accepted = accepted || check(
+                drivetrain.getEstimatedPosition().getTranslation().getDistance(estimate.pose2d.getTranslation()),
+                "drivetrain distance from estimate");
 
         if (!accepted) {
             return;
