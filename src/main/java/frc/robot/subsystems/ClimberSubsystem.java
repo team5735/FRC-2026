@@ -7,6 +7,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.ClimberConstants;
 
@@ -39,8 +40,9 @@ public class ClimberSubsystem extends SubsystemBase {
         return run(() -> climbDown()).until(this::isAtDownLimit).finallyDo(() -> stop());
     }
 
+    //allows climber to move past limits when override is activated
     public Command getOverrideCommand(){
-        return run(()->overridden=true).finallyDo(()->overridden=false);
+        return Commands.run(()->overridden=true).finallyDo(()->overridden=false);
     }
 
 
