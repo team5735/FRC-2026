@@ -19,6 +19,7 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N3;
@@ -200,6 +201,13 @@ public class LimelightSubsystem extends SubsystemBase {
                 || Double.isInfinite(drivetrain.getEstimatedPosition().getY());
     }
 
+    private double penalize(double measurement, String penaltyName) {
+        table.sub("estimate").sub("measurements").set(penaltyName, measurement);
+        double penalty = (1 + measurement) * table.sub("estimate").sub("coefficients").get(penaltyName, 1.0);
+        table.sub("estimate").sub("penalties").set(penaltyName, penalty);
+        return penalty;
+    }
+
     private void updateVisionMeasurement(PoseEstimate estimate) {
         // completely reset the pose estimator if it's not having a good time
         if (drivetrainIsNaNOrInf()) {
@@ -208,7 +216,13 @@ public class LimelightSubsystem extends SubsystemBase {
         }
 
         NTable estimateTable = table.sub("estimate");
-        NTable penalties = estimateTable.sub("penalties");
+        NTable coefficients = estimateTable.sub("coefficients");
+
+        coefficients.ensure("distance", 3);
+        coefficients.ensure("speed", 5);
+        coefficients.ensure("omega", 10);
+        coefficients.ensure("ambiguity", 1);
+        coefficients.ensure("one tag", 3);
 
         Vector<N3> stddevs = VecBuilder.fill(estimate.stddevs.getX(), estimate.stddevs.getY(),
                 estimate.stddevs.getRotation().getMeasureZ().in(Radians));
@@ -218,39 +232,31 @@ public class LimelightSubsystem extends SubsystemBase {
         stddevs.getData()[1] = Math.max(Centimeters.of(1).in(Meters), stddevs.getData()[1]);
         stddevs.getData()[2] = Math.max(Degrees.of(5).in(Radians), stddevs.getData()[2]);
 
-        // multiply by 1 + average distance to camera
-        double distPenalty = 1 + estimate.distToCamera;
-        penalties.set("distance", distPenalty);
-        // multiply by 1 + speed
-        double speedPenalty = 1 + Math.hypot(
-                drivetrain.getState().Speeds.vxMetersPerSecond,
-                drivetrain.getState().Speeds.vyMetersPerSecond) * 5;
-        penalties.set("speed", speedPenalty);
-        // multiply by 1 + omega
-        double omegaPenalty = 1 + Math.abs(drivetrain.getState().Speeds.omegaRadiansPerSecond) * 10;
-        penalties.set("omega", omegaPenalty);
-        // multiply by (1 + ambiguity)^2
-        double totalAmbiguity = Arrays.stream(estimate.fiducials).mapToDouble(fiducial -> fiducial.ambiguity).sum();
-        double ambiguityPenalty = 1 + Math.pow(1 * totalAmbiguity, 2);
-        penalties.set("ambiguity", ambiguityPenalty);
+        double distPenalty = penalize(estimate.distToCamera, "distance");
 
-        double singleTagPenalty = estimate.fiducials.length == 1 ? 10 : 1;
-        penalties.set("one tag", singleTagPenalty);
+        double speedPenalty = penalize(Math.hypot(
+                drivetrain.getState().Speeds.vxMetersPerSecond,
+                drivetrain.getState().Speeds.vyMetersPerSecond) * 5, "speed");
+
+        double omegaPenalty = penalize(Math.abs(drivetrain.getState().Speeds.omegaRadiansPerSecond), "omega");
+
+        double ambiguityPenalty = penalize(
+                Arrays.stream(estimate.fiducials).mapToDouble(fiducial -> fiducial.ambiguity).sum(), "ambiguity");
+        ambiguityPenalty *= ambiguityPenalty;
+
+        double singleTagPenalty = penalize(estimate.fiducials.length == 1 ? 10 : 1, "single tag");
 
         double totalPenalty = distPenalty * speedPenalty * omegaPenalty * ambiguityPenalty * singleTagPenalty;
-        penalties.set("total", totalPenalty);
+        estimateTable.sub("penalties").set("total", totalPenalty);
 
         stddevs = stddevs.times(totalPenalty);
-        // if robot is rotating, use 99999 for theta
-        if (drivetrain.getPigeon2().getAngularVelocityZWorld().getValueAsDouble() > this.table
-                .get("(stddevs) angular velocity", 0.0)) {
+        if (!check(drivetrain.getPigeon2().getAngularVelocityZWorld().getValueAsDouble(),
+                "(stddevs) angular velocity")) {
             stddevs.getData()[2] = 99999;
         }
 
-        estimateTable.set("x", stddevs.getData()[0]);
-        estimateTable.set("y", stddevs.getData()[1]);
-        estimateTable.set("theta", stddevs.getData()[2]);
-
+        estimateTable.set("stddevs",
+                new Pose2d(stddevs.getData()[0], stddevs.getData()[1], Rotation2d.fromRadians(stddevs.getData()[2])));
         estimateTable.set("pose", estimate.pose2d);
 
         estimateTable.set("timestamp", estimate.timestamp);
