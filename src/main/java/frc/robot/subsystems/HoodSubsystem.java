@@ -7,27 +7,26 @@ import frc.robot.constants.Constants;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class HoodSubsystem extends SubsystemBase {
-    private final Servo servo = new Servo(0);  
+    private final Servo servo = new Servo(0);
     private final AnalogInput feedback = new AnalogInput(0);
 
     // Runs one time when the robot starts
     public HoodSubsystem() {
         SmartDashboard.putNumber("Start Revolution Posiiton", Constants.START_REVOLUTION_POSITION);
         SmartDashboard.putNumber("End Revolution Posiiton", Constants.END_REVOLUTION_POSITION);
-        setPosition(Constants.START_REVOLUTION_POSITION);  // default safe position at startup
-}
+        setPosition(Constants.START_REVOLUTION_POSITION); // default safe position at startup
+    }
 
-    //Pos is set anywhere from 0 to 1
+    // Pos is set anywhere from 0 to 1
     public void setPosition(double position) {
-    double safePosition = Math.max(0.1, Math.min(0.9, position));
-    servo.set(safePosition);
-}
+        double safePosition = Math.max(0.1, Math.min(0.9, position));
+        servo.set(safePosition);
+    }
 
     // Returns raw voltage from analog feedback wire
     public double getVoltage() {
         return feedback.getVoltage();
     }
-
 
     // Converts voltage (0-5V) into 0.0–1.0 normalized position
     public double getNormalizedPosition() {
@@ -37,6 +36,6 @@ public class HoodSubsystem extends SubsystemBase {
     // Runs every 20ms automatically
     @Override
     public void periodic() {
-        
+
     }
 }
