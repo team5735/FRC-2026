@@ -17,6 +17,7 @@ public class ClimberSubsystem extends SubsystemBase {
     private final DigitalInput limitDown = new DigitalInput(ClimberConstants.LOWER_LIMIT_PIN);
     private boolean canMoveUp;
     private boolean canMoveDown;
+    private boolean overridden;
 
     public ClimberSubsystem() {
         talon.getConfigurator().apply(new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Brake));
@@ -38,8 +39,13 @@ public class ClimberSubsystem extends SubsystemBase {
         return run(() -> climbDown()).until(this::isAtDownLimit).finallyDo(() -> stop());
     }
 
+    public Command getOverrideCommand(){
+        return run(()->overridden=true).finallyDo(()->overridden=false);
+    }
+
+
     public void climbUp() {
-        if (canMoveUp) {
+        if (canMoveUp || overridden) {
             talon.setVoltage(ClimberConstants.UP_VOLTS);
         } else {
             talon.setVoltage(0);
@@ -47,7 +53,7 @@ public class ClimberSubsystem extends SubsystemBase {
     }
 
     public void climbDown() {
-        if (canMoveDown) {
+        if (canMoveDown || overridden) {
             talon.setVoltage(ClimberConstants.DOWN_VOLTS);
         } else {
             talon.setVoltage(0);
