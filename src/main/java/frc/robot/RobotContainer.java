@@ -16,7 +16,6 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathfindingCommand;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -96,7 +95,8 @@ public class RobotContainer {
                                         drivetrain.getEstimatedPosition().getTranslation())),
                         "drive to arc"));
         driveController.x().onTrue(drivetrain
-                .runOnce(() -> drivetrain.resetPose(new Pose2d())).withName("Resetting Pose"));
+                .runOnce(() -> drivetrain.resetPose(limelights[0].new PoseEstimate().pose2d))
+                .withName("Resetting Pose"));
 
         driveController.a().whileTrue(
                 new DriveOnArc(drivetrain, targetArc, () -> MathUtil.applyDeadband(driveController.getLeftX(), 0.1)));
