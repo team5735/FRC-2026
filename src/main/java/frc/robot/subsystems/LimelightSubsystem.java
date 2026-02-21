@@ -32,8 +32,6 @@ import frc.robot.constants.FieldConstants;
 import frc.robot.util.NTable;
 
 public class LimelightSubsystem extends SubsystemBase {
-    private static final NTable generic = NTable.root("vision");
-
     private final DrivetrainSubsystem drivetrain;
     private final String limelightName;
     private final NTable table;
@@ -43,8 +41,7 @@ public class LimelightSubsystem extends SubsystemBase {
         this.drivetrain = drivetrain;
         this.table = NTable.root("vision").sub(limelightName);
 
-        generic.set("enabled", true);
-        generic.makePersistent("enabled");
+        NTable.root("vision").ensure("enabled", true);
 
         NTable limits = this.table.sub("limits");
         limits.ensure("distance from ground", Centimeters.of(25).in(Meters));
@@ -127,25 +124,27 @@ public class LimelightSubsystem extends SubsystemBase {
         return ok;
     }
 
+    private int ticks_since_pose_reset = 0;
+
     public void handleVisionMeasurement() {
         if (!NTable.root("vision").get("enabled", true)) {
-            table.sub("checks").set("enabled in network tables", false);
+            this.table.sub("checks").set("enabled in network tables", false);
             return;
         }
-        table.sub("checks").set("enabled in network tables", true);
+        this.table.sub("checks").set("enabled in network tables", true);
 
         PoseEstimate estimate = new PoseEstimate();
         if (estimate.pose2d == null) {
-            table.sub("checks").set("could retrieve pose estimate", false);
+            this.table.sub("checks").set("could retrieve pose estimate", false);
             return;
         }
-        table.sub("checks").set("could retrieve pose estimate", true);
+        this.table.sub("checks").set("could retrieve pose estimate", true);
 
         Telemetry.field.getObject(limelightName).setPose(estimate.pose2d);
 
         boolean accepted = true;
 
-        accepted = accepted || check(estimate.pose3d.getMeasureZ().in(Meters), "distance from ground");
+        accepted = check(estimate.pose3d.getMeasureZ().in(Meters), "distance from ground") && accepted;
 
         // pose estimate is off the field
         double conservativeRobotRadius = Math.max(
@@ -164,17 +163,28 @@ public class LimelightSubsystem extends SubsystemBase {
 
         double[] ambiguities = Arrays.stream(estimate.fiducials).mapToDouble(tag -> tag.ambiguity).toArray();
         if (ambiguities.length == 1) {
-            accepted = accepted || check(ambiguities[0], "single tag ambiguity");
+            accepted = check(ambiguities[0], "single tag ambiguity") && accepted;
         } else if (ambiguities.length > 1) {
-            accepted = accepted || check(Arrays.stream(ambiguities).max().getAsDouble(), "multi tag ambiguity");
+            accepted = check(Arrays.stream(ambiguities).max().getAsDouble(), "multi tag ambiguity") && accepted;
         }
 
-        accepted = accepted || check(drivetrain.getPigeon2().getAngularVelocityZWorld().getValueAsDouble(),
-                "angular velocity");
+        accepted = check(drivetrain.getPigeon2().getAngularVelocityZWorld().getValueAsDouble(),
+                "angular velocity") && accepted;
 
-        accepted = accepted || check(
+        boolean close_enough = check(
                 drivetrain.getEstimatedPosition().getTranslation().getDistance(estimate.pose2d.getTranslation()),
                 "drivetrain distance from estimate");
+        if (!close_enough) {
+            ticks_since_pose_reset++;
+            if (ticks_since_pose_reset > 50) {
+                drivetrain.resetPose(estimate.pose2d);
+                ticks_since_pose_reset = 0;
+                System.out.println("resetting drivetrain pose because it's been 50 ticks since we last reset");
+            }
+        } else {
+            ticks_since_pose_reset = 0;
+        }
+        accepted = close_enough && accepted;
 
         if (!accepted) {
             return;
@@ -232,8 +242,8 @@ public class LimelightSubsystem extends SubsystemBase {
 
         stddevs = stddevs.times(totalPenalty);
         // if robot is rotating, use 99999 for theta
-        if (drivetrain.getPigeon2().getAngularVelocityZWorld().getValueAsDouble() > NTable.root("vision").sub("limits")
-                .getDouble("(stddevs) angular velocity")) {
+        if (drivetrain.getPigeon2().getAngularVelocityZWorld().getValueAsDouble() > this.table
+                .get("(stddevs) angular velocity", 0.0)) {
             stddevs.getData()[2] = 99999;
         }
 
