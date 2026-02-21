@@ -203,7 +203,7 @@ public class LimelightSubsystem extends SubsystemBase {
 
     private double penalize(double measurement, String penaltyName) {
         table.sub("estimate").sub("measurements").set(penaltyName, measurement);
-        double penalty = (1 + measurement) * table.sub("estimate").sub("coefficients").get(penaltyName, 1.0);
+        double penalty = 1 + measurement * table.sub("estimate").sub("coefficients").get(penaltyName, 1.0);
         table.sub("estimate").sub("penalties").set(penaltyName, penalty);
         return penalty;
     }
@@ -244,7 +244,7 @@ public class LimelightSubsystem extends SubsystemBase {
                 Arrays.stream(estimate.fiducials).mapToDouble(fiducial -> fiducial.ambiguity).sum(), "ambiguity");
         ambiguityPenalty *= ambiguityPenalty;
 
-        double singleTagPenalty = penalize(estimate.fiducials.length == 1 ? 10 : 1, "single tag");
+        double singleTagPenalty = penalize(estimate.fiducials.length == 1 ? 10 : 0, "single tag");
 
         double totalPenalty = distPenalty * speedPenalty * omegaPenalty * ambiguityPenalty * singleTagPenalty;
         estimateTable.sub("penalties").set("total", totalPenalty);
