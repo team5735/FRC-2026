@@ -32,16 +32,19 @@ import frc.robot.constants.FieldConstants;
 import frc.robot.util.NTable;
 
 public class VisionSubsystem extends SubsystemBase {
-    DrivetrainSubsystem drivetrain;
-    @SuppressWarnings("unused")
-    private double driftEstimateTicks;
+    private static final NTable generic = NTable.root("vision");
 
-    private NTable table = NTable.root("vision");
+    private final DrivetrainSubsystem drivetrain;
+    private final String limelightName;
+    private final NTable table;
 
-    public VisionSubsystem(DrivetrainSubsystem drivetrain) {
+    public VisionSubsystem(DrivetrainSubsystem drivetrain, String limelightName) {
+        this.limelightName = limelightName;
         this.drivetrain = drivetrain;
-        this.table.set("enabled", true);
-        this.table.makePersistent("enabled");
+        this.table = NTable.root("vision").sub(limelightName);
+
+        generic.set("enabled", true);
+        generic.makePersistent("enabled");
 
         NTable limits = this.table.sub("limits");
         limits.ensure("distance from ground", Centimeters.of(25).in(Meters));
@@ -73,7 +76,7 @@ public class VisionSubsystem extends SubsystemBase {
             });
         }
 
-        public PoseEstimate(String limelightName) {
+        public PoseEstimate() {
             double[] stddevs = NetworkTableInstance.getDefault().getTable(limelightName).getEntry("stddevs")
                     .getDoubleArray(new double[0]);
             TimestampedDoubleArray atomicArray;
@@ -124,16 +127,14 @@ public class VisionSubsystem extends SubsystemBase {
         return ok;
     }
 
-    public void handleVisionMeasurement(String limelightName) {
-        this.table = NTable.root("vision").sub(limelightName);
-
+    public void handleVisionMeasurement() {
         if (!NTable.root("vision").get("enabled", true)) {
             table.sub("checks").set("enabled in network tables", false);
             return;
         }
         table.sub("checks").set("enabled in network tables", true);
 
-        PoseEstimate estimate = new PoseEstimate(limelightName);
+        PoseEstimate estimate = new PoseEstimate();
         if (estimate.pose2d == null) {
             table.sub("checks").set("could retrieve pose estimate", false);
             return;
@@ -179,7 +180,7 @@ public class VisionSubsystem extends SubsystemBase {
             return;
         }
 
-        updateVisionMeasurement(limelightName, estimate);
+        updateVisionMeasurement(estimate);
     }
 
     private boolean drivetrainIsNaNOrInf() {
@@ -189,7 +190,7 @@ public class VisionSubsystem extends SubsystemBase {
                 || Double.isInfinite(drivetrain.getEstimatedPosition().getY());
     }
 
-    private void updateVisionMeasurement(String limelightName, PoseEstimate estimate) {
+    private void updateVisionMeasurement(PoseEstimate estimate) {
         // completely reset the pose estimator if it's not having a good time
         if (drivetrainIsNaNOrInf()) {
             System.out.println("resetting drivetrain pose estimator due to nan or inf");

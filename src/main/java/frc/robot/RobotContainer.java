@@ -60,7 +60,7 @@ public class RobotContainer {
         }
     }
 
-    public static final VisionSubsystem vision = new VisionSubsystem(drivetrain);
+    public static final VisionSubsystem vision = new VisionSubsystem(drivetrain, "limelight-left");
 
     public RobotContainer() {
         Map<String, Command> commandsForAuto = new HashMap<>();
