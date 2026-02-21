@@ -1,5 +1,5 @@
 package frc.robot.constants;
 
-public class VisionConstants {
+public class LimelightConstants {
     public static final String LIMELIGHTS[] = { "limelight-left" };
 }

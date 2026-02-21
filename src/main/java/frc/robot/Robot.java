@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.constants.Constants;
-import frc.robot.constants.VisionConstants;
+import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.util.NTable;
 
 /**
@@ -36,8 +36,8 @@ public class Robot extends TimedRobot {
     @Override
     public void robotPeriodic() {
         if (!Constants.BREADBOARD_MODE) {
-            for (String limelight : VisionConstants.LIMELIGHTS) {
-                RobotContainer.vision.handleVisionMeasurement(limelight);
+            for (LimelightSubsystem limelight : RobotContainer.limelights) {
+                limelight.handleVisionMeasurement();
             }
         }
 

@@ -31,14 +31,14 @@ import frc.robot.Telemetry;
 import frc.robot.constants.FieldConstants;
 import frc.robot.util.NTable;
 
-public class VisionSubsystem extends SubsystemBase {
+public class LimelightSubsystem extends SubsystemBase {
     private static final NTable generic = NTable.root("vision");
 
     private final DrivetrainSubsystem drivetrain;
     private final String limelightName;
     private final NTable table;
 
-    public VisionSubsystem(DrivetrainSubsystem drivetrain, String limelightName) {
+    public LimelightSubsystem(DrivetrainSubsystem drivetrain, String limelightName) {
         this.limelightName = limelightName;
         this.drivetrain = drivetrain;
         this.table = NTable.root("vision").sub(limelightName);

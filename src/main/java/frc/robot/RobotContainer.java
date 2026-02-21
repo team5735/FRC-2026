@@ -31,7 +31,7 @@ import frc.robot.constants.FieldConstants;
 import frc.robot.constants.drivetrain.CompbotTunerConstants;
 import frc.robot.constants.drivetrain.DevbotTunerConstants;
 import frc.robot.subsystems.DrivetrainSubsystem;
-import frc.robot.subsystems.VisionSubsystem;
+import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.util.geometry.Arc;
 
 public class RobotContainer {
@@ -60,7 +60,7 @@ public class RobotContainer {
         }
     }
 
-    public static final VisionSubsystem vision = new VisionSubsystem(drivetrain, "limelight-left");
+    public static final LimelightSubsystem limelights[] = { new LimelightSubsystem(drivetrain, "limelight-left") };
 
     public RobotContainer() {
         Map<String, Command> commandsForAuto = new HashMap<>();
