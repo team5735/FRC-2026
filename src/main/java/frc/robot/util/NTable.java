@@ -755,6 +755,7 @@ public class NTable {
     public <T> boolean ensure(String name, T value) {
         if (!exists(name)) {
             set(name, value);
+            makePersistent(name);
             return true;
         }
         return false;
