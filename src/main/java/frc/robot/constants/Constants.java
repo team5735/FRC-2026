@@ -25,6 +25,8 @@ public class Constants {
     public static final int SUBSYSTEM_CONTROLLER_PORT = 1;
     public static final int TEST_CONTROLLER_PORT = 2;
 
+    public static final int TURRET_MOTOR_ID = 17;
+
     public static final double DEADBAND = 0.1;
 
     public static final Rotation2d BLUE_ALLIANCE_PERSPECTIVE_ROTATION = Rotation2d.kZero;

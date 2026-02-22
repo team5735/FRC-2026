@@ -9,12 +9,12 @@ import static edu.wpi.first.units.Units.RPM;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathfindingCommand;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -22,10 +22,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.constants.Constants;
+import frc.robot.constants.FieldConstants;
 import frc.robot.constants.drivetrain.CompbotTunerConstants;
 import frc.robot.constants.drivetrain.DevbotTunerConstants;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.FuelLauncherSubsystem;
+import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 
 public class RobotContainer {
@@ -41,6 +43,7 @@ public class RobotContainer {
 
     public static final DrivetrainSubsystem drivetrain;
     public static final FuelLauncherSubsystem launcher = new FuelLauncherSubsystem();
+    public static final TurretSubsystem turret = new TurretSubsystem();
 
     static {
         switch (Constants.DRIVETRAIN_TYPE) {
@@ -81,14 +84,15 @@ public class RobotContainer {
                 () -> driveController.getRightTriggerAxis(),
                 () -> driveController.getHID().getBButton()));
 
+        turret.setDefaultCommand(turret.holdRobotRel(Rotations.of(0.5)));
+
         driveController.a().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+        driveController.x().onTrue(turret.holdFieldRelative(Rotations.of(0),
+                () -> drivetrain.getEstimatedPosition().getRotation().getMeasure()));
+        driveController.y()
+                .onTrue(turret.trackFieldPos(FieldConstants.BLUE_HUB_CENTER, drivetrain::getEstimatedPosition));
 
         launcher.setDefaultCommand(launcher.getLaunchFuel(RPM.of(0), RPM.of(0)));
-
-        // subtract experimental error to actually reach setpoint
-        testController.x().whileTrue(launcher.getLaunchFuel(RPM.of(6000), RPM.of(48)));
-        testController.a().whileTrue(launcher.getLaunchFuel(RPM.of(3000), RPM.of(24)));
-        testController.b().whileTrue(launcher.getLaunchFuel(RPM.of(1500), RPM.of(12)));
 
         testController.rightBumper().whileTrue(drivetrain.applyRequest(
                 () -> {
@@ -96,6 +100,23 @@ public class RobotContainer {
                     double y = testController.getRightY();
                     return new SwerveRequest.PointWheelsAt().withModuleDirection(new Rotation2d(x, y));
                 }));
+
+        testController.a().whileTrue(launcher.getLaunchFuel(RPM.of(3000), RPM.of(24)));
+        testController.b().whileTrue(launcher.getLaunchFuel(RPM.of(1500), RPM.of(12)));
+        testController.x().whileTrue(launcher.getLaunchFuel(RPM.of(6000), RPM.of(48)));
+
+        testController.y().whileTrue(turret.trackRobotRel(() -> {
+            double x = -testController.getRightY();
+            double y = -testController.getRightX();
+            Angle theta = new Rotation2d(x, y).getMeasure();
+            SmartDashboard.putNumber("testTheta", theta.in(Rotations));
+            return theta;
+        }));
+
+        testController.povUp().onTrue(turret.runOnce(() -> turret.remakePID()));
+        testController.povDown().whileTrue(turret.sysId());
+        testController.rightBumper().whileTrue(turret.testForward());
+        testController.leftBumper().whileTrue(turret.testReverse());
     }
 
     public Command getAutonomousCommand() {
