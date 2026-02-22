@@ -3,7 +3,6 @@ package frc.robot;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.Rotations;
 
 import java.util.Arrays;
 
@@ -13,6 +12,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -136,14 +136,12 @@ public class Telemetry {
                 .toArray(NTable[]::new);
         for (int i = 0; i < modules.length; i++) {
             var module = modules[i];
-            NTable table = tables[i];
-            table.set("steer position", (module.getCurrentState().angle.getRotations() + 1) % 1);
-            table.set("steer setpoint", (module.getTargetState().angle.getRotations() + 1) % 1);
-            table.set("drive velocity", state.ModuleStates[i].speedMetersPerSecond);
+            NTable table = tables[i]; 
+            table.set("steer position", Units.radiansToRotations(MathUtil.angleModulus(module.getCurrentState().angle.getMeasure().in(Radians))));
+            table.set("steer setpoint", Units.radiansToRotations(MathUtil.angleModulus(module.getTargetState().angle.getMeasure().in(Radians))));
+            table.set("drive velocity", Math.abs(state.ModuleStates[i].speedMetersPerSecond));
             table.set("drive voltage", module.getDriveMotor().getMotorVoltage().getValueAsDouble());
-            table.set("steer velocity", module.getSteerMotor().getVelocity().getValueAsDouble());
             table.set("steer voltage", module.getSteerMotor().getMotorVoltage().getValueAsDouble());
-            table.set("drive motor rotations", module.getDriveMotor().getRotorPosition().getValue().in(Rotations));
 
             moduleSpeeds[i].setAngle(state.ModuleStates[i].angle);
             moduleDirections[i].setAngle(state.ModuleStates[i].angle);
@@ -152,12 +150,5 @@ public class Telemetry {
 
             table.set("mechanism", moduleMechanisms[i]);
         }
-
-        table.set("translation_position", state.Pose.getY());
-        table.set("rotation_position", MathUtil.inputModulus(
-                RobotContainer.drivetrain.getPigeon2().getYaw().getValue().in(Radians),
-                -Math.PI, Math.PI));
-        table.set("rotation_velocity", RobotContainer.drivetrain.getPigeon2().getAngularVelocityZWorld().getValue()
-                .in(RadiansPerSecond));
     }
 }
