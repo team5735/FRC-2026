@@ -103,6 +103,14 @@ public class TunablePIDController {
     }
 
     /**
+     * Re-fetches the PID constants from the table created during construction and
+     * applies them to the PID controller.
+     */
+    public void refetch() {
+        controller.setPID(table.getDouble("kP"), table.getDouble("kI"), table.getDouble("kD"));
+    }
+
+    /**
      * Returns the next output of the PID controller.
      * 
      * <p>
