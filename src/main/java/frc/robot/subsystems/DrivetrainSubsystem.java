@@ -5,7 +5,6 @@ import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Second;
-import static edu.wpi.first.units.Units.Volt;
 import static edu.wpi.first.units.Units.Volts;
 
 import java.util.function.Consumer;
@@ -123,7 +122,6 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
      * SysId routine for characterizing translation. This is used to find PID gains
      * for the drive motors.
      */
-    @SuppressWarnings("unused")
     private final SysIdRoutine sysIdRoutineTranslation = new SysIdRoutine(
             new SysIdRoutine.Config(
                     Volts.of(0.5).per(Second), 

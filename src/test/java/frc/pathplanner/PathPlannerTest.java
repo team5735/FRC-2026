@@ -44,24 +44,25 @@ public class PathPlannerTest {
         System.out.printf("here!\n");
         PIDController controller;
 
-        controller = new PIDController(1,0,0);
+        controller = new PIDController(1, 0, 0);
         controller.enableContinuousInput(0, 10);
 
         controller.setSetpoint(0);
         controller.setTolerance(0);
 
         System.out.printf("setpoint: 0\n");
-        for (int x=-10; x<20; x++){
+        for (int x = -10; x < 20; x++) {
             double e = controller.calculate(x);
             System.out.printf("  measurement: %d, error: %f\n", x, e);
         }
 
         controller.setSetpoint(15);
         System.out.printf("setpoint: 15 (5)\n");
-        for (int x=-10; x<20; x++){
+        for (int x = -10; x < 20; x++) {
             double e = controller.calculate(x);
             System.out.printf("  measurement: %d, error: %f\n", x, e);
         }
 
-    }    
+        controller.close();
+    }
 }
