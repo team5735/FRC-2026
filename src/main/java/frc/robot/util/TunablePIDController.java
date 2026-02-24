@@ -111,6 +111,20 @@ public class TunablePIDController {
     }
 
     /**
+     * Sets the PID constants.
+     *
+     * @param p kP
+     * @param i kI
+     * @param d kD
+     */
+    public void setPID(double p, double i, double d) {
+        controller.setPID(p, i, d);
+        table.set("kP", p);
+        table.set("kI", i);
+        table.set("kD", d);
+    }
+
+    /**
      * Returns the next output of the PID controller.
      * 
      * <p>
