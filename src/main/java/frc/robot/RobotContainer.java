@@ -10,6 +10,7 @@ import static edu.wpi.first.units.Units.Rotations;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -73,6 +74,8 @@ public class RobotContainer {
 
         SmartDashboard.putData("Choose an Auto", autoChooser);
         CommandScheduler.getInstance().schedule(PathfindingCommand.warmupCommand());
+
+        SignalLogger.enableAutoLogging(false);
 
         DriverStation.silenceJoystickConnectionWarning(true);
         configureBindings();
