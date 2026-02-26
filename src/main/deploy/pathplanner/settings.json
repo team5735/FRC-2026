@@ -9,15 +9,19 @@
     "Intake ",
     "Left Bump",
     "Left Trench",
-    "Test Sweep",
     "Right Bump",
     "Right Trench",
-    "Sweep"
+    "Sweep",
+    "Test Sweep",
+    "Test auto for limelight"
   ],
   "autoFolders": [
+    "-Ball - Intake - Climber",
+    "-Intake - Ball - Climber",
     "Bottom Sweep",
-    "Intake",
     "Fun",
+    "Intake",
+    "Test Auto For limelight",
     "Test",
     "Top Sweep",
     "ball"

@@ -4,28 +4,28 @@
     {
       "anchor": {
         "x": 3.5,
-        "y": 2.0
+        "y": 4.0
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.291450950985863,
-        "y": 1.4507272484188989
+        "x": 4.5,
+        "y": 4.0
       },
       "isLocked": false,
-      "linkedName": "Right Bump"
+      "linkedName": "Hub"
     },
     {
       "anchor": {
-        "x": 0.6131749906994046,
-        "y": 0.6932829357328876
+        "x": 1.844799968,
+        "y": 4.0
       },
       "prevControl": {
-        "x": 1.6117494419642853,
-        "y": 1.370333542596727
+        "x": 2.3439938098433775,
+        "y": 4.000240652901786
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Ball"
+      "linkedName": "12 inches to climber"
     }
   ],
   "rotationTargets": [],
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 0.0
   },
   "reversed": false,
-  "folder": "Ball",
+  "folder": "Test auto for limelight",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": -0.2941049721494235
   },
   "useDefaultConstraints": true
 }

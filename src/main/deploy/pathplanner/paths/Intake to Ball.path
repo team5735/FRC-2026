@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.5,
-        "y": 2.0
+        "x": 1.139837878999256,
+        "y": 5.957617768787202
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.291450950985863,
-        "y": 1.4507272484188989
+        "x": 2.139837878999256,
+        "y": 5.957617768787202
       },
       "isLocked": false,
-      "linkedName": "Right Bump"
+      "linkedName": "Ball Intake"
     },
     {
       "anchor": {
@@ -20,8 +20,8 @@
         "y": 0.6932829357328876
       },
       "prevControl": {
-        "x": 1.6117494419642853,
-        "y": 1.370333542596727
+        "x": 2.603951532273064,
+        "y": 1.720252627418156
       },
       "nextControl": null,
       "isLocked": false,
@@ -45,10 +45,10 @@
     "rotation": 180.0
   },
   "reversed": false,
-  "folder": "Ball",
+  "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }
