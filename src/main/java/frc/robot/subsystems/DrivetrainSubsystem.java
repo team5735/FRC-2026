@@ -128,8 +128,8 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
      */
     private final SysIdRoutine sysIdRoutineTranslation = new SysIdRoutine(
             new SysIdRoutine.Config(
-                    null, // Use default ramp rate (1 V/s)
-                    Volts.of(4), // Reduce dynamic step voltage to 4 V to prevent brownout
+                    Volts.of(0.5).per(Second), 
+                    Volts.of(2.5), 
                     null, // Use default timeout (10 s)
                     // Log state by default
                     null),

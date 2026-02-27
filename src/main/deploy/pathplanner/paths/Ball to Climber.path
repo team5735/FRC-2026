@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.5831994047619047,
-        "y": 0.6578526088169645
+        "x": 0.6131749906994046,
+        "y": 0.6932829357328876
       },
       "prevControl": null,
       "nextControl": {
-        "x": 0.8223413667224702,
-        "y": 1.4147871326264885
+        "x": 0.8523169526599701,
+        "y": 1.4502174595424115
       },
       "isLocked": false,
       "linkedName": "Ball"
@@ -33,8 +33,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 2.0,
-    "maxAcceleration": 3.5,
+    "maxVelocity": 0.5,
+    "maxAcceleration": 1.0,
     "maxAngularVelocity": 180.0,
     "maxAngularAcceleration": 180.0,
     "nominalVoltage": 12.0,

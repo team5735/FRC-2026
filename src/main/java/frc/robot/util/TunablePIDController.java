@@ -102,7 +102,37 @@ public class TunablePIDController {
         controller.reset();
     }
 
-    /** {@return the next output of the PID controller} */
+    /**
+     * Re-fetches the PID constants from the table created during construction and
+     * applies them to the PID controller.
+     */
+    public void refetch() {
+        controller.setPID(table.getDouble("kP"), table.getDouble("kI"), table.getDouble("kD"));
+    }
+
+    /**
+     * Sets the PID constants.
+     *
+     * @param p kP
+     * @param i kI
+     * @param d kD
+     */
+    public void setPID(double p, double i, double d) {
+        controller.setPID(p, i, d);
+        table.set("kP", p);
+        table.set("kI", i);
+        table.set("kD", d);
+    }
+
+    /**
+     * Returns the next output of the PID controller.
+     * 
+     * <p>
+     * Also telemeterizes the given and PID controller output.
+     * 
+     * @param measurement
+     * @return The controller output, or zero if atSetpoint.
+     */
     public double calculate(double measurement) {
         double value = controller.calculate(measurement);
         table.set("measurement", measurement);

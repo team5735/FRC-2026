@@ -1,6 +1,9 @@
 package frc.robot.constants;
 
 import static edu.wpi.first.units.Units.Meters;
+
+import frc.robot.util.geometry.Rectangle;
+
 import static edu.wpi.first.units.Units.Inches;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -39,6 +42,11 @@ public class FieldConstants {
     public static Pose2d redElement(Pose2d blueElement) {
         return new Pose2d(redElement(blueElement.getTranslation()),
                 blueElement.getRotation().plus(Rotation2d.fromDegrees(180)));
+    }
+
+    public static Rectangle redElement(Rectangle blueElement) {
+        return new Rectangle(redElement(blueElement.getCenter()),
+                blueElement.getDimensions());
     }
 
     /**
@@ -84,9 +92,19 @@ public class FieldConstants {
     public static final Translation2d BLUE_TRENCH_LEFT_CENTER = new Translation2d(inch(181.56),
             inch(FIELD_LENGTH_Y.in(Inches) - 24.97));
     public static final Translation3d TRENCH_DIMENSION = new Translation3d(
-            inch(0), // TODO: incorrect
+            inch(44.4), // TODO: incorrect, setting to RAMP X length, because the trench is just a bar
             inch(2 * 24.97), // how wide it is to fit a bot through
             inch(22.25)); // height to the ceiling of the tunnel
+
+    ///////////////////////////////////////
+    // TRENCH / HOOD DOWN EXLUSION ZONES //
+    ///////////////////////////////////////
+    // The trench centers (above) are the centers of our rectangle exclusion zone
+    // we simply define the extent of the rectangle as being some
+    // percent bigger than the trench itself
+    public static final Rectangle HOOD_DOWN_EXCLUSION_BLUE_TRENCH_RIGHT = new Rectangle(
+            BLUE_TRENCH_RIGHT_CENTER,
+            new Translation2d(1.20 * TRENCH_DIMENSION.getX(), 1.15 * TRENCH_DIMENSION.getY()));
 
     ////////////////////
     // RAMP CONSTANTS //
