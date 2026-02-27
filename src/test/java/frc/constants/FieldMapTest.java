@@ -2,6 +2,7 @@ package frc.constants;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
@@ -14,7 +15,6 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import frc.robot.constants.FieldConstants;
-import frc.robot.util.geometry.Functional;
 import frc.robot.util.geometry.Rectangle;
 
 public class FieldMapTest {
@@ -47,6 +47,7 @@ public class FieldMapTest {
     private static Pose2d red(Pose2d in) {
         return FieldConstants.redElement(in);
     }
+
     private static Rectangle red(Rectangle in) {
         return FieldConstants.redElement(in);
     }
@@ -71,8 +72,10 @@ public class FieldMapTest {
         System.out.println("Red trench left: " + red(FieldConstants.BLUE_TRENCH_LEFT_CENTER));
         System.out.println();
 
-        System.out.printf("Blue trench left exclusion zone: %s\n", FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_RIGHT.toString());
-        System.out.printf("Red trench left exclusion zone: %s\n", red(FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_RIGHT).toString());
+        System.out.printf("Blue trench left exclusion zone: %s\n",
+                FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_RIGHT.toString());
+        System.out.printf("Red trench left exclusion zone: %s\n",
+                red(FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_RIGHT).toString());
         System.out.println();
 
         System.out.println("Blue ramp right: " + FieldConstants.BLUE_RAMP_RIGHT_CENTER);
@@ -108,21 +111,14 @@ public class FieldMapTest {
     @Test
     void withinRectangleTest() throws Exception {
         Rectangle r = new Rectangle(new Translation2d(0, 0), new Translation2d(10, 20));
-        Translation2d p = new Translation2d(0,0);
+        Translation2d p = new Translation2d(0, 0);
 
-        System.out.printf("Rectangle: (%f %f)x(%f %f)\n",
-           r.getUpperRight().getX(),
-           r.getUpperRight().getY(),
-           r.getLowerLeft().getX(),
-           r.getLowerLeft().getY()
-        );
+        System.out.printf("Rectangle: (%s)x(%s)\n", r.getUpperRight(), r.getPos());
 
-        for (int dy=-10; dy<=10; dy+=5){
-            for (int dx=-10; dx<=10; dx+=5){
-                var pp = p.plus(new Translation2d(dx,dy));
-                boolean in = r.within(pp);
-                System.out.printf("(%f %f): in? %s\n", pp.getX(),pp.getY(),in);
-
+        for (int dy = 0; dy <= 10; dy++) {
+            for (int dx = 0; dx <= 20; dx++) {
+                Translation2d pp = p.plus(new Translation2d(dx, dy));
+                assertTrue(r.contains(pp));
             }
         }
     }

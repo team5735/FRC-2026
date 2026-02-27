@@ -1,9 +1,10 @@
 package frc.robot.constants;
 
 import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.Inches;
 
 import frc.robot.util.geometry.Rectangle;
+
+import static edu.wpi.first.units.Units.Inches;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -44,7 +45,8 @@ public class FieldConstants {
     }
 
     public static Rectangle redElement(Rectangle blueElement) {
-        return new Rectangle(redElement(blueElement.getCenter()), blueElement.getDimension());
+        return new Rectangle(redElement(blueElement.getCenter()),
+                blueElement.getDimensions());
     }
 
     /**
@@ -101,8 +103,8 @@ public class FieldConstants {
     // we simply define the extent of the rectangle as being some
     // percent bigger than the trench itself
     public static final Rectangle HOOD_DOWN_EXCLUSION_BLUE_TRENCH_RIGHT = new Rectangle(
-        BLUE_TRENCH_RIGHT_CENTER,
-        new Translation2d(1.20*TRENCH_DIMENSION.getX(), 1.15*TRENCH_DIMENSION.getY()));
+            BLUE_TRENCH_RIGHT_CENTER,
+            new Translation2d(1.20 * TRENCH_DIMENSION.getX(), 1.15 * TRENCH_DIMENSION.getY()));
 
     ////////////////////
     // RAMP CONSTANTS //
