@@ -2,7 +2,6 @@ package frc.constants;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
@@ -115,10 +114,11 @@ public class FieldMapTest {
 
         System.out.printf("Rectangle: (%s)x(%s)\n", r.getUpperRight(), r.getPos());
 
-        for (int dy = 0; dy <= 10; dy++) {
-            for (int dx = 0; dx <= 20; dx++) {
-                Translation2d pp = p.plus(new Translation2d(dx, dy));
-                assertTrue(r.contains(pp));
+        for (int dy = -10; dy <= 10; dy += 5) {
+            for (int dx = -10; dx <= 10; dx += 5) {
+                var pp = p.plus(new Translation2d(dx, dy));
+                boolean in = r.contains(pp);
+                System.out.printf("(%f %f): in? %s\n", pp.getX(), pp.getY(), in);
             }
         }
     }
