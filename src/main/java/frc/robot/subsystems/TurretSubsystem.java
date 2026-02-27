@@ -31,6 +31,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.units.measure.Angle;
@@ -60,7 +61,7 @@ public class TurretSubsystem extends SubsystemBase {
         kraken.getConfigurator().apply(new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Brake)
                 .withInverted(InvertedValue.Clockwise_Positive));
         kraken.getConfigurator().apply(new FeedbackConfigs().withSensorToMechanismRatio(10));
-        kraken.setPosition(START_POS);
+        resetAngle(START_POS);
         pid.setup(START_POS.in(Rotations));
         pid.reset(START_POS.in(Rotations));
     }
@@ -248,9 +249,7 @@ public class TurretSubsystem extends SubsystemBase {
     public Command trackFieldPos(Translation2d positionToTrack, Supplier<Pose2d> robotPoseSupplier) {
         return trackRobotRel(() -> {
             Pose2d robotPoseInField = robotPoseSupplier.get();
-            Translation2d robotToTurret = RobotConstants.ROBOT_TO_TURRET_CENTER.toTranslation2d();
-            Translation2d mechanismInField = robotToTurret.rotateBy(robotPoseInField.getRotation())
-                    .plus(robotPoseInField.getTranslation());
+            Translation2d mechanismInField = getMechanismPose(robotPoseSupplier).getTranslation();
             Angle fieldAngle = positionToTrack.minus(mechanismInField).getAngle().getMeasure();
             return fieldAngle.minus(robotPoseInField.getRotation().getMeasure());
         });
@@ -272,9 +271,50 @@ public class TurretSubsystem extends SubsystemBase {
         return Rotations.of(MathUtil.clamp(moddedInput, softLowerLimit, softUpperLimit));
     }
 
+    /**
+     * Testing method that resets the Turret's {@link TunableProfiledPIDController}
+     * to the constants set in NT
+     */
     public void remakePID() {
-        State currentState = new State(kraken.getPosition().getValue().in(Rotations), 0);
+        State currentState = new State(getAngle().in(Rotations), 0);
         pid.setup(currentState, 0);
         pid.reset(currentState);
+    }
+
+    /**
+     * @return the {@link Rotation2d} representing the robot-relative angle of the
+     *         turret
+     */
+    public Rotation2d getRotation() {
+        return Rotation2d.fromRotations(getAngle().in(Rotations));
+    }
+
+    /**
+     * @return the robot-relative {@link Angle} of the turret
+     */
+    public Angle getAngle() {
+        return kraken.getPosition().getValue();
+    }
+
+    /**
+     * Sets the known angle of the turret subsystem to a new value
+     * 
+     * @param newPos the new robot-relative {@link Angle}
+     */
+    private void resetAngle(Angle newPos) {
+        kraken.setPosition(clampInput(newPos));
+    }
+
+    /**
+     * @param robotPoseSupplier an {@link Supplier} of the field-relative
+     *                          {@link Pose2d} of the robot
+     * @return the field-relative {@link Pose2d} of the turret's center, offset from
+     *         the robot's position, with its rotational heading being the angle of
+     *         the turret
+     */
+    public Pose2d getMechanismPose(Supplier<Pose2d> robotPoseSupplier) {
+        Pose2d robotPoseInField = robotPoseSupplier.get();
+        return new Pose2d(RobotConstants.ROBOT_TO_TURRET_CENTER.rotateBy(robotPoseInField.getRotation())
+                .plus(robotPoseInField.getTranslation()), getRotation().plus(robotPoseInField.getRotation()));
     }
 }
