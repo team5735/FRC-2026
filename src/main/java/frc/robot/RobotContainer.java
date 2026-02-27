@@ -40,7 +40,6 @@ import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.util.geometry.Arc;
 import frc.robot.subsystems.FuelLauncherSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
-import frc.robot.subsystems.VisionSubsystem;
 
 public class RobotContainer {
     public static final CommandXboxController driveController = new CommandXboxController(
@@ -111,10 +110,10 @@ public class RobotContainer {
         driveController.x().whileTrue(
                 new DriveOnArc(drivetrain, targetArc, () -> MathUtil.applyDeadband(driveController.getLeftX(), 0.1)));
         driveController.y()
-            .onTrue(new PIDToPose(drivetrain,
+                .onTrue(new PIDToPose(drivetrain,
                         () -> targetArc.getPoseFacingCenter(
-                                                            targetArc.nearestPointOnArc(
-                                                                drivetrain.getEstimatedPosition().getTranslation())),
+                                targetArc.nearestPointOnArc(
+                                        drivetrain.getEstimatedPosition().getTranslation())),
                         "drive to arc"));
 
         turret.setDefaultCommand(turret.holdRobotRel(Rotations.of(0.5)));
