@@ -30,12 +30,15 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.commands.drivetrain.PIDToPose;
 import frc.robot.constants.Constants;
+import frc.robot.constants.FieldConstants;
 import frc.robot.constants.drivetrain.CompbotTunerConstants;
 import frc.robot.constants.drivetrain.DevbotTunerConstants;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.FuelLauncherSubsystem;
+import frc.robot.subsystems.HoodSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
+import frc.robot.util.geometry.Rectangle;
 
 public class RobotContainer {
     public static final CommandXboxController driveController = new CommandXboxController(
@@ -65,6 +68,14 @@ public class RobotContainer {
     public static final FuelLauncherSubsystem launcher = new FuelLauncherSubsystem();
     public static final TurretSubsystem turret = new TurretSubsystem(drivetrain::getEstimatedPosition);
     public static final VisionSubsystem vision = new VisionSubsystem(drivetrain);
+    
+
+    
+    public static final HoodSubsystem hood = new HoodSubsystem(turret::getMechanismPose, 
+    new Rectangle[]{FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_LEFT,
+         FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_RIGHT,
+         FieldConstants.redElement(FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_LEFT),
+         FieldConstants.redElement(FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_RIGHT)});
 
     public RobotContainer() {
         configureBindings();

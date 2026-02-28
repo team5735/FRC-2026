@@ -102,6 +102,10 @@ public class FieldConstants {
     // The trench centers (above) are the centers of our rectangle exclusion zone
     // we simply define the extent of the rectangle as being some
     // percent bigger than the trench itself
+    public static final Rectangle HOOD_DOWN_EXCLUSION_BLUE_TRENCH_LEFT = new Rectangle(
+            BLUE_TRENCH_LEFT_CENTER,
+            new Translation2d(1.20 * TRENCH_DIMENSION.getX(), 1.15 * TRENCH_DIMENSION.getY()));
+
     public static final Rectangle HOOD_DOWN_EXCLUSION_BLUE_TRENCH_RIGHT = new Rectangle(
             BLUE_TRENCH_RIGHT_CENTER,
             new Translation2d(1.20 * TRENCH_DIMENSION.getX(), 1.15 * TRENCH_DIMENSION.getY()));
