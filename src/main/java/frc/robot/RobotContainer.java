@@ -18,6 +18,8 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathfindingCommand;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -26,8 +28,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import frc.robot.commands.drivetrain.PIDToPose;
 import frc.robot.constants.Constants;
-import frc.robot.constants.FieldConstants;
 import frc.robot.constants.drivetrain.CompbotTunerConstants;
 import frc.robot.constants.drivetrain.DevbotTunerConstants;
 import frc.robot.subsystems.DrivetrainSubsystem;
@@ -81,6 +83,15 @@ public class RobotContainer {
         configureBindings();
     }
 
+    private Rotation2d getRightStickAsRotation() {
+        double x = driveController.getRightX();
+        double y = driveController.getRightY();
+        if (x == 0 && y == 0) {
+            return Rotation2d.kZero;
+        }
+        return new Rotation2d(x, y);
+    }
+
     private void configureBindings() {
         drivetrain.registerTelemetry(logger::telemeterize);
 
@@ -97,7 +108,12 @@ public class RobotContainer {
         driveController.x().onTrue(turret.holdFieldRelative(Rotations.of(0),
                 () -> drivetrain.getEstimatedPosition().getRotation().getMeasure()));
         driveController.y()
-                .onTrue(turret.trackFieldPos(FieldConstants.BLUE_HUB_CENTER, drivetrain::getEstimatedPosition));
+                .onTrue(new PIDToPose(drivetrain,
+                        () -> drivetrain.getEstimatedPosition()
+                                .plus(new Transform2d(
+                                        new Translation2d(1, new Rotation2d(getRightStickAsRotation())),
+                                        Rotation2d.kZero)),
+                        "straight line"));
 
         launcher.setDefaultCommand(launcher.getLaunchFuel(RPM.of(0), RPM.of(0)));
 
