@@ -76,7 +76,7 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
             .withDriveRequestType(DriveRequestType.Velocity)
             .withCenterOfRotation(CONSTANTS.getPigeonToCenterOfRotation());
     public final SwerveRequest.SwerveDriveBrake brakeRequest = new SwerveRequest.SwerveDriveBrake();
-    public final SwerveRequest.RobotCentric robotCentricRequest = new SwerveRequest.RobotCentric()
+    public final SwerveRequest.ApplyRobotSpeeds autoRequest = new SwerveRequest.ApplyRobotSpeeds()
             .withDriveRequestType(DriveRequestType.Velocity);
 
     @SuppressWarnings("unused")
@@ -431,10 +431,7 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
     public void autoDriveRobotRelative(ChassisSpeeds robotChassisSpeeds) {
         var discrete = ChassisSpeeds.discretize(robotChassisSpeeds, 0.02);
 
-        setControl(robotCentricRequest
-                .withVelocityX(discrete.vxMetersPerSecond)
-                .withVelocityY(discrete.vyMetersPerSecond)
-                .withRotationalRate(discrete.omegaRadiansPerSecond));
+        setControl(autoRequest.withSpeeds(discrete));
     }
 
     private void setUpAuto() {

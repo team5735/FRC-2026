@@ -49,9 +49,6 @@ public class RobotContainer {
     private final Telemetry logger = new Telemetry();
 
     public static final DrivetrainSubsystem drivetrain;
-    public static final FuelLauncherSubsystem launcher = new FuelLauncherSubsystem();
-    public static final TurretSubsystem turret = new TurretSubsystem();
-
     static {
         switch (Constants.DRIVETRAIN_TYPE) {
             case COMPBOT:
