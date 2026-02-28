@@ -7,6 +7,7 @@ import java.util.function.Supplier;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.Constants;
 import frc.robot.util.geometry.Rectangle;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -16,6 +17,7 @@ public class HoodSubsystem extends SubsystemBase {
     private final AnalogInput feedback = new AnalogInput(0);
     private Supplier<Pose2d> turretPoseSupplier;
     private Rectangle[] exclusionZones;
+    public final Trigger exclusionZoneTrigger = new Trigger(this::isInExclusionZone);
 
     // Runs one time when the robot starts
     public HoodSubsystem(Supplier<Pose2d> turretPoseSupplier, Rectangle[] exclusionZones) {
