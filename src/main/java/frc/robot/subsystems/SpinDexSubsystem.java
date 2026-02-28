@@ -8,8 +8,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.Constants;
 
 public class SpinDexSubsystem extends SubsystemBase {
-    public final SparkFlex outerMotor = new SparkFlex(Constants.motor6, MotorType.kBrushless);
-    public final SparkFlex innerMotor = new SparkFlex(Constants.motor27, MotorType.kBrushless);
+    public final SparkFlex outerMotor = new SparkFlex(Constants.SPINDEX_OUTER_VORTEX_ID, MotorType.kBrushless);
+    public final SparkFlex innerMotor = new SparkFlex(Constants.SPINDEX_INNER_VORTEX_ID, MotorType.kBrushless);
 
     public SpinDexSubsystem() {
         outerMotor.clearFaults();
