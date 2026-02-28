@@ -118,7 +118,7 @@ public class FieldMapTest {
             for (int dx = -10; dx <= 10; dx += 5) {
                 var pp = p.plus(new Translation2d(dx, dy));
                 boolean in = r.contains(pp);
-                System.out.printf("(%f %f): in? %s\n", pp.getX(), pp.getY(), in);
+                System.out.printf("(%.1f %.1f): in? %s\n", pp.getX(), pp.getY(), in);
             }
         }
     }
