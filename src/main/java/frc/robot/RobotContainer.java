@@ -111,7 +111,7 @@ public class RobotContainer {
                 .onTrue(new PIDToPose(drivetrain,
                         () -> drivetrain.getEstimatedPosition()
                                 .plus(new Transform2d(
-                                        new Translation2d(1, new Rotation2d(getRightStickAsRotation())),
+                                        new Translation2d(1, getRightStickAsRotation()),
                                         Rotation2d.kZero)),
                         "straight line"));
 
