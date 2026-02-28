@@ -65,6 +65,8 @@ public class RobotContainer {
         }
     }
 
+    public static final FuelLauncherSubsystem launcher = new FuelLauncherSubsystem();
+    public static final TurretSubsystem turret = new TurretSubsystem(drivetrain::getEstimatedPosition);
     public static final VisionSubsystem vision = new VisionSubsystem(drivetrain);
 
     public RobotContainer() {
@@ -105,8 +107,7 @@ public class RobotContainer {
         turret.setDefaultCommand(turret.holdRobotRel(Rotations.of(0.5)));
 
         driveController.a().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
-        driveController.x().onTrue(turret.holdFieldRelative(Rotations.of(0),
-                () -> drivetrain.getEstimatedPosition().getRotation().getMeasure()));
+        driveController.x().onTrue(turret.holdFieldRelative(Rotations.of(0)));
         driveController.y()
                 .onTrue(new PIDToPose(drivetrain,
                         () -> drivetrain.getEstimatedPosition()

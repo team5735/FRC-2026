@@ -55,15 +55,18 @@ public class TurretSubsystem extends SubsystemBase {
             MAX_VEL.in(RotationsPerSecond), MAX_ACC.in(RotationsPerSecondPerSecond));
     private final SimpleMotorFeedforward ff = new SimpleMotorFeedforward(KS, KV, KA);
 
+    private Supplier<Pose2d> robotPoseSupplier;
     private double prevVel = 0;
 
-    public TurretSubsystem() {
+    public TurretSubsystem(Supplier<Pose2d> robotPoseSupplier) {
         kraken.getConfigurator().apply(new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Brake)
                 .withInverted(InvertedValue.Clockwise_Positive));
         kraken.getConfigurator().apply(new FeedbackConfigs().withSensorToMechanismRatio(10));
         resetAngle(START_POS);
         pid.setup(START_POS.in(Rotations));
         pid.reset(START_POS.in(Rotations));
+
+        this.robotPoseSupplier = robotPoseSupplier;
     }
 
     @Override
@@ -205,7 +208,7 @@ public class TurretSubsystem extends SubsystemBase {
 
     /**
      * Runs the turret to a specified, moving {@link Angle}, with a goal velocity at
-     * said angle..
+     * said angle.
      * 
      * @param angleSupplier   supplier for a robot-relative {@link Angle}, will be
      *                        clamped to the functional range of this subsystem
@@ -224,32 +227,27 @@ public class TurretSubsystem extends SubsystemBase {
     /**
      * Runs the turret to a specified, static {@link Angle}.
      * 
-     * @param fieldAngle         Field-relative {@link Angle}.
-     * @param robotAngleSupplier Supplier for the field-relative {@link Angle} of
-     *                           the robot.
+     * @param fieldAngle Field-relative {@link Angle}.
      * 
      * @return {@link Command} that repeatedly applies the output of the
      *         {@link ProfiledPIDController} to the motor.
      */
-    public Command holdFieldRelative(Angle fieldAngle, Supplier<Angle> robotAngleSupplier) {
-        return trackRobotRel(() -> clampInput(fieldAngle.minus(robotAngleSupplier.get())));
+    public Command holdFieldRelative(Angle fieldAngle) {
+        return trackRobotRel(() -> clampInput(fieldAngle.minus(robotPoseSupplier.get().getRotation().getMeasure())));
     }
 
     /**
      * Runs the turret to aim at a specified, static {@link Translation2d}.
      * 
-     * @param positionToTrack   Field-relative {@link Translation2d}.
-     * @param robotPoseSupplier Supplier for the field-relative {@link Pose2d} of
-     *                          the robot.
-     * 
+     * @param positionToTrack Field-relative {@link Translation2d}.
      * @return {@link Command} that repeatedly applies the output of the
      *         {@link ProfiledPIDController} to the motor.
      */
 
-    public Command trackFieldPos(Translation2d positionToTrack, Supplier<Pose2d> robotPoseSupplier) {
+    public Command trackFieldPos(Translation2d positionToTrack) {
         return trackRobotRel(() -> {
             Pose2d robotPoseInField = robotPoseSupplier.get();
-            Translation2d mechanismInField = getMechanismPose(robotPoseSupplier).getTranslation();
+            Translation2d mechanismInField = getMechanismPose().getTranslation();
             Angle fieldAngle = positionToTrack.minus(mechanismInField).getAngle().getMeasure();
             return fieldAngle.minus(robotPoseInField.getRotation().getMeasure());
         });
@@ -306,13 +304,11 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     /**
-     * @param robotPoseSupplier an {@link Supplier} of the field-relative
-     *                          {@link Pose2d} of the robot
      * @return the field-relative {@link Pose2d} of the turret's center, offset from
      *         the robot's position, with its rotational heading being the angle of
      *         the turret
      */
-    public Pose2d getMechanismPose(Supplier<Pose2d> robotPoseSupplier) {
+    public Pose2d getMechanismPose() {
         Pose2d robotPoseInField = robotPoseSupplier.get();
         return new Pose2d(RobotConstants.ROBOT_TO_TURRET_CENTER.rotateBy(robotPoseInField.getRotation())
                 .plus(robotPoseInField.getTranslation()), getRotation().plus(robotPoseInField.getRotation()));
