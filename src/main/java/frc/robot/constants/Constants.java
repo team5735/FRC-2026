@@ -19,23 +19,35 @@ public class Constants {
 
     // disables drivetrain and autos initialization
     public static boolean BREADBOARD_MODE = false;
-    public static DrivetrainType DRIVETRAIN_TYPE = DrivetrainType.DEVBOT;
+    public static DrivetrainType DRIVETRAIN_TYPE = DrivetrainType.COMPBOT;
 
     public static final int DRIVE_CONTROLLER_PORT = 0;
     public static final int TURRET_CONTROLLER_PORT = 1;
     public static final int TEST_CONTROLLER_PORT = 2;
+
+    public static final int TURRET_MOTOR_ID = 17;
+    public static final double START_REVOLUTION_POSITION = 0.4;
+    public static final double END_REVOLUTION_POSITION = 0.6;
+    public static final int TURRET_LIMIT_PIN = 67; //placeholder value
 
     public static final double DEADBAND = 0.1;
 
     public static final Rotation2d BLUE_ALLIANCE_PERSPECTIVE_ROTATION = Rotation2d.kZero;
     public static final Rotation2d RED_ALLIANCE_PERSPECTIVE_ROTATION = Rotation2d.k180deg;
 
-    public static final int SPINDEX_OUTER_VORTEX_ID = 15;
-    public static final int SPINDEX_INNER_VORTEX_ID = 27;
+    public static final int SPINDEX_FEED_VORTEX_ID = 30;
+    public static final int SPINDEX_WHEEL_VORTEX_ID = 31;
 
-    public static final int LAUNCHER_LEFT_KRAKEN_ID = 1;
-    public static final int LAUNCHER_RIGHT_KRAKEN_ID = 2;
+    public static final int LAUNCHER_LEFT_KRAKEN_ID = 21;
+    public static final int LAUNCHER_RIGHT_KRAKEN_ID = 20;
     
-    public static final int TURRET_MOTOR_ID = 17;
-    public static final int TURRET_LIMIT_PIN = 67; //placeholder value
+<<<<<<< HEAD
+    public static final int TURRET_MOTOR_ID = 22;
+    public static final int TURRET_LIMIT_PIN = 2;
+
+    public static final int CLIMB_KRAKEN_ID = 24;
+    public static final int CLIMB_UPPER_LIMIT_PIN = 0;
+    public static final int CLIMB_LOWER_LIMIT_PIN = 1;
+=======
+>>>>>>> feature/hood
 }

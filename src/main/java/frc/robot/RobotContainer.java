@@ -57,6 +57,8 @@ public class RobotContainer {
     public static final LimelightSubsystem limelights[] = { new LimelightSubsystem(drivetrain, "limelight-left") };
 
     public RobotContainer() {
+        configureBindings();
+
         Map<String, Command> commandsForAuto = new HashMap<>();
 
         commandsForAuto.put("pid adjust",
@@ -72,7 +74,6 @@ public class RobotContainer {
         SignalLogger.enableAutoLogging(false);
 
         DriverStation.silenceJoystickConnectionWarning(true);
-        configureBindings();
     }
 
     public static Arc targetArc = new Arc(FieldConstants.BLUE_HUB_CENTER,
