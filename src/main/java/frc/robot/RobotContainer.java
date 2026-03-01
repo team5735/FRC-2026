@@ -114,10 +114,10 @@ public class RobotContainer {
         // driveController.a().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
         // driveController.x().onTrue(turret.holdFieldRelative(Rotations.of(0)));
         driveController.x().onTrue(Commands.runOnce(()->{
-            hood.setPosition(59);
+            hood.setPosition(976);
             System.out.println("x command");
         }));
-        driveController.a().onTrue(Commands.runOnce(()->hood.setPosition(450)));
+        driveController.a().onTrue(Commands.runOnce(()->hood.setPosition(588)));
         driveController.y()
                 .onTrue(new PIDToPose(drivetrain,
                         () -> drivetrain.getEstimatedPosition()

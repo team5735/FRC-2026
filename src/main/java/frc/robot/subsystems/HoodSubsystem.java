@@ -30,9 +30,8 @@ public class HoodSubsystem extends SubsystemBase {
         setPosition(Constants.START_REVOLUTION_POSITION); // default safe position at startup
     }
 
-    // Pos is set anywhere from 0 to 1
     public void setPosition(double degrees) {
-        double safePosition = Math.max(59, Math.min(450, degrees));
+        double safePosition = Math.max(588, Math.min(976, degrees));
         double position = safePosition/1800.;
         servo.set(position);
     }
