@@ -50,14 +50,17 @@ public class RobotContainer {
     private final Telemetry logger = new Telemetry();
 
     public static final DrivetrainSubsystem drivetrain = switch (Constants.DRIVETRAIN_TYPE) {
-            case COMPBOT -> CompbotTunerConstants.createDrivetrain();
-            case DEVBOT -> DevbotTunerConstants.createDrivetrain();
-        };
+        case COMPBOT -> CompbotTunerConstants.createDrivetrain();
+        case DEVBOT -> DevbotTunerConstants.createDrivetrain();
+    };
 
     public static final LimelightSubsystem limelights[] = { new LimelightSubsystem(drivetrain, "limelight-left") };
 
     public RobotContainer() {
         Map<String, Command> commandsForAuto = new HashMap<>();
+
+        commandsForAuto.put("pid adjust",
+                new PIDToPose(drivetrain, () -> drivetrain.getEstimatedPosition(), "stay in place !"));
 
         NamedCommands.registerCommands(commandsForAuto);
 
