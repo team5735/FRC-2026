@@ -9,17 +9,18 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.ClimberConstants;
+import frc.robot.constants.Constants;
 
 public class ClimberSubsystem extends SubsystemBase {
-    public final TalonFX talon = new TalonFX(ClimberConstants.TALON_ID);
+    public final TalonFX kraken = new TalonFX(Constants.CLIMB_KRAKEN_ID);
 
-    private final DigitalInput limitUp = new DigitalInput(ClimberConstants.UPPER_LIMIT_PIN);
-    private final DigitalInput limitDown = new DigitalInput(ClimberConstants.LOWER_LIMIT_PIN);
+    private final DigitalInput limitUp = new DigitalInput(Constants.CLIMB_LOWER_LIMIT_PIN);
+    private final DigitalInput limitDown = new DigitalInput(Constants.CLIMB_LOWER_LIMIT_PIN);
     private boolean canMoveUp;
     private boolean canMoveDown;
 
     public ClimberSubsystem() {
-        talon.getConfigurator().apply(new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Brake));
+        kraken.getConfigurator().apply(new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Brake));
     }
 
     public Command getClimbDownCommand() {
@@ -40,22 +41,22 @@ public class ClimberSubsystem extends SubsystemBase {
 
     public void climbUp() {
         if (canMoveUp) {
-            talon.setVoltage(ClimberConstants.UP_VOLTS);
+            kraken.setVoltage(ClimberConstants.UP_VOLTS);
         } else {
-            talon.setVoltage(0);
+            kraken.setVoltage(0);
         }
     }
 
     public void climbDown() {
         if (canMoveDown) {
-            talon.setVoltage(ClimberConstants.DOWN_VOLTS);
+            kraken.setVoltage(ClimberConstants.DOWN_VOLTS);
         } else {
-            talon.setVoltage(0);
+            kraken.setVoltage(0);
         }
     }
 
     public void stop() {
-        talon.setVoltage(0);
+        kraken.setVoltage(0);
     }
 
     public boolean isAtUpLimit() {
@@ -72,25 +73,25 @@ public class ClimberSubsystem extends SubsystemBase {
         canMoveUp = limitUp.get();
         canMoveDown = limitDown.get();
 
-        if (!canMoveDown && talon.getMotorVoltage().getValueAsDouble() < 0) {
-            talon.setVoltage(0);
-        } else if (!canMoveUp && talon.getMotorVoltage().getValueAsDouble() > 0) {
-            talon.setVoltage(0);
+        if (!canMoveDown && kraken.getMotorVoltage().getValueAsDouble() < 0) {
+            kraken.setVoltage(0);
+        } else if (!canMoveUp && kraken.getMotorVoltage().getValueAsDouble() > 0) {
+            kraken.setVoltage(0);
         }
 
         SmartDashboard.putBoolean("limitDown", limitDown.get());
         SmartDashboard.putBoolean("limitUp", limitUp.get());
 
-        double current = talon.getSupplyCurrent().getValueAsDouble();
+        double current = kraken.getSupplyCurrent().getValueAsDouble();
         SmartDashboard.putNumber("Climber/Current", current);
 
-        double velocity = talon.getVelocity().getValueAsDouble();
+        double velocity = kraken.getVelocity().getValueAsDouble();
         SmartDashboard.putNumber("Climber/Velocity", velocity);
 
-        double forwardLimit = talon.getForwardLimit().getValueAsDouble();
+        double forwardLimit = kraken.getForwardLimit().getValueAsDouble();
         SmartDashboard.putNumber("Climber/ForwardLimit", forwardLimit);
 
-        double reverseLimit = talon.getReverseLimit().getValueAsDouble();
+        double reverseLimit = kraken.getReverseLimit().getValueAsDouble();
         SmartDashboard.putNumber("Climber/ReverseLimit", reverseLimit);
     }
 }
