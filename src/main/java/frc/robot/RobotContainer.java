@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.commands.drivetrain.PIDToPose;
@@ -97,6 +98,9 @@ public class RobotContainer {
     private void configureBindings() {
         drivetrain.registerTelemetry(logger::telemeterize);
 
+        hood.exclusionZoneTrigger.onTrue(Commands.runOnce(()->hood.setAndSavePosition(0.0)));
+        hood.exclusionZoneTrigger.onFalse(Commands.runOnce(()->hood.setPosition(hood.getExclusionZonesSavedPosition())));
+
         drivetrain.setDefaultCommand(drivetrain.joystickDriveCommand(
                 () -> driveController.getLeftX(),
                 () -> driveController.getLeftY(),
@@ -107,8 +111,13 @@ public class RobotContainer {
         turret.setDefaultCommand(turret.holdRobotRel(Rotations.of(0.5)));
         turret.limitTrigger.onTrue(turret.zeroCommand()); // resets the turrets position when it engages the Hall-Effect sensor
 
-        driveController.a().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
-        driveController.x().onTrue(turret.holdFieldRelative(Rotations.of(0)));
+        // driveController.a().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+        // driveController.x().onTrue(turret.holdFieldRelative(Rotations.of(0)));
+        driveController.x().onTrue(Commands.runOnce(()->{
+            hood.setPosition(1.0);
+            System.out.println("x command");
+        }));
+        driveController.a().onTrue(Commands.runOnce(()->hood.setPosition(0.0)));
         driveController.y()
                 .onTrue(new PIDToPose(drivetrain,
                         () -> drivetrain.getEstimatedPosition()

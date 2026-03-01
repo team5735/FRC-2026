@@ -18,6 +18,7 @@ public class HoodSubsystem extends SubsystemBase {
     private Supplier<Pose2d> turretPoseSupplier;
     private Rectangle2d[] exclusionZones;
     public final Trigger exclusionZoneTrigger = new Trigger(this::isInExclusionZone);
+    private double exclusionZonesSavedPosition;
 
     // Runs one time when the robot starts
     public HoodSubsystem(Supplier<Pose2d> turretPoseSupplier, Rectangle2d[] exclusionZones) {
@@ -32,6 +33,19 @@ public class HoodSubsystem extends SubsystemBase {
     public void setPosition(double position) {
         double safePosition = Math.max(0.1, Math.min(0.9, position));
         servo.set(safePosition);
+    }
+
+    public double getPosition(){
+        return servo.get();
+    }
+
+    public void setAndSavePosition(double position){
+        exclusionZonesSavedPosition=getPosition();
+        setPosition(position);
+    }
+
+    public double getExclusionZonesSavedPosition(){
+        return exclusionZonesSavedPosition;
     }
 
     // Returns raw voltage from analog feedback wire
