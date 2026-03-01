@@ -39,7 +39,7 @@ public class PIDToPose extends Command {
         this.pidTheta = new TunablePIDController(name + " drive to pose theta");
         this.pidTheta.setContinuous(-Math.PI, Math.PI);
 
-        addRequirements(drivetrain);
+        // addRequirements(drivetrain);
     }
 
     @Override
