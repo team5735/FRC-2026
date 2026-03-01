@@ -18,9 +18,6 @@ import com.pathplanner.lib.commands.PathfindingCommand;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -31,6 +28,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.commands.DriveOnArc;
 import frc.robot.commands.drivetrain.PIDToPose;
 import frc.robot.constants.Constants;
+import frc.robot.constants.FieldConstants;
 import frc.robot.constants.drivetrain.CompbotTunerConstants;
 import frc.robot.constants.drivetrain.DevbotTunerConstants;
 import frc.robot.subsystems.DrivetrainSubsystem;
@@ -51,14 +49,12 @@ public class RobotContainer {
 
     private final Telemetry logger = new Telemetry();
 
-    public static final DrivetrainSubsystem drivetrain;
-
-    public static final LimelightSubsystem limelights[] = { new LimelightSubsystem(drivetrain, "limelight-left") };
-
     public static final DrivetrainSubsystem drivetrain = switch (Constants.DRIVETRAIN_TYPE) {
             case COMPBOT -> CompbotTunerConstants.createDrivetrain();
             case DEVBOT -> DevbotTunerConstants.createDrivetrain();
         };
+
+    public static final LimelightSubsystem limelights[] = { new LimelightSubsystem(drivetrain, "limelight-left") };
 
     public RobotContainer() {
         Map<String, Command> commandsForAuto = new HashMap<>();
@@ -78,15 +74,6 @@ public class RobotContainer {
 
     public static Arc targetArc = new Arc(FieldConstants.BLUE_HUB_CENTER,
             Feet.of(7.5).in(Meters), Rotation2d.fromDegrees(90), Rotation2d.fromDegrees(270));
-
-    private Rotation2d getRightStickAsRotation() {
-        double x = driveController.getRightX();
-        double y = driveController.getRightY();
-        if (x == 0 && y == 0) {
-            return Rotation2d.kZero;
-        }
-        return new Rotation2d(x, y);
-    }
 
     private void configureBindings() {
         drivetrain.registerTelemetry(logger::telemeterize);

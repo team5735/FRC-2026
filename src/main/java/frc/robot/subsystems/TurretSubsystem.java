@@ -62,8 +62,6 @@ public class TurretSubsystem extends SubsystemBase {
 
     private Supplier<Pose2d> robotPoseSupplier;
     private double prevVel = 0;
-    private boolean isZeroed = false;
-
     public TurretSubsystem(Supplier<Pose2d> robotPoseSupplier) {
         kraken.getConfigurator().apply(new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Brake)
                 .withInverted(InvertedValue.Clockwise_Positive));
@@ -347,7 +345,6 @@ public class TurretSubsystem extends SubsystemBase {
      */
     public Command zeroCommand() {
         return Commands.runOnce(() -> {
-            isZeroed = true;
             resetAngle(UPPER_LIMIT);
         });
     }
