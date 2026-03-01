@@ -102,6 +102,7 @@ public class RobotContainer {
                 () -> driveController.getHID().getBButton()));
 
         turret.setDefaultCommand(turret.holdRobotRel(Rotations.of(0.5)));
+        turret.limitTrigger.onTrue(turret.zeroCommand()); // resets the turrets position when it engages the Hall-Effect sensor
 
         driveController.a().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
         driveController.x().onTrue(turret.holdFieldRelative(Rotations.of(0)));
