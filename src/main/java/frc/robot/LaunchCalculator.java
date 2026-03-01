@@ -28,11 +28,6 @@ public class LaunchCalculator {
     private static final InterpolatingDoubleTreeMap scoreSpeedMap = new InterpolatingDoubleTreeMap();
     private static final InterpolatingDoubleTreeMap scoreTOFMap = new InterpolatingDoubleTreeMap();
 
-    private static final InterpolatingTreeMap<Double, Rotation2d> passHoodMap = new InterpolatingTreeMap<>(
-            InverseInterpolator.forDouble(), Rotation2d::interpolate);
-    private static final InterpolatingDoubleTreeMap passSpeedMap = new InterpolatingDoubleTreeMap();
-    private static final InterpolatingDoubleTreeMap passTOFMap = new InterpolatingDoubleTreeMap();
-
     static {
         // TODO populate tree maps here
     }
