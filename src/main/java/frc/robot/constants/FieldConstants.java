@@ -2,8 +2,6 @@ package frc.robot.constants;
 
 import static edu.wpi.first.units.Units.Meters;
 
-import frc.robot.util.geometry.Rectangle;
-
 import static edu.wpi.first.units.Units.Inches;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -13,6 +11,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.math.geometry.Rectangle2d;
 
 // This file provides positions, orientations, distances, and poses to field elements for
 // the REBUILT 2026 competition playing field.
@@ -44,9 +43,9 @@ public class FieldConstants {
                 blueElement.getRotation().plus(Rotation2d.fromDegrees(180)));
     }
 
-    public static Rectangle redElement(Rectangle blueElement) {
-        return new Rectangle(redElement(blueElement.getCenter()),
-                blueElement.getDimensions());
+    public static Rectangle2d redElement(Rectangle2d blueElement) {
+        return new Rectangle2d(redElement(blueElement.getCenter()),
+                blueElement.getXWidth(), blueElement.getYWidth());
     }
 
     /**
@@ -102,9 +101,9 @@ public class FieldConstants {
     // The trench centers (above) are the centers of our rectangle exclusion zone
     // we simply define the extent of the rectangle as being some
     // percent bigger than the trench itself
-    public static final Rectangle HOOD_DOWN_EXCLUSION_BLUE_TRENCH_RIGHT = new Rectangle(
-            BLUE_TRENCH_RIGHT_CENTER,
-            new Translation2d(1.20 * TRENCH_DIMENSION.getX(), 1.15 * TRENCH_DIMENSION.getY()));
+    public static final Rectangle2d HOOD_DOWN_EXCLUSION_BLUE_TRENCH_RIGHT = new Rectangle2d(
+            new Pose2d(BLUE_TRENCH_RIGHT_CENTER, Rotation2d.kZero),
+            1.20 * TRENCH_DIMENSION.getX(), 1.15 * TRENCH_DIMENSION.getY());
 
     ////////////////////
     // RAMP CONSTANTS //

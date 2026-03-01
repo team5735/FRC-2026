@@ -13,8 +13,9 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.geometry.Rectangle2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.constants.FieldConstants;
-import frc.robot.util.geometry.Rectangle;
 
 public class FieldMapTest {
     public static String pretty(Translation2d d) {
@@ -47,7 +48,7 @@ public class FieldMapTest {
         return FieldConstants.redElement(in);
     }
 
-    private static Rectangle red(Rectangle in) {
+    private static Rectangle2d red(Rectangle2d in) {
         return FieldConstants.redElement(in);
     }
 
@@ -71,9 +72,9 @@ public class FieldMapTest {
         System.out.println("Red trench left: " + red(FieldConstants.BLUE_TRENCH_LEFT_CENTER));
         System.out.println();
 
-        System.out.printf("Blue trench left exclusion zone: %s\n",
+        System.out.printf("Blue trench right exclusion zone: %s\n",
                 FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_RIGHT.toString());
-        System.out.printf("Red trench left exclusion zone: %s\n",
+        System.out.printf("Red trench right exclusion zone: %s\n",
                 red(FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_RIGHT).toString());
         System.out.println();
 
@@ -109,16 +110,18 @@ public class FieldMapTest {
 
     @Test
     void withinRectangleTest() throws Exception {
-        Rectangle r = new Rectangle(new Translation2d(0, 0), new Translation2d(10, 20));
+        Rectangle2d r = new Rectangle2d(new Pose2d(0, 0, Rotation2d.kZero), 10, 20);
         Translation2d p = new Translation2d(0, 0);
 
-        System.out.printf("Rectangle: (%s)x(%s)\n", r.getUpperRight(), r.getPos());
+        Translation2d ll = r.getCenter().getTranslation().minus(new Translation2d(r.getXWidth()/2, r.getYWidth()/2));
+        Translation2d ur = r.getCenter().getTranslation().plus(new Translation2d(r.getXWidth()/2, r.getYWidth()/2));
+        System.out.printf("Rectangle: (%s)x(%s)\n", ll, ur);
 
         for (int dy = -10; dy <= 10; dy += 5) {
             for (int dx = -10; dx <= 10; dx += 5) {
                 var pp = p.plus(new Translation2d(dx, dy));
                 boolean in = r.contains(pp);
-                System.out.printf("(%f %f): in? %s\n", pp.getX(), pp.getY(), in);
+                System.out.printf("(%.1f %.1f): in? %s\n", pp.getX(), pp.getY(), in);
             }
         }
     }
