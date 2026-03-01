@@ -48,19 +48,10 @@ public class RobotContainer {
 
     private final Telemetry logger = new Telemetry();
 
-    public static final DrivetrainSubsystem drivetrain;
-    static {
-        switch (Constants.DRIVETRAIN_TYPE) {
-            case COMPBOT:
-                drivetrain = CompbotTunerConstants.createDrivetrain();
-                break;
-            case DEVBOT:
-                drivetrain = DevbotTunerConstants.createDrivetrain();
-                break;
-            default:
-                throw new RuntimeException("Unknown drivetrain type");
-        }
-    }
+    public static final DrivetrainSubsystem drivetrain = switch (Constants.DRIVETRAIN_TYPE) {
+            case COMPBOT -> CompbotTunerConstants.createDrivetrain();
+            case DEVBOT -> DevbotTunerConstants.createDrivetrain();
+        };
 
     public static final FuelLauncherSubsystem launcher = new FuelLauncherSubsystem();
     public static final TurretSubsystem turret = new TurretSubsystem(drivetrain::getEstimatedPosition);
