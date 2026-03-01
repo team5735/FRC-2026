@@ -98,8 +98,8 @@ public class RobotContainer {
     private void configureBindings() {
         drivetrain.registerTelemetry(logger::telemeterize);
 
-        hood.exclusionZoneTrigger.onTrue(Commands.runOnce(()->hood.setAndSavePosition(0.0)));
-        hood.exclusionZoneTrigger.onFalse(Commands.runOnce(()->hood.setPosition(hood.getExclusionZonesSavedPosition())));
+        // hood.exclusionZoneTrigger.onTrue(Commands.runOnce(()->hood.setAndSavePosition(0.0)));
+        // hood.exclusionZoneTrigger.onFalse(Commands.runOnce(()->hood.setPosition(hood.getExclusionZonesSavedPosition())));
 
         drivetrain.setDefaultCommand(drivetrain.joystickDriveCommand(
                 () -> driveController.getLeftX(),
@@ -114,10 +114,10 @@ public class RobotContainer {
         // driveController.a().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
         // driveController.x().onTrue(turret.holdFieldRelative(Rotations.of(0)));
         driveController.x().onTrue(Commands.runOnce(()->{
-            hood.setPosition(1.0);
+            hood.setPosition(59);
             System.out.println("x command");
         }));
-        driveController.a().onTrue(Commands.runOnce(()->hood.setPosition(0.0)));
+        driveController.a().onTrue(Commands.runOnce(()->hood.setPosition(450)));
         driveController.y()
                 .onTrue(new PIDToPose(drivetrain,
                         () -> drivetrain.getEstimatedPosition()

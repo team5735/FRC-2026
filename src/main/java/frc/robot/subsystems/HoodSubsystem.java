@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class HoodSubsystem extends SubsystemBase {
     private final Servo servo = new Servo(0);
+
     private final AnalogInput feedback = new AnalogInput(0);
     private Supplier<Pose2d> turretPoseSupplier;
     private Rectangle2d[] exclusionZones;
@@ -30,13 +31,14 @@ public class HoodSubsystem extends SubsystemBase {
     }
 
     // Pos is set anywhere from 0 to 1
-    public void setPosition(double position) {
-        double safePosition = Math.max(0.1, Math.min(0.9, position));
-        servo.set(safePosition);
+    public void setPosition(double degrees) {
+        double safePosition = Math.max(59, Math.min(450, degrees));
+        double position = safePosition/1800.;
+        servo.set(position);
     }
 
     public double getPosition(){
-        return servo.get();
+        return feedback.getValue();
     }
 
     public void setAndSavePosition(double position){
@@ -71,6 +73,6 @@ public class HoodSubsystem extends SubsystemBase {
     // Runs every 20ms automatically
     @Override
     public void periodic() {
-
+        SmartDashboard.putNumber("Servo Position Degrees", (int) (feedback.getVoltage()/5. * 1800));
     }
 }
