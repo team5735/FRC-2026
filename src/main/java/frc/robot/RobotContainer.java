@@ -18,6 +18,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathfindingCommand;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rectangle2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.Angle;
@@ -30,10 +31,12 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.commands.drivetrain.PIDToPose;
 import frc.robot.constants.Constants;
+import frc.robot.constants.FieldConstants;
 import frc.robot.constants.drivetrain.CompbotTunerConstants;
 import frc.robot.constants.drivetrain.DevbotTunerConstants;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.FuelLauncherSubsystem;
+import frc.robot.subsystems.HoodSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 
@@ -56,8 +59,18 @@ public class RobotContainer {
     public static final FuelLauncherSubsystem launcher = new FuelLauncherSubsystem();
     public static final TurretSubsystem turret = new TurretSubsystem(drivetrain::getEstimatedPosition);
     public static final VisionSubsystem vision = new VisionSubsystem(drivetrain);
+    
+
+    
+    public static final HoodSubsystem hood = new HoodSubsystem(turret::getMechanismPose, 
+    new Rectangle2d[]{FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_LEFT,
+         FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_RIGHT,
+         FieldConstants.redElement(FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_LEFT),
+         FieldConstants.redElement(FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_RIGHT)});
 
     public RobotContainer() {
+        configureBindings();
+
         Map<String, Command> commandsForAuto = new HashMap<>();
 
         NamedCommands.registerCommands(commandsForAuto);
@@ -70,7 +83,6 @@ public class RobotContainer {
         SignalLogger.enableAutoLogging(false);
 
         DriverStation.silenceJoystickConnectionWarning(true);
-        configureBindings();
     }
 
     private Rotation2d getRightStickAsRotation() {
