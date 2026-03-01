@@ -25,10 +25,8 @@ public class Constants {
     public static final int SUBSYSTEM_CONTROLLER_PORT = 1;
     public static final int TEST_CONTROLLER_PORT = 2;
 
-    public static final int TURRET_MOTOR_ID = 17;
     public static final double START_REVOLUTION_POSITION = 0.4;
     public static final double END_REVOLUTION_POSITION = 0.6;
-    public static final int TURRET_LIMIT_PIN = 67; //placeholder value
 
     public static final double DEADBAND = 0.1;
 
