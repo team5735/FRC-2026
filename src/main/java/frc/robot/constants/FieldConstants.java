@@ -2,8 +2,6 @@ package frc.robot.constants;
 
 import static edu.wpi.first.units.Units.Meters;
 
-import frc.robot.util.geometry.Rectangle;
-
 import static edu.wpi.first.units.Units.Inches;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
