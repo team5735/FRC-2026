@@ -18,6 +18,9 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathfindingCommand;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rectangle2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -26,12 +29,14 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import frc.robot.commands.drivetrain.PIDToPose;
 import frc.robot.constants.Constants;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.drivetrain.CompbotTunerConstants;
 import frc.robot.constants.drivetrain.DevbotTunerConstants;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.FuelLauncherSubsystem;
+import frc.robot.subsystems.HoodSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 
@@ -46,26 +51,26 @@ public class RobotContainer {
 
     private final Telemetry logger = new Telemetry();
 
-    public static final DrivetrainSubsystem drivetrain;
+    public static final DrivetrainSubsystem drivetrain = switch (Constants.DRIVETRAIN_TYPE) {
+            case COMPBOT -> CompbotTunerConstants.createDrivetrain();
+            case DEVBOT -> DevbotTunerConstants.createDrivetrain();
+        };
+
     public static final FuelLauncherSubsystem launcher = new FuelLauncherSubsystem();
-    public static final TurretSubsystem turret = new TurretSubsystem();
-
-    static {
-        switch (Constants.DRIVETRAIN_TYPE) {
-            case COMPBOT:
-                drivetrain = CompbotTunerConstants.createDrivetrain();
-                break;
-            case DEVBOT:
-                drivetrain = DevbotTunerConstants.createDrivetrain();
-                break;
-            default:
-                throw new RuntimeException("Unknown drivetrain type");
-        }
-    }
-
+    public static final TurretSubsystem turret = new TurretSubsystem(drivetrain::getEstimatedPosition);
     public static final VisionSubsystem vision = new VisionSubsystem(drivetrain);
+    
+
+    
+    public static final HoodSubsystem hood = new HoodSubsystem(turret::getMechanismPose, 
+    new Rectangle2d[]{FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_LEFT,
+         FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_RIGHT,
+         FieldConstants.redElement(FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_LEFT),
+         FieldConstants.redElement(FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_RIGHT)});
 
     public RobotContainer() {
+        configureBindings();
+
         Map<String, Command> commandsForAuto = new HashMap<>();
 
         NamedCommands.registerCommands(commandsForAuto);
@@ -78,7 +83,15 @@ public class RobotContainer {
         SignalLogger.enableAutoLogging(false);
 
         DriverStation.silenceJoystickConnectionWarning(true);
-        configureBindings();
+    }
+
+    private Rotation2d getRightStickAsRotation() {
+        double x = driveController.getRightX();
+        double y = driveController.getRightY();
+        if (x == 0 && y == 0) {
+            return Rotation2d.kZero;
+        }
+        return new Rotation2d(x, y);
     }
 
     private void configureBindings() {
@@ -92,12 +105,17 @@ public class RobotContainer {
                 () -> driveController.getHID().getBButton()));
 
         turret.setDefaultCommand(turret.holdRobotRel(Rotations.of(0.5)));
+        turret.limitTrigger.onTrue(turret.zeroCommand()); // resets the turrets position when it engages the Hall-Effect sensor
 
         driveController.a().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
-        driveController.x().onTrue(turret.holdFieldRelative(Rotations.of(0),
-                () -> drivetrain.getEstimatedPosition().getRotation().getMeasure()));
+        driveController.x().onTrue(turret.holdFieldRelative(Rotations.of(0)));
         driveController.y()
-                .onTrue(turret.trackFieldPos(FieldConstants.BLUE_HUB_CENTER, drivetrain::getEstimatedPosition));
+                .onTrue(new PIDToPose(drivetrain,
+                        () -> drivetrain.getEstimatedPosition()
+                                .plus(new Transform2d(
+                                        new Translation2d(1, getRightStickAsRotation()),
+                                        Rotation2d.kZero)),
+                        "straight line"));
 
         launcher.setDefaultCommand(launcher.getLaunchFuel(RPM.of(0), RPM.of(0)));
 
