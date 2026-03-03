@@ -1,8 +1,8 @@
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj.Servo;
-
 import java.util.function.Supplier;
+import edu.wpi.first.wpilibj.Servo;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rectangle2d;
@@ -25,6 +25,7 @@ public class HoodSubsystem extends SubsystemBase {
     private double exclusionZonesSavedPosition;
 
     private InterpolatingDoubleTreeMap hoodToServoPosition = new InterpolatingDoubleTreeMap();
+    private InterpolatingDoubleTreeMap servoToHoodPosition = new InterpolatingDoubleTreeMap();
 
     public HoodSubsystem(Supplier<Pose2d> turretPoseSupplier, Rectangle2d[] exclusionZones) {
         this.turretPoseSupplier = turretPoseSupplier;
@@ -32,6 +33,8 @@ public class HoodSubsystem extends SubsystemBase {
 
         this.hoodToServoPosition.put(0.0, Constants.HOOD_LOWEST_SERVO_POSITION);
         this.hoodToServoPosition.put(1.0, Constants.HOOD_HIGHEST_SERVO_POSITION);
+        this.servoToHoodPosition.put(Constants.HOOD_LOWEST_SERVO_POSITION, 0.0);
+        this.servoToHoodPosition.put(Constants.HOOD_HIGHEST_SERVO_POSITION, 1.0);
     }
 
     public double getServoPosition(){
@@ -39,12 +42,14 @@ public class HoodSubsystem extends SubsystemBase {
     }
 
     public void setServoPosition(double pos) {
-        if (pos < 0 || pos > 1.0) {
-            throw new IllegalArgumentException("pos " + pos + " not between 0-1");
-        }
+        // todo: should log warning if incoming pos is out of range
+        pos = MathUtil.clamp(pos, 0.0, 1.0);
         this.servo.set(pos);
     }
 
+    public double getHoodPosition(){
+        return this.servoToHoodPosition.get(this.getServoPosition());
+    }
     public void setHoodPosition(double hoodPosition) {
         double servoPosition = this.hoodToServoPosition.get(hoodPosition);
         servo.set(servoPosition);
@@ -82,7 +87,9 @@ public class HoodSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         if (Constants.HOOD_TUNING_MODE || Constants.BREADBOARD_MODE) {
-            SmartDashboard.putNumber("Servo Position Degrees", (int) (feedback.getVoltage() / 5. * 1800));
+            SmartDashboard.putNumber("hood/live_servo_position", this.getServoPosition());
+            SmartDashboard.putNumber("hood/live_servo_position_degrees", (int) (feedback.getVoltage() / 5. * 1800));
+            SmartDashboard.putNumber("hood/live_hood_position", this.getHoodPosition());
         }
     }
 }

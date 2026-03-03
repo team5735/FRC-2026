@@ -24,22 +24,21 @@ public class TestContainer {
         //         SmartDashboard.getNumber("Start Revolution Posiiton", Constants.START_REVOLUTION_POSITION))));
     }
 
-    public static final HoodSubsystem hood = new HoodSubsystem(()->new Pose2d(0,0,Rotation2d.kZero),  
-                                                               new Rectangle2d[0]);
+    public static final HoodSubsystem hood = RobotContainer.hood;
     public static double hoodTuningServoPosition = 0.5;
     public static double hoodTuningServoPositionDx = 0.05;
     public static void configureHoodTuningBindings(){
         driveController.x().onTrue(Commands.runOnce(() -> {
             hoodTuningServoPosition += hoodTuningServoPositionDx;
-            double pos = MathUtil.clamp(hoodTuningServoPosition, 0.0, 1.0);
-            hood.setServoPosition(pos);
-            SmartDashboard.putNumber("Hood Tuning servo pos", pos);
+            hoodTuningServoPosition = MathUtil.clamp(hoodTuningServoPosition, 0.0, 1.0);
+            hood.setServoPosition(hoodTuningServoPosition);
+            SmartDashboard.putNumber("hood/tuning_servo_position", hoodTuningServoPosition);
         }));
         driveController.a().onTrue(Commands.runOnce(() -> {
             hoodTuningServoPosition -= hoodTuningServoPositionDx;
-            double pos = MathUtil.clamp(hoodTuningServoPosition, 0.0, 1.0);
-            hood.setServoPosition(pos);
-            SmartDashboard.putNumber("Hood Tuning servo pos", pos);
+            hoodTuningServoPosition = MathUtil.clamp(hoodTuningServoPosition, 0.0, 1.0);
+            hood.setServoPosition(hoodTuningServoPosition);
+            SmartDashboard.putNumber("hood/tuning_servo_position", hoodTuningServoPosition);
         }));
     }
 }
