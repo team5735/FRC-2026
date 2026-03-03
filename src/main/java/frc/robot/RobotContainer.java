@@ -54,7 +54,10 @@ public class RobotContainer {
         case DEVBOT -> DevbotTunerConstants.createDrivetrain();
     };
 
-    public static final LimelightSubsystem limelights[] = { new LimelightSubsystem(drivetrain, "limelight-left") };
+    public static final LimelightSubsystem limelights[] = {
+            new LimelightSubsystem(drivetrain, "limelight-flft"),
+            new LimelightSubsystem(drivetrain, "limelight-ftwo")
+    };
 
     public RobotContainer() {
         configureBindings();
