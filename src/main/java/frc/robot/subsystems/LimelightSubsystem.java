@@ -12,8 +12,6 @@ import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
@@ -23,9 +21,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.networktables.DoubleArrayEntry;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.TimestampedDoubleArray;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Telemetry;
@@ -36,6 +31,8 @@ public class LimelightSubsystem extends SubsystemBase {
     private final DrivetrainSubsystem drivetrain;
     private final String limelightName;
     private final NTable table;
+
+    private final NTable lltable;
 
     public LimelightSubsystem(DrivetrainSubsystem drivetrain, String limelightName) {
         this.limelightName = limelightName;
@@ -51,6 +48,8 @@ public class LimelightSubsystem extends SubsystemBase {
         limits.ensure("multi tag ambiguity", 0.5);
         limits.ensure("(stddevs) angular velocity", DegreesPerSecond.of(1).in(RadiansPerSecond));
         limits.ensure("drivetrain distance from estimate", 1);
+
+        lltable = NTable.root(limelightName);
     }
 
     public record RawFiducial(double ambiguity, Distance distToCamera) {
@@ -64,23 +63,11 @@ public class LimelightSubsystem extends SubsystemBase {
         public Pose3d stddevs;
         public double distToCamera;
 
-        private static Map<String, DoubleArrayEntry> entriesCache = new HashMap<>();
-
-        private DoubleArrayEntry getDoubleArrayEntry(String table, String topic) {
-            String asPath = table + "/" + topic;
-            return entriesCache.computeIfAbsent(asPath, k -> {
-                return NetworkTableInstance.getDefault().getTable(table)
-                        .getDoubleArrayTopic(topic).getEntry(new double[0]);
-            });
-        }
-
         public PoseEstimate() {
-            double[] stddevs = NetworkTableInstance.getDefault().getTable(limelightName).getEntry("stddevs")
-                    .getDoubleArray(new double[0]);
-            TimestampedDoubleArray atomicArray;
-            atomicArray = getDoubleArrayEntry(limelightName, "botpose_wpiblue").getAtomic();
+            double[] stddevs = lltable.get("stddevs", new double[0]);
+            double[] array = lltable.get("botpose_wpiblue", new double[0]);
+            double timestamp = lltable.getEntry("botpose_wpiblue").getLastChange();
 
-            double[] array = atomicArray.value;
             if (array.length == 0) {
                 return;
             }
@@ -104,7 +91,7 @@ public class LimelightSubsystem extends SubsystemBase {
 
             this.pose3d = new Pose3d(translation, rotation);
             this.pose2d = pose3d.toPose2d();
-            this.timestamp = (atomicArray.timestamp / 1e6) - (latency / 1e3);
+            this.timestamp = (timestamp / 1e6) - (latency / 1e3);
             this.fiducials = fiducials;
             this.distToCamera = array[9];
 
@@ -116,6 +103,18 @@ public class LimelightSubsystem extends SubsystemBase {
                             Degrees.of(stddevs[4]),
                             Degrees.of(stddevs[5])));
         }
+    }
+
+    public void setIMUMode(int mode) {
+        this.lltable.set("imumode_set", mode);
+    }
+
+    public void updateIMU() {
+        setIMUMode(1);
+
+        Pose2d pose = drivetrain.getEstimatedPosition();
+        // format is yaw, yawRate, pitch, pitchRate, roll, rollRate
+        this.lltable.set("robot_orientation_set", new double[] { pose.getRotation().getDegrees(), 0, 0, 0, 0, 0 });
     }
 
     private boolean check(double measurement, String name) {
