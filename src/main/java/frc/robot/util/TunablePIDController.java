@@ -14,25 +14,31 @@ public class TunablePIDController {
         this(NTable.root("pid"), name, 0, 0, 0);
     }
 
-    /** Creates a new PID controller with the specified defaults in /pid/{name}. */
-    public TunablePIDController(String name, double _p, double _i, double _d) {
-        this(NTable.root("pid"), name, _p, _i, _d);
-    }
-
     /** Creates a new PID controller with zeroed defaults in {table}/{name}. */
     public TunablePIDController(NTable table, String name) {
-        this(table, name, 0, 0, 0);
+        this.table = table.sub(name);
     }
 
-    /** Creates a new PID controller with the specified values in {table}/{name}. */
-    public TunablePIDController(NTable table, String name, double _p, double _i, double _d) {
-        this.table = table.sub(name);
-        if (!this.table.exists("kP", "kI", "kD")) {
-            this.table.set("kP", _p);
-            this.table.set("kI", _i);
-            this.table.set("kD", _d);
-            this.table.makePersistent("kP", "kI", "kD");
-        }
+    public void ensureP(double val) {
+        this.table.ensure("kP");
+    }
+
+    public void ensureI(double val) {
+        this.table.ensure("kI");
+    }
+
+    public void ensureD(double val) {
+        this.table.ensure("kD");
+    }
+
+    public void ensurePID(double p, double i, double d) {
+        ensureP(p);
+        ensureI(i);
+        ensureD(d);
+    }
+
+    public void ensureTolerance(double tolerance) {
+        this.table.ensure("tolerance", tolerance);
     }
 
     boolean continuous = false;
@@ -62,30 +68,13 @@ public class TunablePIDController {
      * <p>
      * This retrieves the PID constants from the table created during construction.
      * It also telemeterizes the setpoint and sets the controller to have the
-     * specified setpoint and the default tolerance.
-     *
-     * @param setpoint
-     */
-    public void setup(double setpoint) {
-        setup(setpoint, 0);
-    }
-
-    /**
-     * Set up this PID controller.
-     *
-     * <p>
-     * This retrieves the PID constants from the table created during construction.
-     * It also telemeterizes the setpoint and sets the controller to have the
      * specified setpoint and tolerance.
      *
      * @param setpoint
      * @param tolerance
      */
-    public void setup(double setpoint, double tolerance) {
-        controller = new PIDController(
-                table.getDouble("kP"),
-                table.getDouble("kI"),
-                table.getDouble("kD"));
+    public void setup(double setpoint) {
+        controller = new PIDController(table.get("kP", 0), table.get("kI", 0), table.get("kD", 0));
 
         if (continuous) {
             controller.enableContinuousInput(continuousStart, continuousEnd);
@@ -93,8 +82,8 @@ public class TunablePIDController {
 
         controller.setSetpoint(setpoint);
         table.set("setpoint", setpoint);
-        controller.setTolerance(tolerance);
-        table.set("tolerance", tolerance);
+        controller.setTolerance(table.get("tolerance", 0));
+        table.set("tolerance", table.get("tolerance", 0));
     }
 
     /** Resets the PID controller. */
@@ -107,7 +96,7 @@ public class TunablePIDController {
      * applies them to the PID controller.
      */
     public void refetch() {
-        controller.setPID(table.getDouble("kP"), table.getDouble("kI"), table.getDouble("kD"));
+        controller.setPID(table.get("kP", 0), table.get("kI", 0), table.get("kD", 0));
     }
 
     /**
