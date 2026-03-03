@@ -64,8 +64,10 @@ public class RobotContainer {
 
         Map<String, Command> commandsForAuto = new HashMap<>();
 
+        // we disable the requirements so that the pid to pose command can control the
+        // robot during the auto
         commandsForAuto.put("pid adjust",
-                new PIDToPose(drivetrain, () -> drivetrain.getEstimatedPosition(), "stay in place !"));
+                new PIDToPose(drivetrain, () -> drivetrain.getEstimatedPosition(), "stay in place !", true));
 
         NamedCommands.registerCommands(commandsForAuto);
 

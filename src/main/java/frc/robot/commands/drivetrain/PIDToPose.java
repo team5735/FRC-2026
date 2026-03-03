@@ -32,6 +32,11 @@ public class PIDToPose extends Command {
     private DrivetrainSubsystem drivetrain;
 
     public PIDToPose(DrivetrainSubsystem drivetrain, Supplier<Pose2d> poseSupplier, String name) {
+        this(drivetrain, poseSupplier, name, false);
+    }
+
+    public PIDToPose(DrivetrainSubsystem drivetrain, Supplier<Pose2d> poseSupplier, String name,
+            boolean skipRequirement) {
         this.drivetrain = drivetrain;
         this.poseSupplier = poseSupplier;
         this.pidX = new TunablePIDController(name + " drive to pose x");
@@ -39,7 +44,9 @@ public class PIDToPose extends Command {
         this.pidTheta = new TunablePIDController(name + " drive to pose theta");
         this.pidTheta.setContinuous(-Math.PI, Math.PI);
 
-        // addRequirements(drivetrain);
+        if (!skipRequirement) {
+            addRequirements(drivetrain);
+        }
     }
 
     @Override
