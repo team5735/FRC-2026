@@ -1,8 +1,14 @@
 package frc.robot;
 
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Rectangle2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.constants.Constants;
+import frc.robot.constants.FieldConstants;
 import frc.robot.subsystems.HoodSubsystem;
 
 public class TestContainer {
@@ -16,5 +22,24 @@ public class TestContainer {
         //         .setPosition(SmartDashboard.getNumber("End Revolution Posiiton", Constants.END_REVOLUTION_POSITION))));
         // driveController.a().onFalse(hood.runOnce(() -> hood.setPosition(
         //         SmartDashboard.getNumber("Start Revolution Posiiton", Constants.START_REVOLUTION_POSITION))));
+    }
+
+    public static final HoodSubsystem hood = new HoodSubsystem(()->new Pose2d(0,0,Rotation2d.kZero),  
+                                                               new Rectangle2d[0]);
+    public static double hoodTuningServoPosition = 0.5;
+    public static double hoodTuningServoPositionDx = 0.05;
+    public static void configureHoodTuningBindings(){
+        driveController.x().onTrue(Commands.runOnce(() -> {
+            hoodTuningServoPosition += hoodTuningServoPositionDx;
+            double pos = MathUtil.clamp(hoodTuningServoPosition, 0.0, 1.0);
+            hood.setServoPosition(pos);
+            SmartDashboard.putNumber("Hood Tuning servo pos", pos);
+        }));
+        driveController.a().onTrue(Commands.runOnce(() -> {
+            hoodTuningServoPosition -= hoodTuningServoPositionDx;
+            double pos = MathUtil.clamp(hoodTuningServoPosition, 0.0, 1.0);
+            hood.setServoPosition(pos);
+            SmartDashboard.putNumber("Hood Tuning servo pos", pos);
+        }));
     }
 }
