@@ -238,8 +238,7 @@ public class NTable {
         }
 
         // If the object is an array, check whether it is an array of
-        // struct-serializable
-        // objects.
+        // struct-serializable objects.
         if (value.getClass().isArray() && value instanceof Object[] casted) {
             possibleStruct = getStructForObject(casted.getClass().getComponentType());
             if (possibleStruct != null) {
@@ -249,7 +248,7 @@ public class NTable {
                 // work.
                 @SuppressWarnings("unchecked")
                 Struct<Object> castedStruct = (Struct<Object>) possibleStruct;
-                setStructs(name, casted, castedStruct);
+                setStructArray(name, casted, castedStruct);
                 return;
             }
         }
@@ -418,7 +417,7 @@ public class NTable {
      * @param values the values to publish
      * @param struct the struct with which to serialize the values
      */
-    public <T> void setStructs(String name, T[] values, Struct<T> struct) {
+    public <T> void setStructArray(String name, T[] values, Struct<T> struct) {
         NetworkTableInstance.getDefault().addSchema(struct);
         publishRawBuffer(name, StructBuffer.create(struct).writeArray(values), struct.getTypeString());
     }
@@ -455,7 +454,7 @@ public class NTable {
     public <T> void setStructs(String name, T[] values) {
         Struct<T> struct = getStructForObject(values.getClass().getComponentType());
         if (struct != null) {
-            setStructs(name, values, struct);
+            setStructArray(name, values, struct);
         }
     }
 
@@ -490,7 +489,7 @@ public class NTable {
      * <p>
      * If the object is of array type, it is checked whether it is an array of
      * struct-serializable objects. If that is the case, then it is deserialized as
-     * an array of structs by deferring to {@link #getStructs(String, Struct)}.
+     * an array of structs by deferring to {@link #getStructArray(String, Struct)}.
      *
      * <p>
      * If none of the above cases apply, a warning is printed and the defalut value
@@ -577,10 +576,11 @@ public class NTable {
             Struct<?> possibleStruct2 = getStructForObject(casted.getClass().getComponentType());
             if (possibleStruct2 != null) {
                 // We already know that T is an array type, so it's safe to assume that and cast
-                // directry to it. Note that the 'T' in getStructs is different from the T here,
-                // and is in fact the value-type of the T here.
+                // directly to it. Note that the 'T' in getStructArray is different from the T here,
+                // and is in fact the value-type of the T here (meaning the T of #get is of type
+                // E[] where E is referred to as T within getStructArray).
                 @SuppressWarnings("unchecked")
-                T result = (T) getStructs(name, possibleStruct2);
+                T result = (T) getStructArray(name, possibleStruct2);
                 if (result == null) {
                     return defaultValue;
                 }
@@ -718,7 +718,7 @@ public class NTable {
      *
      * @return the unpacked struct
      */
-    public <T> T[] getStructs(String name, Struct<T> struct) {
+    public <T> T[] getStructArray(String name, Struct<T> struct) {
         byte[] raw = getRaw(name);
         if (raw.length == 0) {
             return null;
