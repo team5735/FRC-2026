@@ -110,14 +110,14 @@ public class RobotContainer {
         turret.limitTrigger.onTrue(turret.zeroCommand()); // resets the turrets position when it engages the Hall-Effect sensor
 
         driveController.a().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
-        // driveController.x().onTrue(turret.holdFieldRelative(Rotations.of(0)));
-        // driveController.y()
-        //         .onTrue(new PIDToPose(drivetrain,
-        //                 () -> drivetrain.getEstimatedPosition()
-        //                         .plus(new Transform2d(
-        //                                 new Translation2d(1, getRightStickAsRotation()),
-        //                                 Rotation2d.kZero)),
-        //                 "straight line"));
+        driveController.x().onTrue(turret.holdFieldRelative(Rotations.of(0)));
+        driveController.y()
+                .onTrue(new PIDToPose(drivetrain,
+                        () -> drivetrain.getEstimatedPosition()
+                                .plus(new Transform2d(
+                                        new Translation2d(1, getRightStickAsRotation()),
+                                        Rotation2d.kZero)),
+                        "straight line"));
 
         launcher.setDefaultCommand(launcher.getLaunchFuel(RPM.of(0), RPM.of(0)));
 
@@ -126,9 +126,6 @@ public class RobotContainer {
         testController.x().whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
         testController.y().whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
-
-        // testController.rightBumper().whileTrue(climber.getClimbUpCommand());
-        // testController.leftBumper().whileTrue(climber.getClimbDownCommand());
         testController.rightBumper().whileTrue(drivetrain.applyRequest(
                 () -> {
                     double x = testController.getRightX();
@@ -136,23 +133,22 @@ public class RobotContainer {
                     return new SwerveRequest.PointWheelsAt().withModuleDirection(new Rotation2d(-y, -x));
                 }));
 
-        // testController.a().whileTrue(launcher.getLaunchFuel(RPM.of(3000), RPM.of(24)));
-        // testController.b().whileTrue(launcher.getLaunchFuel(RPM.of(1500), RPM.of(12)));
-        // testController.x().whileTrue(launcher.getLaunchFuel(RPM.of(6000), RPM.of(48)));
+        testController.a().whileTrue(launcher.getLaunchFuel(RPM.of(3000), RPM.of(24)));
+        testController.b().whileTrue(launcher.getLaunchFuel(RPM.of(1500), RPM.of(12)));
+        testController.x().whileTrue(launcher.getLaunchFuel(RPM.of(6000), RPM.of(48)));
 
-        // testController.rightBumper().whileTrue(spindex.getStart());
-        // testController.y().whileTrue(turret.trackRobotRel(() -> {
-        //     double x = -testController.getRightY();
-        //     double y = -testController.getRightX();
-        //     Angle theta = new Rotation2d(x, y).getMeasure();
-        //     SmartDashboard.putNumber("testTheta", theta.in(Rotations));
-        //     return theta;
-        // }));
+        testController.y().whileTrue(turret.trackRobotRel(() -> {
+            double x = -testController.getRightY();
+            double y = -testController.getRightX();
+            Angle theta = new Rotation2d(x, y).getMeasure();
+            SmartDashboard.putNumber("testTheta", theta.in(Rotations));
+            return theta;
+        }));
 
-        // testController.povUp().onTrue(turret.runOnce(() -> turret.remakePID()));
-        // testController.povDown().whileTrue(turret.sysId());
-        // testController.rightBumper().whileTrue(turret.testForward());
-        // testController.leftBumper().whileTrue(turret.testReverse());
+        testController.povUp().onTrue(turret.runOnce(() -> turret.remakePID()));
+        testController.povDown().whileTrue(turret.sysId());
+        testController.rightBumper().whileTrue(turret.testForward());
+        testController.leftBumper().whileTrue(turret.testReverse());
     }
 
     public Command getAutonomousCommand() {
