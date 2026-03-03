@@ -31,6 +31,10 @@ public class Robot extends TimedRobot {
         }
 
         NTable.root().set("scheduler", CommandScheduler.getInstance());
+
+        for (final LimelightSubsystem ll : RobotContainer.limelights) {
+            ll.updateIMU();
+        }
     }
 
     @Override
@@ -51,6 +55,9 @@ public class Robot extends TimedRobot {
 
     @Override
     public void disabledPeriodic() {
+        for (final LimelightSubsystem ll : RobotContainer.limelights) {
+            ll.updateIMU();
+        }
     }
 
     @Override
@@ -64,6 +71,10 @@ public class Robot extends TimedRobot {
         if (autonomousCommand != null) {
             CommandScheduler.getInstance().schedule(autonomousCommand);
         }
+
+        for (var ll : RobotContainer.limelights) {
+            ll.setIMUMode(3);
+        }
     }
 
     @Override
@@ -74,6 +85,10 @@ public class Robot extends TimedRobot {
     public void teleopInit() {
         if (autonomousCommand != null) {
             autonomousCommand.cancel();
+        }
+
+        for (var ll : RobotContainer.limelights) {
+            ll.setIMUMode(3);
         }
     }
 
