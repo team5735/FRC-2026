@@ -41,9 +41,9 @@ import frc.robot.subsystems.DrivetrainSubsystem;
 public class CompbotTunerConstants {
     // The steer motor uses any SwerveModule.SteerRequestType control request with
     // the output type specified by SwerveModuleConstants.SteerMotorClosedLoopOutput
-    public static final Slot0Configs DEFAULT_STEER_CONSTANTS = new Slot0Configs() // TODO redo sysid with new treads
-            .withKP(40).withKI(0).withKD(0.075)
-            .withKS(0.12).withKV(1.41).withKA(0.12)
+    public static final Slot0Configs DEFAULT_STEER_CONSTANTS = new Slot0Configs()
+            .withKP(27.5).withKI(0).withKD(0)//0.2)
+            .withKS(0.13).withKV(1.43).withKA(0.13)
             .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
     // When using closed-loop control, the drive motor uses the control
     // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
@@ -150,7 +150,7 @@ public class CompbotTunerConstants {
     private static final boolean FRONT_LEFT_ENCODER_INVERTED = false;
 
     public static final Slot0Configs FL_STEER_CONSTANTS = DEFAULT_STEER_CONSTANTS
-            .withKS(0.0082359).withKV(1.4135).withKA(0.16887);
+            .withKS(0.12006).withKV(1.4327).withKA(0.18651);
     public static final Slot0Configs FL_DRIVE_CONSTANTS = DEFAULT_DRIVE_CONSTANTS
             .withKS(0.12737).withKV(0.11121).withKA(0.011079);
 
@@ -166,7 +166,7 @@ public class CompbotTunerConstants {
     private static final boolean FRONT_RIGHT_ENCODER_INVERTED = false;
 
     public static final Slot0Configs FR_STEER_GAINS = DEFAULT_STEER_CONSTANTS
-            .withKS(0.18209).withKV(1.4045).withKA(0.080639);
+            .withKS(0.12501).withKV(1.428).withKA(0.14018);
     public static final Slot0Configs FR_DRIVE_CONSTANTS = DEFAULT_DRIVE_CONSTANTS
             .withKS(0.13152).withKV(0.11285).withKA(0.01173);
 
@@ -182,7 +182,7 @@ public class CompbotTunerConstants {
     private static final boolean BACK_LEFT_ENCODER_INVERTED = false;
 
     public static final Slot0Configs BL_STEER_GAINS = DEFAULT_STEER_CONSTANTS
-            .withKS(0.14556).withKV(1.4084).withKA(0.10604);
+            .withKS(0.21311).withKV(1.4279).withKA(0.11907);
     public static final Slot0Configs BL_DRIVE_CONSTANTS = DEFAULT_DRIVE_CONSTANTS
             .withKS(0.12809).withKV(0.112).withKA(0.013784);
 
@@ -198,7 +198,7 @@ public class CompbotTunerConstants {
     private static final boolean BACK_RIGHT_ENCODER_INVERTED = false;
 
     public static final Slot0Configs BR_STEER_GAINS = DEFAULT_STEER_CONSTANTS
-            .withKS(0.016316).withKV(1.435).withKA(0.24407);
+            .withKS(0.12813).withKV(1.4532).withKA(0.18713);
     public static final Slot0Configs BR_DRIVE_CONSTANTS = DEFAULT_DRIVE_CONSTANTS
             .withKS(0.12907).withKV(0.11147).withKA(0.011227);
 
