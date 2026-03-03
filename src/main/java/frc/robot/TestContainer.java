@@ -32,13 +32,11 @@ public class TestContainer {
             hoodTuningServoPosition += hoodTuningServoPositionDx;
             hoodTuningServoPosition = MathUtil.clamp(hoodTuningServoPosition, 0.0, 1.0);
             hood.setServoPosition(hoodTuningServoPosition);
-            SmartDashboard.putNumber("hood/tuning_servo_position", hoodTuningServoPosition);
         }));
         driveController.a().onTrue(Commands.runOnce(() -> {
             hoodTuningServoPosition -= hoodTuningServoPositionDx;
             hoodTuningServoPosition = MathUtil.clamp(hoodTuningServoPosition, 0.0, 1.0);
             hood.setServoPosition(hoodTuningServoPosition);
-            SmartDashboard.putNumber("hood/tuning_servo_position", hoodTuningServoPosition);
         }));
     }
 }

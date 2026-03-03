@@ -98,8 +98,16 @@ public class RobotContainer {
     private void configureBindings() {
         drivetrain.registerTelemetry(logger::telemeterize);
 
-        // hood.exclusionZoneTrigger.onTrue(Commands.runOnce(()->hood.setAndSavePosition(0.0)));
-        // hood.exclusionZoneTrigger.onFalse(Commands.runOnce(()->hood.setPosition(hood.getExclusionZonesSavedPosition())));
+        hood.exclusionZoneTrigger.onTrue(Commands.runOnce(()->{
+            // todo: add telemetry / debug / logging
+            hood.ezSaveServoPosition();
+            hood.setHoodPosition(0);
+        }));
+        hood.exclusionZoneTrigger.onFalse(Commands.runOnce(()->{
+            // todo: add telemetry / debug / logging
+            double pos = hood.ezGetSavedServoPosition();
+            hood.setServoPosition(pos);
+        }));
 
         drivetrain.setDefaultCommand(drivetrain.joystickDriveCommand(
                 () -> driveController.getLeftX(),

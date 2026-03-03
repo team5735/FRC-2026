@@ -22,7 +22,7 @@ public class HoodSubsystem extends SubsystemBase {
 
     private Supplier<Pose2d> turretPoseSupplier;
     private Rectangle2d[] exclusionZones;
-    private double exclusionZonesSavedPosition;
+    private double exclusionZoneSavedServoPosition;
 
     private InterpolatingDoubleTreeMap hoodToServoPosition = new InterpolatingDoubleTreeMap();
     private InterpolatingDoubleTreeMap servoToHoodPosition = new InterpolatingDoubleTreeMap();
@@ -45,6 +45,7 @@ public class HoodSubsystem extends SubsystemBase {
         // todo: should log warning if incoming pos is out of range
         pos = MathUtil.clamp(pos, 0.0, 1.0);
         this.servo.set(pos);
+        this.sendTelemetry();
     }
 
     public double getHoodPosition(){
@@ -52,16 +53,15 @@ public class HoodSubsystem extends SubsystemBase {
     }
     public void setHoodPosition(double hoodPosition) {
         double servoPosition = this.hoodToServoPosition.get(hoodPosition);
-        servo.set(servoPosition);
+        this.setServoPosition(servoPosition);
     }
 
-    public void setAndSavePosition(double hoodPosition) {
-        exclusionZonesSavedPosition = getServoPosition();
-        setHoodPosition(hoodPosition);
+    public void ezSaveServoPosition(){
+        this.exclusionZoneSavedServoPosition = this.servo.get();
     }
 
-    public double getExclusionZonesSavedPosition() {
-        return exclusionZonesSavedPosition;
+    public double ezGetSavedServoPosition() {
+        return exclusionZoneSavedServoPosition;
     }
 
     // Returns raw voltage from analog feedback wire
@@ -72,6 +72,13 @@ public class HoodSubsystem extends SubsystemBase {
     // Converts voltage (0-5V) into 0.0–1.0 normalized position
     public double getNormalizedPosition() {
         return feedback.getVoltage() / 5.0;
+    }
+
+    public void sendTelemetry(){
+        SmartDashboard.putNumber("hood/hood_position", this.getHoodPosition());
+        SmartDashboard.putNumber("hood/servo_position", this.getServoPosition());
+        SmartDashboard.putNumber("hood/servo_feedback_voltage", this.feedback.getValue());
+        SmartDashboard.putNumber("hood/servo_position_degrees", (int) (feedback.getVoltage() / 5. * 1800));
     }
 
     public boolean isInExclusionZone() {
@@ -87,9 +94,7 @@ public class HoodSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         if (Constants.HOOD_TUNING_MODE || Constants.BREADBOARD_MODE) {
-            SmartDashboard.putNumber("hood/live_servo_position", this.getServoPosition());
-            SmartDashboard.putNumber("hood/live_servo_position_degrees", (int) (feedback.getVoltage() / 5. * 1800));
-            SmartDashboard.putNumber("hood/live_hood_position", this.getHoodPosition());
+            this.sendTelemetry();
         }
     }
 }
