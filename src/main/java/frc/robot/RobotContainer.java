@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Feet;
-import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Rotations;
 
@@ -14,24 +12,23 @@ import java.util.Map;
 
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathfindingCommand;
 
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rectangle2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rectangle2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import frc.robot.commands.DriveOnArc;
 import frc.robot.commands.drivetrain.PIDToPose;
 import frc.robot.constants.Constants;
 import frc.robot.constants.FieldConstants;
@@ -41,17 +38,13 @@ import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.FuelLauncherSubsystem;
 import frc.robot.subsystems.HoodSubsystem;
-import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.SpinDexSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
-import frc.robot.util.geometry.Arc;
+import frc.robot.subsystems.VisionSubsystem;
 
 public class RobotContainer {
     public static final CommandXboxController driveController = new CommandXboxController(
             Constants.DRIVE_CONTROLLER_PORT);
-
-    public static final CommandXboxController subsystemController = new CommandXboxController(
-            Constants.SUBSYSTEM_CONTROLLER_PORT);
 
     public static final CommandXboxController testController = new CommandXboxController(
             Constants.TEST_CONTROLLER_PORT);
@@ -61,72 +54,50 @@ public class RobotContainer {
     private final Telemetry logger = new Telemetry();
 
     public static final DrivetrainSubsystem drivetrain = switch (Constants.DRIVETRAIN_TYPE) {
-        case COMPBOT -> CompbotTunerConstants.createDrivetrain();
-        case DEVBOT -> DevbotTunerConstants.createDrivetrain();
-    };
-
-    public static final LimelightSubsystem limelights[] = {
-            new LimelightSubsystem(drivetrain, "limelight-flft"),
-            new LimelightSubsystem(drivetrain, "limelight-ftwo")
-    };
+            case COMPBOT -> CompbotTunerConstants.createDrivetrain();
+            case DEVBOT -> DevbotTunerConstants.createDrivetrain();
+        };
 
     public static final FuelLauncherSubsystem launcher = new FuelLauncherSubsystem();
     public static final TurretSubsystem turret = new TurretSubsystem(drivetrain::getEstimatedPosition);
+    public static final VisionSubsystem vision = new VisionSubsystem(drivetrain);
     public static final ClimberSubsystem climber = new ClimberSubsystem();
     public static final SpinDexSubsystem spindex = new SpinDexSubsystem();
-
-    public static final HoodSubsystem hood = new HoodSubsystem(turret::getMechanismPose,
-            new Rectangle2d[] { FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_LEFT,
-                    FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_RIGHT,
-                    FieldConstants.redElement(FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_LEFT),
-                    FieldConstants.redElement(FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_RIGHT) });
+    
+    public static final HoodSubsystem hood = new HoodSubsystem(turret::getMechanismPose, 
+    new Rectangle2d[]{FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_LEFT,
+         FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_RIGHT,
+         FieldConstants.redElement(FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_LEFT),
+         FieldConstants.redElement(FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_RIGHT)});
 
     public RobotContainer() {
         configureBindings();
 
         Map<String, Command> commandsForAuto = new HashMap<>();
 
-        // we disable the requirements so that the pid to pose command can control the
-        // robot during the auto
-        commandsForAuto.put("pid adjust",
-                new PIDToPose(drivetrain, () -> {
-                    var pos = drivetrain.getEstimatedPosition();
-                    drivetrain.resetPose(limelights[1].new PoseEstimate().pose2d);
-                    return pos;
-                }, "stay in place !", true));
-
         NamedCommands.registerCommands(commandsForAuto);
 
         autoChooser = AutoBuilder.buildAutoChooser();
 
         SmartDashboard.putData("Choose an Auto", autoChooser);
-        CommandScheduler.getInstance().schedule(PathfindingCommand.warmupCommand().withName("Warmup Pathfinding"));
+        CommandScheduler.getInstance().schedule(PathfindingCommand.warmupCommand());
 
         SignalLogger.enableAutoLogging(false);
 
         DriverStation.silenceJoystickConnectionWarning(true);
     }
 
-    public static Arc targetArc = new Arc(FieldConstants.BLUE_HUB_CENTER,
-            Feet.of(7.5).in(Meters), Rotation2d.fromDegrees(90), Rotation2d.fromDegrees(270));
+    private Rotation2d getRightStickAsRotation() {
+        double x = driveController.getRightX();
+        double y = driveController.getRightY();
+        if (x == 0 && y == 0) {
+            return Rotation2d.kZero;
+        }
+        return new Rotation2d(x, y);
+    }
 
     private void configureBindings() {
         drivetrain.registerTelemetry(logger::telemeterize);
-
-        hood.exclusionZoneTrigger.onTrue(Commands.runOnce(()->{
-            SmartDashboard.putBoolean("in_exclusion_zone", true);
-
-            // todo: add telemetry / debug / logging
-            hood.exzSaveServoPosition();
-            hood.setHoodPosition(0);
-        }));
-        hood.exclusionZoneTrigger.onFalse(Commands.runOnce(()->{
-            SmartDashboard.putBoolean("in_exclusion_zone", false);
-
-            // todo: add telemetry / debug / logging
-            double pos = hood.exzGetSavedServoPosition();
-            hood.setServoPosition(pos);
-        }));
 
         drivetrain.setDefaultCommand(drivetrain.joystickDriveCommand(
                 () -> driveController.getLeftX(),
@@ -136,37 +107,17 @@ public class RobotContainer {
                 () -> driveController.getHID().getBButton()));
 
         turret.setDefaultCommand(turret.holdRobotRel(Rotations.of(0.5)));
-        turret.limitTrigger.onTrue(turret.zeroCommand()); // resets the turrets position when it engages the Hall-Effect
-                                                          // sensor
+        turret.limitTrigger.onTrue(turret.zeroCommand()); // resets the turrets position when it engages the Hall-Effect sensor
 
-        // driveController.a().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
-        // driveController.x().onTrue(turret.holdFieldRelative(Rotations.of(0)));
-        driveController.x().onTrue(Commands.runOnce(()->{
-            hood.setHoodPosition(0.7);
-            System.out.println("x command");
-        }));
-        driveController.a().onTrue(Commands.runOnce(()->hood.setHoodPosition(0.3)));
-
-        driveController.a().onTrue(drivetrain
-                .runOnce(() -> drivetrain.resetPose(limelights[1].new PoseEstimate().pose2d))
-                .withName("Resetting Pose"));
-
-        driveController.x().whileTrue(
-                new DriveOnArc(drivetrain, targetArc, () -> MathUtil.applyDeadband(driveController.getLeftX(), 0.1)));
+        driveController.a().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+        driveController.x().onTrue(turret.holdFieldRelative(Rotations.of(0)));
         driveController.y()
                 .onTrue(new PIDToPose(drivetrain,
-                        () -> targetArc.getPoseFacingCenter(
-                                targetArc.nearestPointOnArc(
-                                        drivetrain.getEstimatedPosition().getTranslation())),
-                        "drive to arc"));
-        driveController.x().onTrue(drivetrain
-                .runOnce(() -> drivetrain.resetPose(new Pose2d())).withName("Resetting Pose"));
-
-        driveController.a().whileTrue(
-                new DriveOnArc(drivetrain, targetArc, () -> MathUtil.applyDeadband(driveController.getLeftX(), 0.1)));
-        turret.setDefaultCommand(turret.holdRobotRel(Rotations.of(0.5)));
-        turret.limitTrigger.onTrue(turret.zeroCommand()); // resets the turrets position when it engages the Hall-Effect
-                                                          // sensor
+                        () -> drivetrain.getEstimatedPosition()
+                                .plus(new Transform2d(
+                                        new Translation2d(1, getRightStickAsRotation()),
+                                        Rotation2d.kZero)),
+                        "straight line"));
 
         launcher.setDefaultCommand(launcher.getLaunchFuel(RPM.of(0), RPM.of(0)));
 
@@ -182,9 +133,9 @@ public class RobotContainer {
                     return new SwerveRequest.PointWheelsAt().withModuleDirection(new Rotation2d(-y, -x));
                 }));
 
-        testController.a().whileTrue(launcher.getFedLaunch(spindex, RPM.of(3000), RPM.of(24)));
-        testController.b().whileTrue(launcher.getFedLaunch(spindex, RPM.of(1500), RPM.of(12)));
-        testController.x().whileTrue(launcher.getFedLaunch(spindex, RPM.of(6000), RPM.of(48)));
+        testController.a().whileTrue(launcher.getLaunchFuel(RPM.of(3000), RPM.of(24)));
+        testController.b().whileTrue(launcher.getLaunchFuel(RPM.of(1500), RPM.of(12)));
+        testController.x().whileTrue(launcher.getLaunchFuel(RPM.of(6000), RPM.of(48)));
 
         testController.y().whileTrue(turret.trackRobotRel(() -> {
             double x = -testController.getRightY();
@@ -200,6 +151,11 @@ public class RobotContainer {
         testController.leftBumper().whileTrue(turret.testReverse());
 
         subsystemController.a().whileTrue(spindex.getStart());
+
+        // testController.povUp().onTrue(turret.runOnce(() -> turret.remakePID()));
+        // testController.povDown().whileTrue(turret.sysId());
+        // testController.rightBumper().whileTrue(turret.testForward());
+        // testController.leftBumper().whileTrue(turret.testReverse());
     }
 
     public Command getAutonomousCommand() {
