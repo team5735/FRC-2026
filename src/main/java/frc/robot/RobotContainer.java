@@ -67,7 +67,11 @@ public class RobotContainer {
         // we disable the requirements so that the pid to pose command can control the
         // robot during the auto
         commandsForAuto.put("pid adjust",
-                new PIDToPose(drivetrain, () -> drivetrain.getEstimatedPosition(), "stay in place !", true));
+                new PIDToPose(drivetrain, () -> {
+                    var pos = drivetrain.getEstimatedPosition();
+                    drivetrain.resetPose(limelights[1].new PoseEstimate().pose2d);
+                    return pos;
+                }, "stay in place !", true));
 
         NamedCommands.registerCommands(commandsForAuto);
 
