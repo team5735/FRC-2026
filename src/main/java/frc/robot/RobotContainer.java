@@ -49,6 +49,10 @@ public class RobotContainer {
     public static final CommandXboxController testController = new CommandXboxController(
             Constants.TEST_CONTROLLER_PORT);
 
+    public static final CommandXboxController subsystemController = new CommandXboxController(
+            Constants.SUBSYSTEM_CONTROLLER_PORT);
+
+
     private final SendableChooser<Command> autoChooser;
 
     private final Telemetry logger = new Telemetry();
@@ -62,8 +66,7 @@ public class RobotContainer {
     public static final TurretSubsystem turret = new TurretSubsystem(drivetrain::getEstimatedPosition);
     public static final VisionSubsystem vision = new VisionSubsystem(drivetrain);
     public static final ClimberSubsystem climber = new ClimberSubsystem();
-    public static final SpinDexSubsystem spindex = new SpinDexSubsystem();
-    
+    public static final SpinDexSubsystem spindex = new SpinDexSubsystem();    
     public static final HoodSubsystem hood = new HoodSubsystem(turret::getMechanismPose, 
     new Rectangle2d[]{FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_LEFT,
          FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_RIGHT,
@@ -149,6 +152,8 @@ public class RobotContainer {
         testController.povDown().whileTrue(turret.sysId());
         testController.rightBumper().whileTrue(turret.testForward());
         testController.leftBumper().whileTrue(turret.testReverse());
+
+        subsystemController.a().whileTrue(spindex.getStart());
     }
 
     public Command getAutonomousCommand() {
