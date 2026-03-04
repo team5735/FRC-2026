@@ -18,10 +18,12 @@ public class TestContainer {
 //     private static final HoodSubsystem hood = new HoodSubsystem();
 
     public static void configureBindings() {
-        // driveController.a().onTrue(hood.runOnce(() -> hood
-        //         .setPosition(SmartDashboard.getNumber("End Revolution Posiiton", Constants.END_REVOLUTION_POSITION))));
-        // driveController.a().onFalse(hood.runOnce(() -> hood.setPosition(
-        //         SmartDashboard.getNumber("Start Revolution Posiiton", Constants.START_REVOLUTION_POSITION))));
+        driveController.x().onTrue(Commands.runOnce(() -> {
+            hood.setHoodPosition(1.0);
+        }));
+        driveController.a().onTrue(Commands.runOnce(() -> {
+            hood.setHoodPosition(0.0);
+        }));
     }
 
     public static final HoodSubsystem hood = RobotContainer.hood;
