@@ -30,6 +30,9 @@ public class Constants {
     public static final double HOOD_LOWEST_SERVO_POSITION = 0.2;
     public static final double HOOD_HIGHEST_SERVO_POSITION = 0.7;
 
+    public static final double HOOD_LOWEST_ANGLE_DEGREES = 8.0;
+    public static final double HOOD_HIGHEST_ANGLE_DEGREES = 45.0;
+
     public static final double DEADBAND = 0.1;
 
     public static final Rotation2d BLUE_ALLIANCE_PERSPECTIVE_ROTATION = Rotation2d.kZero;

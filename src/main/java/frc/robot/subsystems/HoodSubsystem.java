@@ -26,6 +26,8 @@ public class HoodSubsystem extends SubsystemBase {
 
     private InterpolatingDoubleTreeMap hoodToServoPosition = new InterpolatingDoubleTreeMap();
     private InterpolatingDoubleTreeMap servoToHoodPosition = new InterpolatingDoubleTreeMap();
+    private InterpolatingDoubleTreeMap angleToServoPosition = new InterpolatingDoubleTreeMap();
+    private InterpolatingDoubleTreeMap servoToAnglePosition = new InterpolatingDoubleTreeMap();
 
     public HoodSubsystem(Supplier<Pose2d> turretPoseSupplier, Rectangle2d[] exclusionZones) {
         this.turretPoseSupplier = turretPoseSupplier;
@@ -35,6 +37,11 @@ public class HoodSubsystem extends SubsystemBase {
         this.hoodToServoPosition.put(1.0, Constants.HOOD_HIGHEST_SERVO_POSITION);
         this.servoToHoodPosition.put(Constants.HOOD_LOWEST_SERVO_POSITION, 0.0);
         this.servoToHoodPosition.put(Constants.HOOD_HIGHEST_SERVO_POSITION, 1.0);
+
+        this.angleToServoPosition.put(Constants.HOOD_LOWEST_ANGLE_DEGREES, Constants.HOOD_LOWEST_SERVO_POSITION);
+        this.angleToServoPosition.put(Constants.HOOD_HIGHEST_ANGLE_DEGREES, Constants.HOOD_HIGHEST_SERVO_POSITION);
+        this.servoToAnglePosition.put(Constants.HOOD_LOWEST_SERVO_POSITION, Constants.HOOD_LOWEST_ANGLE_DEGREES);
+        this.servoToAnglePosition.put(Constants.HOOD_HIGHEST_SERVO_POSITION, Constants.HOOD_HIGHEST_ANGLE_DEGREES);
     }
 
     public double getServoPosition(){
@@ -53,6 +60,14 @@ public class HoodSubsystem extends SubsystemBase {
     }
     public void setHoodPosition(double hoodPosition) {
         double servoPosition = this.hoodToServoPosition.get(hoodPosition);
+        this.setServoPosition(servoPosition);
+    }
+
+    public double getHoodAngle(){
+        return this.servoToAnglePosition.get(this.getServoPosition());
+    }
+    public void setHoodAngle(double hoodAngleDegrees){
+        double servoPosition = this.angleToServoPosition.get(hoodAngleDegrees);
         this.setServoPosition(servoPosition);
     }
 
@@ -78,7 +93,7 @@ public class HoodSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("hood/hood_position", this.getHoodPosition());
         SmartDashboard.putNumber("hood/servo_position", this.getServoPosition());
         SmartDashboard.putNumber("hood/servo_feedback_voltage", this.feedback.getValue());
-        SmartDashboard.putNumber("hood/servo_position_degrees", (int) (feedback.getVoltage() / 5. * 1800));
+        SmartDashboard.putNumber("hood/hood_angle_degrees", this.getHoodAngle());
     }
 
     public boolean isInExclusionZone() {
