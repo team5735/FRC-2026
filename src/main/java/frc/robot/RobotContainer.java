@@ -18,6 +18,8 @@ import com.pathplanner.lib.commands.PathfindingCommand;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -95,7 +97,7 @@ public class RobotContainer {
                 () -> driveController.getHID().getBButton()));
 
         driveController.a().onTrue(drivetrain
-                .runOnce(() -> drivetrain.resetPose(limelights[0].new PoseEstimate().pose2d))
+                .runOnce(() -> drivetrain.resetPose(limelights[1].new PoseEstimate().pose2d))
                 .withName("Resetting Pose"));
 
         driveController.x().whileTrue(
