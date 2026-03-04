@@ -43,7 +43,7 @@ public class TurretSubsystem extends SubsystemBase {
     private final TalonFX kraken = new TalonFX(Constants.TURRET_MOTOR_ID);
     private final DigitalInput hallLimit = new DigitalInput(Constants.TURRET_LIMIT_PIN);
 
-    public final Trigger limitTrigger = new Trigger(hallLimit::get);
+    public final Trigger limitTrigger = new Trigger(() -> !hallLimit.get());
 
     private final TunableProfiledPIDController pid = new TunableProfiledPIDController("turret", KP, KI, KD,
             MAX_VEL.in(RotationsPerSecond), MAX_ACC.in(RotationsPerSecondPerSecond));
@@ -72,6 +72,8 @@ public class TurretSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("turret/setpointVelRPS", pid.getController().getSetpoint().velocity);
         SmartDashboard.putNumber("turret/volts", kraken.getMotorVoltage().getValueAsDouble());
         SmartDashboard.putNumber("turret/posErrorRots", pid.getController().getPositionError());
+        SmartDashboard.putBoolean("turret/limitEngaged", !hallLimit.get());
+        SmartDashboard.putBoolean("turret/isZeroed", isZeroed);
     }
 
     /**
