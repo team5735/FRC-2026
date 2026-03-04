@@ -100,12 +100,12 @@ public class RobotContainer {
 
         hood.exclusionZoneTrigger.onTrue(Commands.runOnce(()->{
             // todo: add telemetry / debug / logging
-            hood.ezSaveServoPosition();
+            hood.exzSaveServoPosition();
             hood.setHoodPosition(0);
         }));
         hood.exclusionZoneTrigger.onFalse(Commands.runOnce(()->{
             // todo: add telemetry / debug / logging
-            double pos = hood.ezGetSavedServoPosition();
+            double pos = hood.exzGetSavedServoPosition();
             hood.setServoPosition(pos);
         }));
 

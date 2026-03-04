@@ -56,11 +56,11 @@ public class HoodSubsystem extends SubsystemBase {
         this.setServoPosition(servoPosition);
     }
 
-    public void ezSaveServoPosition(){
+    public void exzSaveServoPosition(){
         this.exclusionZoneSavedServoPosition = this.servo.get();
     }
 
-    public double ezGetSavedServoPosition() {
+    public double exzGetSavedServoPosition() {
         return exclusionZoneSavedServoPosition;
     }
 
