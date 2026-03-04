@@ -1,10 +1,5 @@
 package frc.robot.commands.drivetrain;
 
-import static edu.wpi.first.units.Units.Centimeters;
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.Radians;
-
 import java.util.function.Supplier;
 
 import edu.wpi.first.math.geometry.Pose2d;
