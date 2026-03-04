@@ -10,6 +10,7 @@ import java.util.function.Supplier;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.DrivetrainSubsystem;
+import frc.robot.util.NTable;
 import frc.robot.util.TunablePIDController;
 
 /**
@@ -39,9 +40,10 @@ public class PIDToPose extends Command {
             boolean skipRequirement) {
         this.drivetrain = drivetrain;
         this.poseSupplier = poseSupplier;
-        this.pidX = new TunablePIDController(name + " drive to pose x");
-        this.pidY = new TunablePIDController(name + " drive to pose y");
-        this.pidTheta = new TunablePIDController(name + " drive to pose theta");
+        NTable table = NTable.root("pid to pose").sub(name);
+        this.pidX = new TunablePIDController(table, "x");
+        this.pidY = new TunablePIDController(table, "y");
+        this.pidTheta = new TunablePIDController(table, "theta");
         this.pidTheta.setContinuous(-Math.PI, Math.PI);
 
         this.pidX.ensureTolerance(Centimeters.of(2).in(Meters));

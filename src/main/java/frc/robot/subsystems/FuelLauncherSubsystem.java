@@ -34,7 +34,7 @@ public class FuelLauncherSubsystem extends SubsystemBase {
     private final TalonFX krakenLeft = new TalonFX(Constants.LAUNCHER_LEFT_KRAKEN_ID);
     private final TalonFX krakenRight = new TalonFX(Constants.LAUNCHER_RIGHT_KRAKEN_ID);
 
-    private final TunablePIDController pid = new TunablePIDController("fuel_launcher", FuelLauncherConstants.KP, 0, 0);
+    private final TunablePIDController pid = new TunablePIDController("fuel_launcher");
     private final SimpleMotorFeedforward ff = new SimpleMotorFeedforward(FuelLauncherConstants.KS,
             FuelLauncherConstants.KV);
 
@@ -45,6 +45,9 @@ public class FuelLauncherSubsystem extends SubsystemBase {
         krakenLeft.getConfigurator().apply(new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive)
                 .withNeutralMode(NeutralModeValue.Coast));
         krakenRight.setControl(new Follower(Constants.LAUNCHER_LEFT_KRAKEN_ID, MotorAlignmentValue.Opposed));
+
+        pid.ensureP(FuelLauncherConstants.KP);
+        pid.ensureTolerance(FuelLauncherConstants.RPM_TOLERANCE);
         pid.setup(0);
     }
 
@@ -54,7 +57,7 @@ public class FuelLauncherSubsystem extends SubsystemBase {
     }
 
     private void setTargetRPM(double rpm) {
-        pid.setup(rpm, FuelLauncherConstants.RPM_TOLERANCE);
+        pid.setup(rpm);
     }
 
     private void usePID() {

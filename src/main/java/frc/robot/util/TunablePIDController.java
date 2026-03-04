@@ -11,7 +11,7 @@ public class TunablePIDController {
 
     /** Creates a new PID controller with zeroed defaults in /pid/{name}. */
     public TunablePIDController(String name) {
-        this(NTable.root("pid"), name, 0, 0, 0);
+        this(NTable.root("pid"), name);
     }
 
     /** Creates a new PID controller with zeroed defaults in {table}/{name}. */
@@ -20,15 +20,15 @@ public class TunablePIDController {
     }
 
     public void ensureP(double val) {
-        this.table.ensure("kP");
+        this.table.ensure("proportional", val);
     }
 
     public void ensureI(double val) {
-        this.table.ensure("kI");
+        this.table.ensure("integral", val);
     }
 
     public void ensureD(double val) {
-        this.table.ensure("kD");
+        this.table.ensure("derivative", val);
     }
 
     public void ensurePID(double p, double i, double d) {
@@ -74,7 +74,11 @@ public class TunablePIDController {
      * @param tolerance
      */
     public void setup(double setpoint) {
-        controller = new PIDController(table.get("kP", 0), table.get("kI", 0), table.get("kD", 0));
+        ensurePID(0, 0, 0);
+        ensureTolerance(0);
+
+        controller = new PIDController(table.getDouble("proportional"), table.getDouble("integral"),
+                table.getDouble("derivative"));
 
         if (continuous) {
             controller.enableContinuousInput(continuousStart, continuousEnd);
@@ -82,8 +86,8 @@ public class TunablePIDController {
 
         controller.setSetpoint(setpoint);
         table.set("setpoint", setpoint);
-        controller.setTolerance(table.get("tolerance", 0));
-        table.set("tolerance", table.get("tolerance", 0));
+        controller.setTolerance(table.getDouble("tolerance"));
+        table.set("tolerance", table.getDouble("tolerance"));
     }
 
     /** Resets the PID controller. */
@@ -96,21 +100,21 @@ public class TunablePIDController {
      * applies them to the PID controller.
      */
     public void refetch() {
-        controller.setPID(table.get("kP", 0), table.get("kI", 0), table.get("kD", 0));
+        controller.setPID(table.getDouble("proportional"), table.getDouble("integral"), table.getDouble("derivative"));
     }
 
     /**
      * Sets the PID constants.
      *
-     * @param p kP
-     * @param i kI
-     * @param d kD
+     * @param p proportional
+     * @param i integral
+     * @param d derivative
      */
     public void setPID(double p, double i, double d) {
         controller.setPID(p, i, d);
-        table.set("kP", p);
-        table.set("kI", i);
-        table.set("kD", d);
+        table.set("proportional", p);
+        table.set("integral", i);
+        table.set("derivative", d);
     }
 
     /**
