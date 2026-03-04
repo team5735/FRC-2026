@@ -121,34 +121,34 @@ public class RobotContainer {
 
         launcher.setDefaultCommand(launcher.getLaunchFuel(RPM.of(0), RPM.of(0)));
 
-        testController.a().whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-        testController.b().whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-        testController.x().whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-        testController.y().whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+        // testController.a().whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
+        // testController.b().whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
+        // testController.x().whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
+        // testController.y().whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
-        testController.rightBumper().whileTrue(drivetrain.applyRequest(
-                () -> {
-                    double x = testController.getRightX();
-                    double y = testController.getRightY();
-                    return new SwerveRequest.PointWheelsAt().withModuleDirection(new Rotation2d(-y, -x));
-                }));
+        // testController.rightBumper().whileTrue(drivetrain.applyRequest(
+        //         () -> {
+        //             double x = testController.getRightX();
+        //             double y = testController.getRightY();
+        //             return new SwerveRequest.PointWheelsAt().withModuleDirection(new Rotation2d(-y, -x));
+        //         }));
 
-        testController.a().whileTrue(launcher.getLaunchFuel(RPM.of(3000), RPM.of(24)));
-        testController.b().whileTrue(launcher.getLaunchFuel(RPM.of(1500), RPM.of(12)));
-        testController.x().whileTrue(launcher.getLaunchFuel(RPM.of(6000), RPM.of(48)));
+        testController.a().whileTrue(launcher.getFedLaunch(spindex, RPM.of(3000), RPM.of(24)));
+        testController.b().whileTrue(launcher.getFedLaunch(spindex, RPM.of(1500), RPM.of(12)));
+        testController.x().whileTrue(launcher.getFedLaunch(spindex, RPM.of(6000), RPM.of(48)));
 
-        testController.y().whileTrue(turret.trackRobotRel(() -> {
-            double x = -testController.getRightY();
-            double y = -testController.getRightX();
-            Angle theta = new Rotation2d(x, y).getMeasure();
-            SmartDashboard.putNumber("testTheta", theta.in(Rotations));
-            return theta;
-        }));
+        // testController.y().whileTrue(turret.trackRobotRel(() -> {
+        //     double x = -testController.getRightY();
+        //     double y = -testController.getRightX();
+        //     Angle theta = new Rotation2d(x, y).getMeasure();
+        //     SmartDashboard.putNumber("testTheta", theta.in(Rotations));
+        //     return theta;
+        // }));
 
-        testController.povUp().onTrue(turret.runOnce(() -> turret.remakePID()));
-        testController.povDown().whileTrue(turret.sysId());
-        testController.rightBumper().whileTrue(turret.testForward());
-        testController.leftBumper().whileTrue(turret.testReverse());
+        // testController.povUp().onTrue(turret.runOnce(() -> turret.remakePID()));
+        // testController.povDown().whileTrue(turret.sysId());
+        // testController.rightBumper().whileTrue(turret.testForward());
+        // testController.leftBumper().whileTrue(turret.testReverse());
     }
 
     public Command getAutonomousCommand() {
