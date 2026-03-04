@@ -99,11 +99,15 @@ public class RobotContainer {
         drivetrain.registerTelemetry(logger::telemeterize);
 
         hood.exclusionZoneTrigger.onTrue(Commands.runOnce(()->{
+            SmartDashboard.putBoolean("in_exclusion_zone", true);
+
             // todo: add telemetry / debug / logging
             hood.exzSaveServoPosition();
             hood.setHoodPosition(0);
         }));
         hood.exclusionZoneTrigger.onFalse(Commands.runOnce(()->{
+            SmartDashboard.putBoolean("in_exclusion_zone", false);
+
             // todo: add telemetry / debug / logging
             double pos = hood.exzGetSavedServoPosition();
             hood.setServoPosition(pos);
