@@ -50,8 +50,6 @@ public class TurretSubsystem extends SubsystemBase {
 
     private Supplier<Pose2d> robotPoseSupplier;
     private double prevVel = 0;
-    private boolean isZeroed = false;
-
     public TurretSubsystem(Supplier<Pose2d> robotPoseSupplier) {
         kraken.getConfigurator().apply(new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Brake)
                 .withInverted(InvertedValue.Clockwise_Positive));
@@ -73,7 +71,6 @@ public class TurretSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("turret/volts", kraken.getMotorVoltage().getValueAsDouble());
         SmartDashboard.putNumber("turret/posErrorRots", pid.getController().getPositionError());
         SmartDashboard.putBoolean("turret/limitEngaged", !hallLimit.get());
-        SmartDashboard.putBoolean("turret/isZeroed", isZeroed);
     }
 
     /**
@@ -331,7 +328,6 @@ public class TurretSubsystem extends SubsystemBase {
      */
     public Command zeroCommand() {
         return Commands.runOnce(() -> {
-            isZeroed = true;
             resetAngle(FORWARD_LIMIT_BOT_REL);
         });
     }

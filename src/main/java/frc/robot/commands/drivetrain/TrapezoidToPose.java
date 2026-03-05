@@ -1,10 +1,5 @@
 package frc.robot.commands.drivetrain;
 
-import static edu.wpi.first.units.Units.Centimeters;
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.Radians;
-
 import java.util.function.Supplier;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -35,9 +30,9 @@ public class TrapezoidToPose extends Command {
     @Override
     public void initialize() {
         this.targetPose = this.poseSupplier.get();
-        this.pidX.setup(targetPose.getX(), Centimeters.of(2).in(Meters));
-        this.pidY.setup(targetPose.getY(), Centimeters.of(2).in(Meters));
-        this.pidTheta.setup(targetPose.getRotation().getRadians(), Degrees.of(2).in(Radians));
+        this.pidX.setup(targetPose.getX());
+        this.pidY.setup(targetPose.getY());
+        this.pidTheta.setup(targetPose.getRotation().getRadians());
         this.pidTheta.getController().enableContinuousInput(-Math.PI, Math.PI);
     }
 

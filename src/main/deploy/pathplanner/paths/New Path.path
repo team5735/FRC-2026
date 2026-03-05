@@ -20,7 +20,7 @@
         "y": 2.324
       },
       "prevControl": {
-        "x": 1.703817313058036,
+        "x": 1.7038173130580359,
         "y": 2.927895903087797
       },
       "nextControl": null,
@@ -48,7 +48,7 @@
   "folder": "Test auto for limelight",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }

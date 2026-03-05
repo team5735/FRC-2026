@@ -6,7 +6,6 @@ import static edu.wpi.first.units.Units.Radians;
 import java.util.Arrays;
 
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
-import com.pathplanner.lib.auto.AutoBuilder;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -19,7 +18,6 @@ import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
-import frc.robot.constants.VisionConstants;
 import frc.robot.constants.drivetrain.CompbotTunerConstants;
 import frc.robot.util.NTable;
 
@@ -88,10 +86,6 @@ public class Telemetry {
 
     Telemetry() {
         field.getRobotObject().setPose(new Pose2d());
-        for (String limelight : VisionConstants.LIMELIGHTS) {
-            field.getObject(limelight).setPose(new Pose2d());
-        }
-        field.getObject("turret_pose").setPose(new Pose2d());
         field.getObject("arc").setPoses(RobotContainer.targetArc.getAsPoses());
         table.set("field", field);
         table.set("swerve state", sendableState);

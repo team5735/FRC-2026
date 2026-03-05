@@ -10,6 +10,7 @@ import java.util.function.Supplier;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.DrivetrainSubsystem;
+import frc.robot.util.NTable;
 import frc.robot.util.TunablePIDController;
 
 /**
@@ -32,22 +33,34 @@ public class PIDToPose extends Command {
     private DrivetrainSubsystem drivetrain;
 
     public PIDToPose(DrivetrainSubsystem drivetrain, Supplier<Pose2d> poseSupplier, String name) {
+        this(drivetrain, poseSupplier, name, false);
+    }
+
+    public PIDToPose(DrivetrainSubsystem drivetrain, Supplier<Pose2d> poseSupplier, String name,
+            boolean skipRequirement) {
         this.drivetrain = drivetrain;
         this.poseSupplier = poseSupplier;
-        this.pidX = new TunablePIDController(name + " drive to pose x");
-        this.pidY = new TunablePIDController(name + " drive to pose y");
-        this.pidTheta = new TunablePIDController(name + " drive to pose theta");
+        NTable table = NTable.root("pid to pose").sub(name);
+        this.pidX = new TunablePIDController(table, "x");
+        this.pidY = new TunablePIDController(table, "y");
+        this.pidTheta = new TunablePIDController(table, "theta");
         this.pidTheta.setContinuous(-Math.PI, Math.PI);
 
-        addRequirements(drivetrain);
+        this.pidX.ensureTolerance(Centimeters.of(2).in(Meters));
+        this.pidY.ensureTolerance(Centimeters.of(2).in(Meters));
+        this.pidTheta.ensureTolerance(Degrees.of(2).in(Radians));
+
+        if (!skipRequirement) {
+            addRequirements(drivetrain);
+        }
     }
 
     @Override
     public void initialize() {
         this.targetPose = this.poseSupplier.get();
-        this.pidX.setup(targetPose.getX(), Centimeters.of(2).in(Meters));
-        this.pidY.setup(targetPose.getY(), Centimeters.of(2).in(Meters));
-        this.pidTheta.setup(targetPose.getRotation().getRadians(), Degrees.of(2).in(Radians));
+        this.pidX.setup(targetPose.getX());
+        this.pidY.setup(targetPose.getY());
+        this.pidTheta.setup(targetPose.getRotation().getRadians());
     }
 
     @Override

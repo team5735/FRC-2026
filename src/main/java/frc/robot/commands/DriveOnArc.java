@@ -31,6 +31,7 @@ public class DriveOnArc extends Command {
         this.drivetrain = drivetrain;
         this.arc = arc;
         this.control = movement;
+        this.pidTheta.ensureTolerance(Degrees.of(15).in(Radians));
         addRequirements(drivetrain);
     }
 
@@ -39,7 +40,7 @@ public class DriveOnArc extends Command {
         Pose2d target = arc.getPoseFacingCenter(
                 arc.nearestPointOnArc(drivetrain.getEstimatedPosition().getTranslation()));
 
-        this.pidTheta.setup(target.getRotation().getRadians(), Degrees.of(15).in(Radians));
+        this.pidTheta.setup(target.getRotation().getRadians());
         this.pidTheta.getController().enableContinuousInput(-Math.PI, Math.PI);
     }
 

@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.constants.Constants;
-import frc.robot.constants.VisionConstants;
+import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.util.NTable;
 
 /**
@@ -27,20 +27,22 @@ public class Robot extends TimedRobot {
         NTable.root().set("hood tuning mode", Constants.HOOD_TUNING_MODE);
         if (Constants.BREADBOARD_MODE) {
             TestContainer.configureBindings();
-        } else if (Constants.HOOD_TUNING_MODE){
-            TestContainer.configureHoodTuningBindings();
         } else {
             robot = new RobotContainer();
         }
 
         NTable.root().set("scheduler", CommandScheduler.getInstance());
+
+        for (final LimelightSubsystem ll : RobotContainer.limelights) {
+            ll.setIMUToPigeon();
+        }
     }
 
     @Override
     public void robotPeriodic() {
         if (!Constants.BREADBOARD_MODE) {
-            for (String limelight : VisionConstants.LIMELIGHTS) {
-                RobotContainer.vision.handleVisionMeasurement(limelight);
+            for (LimelightSubsystem limelight : RobotContainer.limelights) {
+                limelight.handleVisionMeasurement();
             }
         }
 
@@ -49,11 +51,13 @@ public class Robot extends TimedRobot {
     }
 
     @Override
-    public void disabledInit() {
-    }
+    public void disabledInit() {}
 
     @Override
     public void disabledPeriodic() {
+        for (final LimelightSubsystem ll : RobotContainer.limelights) {
+            ll.setIMUToPigeon();
+        }
     }
 
     @Override
@@ -67,22 +71,28 @@ public class Robot extends TimedRobot {
         if (autonomousCommand != null) {
             CommandScheduler.getInstance().schedule(autonomousCommand);
         }
+
+        for (var ll : RobotContainer.limelights) {
+            ll.setIMUMode(3);
+        }
     }
 
     @Override
-    public void autonomousPeriodic() {
-    }
+    public void autonomousPeriodic() {}
 
     @Override
     public void teleopInit() {
         if (autonomousCommand != null) {
             autonomousCommand.cancel();
         }
+
+        for (var ll : RobotContainer.limelights) {
+            ll.setIMUMode(3);
+        }
     }
 
     @Override
-    public void teleopPeriodic() {
-    }
+    public void teleopPeriodic() {}
 
     @Override
     public void testInit() {
@@ -90,14 +100,11 @@ public class Robot extends TimedRobot {
     }
 
     @Override
-    public void testPeriodic() {
-    }
+    public void testPeriodic() {}
 
     @Override
-    public void simulationInit() {
-    }
+    public void simulationInit() {}
 
     @Override
-    public void simulationPeriodic() {
-    }
+    public void simulationPeriodic() {}
 }
