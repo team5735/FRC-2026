@@ -8,37 +8,37 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.Constants;
 
 public class SpinDexSubsystem extends SubsystemBase {
-    public final SparkFlex outerMotor = new SparkFlex(Constants.motor6, MotorType.kBrushless);
-    public final SparkFlex innerMotor = new SparkFlex(Constants.motor27, MotorType.kBrushless);
+    public final SparkFlex feedVortex = new SparkFlex(Constants.SPINDEX_FEED_VORTEX_ID, MotorType.kBrushless);
+    public final SparkFlex wheelVortex = new SparkFlex(Constants.SPINDEX_WHEEL_VORTEX_ID, MotorType.kBrushless);
 
     public SpinDexSubsystem() {
-        outerMotor.clearFaults();
-        innerMotor.clearFaults();
+        feedVortex.clearFaults();
+        wheelVortex.clearFaults();
     }
 
-    public void runOuter() {
-        outerMotor.setVoltage(-5);
+    public void runFeeder() {
+        feedVortex.setVoltage(-5);
     }
 
-    public void stopOuter() {
-        outerMotor.setVoltage(0);
+    public void stopFeeder() {
+        feedVortex.setVoltage(0);
     }
 
-    public void runInner() {
-        innerMotor.setVoltage(-3);
+    public void runWheel() {
+        wheelVortex.setVoltage(-3);
     }
 
-    public void stopInner() {
-        innerMotor.setVoltage(0);
+    public void stopWheel() {
+        wheelVortex.setVoltage(0);
     }
     
     public Command getStart() {
         return runOnce(() -> {
-            runInner();
-            runOuter();
+            runWheel();
+            runFeeder();
         }).finallyDo(() -> {
-            stopInner();
-            stopOuter();
+            stopWheel();
+            stopFeeder();
         });
     }
 }

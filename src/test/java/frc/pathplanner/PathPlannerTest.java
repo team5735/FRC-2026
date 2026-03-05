@@ -6,6 +6,7 @@ import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -36,5 +37,32 @@ public class PathPlannerTest {
                     pos.getY(),
                     s.pose.getRotation().getDegrees());
         }
+    }
+
+    @Test
+    void continuousPIDTest() throws Exception {
+        System.out.printf("here!\n");
+        PIDController controller;
+
+        controller = new PIDController(1, 0, 0);
+        controller.enableContinuousInput(0, 10);
+
+        controller.setSetpoint(0);
+        controller.setTolerance(0);
+
+        System.out.printf("setpoint: 0\n");
+        for (int x = -10; x < 20; x++) {
+            double e = controller.calculate(x);
+            System.out.printf("  measurement: %d, error: %f\n", x, e);
+        }
+
+        controller.setSetpoint(15);
+        System.out.printf("setpoint: 15 (5)\n");
+        for (int x = -10; x < 20; x++) {
+            double e = controller.calculate(x);
+            System.out.printf("  measurement: %d, error: %f\n", x, e);
+        }
+
+        controller.close();
     }
 }

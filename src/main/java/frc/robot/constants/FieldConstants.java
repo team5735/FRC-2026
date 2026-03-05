@@ -1,6 +1,7 @@
 package frc.robot.constants;
 
 import static edu.wpi.first.units.Units.Meters;
+
 import static edu.wpi.first.units.Units.Inches;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -10,6 +11,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.math.geometry.Rectangle2d;
 
 // This file provides positions, orientations, distances, and poses to field elements for
 // the REBUILT 2026 competition playing field.
@@ -39,6 +41,11 @@ public class FieldConstants {
     public static Pose2d redElement(Pose2d blueElement) {
         return new Pose2d(redElement(blueElement.getTranslation()),
                 blueElement.getRotation().plus(Rotation2d.fromDegrees(180)));
+    }
+
+    public static Rectangle2d redElement(Rectangle2d blueElement) {
+        return new Rectangle2d(redElement(blueElement.getCenter()),
+                blueElement.getXWidth(), blueElement.getYWidth());
     }
 
     /**
@@ -84,9 +91,23 @@ public class FieldConstants {
     public static final Translation2d BLUE_TRENCH_LEFT_CENTER = new Translation2d(inch(181.56),
             inch(FIELD_LENGTH_Y.in(Inches) - 24.97));
     public static final Translation3d TRENCH_DIMENSION = new Translation3d(
-            inch(0), // TODO: incorrect
+            inch(44.4), // TODO: incorrect, setting to RAMP X length, because the trench is just a bar
             inch(2 * 24.97), // how wide it is to fit a bot through
             inch(22.25)); // height to the ceiling of the tunnel
+
+    ///////////////////////////////////////
+    // TRENCH / HOOD DOWN EXLUSION ZONES //
+    ///////////////////////////////////////
+    // The trench centers (above) are the centers of our rectangle exclusion zone
+    // we simply define the extent of the rectangle as being some
+    // percent bigger than the trench itself
+    public static final Rectangle2d HOOD_DOWN_EXCLUSION_BLUE_TRENCH_LEFT = new Rectangle2d(
+            new Pose2d(BLUE_TRENCH_LEFT_CENTER, Rotation2d.kZero),
+            1.20 * TRENCH_DIMENSION.getX(), 1.15 * TRENCH_DIMENSION.getY());
+
+    public static final Rectangle2d HOOD_DOWN_EXCLUSION_BLUE_TRENCH_RIGHT = new Rectangle2d(
+            new Pose2d(BLUE_TRENCH_RIGHT_CENTER, Rotation2d.kZero),
+            1.20 * TRENCH_DIMENSION.getX(), 1.15 * TRENCH_DIMENSION.getY());
 
     ////////////////////
     // RAMP CONSTANTS //
