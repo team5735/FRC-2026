@@ -7,13 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Final Circle Test"
+            "pathName": "Right Bump 90"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 1.0
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "Test",
   "choreoAuto": false
 }
