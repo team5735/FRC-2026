@@ -31,7 +31,7 @@ public class SpinDexSubsystem extends SubsystemBase {
     public void stopWheel() {
         wheelVortex.setVoltage(0);
     }
-
+    
     public Command getStart() {
         return startEnd(() -> {
             runWheel();

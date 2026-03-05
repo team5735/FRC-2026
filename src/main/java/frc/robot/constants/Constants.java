@@ -33,6 +33,8 @@ public class Constants {
     public static final Rotation2d BLUE_ALLIANCE_PERSPECTIVE_ROTATION = Rotation2d.kZero;
     public static final Rotation2d RED_ALLIANCE_PERSPECTIVE_ROTATION = Rotation2d.k180deg;
 
+    public static final int motor6 = 15;
+    public static final int motor27 = 27;
     public static final int SPINDEX_FEED_VORTEX_ID = 30;
     public static final int SPINDEX_WHEEL_VORTEX_ID = 31;
 

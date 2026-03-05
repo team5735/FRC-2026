@@ -31,8 +31,8 @@ import frc.robot.util.NTable;
 import frc.robot.util.TunablePIDController;
 
 public class FuelLauncherSubsystem extends SubsystemBase {
-    private final TalonFX krakenLeft = new TalonFX(Constants.LAUNCHER_LEFT_KRAKEN_ID);
-    private final TalonFX krakenRight = new TalonFX(Constants.LAUNCHER_RIGHT_KRAKEN_ID);
+    private final TalonFX krakenLeft = new TalonFX(FuelLauncherConstants.LAUNCHER_LEFT_KRAKEN_ID);
+    private final TalonFX krakenRight = new TalonFX(FuelLauncherConstants.LAUNCHER_RIGHT_KRAKEN_ID);
 
     private final TunablePIDController pid = new TunablePIDController("fuel_launcher", FuelLauncherConstants.KP, 0, 0);
     private final SimpleMotorFeedforward ff = new SimpleMotorFeedforward(FuelLauncherConstants.KS,
@@ -72,6 +72,8 @@ public class FuelLauncherSubsystem extends SubsystemBase {
     LinearFilter errorAverage = LinearFilter.movingAverage(50);
 
     @Override
+    // Multiplying krakenMotor by 60 to turn rotations per second into rotations per
+    // minute (RPM)
     public void periodic() {
         double currentRPM = getRPM();
         this.table.set("speed_rpm", currentRPM);
