@@ -41,9 +41,9 @@ import frc.robot.subsystems.DrivetrainSubsystem;
 public class CompbotTunerConstants {
     // The steer motor uses any SwerveModule.SteerRequestType control request with
     // the output type specified by SwerveModuleConstants.SteerMotorClosedLoopOutput
-    public static final Slot0Configs DEFAULT_STEER_CONSTANTS = new Slot0Configs() // TODO redo sysid with new treads
-            .withKP(40).withKI(0).withKD(0.075)
-            .withKS(0.12).withKV(1.41).withKA(0.12)
+    public static final Slot0Configs DEFAULT_STEER_CONSTANTS = new Slot0Configs()
+            .withKP(45).withKI(0).withKD(0.1)
+            .withKS(0.13).withKV(1.43).withKA(0.13)
             .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
     // When using closed-loop control, the drive motor uses the control
     // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
@@ -68,7 +68,7 @@ public class CompbotTunerConstants {
 
     // The stator current at which the wheels start to slip;
     // This needs to be tuned to your individual robot
-    private static final Current SLIP_CURRENT = Amps.of(120.0); // TODO
+    private static final Current SLIP_CURRENT = Amps.of(115.0);
 
     // Initial configs for the drive and steer motors and the azimuth encoder; these
     // cannot be null.
@@ -81,7 +81,7 @@ public class CompbotTunerConstants {
                             // Swerve azimuth does not require much torque output, so we can
                             // set a relatively low current limit to help avoid brownouts
                             // without impacting performance.
-                            .withStatorCurrentLimit(Amps.of(60))
+                            .withStatorCurrentLimit(Amps.of(70))
                             .withStatorCurrentLimitEnable(true));
     private static final CANcoderConfiguration encoderInitialConfigs = new CANcoderConfiguration();
     // Configs for the Pigeon 2; leave this null to skip applying Pigeon 2 configs
@@ -96,7 +96,7 @@ public class CompbotTunerConstants {
     public static final LinearVelocity SPEED_AT_12_VOLTS = MetersPerSecond.of(12 / DEFAULT_DRIVE_CONSTANTS.kV);
 
     // Every 1 rotation of the azimuth results in kCoupleRatio drive motor turns;
-    private static final double COUPLE_RATIO = 4.277;
+    private static final double COUPLE_RATIO = 3.0088;
 
     public static final double DRIVE_GEAR_RATIO = 4.725;
     private static final double STEER_GEAR_RATIO = 12.1;
@@ -150,9 +150,9 @@ public class CompbotTunerConstants {
     private static final boolean FRONT_LEFT_ENCODER_INVERTED = false;
 
     public static final Slot0Configs FL_STEER_CONSTANTS = DEFAULT_STEER_CONSTANTS
-            .withKS(0.0082359).withKV(1.4135).withKA(0.16887);
+            .withKS(0.12006).withKV(1.425).withKA(0.18651);
     public static final Slot0Configs FL_DRIVE_CONSTANTS = DEFAULT_DRIVE_CONSTANTS
-            .withKS(0.12737).withKV(0.11121).withKA(0.011079);
+            .withKS(0.1509).withKV(0.11473).withKA(0.01764);
 
     public static final Distance FRONT_LEFT_XPOS = Inches.of(10);
     public static final Distance FRONT_LEFT_YPOS = Inches.of(12.25);
@@ -166,9 +166,9 @@ public class CompbotTunerConstants {
     private static final boolean FRONT_RIGHT_ENCODER_INVERTED = false;
 
     public static final Slot0Configs FR_STEER_GAINS = DEFAULT_STEER_CONSTANTS
-            .withKS(0.18209).withKV(1.4045).withKA(0.080639);
+            .withKS(0.12501).withKV(1.428).withKA(0.14018);
     public static final Slot0Configs FR_DRIVE_CONSTANTS = DEFAULT_DRIVE_CONSTANTS
-            .withKS(0.13152).withKV(0.11285).withKA(0.01173);
+            .withKS(0.14581).withKV(0.11426).withKA(0.018372);
 
     public static final Distance FRONT_RIGHT_XPOS = Inches.of(10);
     public static final Distance FRONT_RIGHT_YPOS = Inches.of(-12.25);
@@ -182,9 +182,9 @@ public class CompbotTunerConstants {
     private static final boolean BACK_LEFT_ENCODER_INVERTED = false;
 
     public static final Slot0Configs BL_STEER_GAINS = DEFAULT_STEER_CONSTANTS
-            .withKS(0.14556).withKV(1.4084).withKA(0.10604);
+            .withKS(0.16).withKV(1.4279).withKA(0.11907);
     public static final Slot0Configs BL_DRIVE_CONSTANTS = DEFAULT_DRIVE_CONSTANTS
-            .withKS(0.12809).withKV(0.112).withKA(0.013784);
+            .withKS(0.16247).withKV(0.11416).withKA(0.017118);
 
     public static final Distance BACK_LEFT_XPOS = Inches.of(-10);
     public static final Distance BACK_LEFT_YPOS = Inches.of(12.25);
@@ -198,9 +198,9 @@ public class CompbotTunerConstants {
     private static final boolean BACK_RIGHT_ENCODER_INVERTED = false;
 
     public static final Slot0Configs BR_STEER_GAINS = DEFAULT_STEER_CONSTANTS
-            .withKS(0.016316).withKV(1.435).withKA(0.24407);
+            .withKS(0.12813).withKV(1.4532).withKA(0.18713);
     public static final Slot0Configs BR_DRIVE_CONSTANTS = DEFAULT_DRIVE_CONSTANTS
-            .withKS(0.12907).withKV(0.11147).withKA(0.011227);
+            .withKS(0.168).withKV(0.114).withKA(0.013325);
 
     public static final Distance BACK_RIGHT_XPOS = Inches.of(-10);
     public static final Distance BACK_RIGHT_YPOS = Inches.of(-12.25);

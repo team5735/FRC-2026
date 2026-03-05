@@ -15,7 +15,7 @@ import frc.robot.constants.Constants;
 public class ClimberSubsystem extends SubsystemBase {
     public final TalonFX talon = new TalonFX(Constants.CLIMB_TALON_ID);
 
-    private final DigitalInput limitUp = new DigitalInput(Constants.CLIMB_LOWER_LIMIT_PIN);
+    private final DigitalInput limitUp = new DigitalInput(Constants.CLIMB_UPPER_LIMIT_PIN);
     private final DigitalInput limitDown = new DigitalInput(Constants.CLIMB_LOWER_LIMIT_PIN);
     private boolean canMoveUp;
     private boolean canMoveDown;

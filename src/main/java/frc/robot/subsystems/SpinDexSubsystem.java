@@ -25,7 +25,7 @@ public class SpinDexSubsystem extends SubsystemBase {
     }
 
     public void runWheel() {
-        wheelVortex.setVoltage(-3);
+        wheelVortex.setVoltage(-2);
     }
 
     public void stopWheel() {
@@ -33,10 +33,10 @@ public class SpinDexSubsystem extends SubsystemBase {
     }
 
     public Command getStart() {
-        return runOnce(() -> {
+        return startEnd(() -> {
             runWheel();
             runFeeder();
-        }).finallyDo(() -> {
+        }, () -> {
             stopWheel();
             stopFeeder();
         });

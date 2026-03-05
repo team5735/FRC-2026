@@ -34,6 +34,7 @@ import frc.robot.constants.Constants;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.drivetrain.CompbotTunerConstants;
 import frc.robot.constants.drivetrain.DevbotTunerConstants;
+import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.FuelLauncherSubsystem;
 import frc.robot.subsystems.HoodSubsystem;
@@ -51,28 +52,26 @@ public class RobotContainer {
     public static final CommandXboxController subsystemController = new CommandXboxController(
             Constants.SUBSYSTEM_CONTROLLER_PORT);
 
-
     private final SendableChooser<Command> autoChooser;
 
     private final Telemetry logger = new Telemetry();
 
     public static final DrivetrainSubsystem drivetrain = switch (Constants.DRIVETRAIN_TYPE) {
-            case COMPBOT -> CompbotTunerConstants.createDrivetrain();
-            case DEVBOT -> DevbotTunerConstants.createDrivetrain();
-        };
+        case COMPBOT -> CompbotTunerConstants.createDrivetrain();
+        case DEVBOT -> DevbotTunerConstants.createDrivetrain();
+    };
 
     public static final FuelLauncherSubsystem launcher = new FuelLauncherSubsystem();
     public static final TurretSubsystem turret = new TurretSubsystem(drivetrain::getEstimatedPosition);
     public static final VisionSubsystem vision = new VisionSubsystem(drivetrain);
+    public static final ClimberSubsystem climber = new ClimberSubsystem();
     public static final SpinDexSubsystem spindex = new SpinDexSubsystem();
-    
 
-    
-    public static final HoodSubsystem hood = new HoodSubsystem(turret::getMechanismPose, 
-    new Rectangle2d[]{FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_LEFT,
-         FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_RIGHT,
-         FieldConstants.redElement(FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_LEFT),
-         FieldConstants.redElement(FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_RIGHT)});
+    public static final HoodSubsystem hood = new HoodSubsystem(turret::getMechanismPose,
+            new Rectangle2d[] { FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_LEFT,
+                    FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_RIGHT,
+                    FieldConstants.redElement(FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_LEFT),
+                    FieldConstants.redElement(FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_RIGHT) });
 
     public RobotContainer() {
         configureBindings();
@@ -111,7 +110,8 @@ public class RobotContainer {
                 () -> driveController.getHID().getBButton()));
 
         turret.setDefaultCommand(turret.holdRobotRel(Rotations.of(0.5)));
-        turret.limitTrigger.onTrue(turret.zeroCommand()); // resets the turrets position when it engages the Hall-Effect sensor
+        turret.limitTrigger.onTrue(turret.zeroCommand()); // resets the turrets position when it engages the Hall-Effect
+                                                          // sensor
 
         driveController.a().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
         driveController.x().onTrue(turret.holdFieldRelative(Rotations.of(0)));
@@ -134,12 +134,12 @@ public class RobotContainer {
                 () -> {
                     double x = testController.getRightX();
                     double y = testController.getRightY();
-                    return new SwerveRequest.PointWheelsAt().withModuleDirection(new Rotation2d(x, y));
+                    return new SwerveRequest.PointWheelsAt().withModuleDirection(new Rotation2d(-y, -x));
                 }));
 
-        testController.a().whileTrue(launcher.getLaunchFuel(RPM.of(3000), RPM.of(24)));
-        testController.b().whileTrue(launcher.getLaunchFuel(RPM.of(1500), RPM.of(12)));
-        testController.x().whileTrue(launcher.getLaunchFuel(RPM.of(6000), RPM.of(48)));
+        testController.a().whileTrue(launcher.getFedLaunch(spindex, RPM.of(3000), RPM.of(24)));
+        testController.b().whileTrue(launcher.getFedLaunch(spindex, RPM.of(1500), RPM.of(12)));
+        testController.x().whileTrue(launcher.getFedLaunch(spindex, RPM.of(6000), RPM.of(48)));
 
         testController.y().whileTrue(turret.trackRobotRel(() -> {
             double x = -testController.getRightY();

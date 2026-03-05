@@ -42,10 +42,11 @@ public class FuelLauncherSubsystem extends SubsystemBase {
 
     public FuelLauncherSubsystem() {
         SmartDashboard.putNumber("shooter_volts", FuelLauncherConstants.LAUNCHER_VOLTS);
-        krakenLeft.getConfigurator().apply(new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive)
-                .withNeutralMode(NeutralModeValue.Coast));
+        krakenLeft.getConfigurator()
+                .apply(new MotorOutputConfigs().withInverted(InvertedValue.CounterClockwise_Positive)
+                        .withNeutralMode(NeutralModeValue.Coast));
         krakenRight.setControl(new Follower(Constants.LAUNCHER_LEFT_KRAKEN_ID, MotorAlignmentValue.Opposed));
-        pid.setup(0);
+        pid.setup(0, 100);
     }
 
     public double getRPM() {
@@ -102,6 +103,11 @@ public class FuelLauncherSubsystem extends SubsystemBase {
                             setTargetRPM(speed.minus(correction).in(RPM));
                         }, this::usePID))
                 .withName("Launch Fuel at " + speed);
+    }
+
+    public Command getFedLaunch(SpinDexSubsystem spindex, AngularVelocity speed, AngularVelocity correction) {
+        return this.getLaunchFuel(speed, correction).until(pid::atSetpoint)
+                .andThen(this.getLaunchFuel(speed, correction).alongWith(spindex.getStart()));
     }
 
     private SysIdRoutine routine = new SysIdRoutine(
