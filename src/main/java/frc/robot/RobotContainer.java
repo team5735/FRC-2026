@@ -34,6 +34,11 @@ import frc.robot.constants.drivetrain.DevbotTunerConstants;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.util.geometry.Arc;
+import frc.robot.subsystems.FuelLauncherSubsystem;
+import frc.robot.subsystems.HoodSubsystem;
+import frc.robot.subsystems.SpinDexSubsystem;
+import frc.robot.subsystems.TurretSubsystem;
+import frc.robot.subsystems.VisionSubsystem;
 
 public class RobotContainer {
     public static final CommandXboxController driveController = new CommandXboxController(
@@ -44,6 +49,9 @@ public class RobotContainer {
 
     public static final CommandXboxController testController = new CommandXboxController(
             Constants.TEST_CONTROLLER_PORT);
+
+    public static final CommandXboxController subsystemController = new CommandXboxController(
+            Constants.SUBSYSTEM_CONTROLLER_PORT);
 
     private final SendableChooser<Command> autoChooser;
 
@@ -58,6 +66,15 @@ public class RobotContainer {
             new LimelightSubsystem(drivetrain, "limelight-flft"),
             new LimelightSubsystem(drivetrain, "limelight-ftwo")
     };
+    public static final FuelLauncherSubsystem launcher = new FuelLauncherSubsystem();
+    public static final TurretSubsystem turret = new TurretSubsystem(drivetrain::getEstimatedPosition);
+    public static final SpinDexSubsystem spindex = new SpinDexSubsystem();
+    
+    public static final HoodSubsystem hood = new HoodSubsystem(turret::getMechanismPose, 
+    new Rectangle2d[]{FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_LEFT,
+         FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_RIGHT,
+         FieldConstants.redElement(FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_LEFT),
+         FieldConstants.redElement(FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_RIGHT)});
 
     public RobotContainer() {
         configureBindings();
@@ -122,6 +139,25 @@ public class RobotContainer {
                     double y = testController.getRightY();
                     return new SwerveRequest.PointWheelsAt().withModuleDirection(new Rotation2d(x, y));
                 }));
+
+        testController.a().whileTrue(launcher.getLaunchFuel(RPM.of(3000), RPM.of(24)));
+        testController.b().whileTrue(launcher.getLaunchFuel(RPM.of(1500), RPM.of(12)));
+        testController.x().whileTrue(launcher.getLaunchFuel(RPM.of(6000), RPM.of(48)));
+
+        testController.y().whileTrue(turret.trackRobotRel(() -> {
+            double x = -testController.getRightY();
+            double y = -testController.getRightX();
+            Angle theta = new Rotation2d(x, y).getMeasure();
+            SmartDashboard.putNumber("testTheta", theta.in(Rotations));
+            return theta;
+        }));
+
+        testController.povUp().onTrue(turret.runOnce(() -> turret.remakePID()));
+        testController.povDown().whileTrue(turret.sysId());
+        testController.rightBumper().whileTrue(turret.testForward());
+        testController.leftBumper().whileTrue(turret.testReverse());
+
+        subsystemController.a().whileTrue(spindex.getStart());
     }
 
     public Command getAutonomousCommand() {
