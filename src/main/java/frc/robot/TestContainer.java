@@ -8,8 +8,8 @@ public class TestContainer {
     private static final CommandXboxController driveController = new CommandXboxController(
             Constants.DRIVE_CONTROLLER_PORT);
 
-    
     private static final ClimberSubsystem climber = new ClimberSubsystem();
+
     public static void configureBindings() {
         driveController.a().whileTrue(climber.getClimbUpCommand());
         driveController.b().whileTrue(climber.getClimbDownCommand());

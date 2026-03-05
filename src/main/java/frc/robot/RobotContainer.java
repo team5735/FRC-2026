@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Feet;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Rotations;
 
@@ -12,15 +14,14 @@ import java.util.Map;
 
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.swerve.SwerveRequest;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathfindingCommand;
 
-import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rectangle2d;
-import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -29,6 +30,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import frc.robot.commands.DriveOnArc;
 import frc.robot.commands.drivetrain.PIDToPose;
 import frc.robot.constants.Constants;
 import frc.robot.constants.FieldConstants;
@@ -41,6 +43,7 @@ import frc.robot.subsystems.HoodSubsystem;
 import frc.robot.subsystems.SpinDexSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
+import frc.robot.util.geometry.Arc;
 
 public class RobotContainer {
     public static final CommandXboxController driveController = new CommandXboxController(
@@ -83,7 +86,7 @@ public class RobotContainer {
         autoChooser = AutoBuilder.buildAutoChooser();
 
         SmartDashboard.putData("Choose an Auto", autoChooser);
-        CommandScheduler.getInstance().schedule(PathfindingCommand.warmupCommand());
+        CommandScheduler.getInstance().schedule(PathfindingCommand.warmupCommand().withName("Warmup Pathfinding"));
 
         SignalLogger.enableAutoLogging(false);
 
@@ -98,6 +101,9 @@ public class RobotContainer {
         }
         return new Rotation2d(x, y);
     }
+
+    public static Arc targetArc = new Arc(FieldConstants.BLUE_HUB_CENTER,
+            Feet.of(7.5).in(Meters), Rotation2d.fromDegrees(90), Rotation2d.fromDegrees(270));
 
     private void configureBindings() {
         drivetrain.registerTelemetry(logger::telemeterize);
@@ -117,11 +123,18 @@ public class RobotContainer {
         driveController.x().onTrue(turret.holdFieldRelative(Rotations.of(0)));
         driveController.y()
                 .onTrue(new PIDToPose(drivetrain,
-                        () -> drivetrain.getEstimatedPosition()
-                                .plus(new Transform2d(
-                                        new Translation2d(1, getRightStickAsRotation()),
-                                        Rotation2d.kZero)),
-                        "straight line"));
+                        () -> targetArc.getPoseFacingCenter(
+                                targetArc.nearestPointOnArc(
+                                        drivetrain.getEstimatedPosition().getTranslation())),
+                        "drive to arc"));
+        driveController.x().onTrue(drivetrain
+                .runOnce(() -> drivetrain.resetPose(new Pose2d())).withName("Resetting Pose"));
+
+        driveController.a().whileTrue(
+                new DriveOnArc(drivetrain, targetArc, () -> MathUtil.applyDeadband(driveController.getLeftX(), 0.1)));
+        turret.setDefaultCommand(turret.holdRobotRel(Rotations.of(0.5)));
+        turret.limitTrigger.onTrue(turret.zeroCommand()); // resets the turrets position when it engages the Hall-Effect
+                                                          // sensor
 
         launcher.setDefaultCommand(launcher.getLaunchFuel(RPM.of(0), RPM.of(0)));
 

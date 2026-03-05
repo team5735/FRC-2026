@@ -141,6 +141,16 @@ public class TunablePIDController {
         return value;
     }
 
+    /** {@return the next output of the PID controller} */
+    public double calculate(double measurement, double setpoint) {
+        double value = controller.calculate(measurement, setpoint);
+        table.set("measurement", measurement);
+        table.set("output", value);
+        table.set("error", controller.getError());
+        table.set("setpoint", setpoint);
+        return value;
+    }
+
     /** {@return whether this PIDController is within tolerance of the setpoint} */
     public boolean atSetpoint() {
         return this.controller.atSetpoint();

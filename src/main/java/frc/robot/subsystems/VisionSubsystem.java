@@ -218,7 +218,7 @@ public class VisionSubsystem extends SubsystemBase {
         NTable penalties = est.sub("penalties");
 
         // multiply by 1 + average distance to camera
-        double distPenalty = 1 + estimate.distToCamera * 3;
+        double distPenalty = 1 + estimate.distToCamera;
         penalties.set("distance", distPenalty);
         // multiply by 1 + speed
         double speedPenalty = 1 + Math.hypot(
