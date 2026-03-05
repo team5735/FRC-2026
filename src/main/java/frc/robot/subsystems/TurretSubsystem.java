@@ -276,7 +276,9 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     /**
-     * @return the turret-relative {@link Angle} of the turret. <p> Turret-relative is
+     * @return the turret-relative {@link Angle} of the turret.
+     *         <p>
+     *         Turret-relative is
      *         an offset position space, where zero is halfway between the turrets
      *         limits; it is only used for internal control logic.
      */

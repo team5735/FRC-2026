@@ -42,23 +42,27 @@ public class TurretConstants {
     public static final Angle START_POS_BOT_REL = Rotations.of(0.5);
 
     /**
-     * Clamps a goal angle and to the functional range of this subsystem, converting it to the turret-relative space
+     * Clamps a goal angle and to the functional range of this subsystem, converting
+     * it to the turret-relative space
      * 
      * @param input the robot-relative goal position to be clamped.
      * 
-     * @return turret-relative {@link Angle} inclusively between the upper and lower bounds of this
+     * @return turret-relative {@link Angle} inclusively between the upper and lower
+     *         bounds of this
      *         subsystem; either the rotational equivalent of the input, or one of
      *         the bounds.
      */
     public static Angle formatInputRobotRel(Angle input) {
         return formatInputTurretRel(input.minus(ZERO_OFFSET));
     }
+
     /**
      * Clamps a goal angle and to the functional range of this subsystem
      * 
      * @param input the turret-relative goal position to be clamped.
      * 
-     * @return turret-relative {@link Angle} inclusively between the upper and lower bounds of this
+     * @return turret-relative {@link Angle} inclusively between the upper and lower
+     *         bounds of this
      *         subsystem; either the rotational equivalent of the input, or one of
      *         the bounds.
      */
@@ -73,16 +77,19 @@ public class TurretConstants {
      * Converts a turret-relative {@link Angle} to a robot-relative one
      * 
      * @param input the turret-relative position to be converted
-     * @return a robot-relative equivalent of the input, calculated by adding {@link #ZERO_OFFSET}
+     * @return a robot-relative equivalent of the input, calculated by adding
+     *         {@link #ZERO_OFFSET}
      */
     public static Angle turretRelToRobotRel(Angle input) {
         return Rotations.of(MathUtil.inputModulus(input.plus(ZERO_OFFSET).in(Rotations), 0, 1));
     }
+
     /**
      * Converts a robot-relative {@link Angle} to a turret-relative one
      * 
      * @param input the robot-relative position to be converted
-     * @return a turret-relative equivalent of the input, calculated by subtracting {@link #ZERO_OFFSET}
+     * @return a turret-relative equivalent of the input, calculated by subtracting
+     *         {@link #ZERO_OFFSET}
      */
     public static Angle robotRelToTurretRel(Angle input) {
         return Rotations.of(MathUtil.inputModulus(input.minus(ZERO_OFFSET).in(Rotations), 0, 1));
