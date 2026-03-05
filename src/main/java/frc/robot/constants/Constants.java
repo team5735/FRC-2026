@@ -19,14 +19,18 @@ public class Constants {
 
     // disables drivetrain and autos initialization
     public static boolean BREADBOARD_MODE = true;
+    public static boolean HOOD_TUNING_MODE = false;
     public static DrivetrainType DRIVETRAIN_TYPE = DrivetrainType.DEVBOT;
 
     public static final int DRIVE_CONTROLLER_PORT = 0;
     public static final int SUBSYSTEM_CONTROLLER_PORT = 1;
     public static final int TEST_CONTROLLER_PORT = 2;
 
-    public static final double START_REVOLUTION_POSITION = 0.4;
-    public static final double END_REVOLUTION_POSITION = 0.6;
+    public static final double HOOD_LOWEST_SERVO_POSITION = 0.2;
+    public static final double HOOD_HIGHEST_SERVO_POSITION = 0.7;
+
+    public static final double HOOD_LOWEST_ANGLE_DEGREES = 8.0;
+    public static final double HOOD_HIGHEST_ANGLE_DEGREES = 45.0;
 
     public static final double DEADBAND = 0.1;
 

@@ -28,6 +28,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.commands.DriveOnArc;
@@ -108,6 +109,21 @@ public class RobotContainer {
     private void configureBindings() {
         drivetrain.registerTelemetry(logger::telemeterize);
 
+        hood.exclusionZoneTrigger.onTrue(Commands.runOnce(()->{
+            SmartDashboard.putBoolean("in_exclusion_zone", true);
+
+            // todo: add telemetry / debug / logging
+            hood.exzSaveServoPosition();
+            hood.setHoodPosition(0);
+        }));
+        hood.exclusionZoneTrigger.onFalse(Commands.runOnce(()->{
+            SmartDashboard.putBoolean("in_exclusion_zone", false);
+
+            // todo: add telemetry / debug / logging
+            double pos = hood.exzGetSavedServoPosition();
+            hood.setServoPosition(pos);
+        }));
+
         drivetrain.setDefaultCommand(drivetrain.joystickDriveCommand(
                 () -> driveController.getLeftX(),
                 () -> driveController.getLeftY(),
@@ -119,8 +135,13 @@ public class RobotContainer {
         turret.limitTrigger.onTrue(turret.zeroCommand()); // resets the turrets position when it engages the Hall-Effect
                                                           // sensor
 
-        driveController.a().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
-        driveController.x().onTrue(turret.holdFieldRelative(Rotations.of(0)));
+        // driveController.a().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+        // driveController.x().onTrue(turret.holdFieldRelative(Rotations.of(0)));
+        driveController.x().onTrue(Commands.runOnce(()->{
+            hood.setHoodPosition(0.7);
+            System.out.println("x command");
+        }));
+        driveController.a().onTrue(Commands.runOnce(()->hood.setHoodPosition(0.3)));
         driveController.y()
                 .onTrue(new PIDToPose(drivetrain,
                         () -> targetArc.getPoseFacingCenter(

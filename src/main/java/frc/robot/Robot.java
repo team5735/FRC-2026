@@ -24,8 +24,11 @@ public class Robot extends TimedRobot {
 
     public Robot() {
         NTable.root().set("breadboard mode", Constants.BREADBOARD_MODE);
+        NTable.root().set("hood tuning mode", Constants.HOOD_TUNING_MODE);
         if (Constants.BREADBOARD_MODE) {
             TestContainer.configureBindings();
+        } else if (Constants.HOOD_TUNING_MODE){
+            TestContainer.configureHoodTuningBindings();
         } else {
             robot = new RobotContainer();
         }
