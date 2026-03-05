@@ -16,7 +16,7 @@ public class Constants {
     public static final int SUBSYSTEM_CONTROLLER_PORT = 1;
     public static final int TEST_CONTROLLER_PORT = 2;
 
-    public static final int INTAKE_TALONFX_ID = 58;
+    public static final int INTAKE_SLAPDOWN_TALONFX_ID = 58;
     public static final int INTAKE_ROLLER_TALONFX_ID = 21;
 
     public static final double DEADBAND = 0.1;
