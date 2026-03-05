@@ -92,6 +92,7 @@ public class Telemetry {
         for (String limelight : VisionConstants.LIMELIGHTS) {
             field.getObject(limelight).setPose(new Pose2d());
         }
+        field.getObject("turret_pose").setPose(new Pose2d());
         table.set("field", field);
         table.set("swerve state", sendableState);
 
@@ -127,7 +128,8 @@ public class Telemetry {
             moduleTargetsArray[i * 2 + 1] = state.ModuleTargets[i].speedMetersPerSecond;
         }
 
-        field.setRobotPose(AutoBuilder.getCurrentPose());
+        field.setRobotPose(RobotContainer.drivetrain.getEstimatedPosition());
+        field.getObject("turret_pose").setPose(RobotContainer.turret.getMechanismPose());
 
         var modules = RobotContainer.drivetrain.getModules();
         NTable[] tables = Arrays.stream(new String[] { "FL", "FR", "BL", "BR" })
