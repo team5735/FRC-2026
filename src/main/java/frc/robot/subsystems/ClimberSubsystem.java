@@ -10,12 +10,13 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.ClimberConstants;
+import frc.robot.constants.Constants;
 
 public class ClimberSubsystem extends SubsystemBase {
-    public final TalonFX talon = new TalonFX(ClimberConstants.TALON_ID);
+    public final TalonFX talon = new TalonFX(Constants.CLIMB_talon_ID);
 
-    private final DigitalInput limitUp = new DigitalInput(ClimberConstants.UPPER_LIMIT_PIN);
-    private final DigitalInput limitDown = new DigitalInput(ClimberConstants.LOWER_LIMIT_PIN);
+    private final DigitalInput limitUp = new DigitalInput(Constants.CLIMB_LOWER_LIMIT_PIN);
+    private final DigitalInput limitDown = new DigitalInput(Constants.CLIMB_LOWER_LIMIT_PIN);
     private boolean canMoveUp;
     private boolean canMoveDown;
     private boolean overridden;
