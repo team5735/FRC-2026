@@ -38,6 +38,7 @@ import frc.robot.constants.drivetrain.DevbotTunerConstants;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.FuelLauncherSubsystem;
 import frc.robot.subsystems.HoodSubsystem;
+import frc.robot.subsystems.SpinDexSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 
@@ -47,6 +48,10 @@ public class RobotContainer {
 
     public static final CommandXboxController testController = new CommandXboxController(
             Constants.TEST_CONTROLLER_PORT);
+
+    public static final CommandXboxController subsystemController = new CommandXboxController(
+            Constants.SUBSYSTEM_CONTROLLER_PORT);
+
 
     private final SendableChooser<Command> autoChooser;
 
@@ -60,6 +65,7 @@ public class RobotContainer {
     public static final FuelLauncherSubsystem launcher = new FuelLauncherSubsystem();
     public static final TurretSubsystem turret = new TurretSubsystem(drivetrain::getEstimatedPosition);
     public static final VisionSubsystem vision = new VisionSubsystem(drivetrain);
+    public static final SpinDexSubsystem spindex = new SpinDexSubsystem();
     
 
     
@@ -168,6 +174,8 @@ public class RobotContainer {
         testController.povDown().whileTrue(turret.sysId());
         testController.rightBumper().whileTrue(turret.testForward());
         testController.leftBumper().whileTrue(turret.testReverse());
+
+        subsystemController.a().whileTrue(spindex.getStart());
     }
 
     public Command getAutonomousCommand() {
