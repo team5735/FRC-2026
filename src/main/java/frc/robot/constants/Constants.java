@@ -42,7 +42,7 @@ public class Constants {
     public static final int TURRET_MOTOR_ID = 22;
     public static final int TURRET_LIMIT_PIN = 2;
 
-    public static final int CLIMB_KRAKEN_ID = 24;
+    public static final int CLIMB_TALON_ID = 24;
     public static final int CLIMB_UPPER_LIMIT_PIN = 0;
     public static final int CLIMB_LOWER_LIMIT_PIN = 1;
 }

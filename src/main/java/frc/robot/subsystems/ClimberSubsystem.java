@@ -13,7 +13,7 @@ import frc.robot.constants.ClimberConstants;
 import frc.robot.constants.Constants;
 
 public class ClimberSubsystem extends SubsystemBase {
-    public final TalonFX talon = new TalonFX(Constants.CLIMB_talon_ID);
+    public final TalonFX talon = new TalonFX(Constants.CLIMB_TALON_ID);
 
     private final DigitalInput limitUp = new DigitalInput(Constants.CLIMB_LOWER_LIMIT_PIN);
     private final DigitalInput limitDown = new DigitalInput(Constants.CLIMB_LOWER_LIMIT_PIN);
@@ -41,11 +41,10 @@ public class ClimberSubsystem extends SubsystemBase {
         return run(() -> climbDown()).until(this::isAtDownLimit).finallyDo(() -> stop());
     }
 
-    //allows climber to move past limits when override is activated
-    public Command getOverrideCommand(){
-        return Commands.run(()->overridden=true).finallyDo(()->overridden=false);
+    // allows climber to move past limits when override is activated
+    public Command getOverrideCommand() {
+        return Commands.run(() -> overridden = true).finallyDo(() -> overridden = false);
     }
-
 
     public void climbUp() {
         if (canMoveUp || overridden) {
