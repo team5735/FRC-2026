@@ -57,30 +57,43 @@ public class Robot extends TimedRobot {
 
     public final Telemetry logger = new Telemetry();
 
-    public static final DrivetrainSubsystem drivetrain = switch (Constants.DRIVETRAIN_TYPE) {
+    public final DrivetrainSubsystem drivetrain = switch (Constants.DRIVETRAIN_TYPE) {
         case COMPBOT -> CompbotTunerConstants.createDrivetrain();
         case DEVBOT -> DevbotTunerConstants.createDrivetrain();
     };
 
-    public static final LimelightSubsystem limelights[] = {
+    public final LimelightSubsystem limelights[] = {
             new LimelightSubsystem(drivetrain, "limelight-fone"),
             new LimelightSubsystem(drivetrain, "limelight-ftwo"),
     };
 
-    public static final FuelLauncherSubsystem launcher = new FuelLauncherSubsystem();
-    public static final TurretSubsystem turret = new TurretSubsystem(
+    public final FuelLauncherSubsystem launcher = new FuelLauncherSubsystem();
+    public final TurretSubsystem turret = new TurretSubsystem(
             drivetrain::getEstimatedPosition);
-    public static final ClimberSubsystem climber = new ClimberSubsystem();
-    public static final SpinDexSubsystem spindex = new SpinDexSubsystem();
+    public final ClimberSubsystem climber = new ClimberSubsystem();
+    public final SpinDexSubsystem spindex = new SpinDexSubsystem();
 
-    public static final HoodSubsystem hood = new HoodSubsystem(turret::getMechanismPose,
+    public final HoodSubsystem hood = new HoodSubsystem(turret::getMechanismPose,
             new Rectangle2d[] { FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_LEFT,
                     FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_RIGHT,
                     FieldConstants.redElement(FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_LEFT),
                     FieldConstants.redElement(FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_RIGHT),
             });
 
-    public Robot() {
+    private static Robot instance;
+
+    public static Robot getInstance() {
+        if (Constants.CURRENT_ROBOT != Constants.Running.FULL_ROBOT) {
+            throw new RuntimeException("an instance of Robot was requested with the wrong CURRENT_ROBOT set");
+        }
+
+        if (instance == null) {
+            instance = new Robot();
+        }
+        return instance;
+    }
+
+    private Robot() {
         NTable.root().set("mode", "full robot");
         NTable.root().set("scheduler", CommandScheduler.getInstance());
 
@@ -120,7 +133,7 @@ public class Robot extends TimedRobot {
         SmartDashboard.putData("Choose an Auto", autoChooser);
     }
 
-    public static final Arc targetArc = new Arc(FieldConstants.BLUE_HUB_CENTER,
+    public final Arc targetArc = new Arc(FieldConstants.BLUE_HUB_CENTER,
             Feet.of(7.5).in(Meters),
             Rotation2d.fromDegrees(90),
             Rotation2d.fromDegrees(270));

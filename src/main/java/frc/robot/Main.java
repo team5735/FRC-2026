@@ -14,7 +14,7 @@ public final class Main {
 
     public static void main(String... args) {
         switch (Constants.CURRENT_ROBOT) {
-            case FULL_ROBOT -> RobotBase.startRobot(Robot::new);
+            case FULL_ROBOT -> RobotBase.startRobot(Robot::getInstance);
             case SINGLE_SUBSYSTEM -> RobotBase.startRobot(SingleSubsystem::new);
         }
     }
