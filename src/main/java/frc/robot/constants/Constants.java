@@ -27,8 +27,6 @@ public class Constants {
 
     public static final Running CURRENT_ROBOT = Running.HOOD_PEEK_A_BOO;
 
-    public static Map<Running, Supplier<SingleSubsystem>> RUNNABLE_SUBSYSTEMS = new HashMap<>();
-
     public static enum DrivetrainType {
         DEVBOT,
         COMPBOT,
