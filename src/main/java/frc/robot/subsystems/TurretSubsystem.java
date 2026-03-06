@@ -43,6 +43,7 @@ public class TurretSubsystem extends SubsystemBase {
     private final DigitalInput hallLimit = new DigitalInput(Constants.TURRET_LIMIT_PIN);
 
     public final Trigger limitTrigger = new Trigger(() -> !hallLimit.get());
+    public boolean isZeroed = false;
 
     private final TunableProfiledPIDController pid = new TunableProfiledPIDController("turret", KP, KI, KD,
             MAX_VEL.in(RotationsPerSecond), MAX_ACC.in(RotationsPerSecondPerSecond));
@@ -329,6 +330,7 @@ public class TurretSubsystem extends SubsystemBase {
     public Command zeroCommand() {
         return Commands.runOnce(() -> {
             resetAngle(FORWARD_LIMIT_BOT_REL);
-        });
+            isZeroed = true;
+        }).ignoringDisable(true);
     }
 }
