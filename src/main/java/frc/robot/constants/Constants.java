@@ -18,17 +18,24 @@ public class Constants {
     }
 
     // disables drivetrain and autos initialization
-    public static boolean BREADBOARD_MODE = true;
-    public static boolean HOOD_TUNING_MODE = false;
+    public static boolean BREADBOARD_MODE = false;
+    public static boolean HOOD_TUNING_MODE = true;
     public static DrivetrainType DRIVETRAIN_TYPE = DrivetrainType.DEVBOT;
 
     public static final int DRIVE_CONTROLLER_PORT = 0;
     public static final int SUBSYSTEM_CONTROLLER_PORT = 1;
     public static final int TEST_CONTROLLER_PORT = 2;
 
-    public static final double HOOD_LOWEST_SERVO_POSITION = 0.2;
-    public static final double HOOD_HIGHEST_SERVO_POSITION = 0.7;
 
+    // The range of servo setpoints that correspond to hood lowest
+    // and highest positions. The servo can physically be set
+    // between 0 and 1. But these limit that by the physical reality
+    // of the hood
+    public static final double HOOD_LOWEST_SERVO_POSITION = 0.6;
+    public static final double HOOD_HIGHEST_SERVO_POSITION = 1.0;
+
+    // The range of angles (in degrees) that the physcial shooter hood can
+    // move to. While tuning the hood servo, these don't change
     public static final double HOOD_LOWEST_ANGLE_DEGREES = 8.0;
     public static final double HOOD_HIGHEST_ANGLE_DEGREES = 45.0;
 
