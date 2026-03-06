@@ -17,7 +17,7 @@ public final class Main {
     public static void main(String... args) {
         TimedRobot bot;
 
-        switch (Constants.CURRENT_ROBOT){
+        switch (Constants.CURRENT_ROBOT) {
             case FULL_ROBOT:
                 bot = new Robot();
                 break;
@@ -28,9 +28,9 @@ public final class Main {
                 bot = new HoodSubsystem.HoodPeekABooBot();
                 break;
             default:
-                throw new IllegalStateException("Unknown robot configuration: " 
-                                                + Constants.CURRENT_ROBOT);
+                throw new IllegalStateException("Unknown robot configuration: "
+                        + Constants.CURRENT_ROBOT);
         }
-        RobotBase.startRobot(()->bot);
+        RobotBase.startRobot(() -> bot);
     }
 }
