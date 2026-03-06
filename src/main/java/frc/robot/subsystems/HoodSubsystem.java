@@ -30,7 +30,7 @@ public class HoodSubsystem extends SubsystemBase {
 
     public HoodSubsystem(Supplier<Pose2d> turretPoseSupplier, Rectangle2d[] exclusionZones) {
         this.turretPoseSupplier = turretPoseSupplier;
-        this.exclusionZones   = exclusionZones;
+        this.exclusionZones = exclusionZones;
 
         this.hoodToServoPosition.put(0.0, Constants.HOOD_LOWEST_SERVO_POSITION);
         this.hoodToServoPosition.put(1.0, Constants.HOOD_HIGHEST_SERVO_POSITION);
@@ -43,7 +43,7 @@ public class HoodSubsystem extends SubsystemBase {
         this.servoToAnglePosition.put(Constants.HOOD_HIGHEST_SERVO_POSITION, Constants.HOOD_HIGHEST_ANGLE_DEGREES);
     }
 
-    public double getServoPosition(){
+    public double getServoPosition() {
         return servo.get();
     }
 
@@ -54,23 +54,25 @@ public class HoodSubsystem extends SubsystemBase {
         this.sendTelemetry();
     }
 
-    public double getHoodPosition(){
+    public double getHoodPosition() {
         return this.servoToHoodPosition.get(this.getServoPosition());
     }
+
     public void setHoodPosition(double hoodPosition) {
         double servoPosition = this.hoodToServoPosition.get(hoodPosition);
         this.setServoPosition(servoPosition);
     }
 
-    public double getHoodAngle(){
+    public double getHoodAngle() {
         return this.servoToAnglePosition.get(this.getServoPosition());
     }
-    public void setHoodAngle(double hoodAngleDegrees){
+
+    public void setHoodAngle(double hoodAngleDegrees) {
         double servoPosition = this.angleToServoPosition.get(hoodAngleDegrees);
         this.setServoPosition(servoPosition);
     }
 
-    public void exzSaveServoPosition(){
+    public void exzSaveServoPosition() {
         this.exclusionZoneSavedServoPosition = this.servo.get();
     }
 
@@ -88,7 +90,7 @@ public class HoodSubsystem extends SubsystemBase {
         return feedback.getVoltage() / 5.0;
     }
 
-    public void sendTelemetry(){
+    public void sendTelemetry() {
         SmartDashboard.putNumber("hood/hood_position", this.getHoodPosition());
         SmartDashboard.putNumber("hood/servo_position", this.getServoPosition());
         SmartDashboard.putNumber("hood/servo_feedback_voltage", this.feedback.getValue());
@@ -96,7 +98,6 @@ public class HoodSubsystem extends SubsystemBase {
     }
 
     public boolean isInExclusionZone() {
-
         for (Rectangle2d r : exclusionZones) {
             if (r.contains(turretPoseSupplier.get().getTranslation()))
                 return true;
@@ -104,11 +105,8 @@ public class HoodSubsystem extends SubsystemBase {
         return false;
     }
 
-    // Runs every 20ms automatically
     @Override
     public void periodic() {
-        if (Constants.HOOD_TUNING_MODE || Constants.BREADBOARD_MODE) {
-            this.sendTelemetry();
-        }
+        this.sendTelemetry();
     }
 }

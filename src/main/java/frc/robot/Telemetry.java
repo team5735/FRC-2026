@@ -60,7 +60,7 @@ public class Telemetry {
             builder.setSmartDashboardType("SwerveDrive");
 
             SwerveModuleState[] states = Arrays.stream(new int[] { 0, 1, 2, 3 })
-                    .mapToObj(x -> RobotContainer.drivetrain.getModule(x).getCurrentState())
+                    .mapToObj(x -> Robot.drivetrain.getModule(x).getCurrentState())
                     .toArray(SwerveModuleState[]::new);
 
             builder.addDoubleProperty("Front Left Angle", () -> states[0].angle.getRadians(), null);
@@ -76,7 +76,7 @@ public class Telemetry {
             builder.addDoubleProperty("Back Right Velocity", () -> states[3].speedMetersPerSecond, null);
 
             builder.addDoubleProperty("Robot Angle",
-                    () -> RobotContainer.drivetrain.getPigeon2().getYaw().getValue().in(Radians), null);
+                    () -> Robot.drivetrain.getPigeon2().getYaw().getValue().in(Radians), null);
         }
     };
 
@@ -86,7 +86,7 @@ public class Telemetry {
 
     Telemetry() {
         field.getRobotObject().setPose(new Pose2d());
-        field.getObject("arc").setPoses(RobotContainer.targetArc.getAsPoses());
+        field.getObject("arc").setPoses(Robot.targetArc.getAsPoses());
         table.set("field", field);
         table.set("swerve state", sendableState);
     }
@@ -114,22 +114,24 @@ public class Telemetry {
             moduleTargetsArray[i * 2 + 1] = state.ModuleTargets[i].speedMetersPerSecond;
         }
 
-        field.setRobotPose(RobotContainer.drivetrain.getEstimatedPosition());
-        field.getObject("turret_pose").setPose(RobotContainer.turret.getMechanismPose());
+        field.setRobotPose(Robot.drivetrain.getEstimatedPosition());
+        field.getObject("turret_pose").setPose(Robot.turret.getMechanismPose());
 
         field.getObject("nearest point on arc")
-                .setPose(RobotContainer.targetArc.getPoseFacingCenter(RobotContainer.targetArc
-                        .nearestPointOnArc(RobotContainer.drivetrain.getEstimatedPosition().getTranslation())));
+                .setPose(Robot.targetArc.getPoseFacingCenter(Robot.targetArc
+                        .nearestPointOnArc(Robot.drivetrain.getEstimatedPosition().getTranslation())));
 
-        var modules = RobotContainer.drivetrain.getModules();
+        var modules = Robot.drivetrain.getModules();
         NTable[] tables = Arrays.stream(new String[] { "FL", "FR", "BL", "BR" })
                 .map(s -> moduleTable.sub(s))
                 .toArray(NTable[]::new);
         for (int i = 0; i < modules.length; i++) {
             var module = modules[i];
-            NTable table = tables[i]; 
-            table.set("steer position", Units.radiansToRotations(MathUtil.angleModulus(module.getCurrentState().angle.getMeasure().in(Radians))));
-            table.set("steer setpoint", Units.radiansToRotations(MathUtil.angleModulus(module.getTargetState().angle.getMeasure().in(Radians))));
+            NTable table = tables[i];
+            table.set("steer position", Units.radiansToRotations(
+                    MathUtil.angleModulus(module.getCurrentState().angle.getMeasure().in(Radians))));
+            table.set("steer setpoint", Units
+                    .radiansToRotations(MathUtil.angleModulus(module.getTargetState().angle.getMeasure().in(Radians))));
             table.set("drive velocity", Math.abs(state.ModuleStates[i].speedMetersPerSecond));
             table.set("drive voltage", module.getDriveMotor().getMotorVoltage().getValueAsDouble());
             table.set("steer voltage", module.getSteerMotor().getMotorVoltage().getValueAsDouble());
