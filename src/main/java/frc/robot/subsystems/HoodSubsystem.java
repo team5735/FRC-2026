@@ -114,15 +114,15 @@ public class HoodSubsystem extends SubsystemBase {
     }
 
     // This is a full robot config for testing the hood subsystem
-    public static class HoodTuningBot extends SingleSubsystem{
+    public static class HoodTuningBot extends SingleSubsystem {
         private final HoodSubsystem hood;
 
         private double lastPos;
 
-        public HoodTuningBot(){
+        public HoodTuningBot() {
             lastPos = 0;
-            hood = new HoodSubsystem(() -> new Pose2d(), 
-                                     FieldConstants.HOOD_EXCLUSION_ZONES);
+            hood = new HoodSubsystem(() -> new Pose2d(),
+                    FieldConstants.HOOD_EXCLUSION_ZONES);
             configureBindings();
         }
 
@@ -145,21 +145,20 @@ public class HoodSubsystem extends SubsystemBase {
     // test hood up/down in exclusion zones
     // move trench april tag closer / further from unmoving bot
     // to trigger response
-    public static class HoodPeekABooBot extends SingleSubsystem{
+    public static class HoodPeekABooBot extends SingleSubsystem {
         private final HoodSubsystem hood;
 
         private LimelightSubsystem limelight;
 
-        public HoodPeekABooBot(){
+        public HoodPeekABooBot() {
             limelight = new LimelightSubsystem(null, "limelight-fone");
 
-            hood = new HoodSubsystem(()->{
+            hood = new HoodSubsystem(() -> {
                 var e = limelight.getPoseEstimate();
                 if (e == null)
                     return new Pose2d();
                 return e;
-            }, 
-            FieldConstants.HOOD_EXCLUSION_ZONES);
+            }, FieldConstants.HOOD_EXCLUSION_ZONES);
 
             // need to set hood to some initial position
             hood.setHoodPosition(0.4);
@@ -174,7 +173,6 @@ public class HoodSubsystem extends SubsystemBase {
                 double pos = hood.exzGetSavedServoPosition();
                 hood.setServoPosition(pos);
             }));
-
         }
 
         @Override
