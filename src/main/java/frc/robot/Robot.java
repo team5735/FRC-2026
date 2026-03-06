@@ -54,7 +54,7 @@ public class Robot extends TimedRobot {
     public final CommandXboxController testController = new CommandXboxController(
             Constants.TEST_CONTROLLER_PORT);
 
-    public final Telemetry logger = new Telemetry();
+    public final Telemetry logger = new Telemetry(this);
 
     public final DrivetrainSubsystem drivetrain = switch (Constants.DRIVETRAIN_TYPE) {
         case COMPBOT -> CompbotTunerConstants.createDrivetrain();
@@ -74,20 +74,7 @@ public class Robot extends TimedRobot {
 
     public final HoodSubsystem hood = new HoodSubsystem(turret::getMechanismPose, FieldConstants.HOOD_EXCLUSION_ZONES);
 
-    private static Robot instance;
-
-    public static Robot getInstance() {
-        if (Constants.CURRENT_ROBOT != Constants.Running.FULL_ROBOT) {
-            throw new RuntimeException("an instance of Robot was requested with the wrong CURRENT_ROBOT set");
-        }
-
-        if (instance == null) {
-            instance = new Robot();
-        }
-        return instance;
-    }
-
-    private Robot() {
+    public Robot() {
         NTable.root().set("mode", "full robot");
         NTable.root().set("scheduler", CommandScheduler.getInstance());
 

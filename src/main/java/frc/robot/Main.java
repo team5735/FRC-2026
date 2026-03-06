@@ -14,7 +14,7 @@ public final class Main {
 
     public static void main(String... args) {
         if (Constants.CURRENT_ROBOT == Constants.Running.FULL_ROBOT) {
-            RobotBase.startRobot(Robot::getInstance);
+            RobotBase.startRobot(Robot::new);
         } else {
             RobotBase.startRobot(Constants.RUNNABLE_SUBSYSTEMS.get(Constants.CURRENT_ROBOT));
         }

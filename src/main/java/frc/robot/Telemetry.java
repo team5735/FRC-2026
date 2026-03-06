@@ -53,6 +53,7 @@ public class Telemetry {
     private final double[] moduleTargetsArray = new double[8];
 
     public static final Field2d field = new Field2d();
+    public Robot robot;
 
     private final Sendable sendableState = new Sendable() {
         @Override
@@ -60,7 +61,7 @@ public class Telemetry {
             builder.setSmartDashboardType("SwerveDrive");
 
             SwerveModuleState[] states = Arrays.stream(new int[] { 0, 1, 2, 3 })
-                    .mapToObj(x -> Robot.getInstance().drivetrain.getModule(x).getCurrentState())
+                    .mapToObj(x -> Telemetry.this.robot.drivetrain.getModule(x).getCurrentState())
                     .toArray(SwerveModuleState[]::new);
 
             builder.addDoubleProperty("Front Left Angle", () -> states[0].angle.getRadians(), null);
@@ -76,7 +77,7 @@ public class Telemetry {
             builder.addDoubleProperty("Back Right Velocity", () -> states[3].speedMetersPerSecond, null);
 
             builder.addDoubleProperty("Robot Angle",
-                    () -> Robot.getInstance().drivetrain.getPigeon2().getYaw().getValue().in(Radians), null);
+                    () -> Telemetry.this.robot.drivetrain.getPigeon2().getYaw().getValue().in(Radians), null);
         }
     };
 
@@ -84,9 +85,10 @@ public class Telemetry {
     private final NTable stateTable = table.sub("drive state");
     private final NTable moduleTable = table.sub("modules");
 
-    Telemetry() {
+    Telemetry(Robot robot) {
+        this.robot = robot;
         field.getRobotObject().setPose(new Pose2d());
-        field.getObject("arc").setPoses(Robot.getInstance().targetArc.getAsPoses());
+        field.getObject("arc").setPoses(this.robot.targetArc.getAsPoses());
         table.set("field", field);
         table.set("swerve state", sendableState);
     }
@@ -114,14 +116,14 @@ public class Telemetry {
             moduleTargetsArray[i * 2 + 1] = state.ModuleTargets[i].speedMetersPerSecond;
         }
 
-        field.setRobotPose(Robot.getInstance().drivetrain.getEstimatedPosition());
-        field.getObject("turret_pose").setPose(Robot.getInstance().turret.getMechanismPose());
+        field.setRobotPose(this.robot.drivetrain.getEstimatedPosition());
+        field.getObject("turret_pose").setPose(this.robot.turret.getMechanismPose());
 
         field.getObject("nearest point on arc")
-                .setPose(Robot.getInstance().targetArc.getPoseFacingCenter(Robot.getInstance().targetArc
-                        .nearestPointOnArc(Robot.getInstance().drivetrain.getEstimatedPosition().getTranslation())));
+                .setPose(this.robot.targetArc.getPoseFacingCenter(this.robot.targetArc
+                        .nearestPointOnArc(this.robot.drivetrain.getEstimatedPosition().getTranslation())));
 
-        var modules = Robot.getInstance().drivetrain.getModules();
+        var modules = this.robot.drivetrain.getModules();
         NTable[] tables = Arrays.stream(new String[] { "FL", "FR", "BL", "BR" })
                 .map(s -> moduleTable.sub(s))
                 .toArray(NTable[]::new);
