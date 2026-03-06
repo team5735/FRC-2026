@@ -162,6 +162,9 @@ public class HoodSubsystem extends SubsystemBase {
             }, 
             FieldConstants.HOOD_EXCLUSION_ZONES);
 
+            // need to set hood to some initial position
+            hood.setHoodPosition(0.4);
+
             hood.exclusionZoneTrigger.onTrue(Commands.runOnce(() -> {
                 SmartDashboard.putBoolean("in_exclusion_zone", true);
                 hood.exzSaveServoPosition();
