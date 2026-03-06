@@ -11,8 +11,9 @@ public class TestContainer {
     private static final CommandXboxController driveController = new CommandXboxController(
             Constants.DRIVE_CONTROLLER_PORT);
 
-    private static final ClimberSubsystem climber = new ClimberSubsystem();
+    private static final ClimberSubsystem climber = RobotContainer.climber;
 
+    @SuppressWarnings("unused")
     public static void configureBindings() {
         if (true){ // hood movement tests
             driveController.x().onTrue(Commands.runOnce(() -> {
