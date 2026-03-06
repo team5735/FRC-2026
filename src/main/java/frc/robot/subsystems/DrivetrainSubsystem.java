@@ -10,6 +10,9 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.Utils;
+import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.swerve.SwerveDrivetrain;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
@@ -34,36 +37,19 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.constants.Constants;
-import frc.robot.constants.drivetrain.CompbotConstants;
-import frc.robot.constants.drivetrain.CompbotTunerConstants.TunerSwerveDrivetrain;
-import frc.robot.constants.drivetrain.DevbotConstants;
-import frc.robot.constants.drivetrain.DrivetrainConstants;
+import frc.robot.constants.robot.DrivetrainConstants;
 import frc.robot.util.NTable;
 
 /**
  * Class that extends the Phoenix 6 SwerveDrivetrain class and implements
  * Subsystem so it can easily be used in command-based projects.
  */
-public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsystem {
-    public static final DrivetrainConstants CONSTANTS;
-
-    static {
-        switch (Constants.DRIVETRAIN_TYPE) {
-            case DEVBOT:
-                CONSTANTS = new DevbotConstants();
-                break;
-            case COMPBOT:
-            default:
-                CONSTANTS = new CompbotConstants();
-                break;
-        }
-    }
+public class DrivetrainSubsystem extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> implements Subsystem {
+    public DrivetrainConstants constants;
 
     private static final double simLoopPeriod = 0.005; // 5 ms
     private Notifier simNotifier = null;
     private double lastSimTime;
-    private double defaultSpeed = CONSTANTS.getDefaultSpeed().in(MetersPerSecond);
-    private double defaultAngularRate = CONSTANTS.getDefaultRotationalRate().in(RadiansPerSecond);
 
     private NTable table = NTable.root("drivetrain");
 
@@ -74,10 +60,10 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
 
     public final SwerveRequest.FieldCentric fieldCentricRequest = new SwerveRequest.FieldCentric()
             .withDriveRequestType(DriveRequestType.Velocity)
-            .withCenterOfRotation(CONSTANTS.getPigeonToCenterOfRotation());
+            .withCenterOfRotation(constants.getPigeonToCenterOfRotation());
     public final SwerveRequest.FieldCentric pidRequest = new SwerveRequest.FieldCentric()
             .withDriveRequestType(DriveRequestType.Velocity)
-            .withCenterOfRotation(CONSTANTS.getPigeonToCenterOfRotation())
+            .withCenterOfRotation(constants.getPigeonToCenterOfRotation())
             .withForwardPerspective(ForwardPerspectiveValue.BlueAlliance);
     public final SwerveRequest.SwerveDriveBrake brakeRequest = new SwerveRequest.SwerveDriveBrake();
     public final SwerveRequest.ApplyRobotSpeeds autoRequest = new SwerveRequest.ApplyRobotSpeeds()
@@ -128,8 +114,8 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
      */
     private final SysIdRoutine sysIdRoutineTranslation = new SysIdRoutine(
             new SysIdRoutine.Config(
-                    Volts.of(0.5).per(Second), 
-                    Volts.of(2.5), 
+                    Volts.of(0.5).per(Second),
+                    Volts.of(2.5),
                     null, // Use default timeout (10 s)
                     // Log state by default
                     null),
@@ -222,12 +208,15 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
      */
     public DrivetrainSubsystem(
             SwerveDrivetrainConstants drivetrainConstants,
+            DrivetrainConstants constants,
             SwerveModuleConstants<?, ?, ?>... modules) {
-        super(drivetrainConstants, modules);
+        super(TalonFX::new, TalonFX::new, CANcoder::new,
+                drivetrainConstants, modules);
         if (Utils.isSimulation()) {
             startSimThread();
         }
         setUpAuto();
+        this.constants = constants;
     }
 
     /**
@@ -248,12 +237,15 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
     public DrivetrainSubsystem(
             SwerveDrivetrainConstants drivetrainConstants,
             double odometryUpdateFrequency,
+            DrivetrainConstants constants,
             SwerveModuleConstants<?, ?, ?>... modules) {
-        super(drivetrainConstants, odometryUpdateFrequency, modules);
+        super(TalonFX::new, TalonFX::new, CANcoder::new,
+                drivetrainConstants, odometryUpdateFrequency, modules);
         if (Utils.isSimulation()) {
             startSimThread();
         }
         setUpAuto();
+        this.constants = constants;
     }
 
     /**
@@ -288,13 +280,16 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
             double odometryUpdateFrequency,
             Matrix<N3, N1> odometryStandardDeviation,
             Matrix<N3, N1> visionStandardDeviation,
+            DrivetrainConstants constants,
             SwerveModuleConstants<?, ?, ?>... modules) {
-        super(drivetrainConstants, odometryUpdateFrequency, odometryStandardDeviation, visionStandardDeviation,
+        super(TalonFX::new, TalonFX::new, CANcoder::new,
+                drivetrainConstants, odometryUpdateFrequency, odometryStandardDeviation, visionStandardDeviation,
                 modules);
         if (Utils.isSimulation()) {
             startSimThread();
         }
         setUpAuto();
+        this.constants = constants;
     }
 
     /**
@@ -366,10 +361,10 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
     }
 
     public void pidDrive(Translation2d trans, double omega) {
-        if (trans.getNorm() > CONSTANTS.getDefaultSpeed().in(MetersPerSecond)) {
-            trans = trans.times(CONSTANTS.getDefaultSpeed().in(MetersPerSecond) / trans.getNorm());
+        if (trans.getNorm() > constants.getDefaultSpeed().in(MetersPerSecond)) {
+            trans = trans.times(constants.getDefaultSpeed().in(MetersPerSecond) / trans.getNorm());
         }
-        omega = Math.min(CONSTANTS.getDefaultRotationalRate().in(RadiansPerSecond), omega);
+        omega = Math.min(constants.getDefaultRotationalRate().in(RadiansPerSecond), omega);
         setControl(pidRequest.withVelocityX(trans.getX()).withVelocityY(trans.getY()).withRotationalRate(omega));
     }
 
@@ -380,11 +375,11 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
             Supplier<Double> rightTrigger,
             Supplier<Boolean> isSlowMode) {
         return applyRequest(() -> {
-            double speedMPS = (isSlowMode.get().booleanValue()) ? CONSTANTS.getSlowSpeed().in(MetersPerSecond)
-                    : defaultSpeed;
+            double speedMPS = (isSlowMode.get().booleanValue()) ? constants.getSlowSpeed().in(MetersPerSecond)
+                    : constants.getDefaultSpeed().in(MetersPerSecond);
             double rotationMPS = (isSlowMode.get().booleanValue())
-                    ? CONSTANTS.getSlowRotationalRate().in(RadiansPerSecond)
-                    : defaultAngularRate;
+                    ? constants.getSlowRotationalRate().in(RadiansPerSecond)
+                    : constants.getDefaultRotationalRate().in(RadiansPerSecond);
             return fieldCentricRequest
                     .withVelocityX(-deadband(stickY.get()) * speedMPS)
                     .withVelocityY(-deadband(stickX.get()) * speedMPS)
@@ -428,7 +423,7 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
             states[i] = getModule(i).getCurrentState();
         }
 
-        return CONSTANTS.getConfig().toChassisSpeeds(states);
+        return constants.getConfig().toChassisSpeeds(states);
     }
 
     public void autoDriveRobotRelative(ChassisSpeeds robotChassisSpeeds) {
@@ -444,9 +439,9 @@ public class DrivetrainSubsystem extends TunerSwerveDrivetrain implements Subsys
                 this::getChassisSpeeds,
                 (speeds, ff) -> autoDriveRobotRelative(speeds),
                 new PPHolonomicDriveController(
-                        CONSTANTS.getAutoPosConstants(),
-                        CONSTANTS.getAutoRotConstants()),
-                CONSTANTS.getConfig(),
+                        constants.getAutoPosConstants(),
+                        constants.getAutoRotConstants()),
+                constants.getConfig(),
                 () -> {
                     var alliance = DriverStation.getAlliance();
                     if (alliance.isPresent()) {

@@ -18,7 +18,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
-import frc.robot.constants.drivetrain.CompbotTunerConstants;
+import frc.robot.constants.robot.CompbotTunerConstants;
 import frc.robot.util.NTable;
 
 public class Telemetry {

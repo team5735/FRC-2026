@@ -114,20 +114,14 @@ public class HoodSubsystem extends SubsystemBase {
     }
 
     // This is a full robot config for testing the hood subsystem
-    public static class HoodTuningBot extends SingleSubsystem {
-        private final HoodSubsystem hood;
+    public static SingleSubsystem tester = new SingleSubsystem() {
+        private final HoodSubsystem hood = new HoodSubsystem(() -> new Pose2d(),
+                FieldConstants.HOOD_EXCLUSION_ZONES);
 
-        private double lastPos;
-
-        public HoodTuningBot() {
-            lastPos = 0;
-            hood = new HoodSubsystem(() -> new Pose2d(),
-                    FieldConstants.HOOD_EXCLUSION_ZONES);
-            configureBindings();
-        }
+        private double lastPos = 0;
 
         @Override
-        protected void configureBindings() {
+        protected void init() {
             controller.a().onTrue(hood.runOnce(() -> hood.setHoodPosition(0.3)));
             controller.b().onTrue(hood.runOnce(() -> hood.setHoodPosition(0.7)));
 
@@ -145,22 +139,18 @@ public class HoodSubsystem extends SubsystemBase {
     // test hood up/down in exclusion zones
     // move trench april tag closer / further from unmoving bot
     // to trigger response
-    public static class HoodPeekABooBot extends SingleSubsystem {
-        private final HoodSubsystem hood;
+    public static SingleSubsystem peekABooBot = new SingleSubsystem() {
+        private LimelightSubsystem limelight = new LimelightSubsystem(null, "limelight-fone");
 
-        private LimelightSubsystem limelight;
+        private final HoodSubsystem hood = new HoodSubsystem(() -> {
+            var e = limelight.getPoseEstimate();
+            if (e == null)
+                return new Pose2d();
+            return e;
+        }, FieldConstants.HOOD_EXCLUSION_ZONES);
 
-        public HoodPeekABooBot() {
-            limelight = new LimelightSubsystem(null, "limelight-fone");
-
-            hood = new HoodSubsystem(() -> {
-                var e = limelight.getPoseEstimate();
-                if (e == null)
-                    return new Pose2d();
-                return e;
-            }, FieldConstants.HOOD_EXCLUSION_ZONES);
-
-            // need to set hood to some initial position
+        @Override
+        protected void init() {
             hood.setHoodPosition(0.4);
 
             hood.exclusionZoneTrigger.onTrue(Commands.runOnce(() -> {
@@ -173,10 +163,6 @@ public class HoodSubsystem extends SubsystemBase {
                 double pos = hood.exzGetSavedServoPosition();
                 hood.setServoPosition(pos);
             }));
-        }
-
-        @Override
-        protected void configureBindings() {
         }
     };
 }

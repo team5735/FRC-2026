@@ -32,8 +32,6 @@ import frc.robot.commands.DriveOnArc;
 import frc.robot.commands.drivetrain.PIDToPose;
 import frc.robot.constants.Constants;
 import frc.robot.constants.FieldConstants;
-import frc.robot.constants.drivetrain.CompbotTunerConstants;
-import frc.robot.constants.drivetrain.DevbotTunerConstants;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.FuelLauncherSubsystem;
@@ -59,27 +57,28 @@ public class Robot extends TimedRobot {
             Rotation2d.fromDegrees(90),
             Rotation2d.fromDegrees(270));
 
-    public final DrivetrainSubsystem drivetrain = switch (Constants.DRIVETRAIN_TYPE) {
-        case COMPBOT -> CompbotTunerConstants.createDrivetrain();
-        case DEVBOT -> DevbotTunerConstants.createDrivetrain();
-    };
+    public final DrivetrainSubsystem drivetrain;
 
-    public final LimelightSubsystem limelights[] = {
-            new LimelightSubsystem(drivetrain, "limelight-fone"),
-            new LimelightSubsystem(drivetrain, "limelight-ftwo"),
-    };
+    public final LimelightSubsystem limelights[];
 
     public final FuelLauncherSubsystem launcher = new FuelLauncherSubsystem();
-    public final TurretSubsystem turret = new TurretSubsystem(
-            drivetrain::getEstimatedPosition);
     public final ClimberSubsystem climber = new ClimberSubsystem();
     public final SpinDexSubsystem spindex = new SpinDexSubsystem();
+    public final TurretSubsystem turret;
 
-    public final HoodSubsystem hood = new HoodSubsystem(turret::getMechanismPose, FieldConstants.HOOD_EXCLUSION_ZONES);
+    public final HoodSubsystem hood;
 
     public final Telemetry logger = new Telemetry(this);
 
-    public Robot() {
+    public Robot(DrivetrainSubsystem drivetrain) {
+        this.drivetrain = drivetrain;
+        turret = new TurretSubsystem(drivetrain::getEstimatedPosition, drivetrain.constants);
+        limelights = new LimelightSubsystem[] {
+                new LimelightSubsystem(drivetrain, "limelight-fone"),
+                new LimelightSubsystem(drivetrain, "limelight-ftwo"),
+        };
+        hood = new HoodSubsystem(turret::getMechanismPose, FieldConstants.HOOD_EXCLUSION_ZONES);
+
         NTable.root().set("mode", "full robot");
         NTable.root().set("scheduler", CommandScheduler.getInstance());
 

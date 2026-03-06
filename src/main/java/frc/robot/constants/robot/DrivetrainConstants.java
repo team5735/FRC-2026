@@ -1,4 +1,4 @@
-package frc.robot.constants.drivetrain;
+package frc.robot.constants.robot;
 
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
@@ -52,6 +52,8 @@ public interface DrivetrainConstants {
     public RobotConfig getConfig();
 
     public Translation2d getPigeonToCenterOfRotation();
+
+    public Translation2d getRobotToTurretCenter();
 
     public Distance getBumperWidth();
 }

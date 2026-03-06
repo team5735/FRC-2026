@@ -5,7 +5,21 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
-import static frc.robot.constants.TurretConstants.*;
+import static frc.robot.constants.TurretConstants.FORWARD_LIMIT_BOT_REL;
+import static frc.robot.constants.TurretConstants.FORWARD_LIMIT_TUR_REL;
+import static frc.robot.constants.TurretConstants.KA;
+import static frc.robot.constants.TurretConstants.KD;
+import static frc.robot.constants.TurretConstants.KI;
+import static frc.robot.constants.TurretConstants.KP;
+import static frc.robot.constants.TurretConstants.KS;
+import static frc.robot.constants.TurretConstants.KV;
+import static frc.robot.constants.TurretConstants.MAX_ACC;
+import static frc.robot.constants.TurretConstants.MAX_VEL;
+import static frc.robot.constants.TurretConstants.SOFT_PADDING;
+import static frc.robot.constants.TurretConstants.START_POS_BOT_REL;
+import static frc.robot.constants.TurretConstants.formatInputRobotRel;
+import static frc.robot.constants.TurretConstants.robotRelToTurretRel;
+import static frc.robot.constants.TurretConstants.turretRelToRobotRel;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
@@ -35,7 +49,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import frc.robot.constants.Constants;
-import frc.robot.constants.RobotConstants;
+import frc.robot.constants.robot.DrivetrainConstants;
 import frc.robot.util.TunableProfiledPIDController;
 
 public class TurretSubsystem extends SubsystemBase {
@@ -50,7 +64,10 @@ public class TurretSubsystem extends SubsystemBase {
 
     private Supplier<Pose2d> robotPoseSupplier;
     private double prevVel = 0;
-    public TurretSubsystem(Supplier<Pose2d> robotPoseSupplier) {
+    private DrivetrainConstants driveConstants;
+
+    public TurretSubsystem(Supplier<Pose2d> robotPoseSupplier, DrivetrainConstants driveConstants) {
+        this.driveConstants = driveConstants;
         kraken.getConfigurator().apply(new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Brake)
                 .withInverted(InvertedValue.Clockwise_Positive));
         kraken.getConfigurator().apply(new FeedbackConfigs().withSensorToMechanismRatio(10));
@@ -299,7 +316,7 @@ public class TurretSubsystem extends SubsystemBase {
      */
     public Pose2d getMechanismPose() {
         Pose2d robotPoseInField = robotPoseSupplier.get();
-        return new Pose2d(RobotConstants.ROBOT_TO_TURRET_CENTER.rotateBy(robotPoseInField.getRotation())
+        return new Pose2d(driveConstants.getRobotToTurretCenter().rotateBy(robotPoseInField.getRotation())
                 .plus(robotPoseInField.getTranslation()), getRotation().plus(robotPoseInField.getRotation()));
     }
 

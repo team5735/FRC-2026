@@ -10,7 +10,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import frc.robot.constants.drivetrain.CompbotConstants;
+import frc.robot.constants.robot.CompbotConstants;
 import frc.robot.util.PathPlannerHelpers;
 
 public class PathPlannerTest {

@@ -5,8 +5,9 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.TimedRobot;
 import frc.robot.constants.Constants;
+import frc.robot.constants.robot.CompbotTunerConstants;
+import frc.robot.constants.robot.DevbotTunerConstants;
 import frc.robot.subsystems.HoodSubsystem;
 
 // Here be dragons.
@@ -15,22 +16,11 @@ public final class Main {
     }
 
     public static void main(String... args) {
-        TimedRobot bot;
-
-        switch (Constants.CURRENT_ROBOT) {
-            case FULL_ROBOT:
-                bot = new Robot();
-                break;
-            case HOOD:
-                bot = new HoodSubsystem.HoodTuningBot();
-                break;
-            case HOOD_PEEK_A_BOO:
-                bot = new HoodSubsystem.HoodPeekABooBot();
-                break;
-            default:
-                throw new IllegalStateException("Unknown robot configuration: "
-                        + Constants.CURRENT_ROBOT);
-        }
-        RobotBase.startRobot(() -> bot);
+        RobotBase.startRobot(() -> switch (Constants.CURRENT_ROBOT) {
+            case FULL_DEVBOT -> new Robot(DevbotTunerConstants.createDrivetrain());
+            case FULL_COMPBOT -> new Robot(CompbotTunerConstants.createDrivetrain());
+            case HOOD -> HoodSubsystem.tester;
+            case HOOD_PEEK_A_BOO -> HoodSubsystem.peekABooBot;
+        });
     }
 }

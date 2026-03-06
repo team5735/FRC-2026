@@ -43,7 +43,7 @@ public class PathPlannerToPose extends Command {
 
     @Override
     public void initialize() {
-        PathConstraints constraints = DrivetrainSubsystem.CONSTANTS.getPathFollowConstraints();
+        PathConstraints constraints = drivetrain.constants.getPathFollowConstraints();
 
         this.targetPose = this.poseSupplier.get();
         Pose2d currentRobotPos = drivetrain.getEstimatedPosition();

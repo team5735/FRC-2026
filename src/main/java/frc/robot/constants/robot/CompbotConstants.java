@@ -1,12 +1,12 @@
-package frc.robot.constants.drivetrain;
+package frc.robot.constants.robot;
 
+import static edu.wpi.first.units.Units.DegreesPerSecond;
+import static edu.wpi.first.units.Units.DegreesPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Kilograms;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
@@ -20,50 +20,50 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Mass;
 
-public class DevbotConstants implements DrivetrainConstants {
+public class CompbotConstants implements DrivetrainConstants {
     @Override
     public PIDConstants getAutoPosConstants() {
-        return new PIDConstants(15, 0); // TODO
+        return new PIDConstants(0, 0); // TODO
     }
 
     @Override
     public PIDConstants getAutoRotConstants() {
-        return new PIDConstants(15, 0); // TODO
+        return new PIDConstants(0, 0); // TODO
     }
 
     @Override
     public double getRotKs() {
-        return 0.082104;
+        return 0; // TODO
     }
 
     @Override
     public double getRotKv() {
-        return 7.1488;
+        return 0; // TODO
     }
 
     @Override
     public double getRotKa() {
-        return 0.28448;
+        return 0; // TODO
     }
 
     @Override
     public double getOpenDriveKv() {
-        return 2.37;
+        return 0; // TODO
     }
 
     @Override
     public double getOpenDriveKa() {
-        return 0.09;
+        return 0; // TODO
     }
 
     @Override
     public Distance getRobotTotalWidth() {
-        return Inches.of(30).plus(getBumperWidth().times(2));
+        return Inches.of(29.5 + 7); // TODO - recalc w/ bumpers
     }
 
     @Override
     public Distance getRobotTotalLength() {
-        return Inches.of(30).plus(getBumperWidth().times(2));
+        return Inches.of(20 + 7); // TODO - recalc w/ bumpers
     }
 
     @Override
@@ -74,46 +74,46 @@ public class DevbotConstants implements DrivetrainConstants {
     @Override
     public PathConstraints getPathFollowConstraints() {
         return new PathConstraints(
-                MetersPerSecond.of(2),
-                MetersPerSecondPerSecond.of(0.5),
-                RotationsPerSecond.of(0.25),
-                RotationsPerSecondPerSecond.of(0.25));
+                MetersPerSecond.of(0),
+                MetersPerSecondPerSecond.of(0),
+                DegreesPerSecond.of(0),
+                DegreesPerSecondPerSecond.of(0)); // TODO add and test values
     }
 
     @Override
     public LinearVelocity getDefaultSpeed() {
-        return MetersPerSecond.of(2);
+        return MetersPerSecond.of(1);
     }
 
     @Override
     public LinearVelocity getSlowSpeed() {
-        return MetersPerSecond.of(.5);
+        return MetersPerSecond.of(0.6);
     }
 
     @Override
     public AngularVelocity getDefaultRotationalRate() {
-        return RotationsPerSecond.of(0.25);
+        return DegreesPerSecond.of(180);
     }
 
     @Override
     public AngularVelocity getSlowRotationalRate() {
-        return RotationsPerSecond.of(0.0625);
+        return DegreesPerSecond.of(27);
     }
 
     @Override
     public Mass getRobotMass() {
-        return Kilograms.of(28.00);
+        return Kilograms.of(59.05); // TODO - reweigh under load
     }
 
     @Override
     public Distance getDrivetrainWidth() {
-        return Inches.of(30);
+        return Inches.of(29.5);
     }
 
     @Override
     public double getRobotMoiKgxMxM() {
         return getRobotMass().in(Kilograms) * getDrivetrainWidth().in(Meters) / 2 * getRotKa()
-                / getOpenDriveKa();
+                / CompbotTunerConstants.DEFAULT_DRIVE_CONSTANTS.kA;
     }
 
     @Override
@@ -125,16 +125,16 @@ public class DevbotConstants implements DrivetrainConstants {
             getRobotMass().in(Kilograms),
             getRobotMoiKgxMxM(),
             new ModuleConfig(
-                    DevbotTunerConstants.WHEEL_RADIUS.in(Meters),
-                    DevbotTunerConstants.SPEED_AT_12_VOLTS.in(MetersPerSecond),
+                    CompbotTunerConstants.WHEEL_RADIUS.in(Meters),
+                    CompbotTunerConstants.SPEED_AT_12_VOLTS.in(MetersPerSecond),
                     getCoefficientOfFriction(),
-                    DCMotor.getKrakenX60(1).withReduction(DevbotTunerConstants.DRIVE_GEAR_RATIO),
+                    DCMotor.getKrakenX60(1).withReduction(CompbotTunerConstants.DRIVE_GEAR_RATIO),
                     60,
                     1),
-            new Translation2d(DevbotTunerConstants.FL_XPOS, DevbotTunerConstants.FL_YPOS),
-            new Translation2d(DevbotTunerConstants.FR_XPOS, DevbotTunerConstants.FR_YPOS),
-            new Translation2d(DevbotTunerConstants.BL_XPOS, DevbotTunerConstants.BL_YPOS),
-            new Translation2d(DevbotTunerConstants.BR_XPOS, DevbotTunerConstants.BR_YPOS));
+            new Translation2d(CompbotTunerConstants.FRONT_LEFT_XPOS, CompbotTunerConstants.FRONT_LEFT_YPOS),
+            new Translation2d(CompbotTunerConstants.FRONT_RIGHT_XPOS, CompbotTunerConstants.FRONT_RIGHT_YPOS),
+            new Translation2d(CompbotTunerConstants.BACK_LEFT_XPOS, CompbotTunerConstants.BACK_LEFT_YPOS),
+            new Translation2d(CompbotTunerConstants.BACK_RIGHT_XPOS, CompbotTunerConstants.BACK_RIGHT_YPOS));
 
     @Override
     public RobotConfig getConfig() {
@@ -145,7 +145,11 @@ public class DevbotConstants implements DrivetrainConstants {
         return new Translation2d(Inches.of(0), Inches.of(0));
     }
 
+    public Translation2d getRobotToTurretCenter() {
+        return new Translation2d(Inches.of(-4.245), Inches.of(6.5));
+    }
+
     public Distance getBumperWidth() {
-        return Inches.of(3.5);
+        return Inches.of(3.5); // TODO
     }
 }

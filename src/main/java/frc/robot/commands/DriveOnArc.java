@@ -47,7 +47,7 @@ public class DriveOnArc extends Command {
     @Override
     public void execute() {
         double control = this.control.get();
-        double speed = DrivetrainSubsystem.CONSTANTS.getDefaultSpeed().in(MetersPerSecond);
+        double speed = drivetrain.constants.getDefaultSpeed().in(MetersPerSecond);
 
         Pose2d robotPose = drivetrain.getEstimatedPosition();
         Pose2d nearestPose = arc.getPoseFacingCenter(

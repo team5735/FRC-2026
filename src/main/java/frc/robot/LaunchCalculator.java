@@ -20,7 +20,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.constants.FieldConstants;
-import frc.robot.constants.RobotConstants;
+import frc.robot.subsystems.DrivetrainSubsystem;
 
 public class LaunchCalculator {
     private static final InterpolatingTreeMap<Double, Rotation2d> scoreHoodMap = new InterpolatingTreeMap<>(
@@ -33,7 +33,7 @@ public class LaunchCalculator {
     }
 
     private static final LinearFilter turretVelFiler = LinearFilter.movingAverage(5);
-   
+
     private static boolean allianceKnown = false;
     private static boolean isBlue = true;
     private static Angle oldTurretAngle;
@@ -53,7 +53,8 @@ public class LaunchCalculator {
         PASS
     }
 
-    public LaunchParams calculate(LaunchGoal goal, Pose2d robotPose, ChassisSpeeds robotVel, Pose2d turretPose) {
+    public LaunchParams calculate(LaunchGoal goal, DrivetrainSubsystem drivetrain, ChassisSpeeds robotVel,
+            Pose2d turretPose) {
         if (!allianceKnown) {
             if (DriverStation.getAlliance().isPresent()) {
                 allianceKnown = true;
@@ -70,14 +71,17 @@ public class LaunchCalculator {
         Translation2d launchOrigin = turretPose.getTranslation();
         double turretVelX = robotVel.vxMetersPerSecond
                 + robotVel.omegaRadiansPerSecond
-                        * (RobotConstants.ROBOT_TO_TURRET_CENTER.getY() * Math.cos(robotPose.getRotation().getRadians())
-                                - RobotConstants.ROBOT_TO_TURRET_CENTER.getX()
-                                        * Math.sin(robotPose.getRotation().getRadians()));
-        double turretVelY= robotVel.vyMetersPerSecond
+                        * (drivetrain.constants.getRobotToTurretCenter().getY()
+                                * Math.cos(drivetrain.getEstimatedPosition().getRotation().getRadians())
+                                - drivetrain.constants.getRobotToTurretCenter().getX()
+                                        * Math.sin(drivetrain.getEstimatedPosition().getRotation().getRadians()));
+
+        double turretVelY = robotVel.vyMetersPerSecond
                 + robotVel.omegaRadiansPerSecond
-                        * (RobotConstants.ROBOT_TO_TURRET_CENTER.getX() * Math.cos(robotPose.getRotation().getRadians())
-                                - RobotConstants.ROBOT_TO_TURRET_CENTER.getY()
-                                        * Math.sin(robotPose.getRotation().getRadians()));
+                        * (drivetrain.constants.getRobotToTurretCenter().getX()
+                                * Math.cos(drivetrain.getEstimatedPosition().getRotation().getRadians())
+                                - drivetrain.constants.getRobotToTurretCenter().getY()
+                                        * Math.sin(drivetrain.getEstimatedPosition().getRotation().getRadians()));
 
         double launchDist = launchTarget.getDistance(launchOrigin); // naive initial estimate
 
@@ -91,20 +95,23 @@ public class LaunchCalculator {
             launchOrigin = launchOrigin.plus(new Translation2d(deltaX, deltaY));
             launchDist = launchTarget.getDistance(launchOrigin);
 
-            if(MathUtil.isNear(oldTOF, timeOfFlight, TOF_TOLERANCE)){
+            if (MathUtil.isNear(oldTOF, timeOfFlight, TOF_TOLERANCE)) {
                 break;
             }
 
             oldTOF = timeOfFlight;
         }
 
-        Angle turretAngle = launchTarget.minus(turretPose.getTranslation()).getAngle().minus(robotPose.getRotation()).getMeasure();
+        Angle turretAngle = launchTarget.minus(turretPose.getTranslation()).getAngle()
+                .minus(drivetrain.getEstimatedPosition().getRotation())
+                .getMeasure();
 
-        if(oldTurretAngle == null) 
+        if (oldTurretAngle == null)
             oldTurretAngle = turretAngle;
 
-        AngularVelocity turretVel = RotationsPerSecond.of(turretVelFiler.calculate(turretAngle.minus(oldTurretAngle).in(Rotations) / 0.02));
-        
+        AngularVelocity turretVel = RotationsPerSecond
+                .of(turretVelFiler.calculate(turretAngle.minus(oldTurretAngle).in(Rotations) / 0.02));
+
         return new LaunchParams(
                 false,
                 turretAngle,

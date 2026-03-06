@@ -11,7 +11,7 @@ public abstract class SingleSubsystem extends TimedRobot {
     protected SingleSubsystem() {
     }
 
-    protected abstract void configureBindings();
+    protected abstract void init();
 
     @Override
     public void robotPeriodic() {
