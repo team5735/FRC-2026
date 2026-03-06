@@ -1,5 +1,6 @@
 package frc.robot.constants;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -25,7 +26,7 @@ public class Constants {
 
     public static final Running CURRENT_ROBOT = Running.FULL_ROBOT;
 
-    public static final Map<Running, Supplier<SingleSubsystem>> RUNNABLE_SUBSYSTEMS = Map.ofEntries();
+    public static Map<Running, Supplier<SingleSubsystem>> RUNNABLE_SUBSYSTEMS = new HashMap<>();
 
     public static enum DrivetrainType {
         DEVBOT,

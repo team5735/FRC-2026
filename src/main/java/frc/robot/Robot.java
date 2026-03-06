@@ -54,7 +54,10 @@ public class Robot extends TimedRobot {
     public final CommandXboxController testController = new CommandXboxController(
             Constants.TEST_CONTROLLER_PORT);
 
-    public final Telemetry logger = new Telemetry(this);
+    public final Arc targetArc = new Arc(FieldConstants.BLUE_HUB_CENTER,
+            Feet.of(7.5).in(Meters),
+            Rotation2d.fromDegrees(90),
+            Rotation2d.fromDegrees(270));
 
     public final DrivetrainSubsystem drivetrain = switch (Constants.DRIVETRAIN_TYPE) {
         case COMPBOT -> CompbotTunerConstants.createDrivetrain();
@@ -73,6 +76,8 @@ public class Robot extends TimedRobot {
     public final SpinDexSubsystem spindex = new SpinDexSubsystem();
 
     public final HoodSubsystem hood = new HoodSubsystem(turret::getMechanismPose, FieldConstants.HOOD_EXCLUSION_ZONES);
+
+    public final Telemetry logger = new Telemetry(this);
 
     public Robot() {
         NTable.root().set("mode", "full robot");
@@ -113,11 +118,6 @@ public class Robot extends TimedRobot {
 
         SmartDashboard.putData("Choose an Auto", autoChooser);
     }
-
-    public final Arc targetArc = new Arc(FieldConstants.BLUE_HUB_CENTER,
-            Feet.of(7.5).in(Meters),
-            Rotation2d.fromDegrees(90),
-            Rotation2d.fromDegrees(270));
 
     private void configureBindings() {
         drivetrain.registerTelemetry(logger::telemeterize);
