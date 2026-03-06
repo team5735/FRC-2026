@@ -159,6 +159,7 @@ public class Robot extends TimedRobot {
                                                           // sensor
 
         setupDriverBindings();
+        setupSubsystemBindings();
         setupOtherBindings();
     }
 
@@ -188,6 +189,14 @@ public class Robot extends TimedRobot {
 
         driveController.a().whileTrue(
                 new DriveOnArc(drivetrain, targetArc, () -> MathUtil.applyDeadband(driveController.getLeftX(), 0.1)));
+    }
+
+    private void setupSubsystemBindings() {
+        driveController.a().whileTrue(climber.getClimbUpCommand());
+        driveController.b().whileTrue(climber.getClimbDownCommand());
+        driveController.x().onTrue(climber.getFullyExtendCommand());
+        driveController.y().onTrue(climber.getFullyDetractCommand());
+        driveController.leftBumper().whileTrue(climber.getOverrideCommand());
     }
 
     private void setupOtherBindings() {
