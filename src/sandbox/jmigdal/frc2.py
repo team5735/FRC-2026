@@ -393,7 +393,8 @@ def ntvis1():
         # Table path (match robot code)
         sd_table = NetworkTables.getTable("telemetry")
         # lll_table = NetworkTables.getTable("limelight-left")
-        lll_table = NetworkTables.getTable("limelight-flft") # limelight 4 left
+        # lll_table = NetworkTables.getTable("limelight-flft") # limelight 4 left
+        lll_table = NetworkTables.getTable("limelight-ftwo") # limelight 4 left
 
     if 0: # stub april tags
         tags = [
@@ -431,7 +432,7 @@ def ntvis1():
         robot_pose = get_robot_pose(sd_table) # gets poseestimate pose
         ll_pose = get_robot_pose(lll_table) # gets limelight pose
         # robot_pose = Pose2d(robot_pose.translation(), Rotation2d(d2r(-170)))
-        robot_pose = ll_pose # todo
+        # robot_pose = ll_pose # todo
 
         # check if we detected new tags
         _detected_tags, _lastrfs = get_detected_tags(lll_table, last_detected_fiducials)
