@@ -19,7 +19,6 @@ import com.pathplanner.lib.commands.PathfindingCommand;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rectangle2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -73,12 +72,7 @@ public class Robot extends TimedRobot {
     public final ClimberSubsystem climber = new ClimberSubsystem();
     public final SpinDexSubsystem spindex = new SpinDexSubsystem();
 
-    public final HoodSubsystem hood = new HoodSubsystem(turret::getMechanismPose,
-            new Rectangle2d[] { FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_LEFT,
-                    FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_RIGHT,
-                    FieldConstants.redElement(FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_LEFT),
-                    FieldConstants.redElement(FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_RIGHT),
-            });
+    public final HoodSubsystem hood = new HoodSubsystem(turret::getMechanismPose, FieldConstants.HOOD_EXCLUSION_ZONES);
 
     private static Robot instance;
 

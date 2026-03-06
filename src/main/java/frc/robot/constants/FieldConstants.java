@@ -109,6 +109,13 @@ public class FieldConstants {
             new Pose2d(BLUE_TRENCH_RIGHT_CENTER, Rotation2d.kZero),
             1.20 * TRENCH_DIMENSION.getX(), 1.15 * TRENCH_DIMENSION.getY());
 
+    public static final Rectangle2d[] HOOD_EXCLUSION_ZONES = new Rectangle2d[] {
+            FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_LEFT,
+            FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_RIGHT,
+            FieldConstants.redElement(FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_LEFT),
+            FieldConstants.redElement(FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_RIGHT),
+    };
+
     ////////////////////
     // RAMP CONSTANTS //
     ////////////////////

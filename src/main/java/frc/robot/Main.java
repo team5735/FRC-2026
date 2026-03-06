@@ -13,9 +13,10 @@ public final class Main {
     }
 
     public static void main(String... args) {
-        switch (Constants.CURRENT_ROBOT) {
-            case FULL_ROBOT -> RobotBase.startRobot(Robot::getInstance);
-            case SINGLE_SUBSYSTEM -> RobotBase.startRobot(SingleSubsystem::new);
+        if (Constants.CURRENT_ROBOT == Constants.Running.FULL_ROBOT) {
+            RobotBase.startRobot(Robot::getInstance);
+        } else {
+            RobotBase.startRobot(Constants.RUNNABLE_SUBSYSTEMS.get(Constants.CURRENT_ROBOT));
         }
     }
 }

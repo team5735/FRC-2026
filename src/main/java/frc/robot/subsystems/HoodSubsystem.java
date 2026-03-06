@@ -11,7 +11,10 @@ import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.SingleSubsystem;
 import frc.robot.constants.Constants;
+import frc.robot.constants.Constants.Running;
+import frc.robot.constants.FieldConstants;
 
 public class HoodSubsystem extends SubsystemBase {
     public final Trigger exclusionZoneTrigger = new Trigger(this::isInExclusionZone);
@@ -108,5 +111,29 @@ public class HoodSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         this.sendTelemetry();
+    }
+
+    static {
+        Constants.RUNNABLE_SUBSYSTEMS.put(Running.HOOD, () -> new SingleSubsystem() {
+            private final HoodSubsystem hood = new HoodSubsystem(() -> new Pose2d(),
+                    FieldConstants.HOOD_EXCLUSION_ZONES);
+
+            private int lastPos = 0;
+
+            @Override
+            protected void configureBindings() {
+                controller.a().onTrue(hood.runOnce(() -> hood.setHoodPosition(0.3)));
+                controller.b().onTrue(hood.runOnce(() -> hood.setHoodPosition(0.7)));
+
+                controller.x().onTrue(hood.runOnce(() -> {
+                    lastPos += 0.05;
+                    hood.setHoodPosition(lastPos);
+                }));
+                controller.y().onTrue(hood.runOnce(() -> {
+                    lastPos -= 0.05;
+                    hood.setHoodPosition(lastPos);
+                }));
+            }
+        });
     }
 }

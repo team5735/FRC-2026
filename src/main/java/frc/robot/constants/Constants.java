@@ -1,6 +1,10 @@
 package frc.robot.constants;
 
+import java.util.Map;
+import java.util.function.Supplier;
+
 import edu.wpi.first.math.geometry.Rotation2d;
+import frc.robot.SingleSubsystem;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -16,17 +20,19 @@ public class Constants {
     // which Robot class to instantiate
     public static enum Running {
         FULL_ROBOT,
-        SINGLE_SUBSYSTEM,
+        HOOD,
     }
 
-    public static Running CURRENT_ROBOT = Running.FULL_ROBOT;
+    public static final Running CURRENT_ROBOT = Running.FULL_ROBOT;
+
+    public static final Map<Running, Supplier<SingleSubsystem>> RUNNABLE_SUBSYSTEMS = Map.ofEntries();
 
     public static enum DrivetrainType {
         DEVBOT,
         COMPBOT,
     }
 
-    public static DrivetrainType DRIVETRAIN_TYPE = DrivetrainType.DEVBOT;
+    public static final DrivetrainType DRIVETRAIN_TYPE = DrivetrainType.DEVBOT;
 
     public static final int DRIVE_CONTROLLER_PORT = 0;
     public static final int SUBSYSTEM_CONTROLLER_PORT = 1;
