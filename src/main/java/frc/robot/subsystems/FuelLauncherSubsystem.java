@@ -34,7 +34,7 @@ public class FuelLauncherSubsystem extends SubsystemBase {
     private final TalonFX krakenLeft = new TalonFX(Constants.LAUNCHER_LEFT_KRAKEN_ID);
     private final TalonFX krakenRight = new TalonFX(Constants.LAUNCHER_RIGHT_KRAKEN_ID);
 
-    private final TunablePIDController pid = new TunablePIDController("fuel_launcher", FuelLauncherConstants.KP, 0, 0);
+    private final TunablePIDController pid = new TunablePIDController("fuel_launcher");
     private final SimpleMotorFeedforward ff = new SimpleMotorFeedforward(FuelLauncherConstants.KS,
             FuelLauncherConstants.KV);
 
@@ -42,8 +42,9 @@ public class FuelLauncherSubsystem extends SubsystemBase {
 
     public FuelLauncherSubsystem() {
         SmartDashboard.putNumber("shooter_volts", FuelLauncherConstants.LAUNCHER_VOLTS);
-        krakenLeft.getConfigurator().apply(new MotorOutputConfigs().withInverted(InvertedValue.CounterClockwise_Positive)
-                .withNeutralMode(NeutralModeValue.Coast));
+        krakenLeft.getConfigurator()
+                .apply(new MotorOutputConfigs().withInverted(InvertedValue.CounterClockwise_Positive)
+                        .withNeutralMode(NeutralModeValue.Coast));
         krakenRight.setControl(new Follower(Constants.LAUNCHER_LEFT_KRAKEN_ID, MotorAlignmentValue.Opposed));
 
         pid.ensureP(FuelLauncherConstants.KP);
@@ -57,7 +58,7 @@ public class FuelLauncherSubsystem extends SubsystemBase {
     }
 
     private void setTargetRPM(double rpm) {
-        pid.setup(rpm, FuelLauncherConstants.RPM_TOLERANCE);
+        pid.setup(rpm);
     }
 
     private void usePID() {
@@ -74,6 +75,8 @@ public class FuelLauncherSubsystem extends SubsystemBase {
     LinearFilter errorAverage = LinearFilter.movingAverage(50);
 
     @Override
+    // Multiplying krakenMotor by 60 to turn rotations per second into rotations per
+    // minute (RPM)
     public void periodic() {
         double currentRPM = getRPM();
         this.table.set("speed_rpm", currentRPM);
@@ -105,6 +108,11 @@ public class FuelLauncherSubsystem extends SubsystemBase {
                             setTargetRPM(speed.minus(correction).in(RPM));
                         }, this::usePID))
                 .withName("Launch Fuel at " + speed);
+    }
+
+    public Command getFedLaunch(SpinDexSubsystem spindex, AngularVelocity speed, AngularVelocity correction) {
+        return this.getLaunchFuel(speed, correction).until(pid::atSetpoint)
+                .andThen(this.getLaunchFuel(speed, correction).alongWith(spindex.getStart()));
     }
 
     private SysIdRoutine routine = new SysIdRoutine(
