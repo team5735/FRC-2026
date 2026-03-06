@@ -22,7 +22,10 @@ public final class Main {
                 bot = new Robot();
                 break;
             case HOOD:
-                bot = new HoodSubsystem.HoodTestConfiguration();
+                bot = new HoodSubsystem.HoodTuningBot();
+                break;
+            case HOOD_PEEK_A_BOO:
+                bot = new HoodSubsystem.HoodPeekABooBot();
                 break;
             default:
                 throw new IllegalStateException("Unknown robot configuration: " 

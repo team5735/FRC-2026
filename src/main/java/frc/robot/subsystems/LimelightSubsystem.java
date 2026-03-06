@@ -155,6 +155,10 @@ public class LimelightSubsystem extends SubsystemBase {
 
     private int ticks_since_pose_reset = 0;
 
+    public Pose2d getPoseEstimate(){
+        return new PoseEstimate().pose2d;
+    }
+
     public void handleVisionMeasurement() {
         if (!NTable.root("vision").get("enabled", true)) {
             this.table.sub("checks").set("enabled in network tables", false);

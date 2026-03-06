@@ -22,9 +22,10 @@ public class Constants {
     public static enum Running {
         FULL_ROBOT,
         HOOD,
+        HOOD_PEEK_A_BOO
     }
 
-    public static final Running CURRENT_ROBOT = Running.HOOD;
+    public static final Running CURRENT_ROBOT = Running.HOOD_PEEK_A_BOO;
 
     public static Map<Running, Supplier<SingleSubsystem>> RUNNABLE_SUBSYSTEMS = new HashMap<>();
 

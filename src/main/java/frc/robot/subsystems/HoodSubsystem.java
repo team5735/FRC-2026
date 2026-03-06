@@ -9,6 +9,7 @@ import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.SingleSubsystem;
@@ -114,12 +115,12 @@ public class HoodSubsystem extends SubsystemBase {
     }
 
     // This is a full robot config for testing the hood subsystem
-    public static class HoodTestConfiguration extends SingleSubsystem{
+    public static class HoodTuningBot extends SingleSubsystem{
         private final HoodSubsystem hood;
 
         private double lastPos;
 
-        public HoodTestConfiguration(){
+        public HoodTuningBot(){
             lastPos = 0;
             hood = new HoodSubsystem(() -> new Pose2d(), 
                                      FieldConstants.HOOD_EXCLUSION_ZONES);
@@ -139,6 +140,43 @@ public class HoodSubsystem extends SubsystemBase {
                 lastPos -= 0.05;
                 hood.setHoodPosition(lastPos);
             }));
+        }
+    };
+
+    // test hood up/down in exclusion zones
+    // move trench april tag closer / further from unmoving bot
+    // to trigger response
+    public static class HoodPeekABooBot extends SingleSubsystem{
+        private final HoodSubsystem hood;
+
+        private LimelightSubsystem limelight;
+
+        public HoodPeekABooBot(){
+            limelight = new LimelightSubsystem(null, "limelight-fone");
+
+            hood = new HoodSubsystem(()->{
+                var e = limelight.getPoseEstimate();
+                if (e == null)
+                    return new Pose2d();
+                return e;
+            }, 
+            FieldConstants.HOOD_EXCLUSION_ZONES);
+
+            hood.exclusionZoneTrigger.onTrue(Commands.runOnce(() -> {
+                SmartDashboard.putBoolean("in_exclusion_zone", true);
+                hood.exzSaveServoPosition();
+                hood.setHoodPosition(0);
+            }));
+            hood.exclusionZoneTrigger.onFalse(Commands.runOnce(() -> {
+                SmartDashboard.putBoolean("in_exclusion_zone", false);
+                double pos = hood.exzGetSavedServoPosition();
+                hood.setServoPosition(pos);
+            }));
+
+        }
+
+        @Override
+        protected void configureBindings() {
         }
     };
 }
