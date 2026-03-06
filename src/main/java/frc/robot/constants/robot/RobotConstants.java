@@ -10,7 +10,7 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Mass;
 
-public interface DrivetrainConstants {
+public interface RobotConstants {
     public PIDConstants getAutoPosConstants();
 
     public PIDConstants getAutoRotConstants();

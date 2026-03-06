@@ -20,7 +20,7 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Mass;
 
-public class CompbotConstants implements DrivetrainConstants {
+public class CompbotConstants implements RobotConstants {
     @Override
     public PIDConstants getAutoPosConstants() {
         return new PIDConstants(0, 0); // TODO

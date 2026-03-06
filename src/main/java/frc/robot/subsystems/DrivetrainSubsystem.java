@@ -37,7 +37,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.constants.Constants;
-import frc.robot.constants.robot.DrivetrainConstants;
+import frc.robot.constants.robot.RobotConstants;
 import frc.robot.util.NTable;
 
 /**
@@ -45,7 +45,7 @@ import frc.robot.util.NTable;
  * Subsystem so it can easily be used in command-based projects.
  */
 public class DrivetrainSubsystem extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder> implements Subsystem {
-    public DrivetrainConstants constants;
+    public RobotConstants constants;
 
     private static final double simLoopPeriod = 0.005; // 5 ms
     private Notifier simNotifier = null;
@@ -208,7 +208,7 @@ public class DrivetrainSubsystem extends SwerveDrivetrain<TalonFX, TalonFX, CANc
      */
     public DrivetrainSubsystem(
             SwerveDrivetrainConstants drivetrainConstants,
-            DrivetrainConstants constants,
+            RobotConstants constants,
             SwerveModuleConstants<?, ?, ?>... modules) {
         super(TalonFX::new, TalonFX::new, CANcoder::new,
                 drivetrainConstants, modules);
@@ -237,7 +237,7 @@ public class DrivetrainSubsystem extends SwerveDrivetrain<TalonFX, TalonFX, CANc
     public DrivetrainSubsystem(
             SwerveDrivetrainConstants drivetrainConstants,
             double odometryUpdateFrequency,
-            DrivetrainConstants constants,
+            RobotConstants constants,
             SwerveModuleConstants<?, ?, ?>... modules) {
         super(TalonFX::new, TalonFX::new, CANcoder::new,
                 drivetrainConstants, odometryUpdateFrequency, modules);
@@ -280,7 +280,7 @@ public class DrivetrainSubsystem extends SwerveDrivetrain<TalonFX, TalonFX, CANc
             double odometryUpdateFrequency,
             Matrix<N3, N1> odometryStandardDeviation,
             Matrix<N3, N1> visionStandardDeviation,
-            DrivetrainConstants constants,
+            RobotConstants constants,
             SwerveModuleConstants<?, ?, ?>... modules) {
         super(TalonFX::new, TalonFX::new, CANcoder::new,
                 drivetrainConstants, odometryUpdateFrequency, odometryStandardDeviation, visionStandardDeviation,

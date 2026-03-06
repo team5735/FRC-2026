@@ -49,7 +49,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import frc.robot.constants.Constants;
-import frc.robot.constants.robot.DrivetrainConstants;
+import frc.robot.constants.robot.RobotConstants;
 import frc.robot.util.TunableProfiledPIDController;
 
 public class TurretSubsystem extends SubsystemBase {
@@ -64,9 +64,9 @@ public class TurretSubsystem extends SubsystemBase {
 
     private Supplier<Pose2d> robotPoseSupplier;
     private double prevVel = 0;
-    private DrivetrainConstants driveConstants;
+    private RobotConstants driveConstants;
 
-    public TurretSubsystem(Supplier<Pose2d> robotPoseSupplier, DrivetrainConstants driveConstants) {
+    public TurretSubsystem(Supplier<Pose2d> robotPoseSupplier, RobotConstants driveConstants) {
         this.driveConstants = driveConstants;
         kraken.getConfigurator().apply(new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Brake)
                 .withInverted(InvertedValue.Clockwise_Positive));
