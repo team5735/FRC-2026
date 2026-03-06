@@ -173,11 +173,11 @@ public class Robot extends TimedRobot {
     }
 
     private void setupSubsystemBindings() {
-        driveController.a().whileTrue(climber.getClimbUpCommand());
-        driveController.b().whileTrue(climber.getClimbDownCommand());
-        driveController.x().onTrue(climber.getFullyExtendCommand());
-        driveController.y().onTrue(climber.getFullyDetractCommand());
-        driveController.leftBumper().whileTrue(climber.getOverrideCommand());
+        subsystemController.a().whileTrue(climber.getClimbUpCommand());
+        subsystemController.b().whileTrue(climber.getClimbDownCommand());
+        subsystemController.x().onTrue(climber.getFullyExtendCommand());
+        subsystemController.y().onTrue(climber.getFullyDetractCommand());
+        subsystemController.leftBumper().whileTrue(climber.getOverrideCommand());
     }
 
     private void setupOtherBindings() {
