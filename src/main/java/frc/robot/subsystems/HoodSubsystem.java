@@ -14,7 +14,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.SingleSubsystem;
 import frc.robot.constants.Constants;
-import frc.robot.constants.Constants.Running;
 import frc.robot.constants.FieldConstants;
 
 public class HoodSubsystem extends SubsystemBase {
