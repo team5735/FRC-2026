@@ -9,7 +9,6 @@ public abstract class SingleSubsystem extends TimedRobot {
     protected final CommandXboxController controller = new CommandXboxController(0);
 
     protected SingleSubsystem() {
-        configureBindings();
     }
 
     protected abstract void configureBindings();

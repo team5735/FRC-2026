@@ -24,7 +24,7 @@ public class Constants {
         HOOD,
     }
 
-    public static final Running CURRENT_ROBOT = Running.FULL_ROBOT;
+    public static final Running CURRENT_ROBOT = Running.HOOD;
 
     public static Map<Running, Supplier<SingleSubsystem>> RUNNABLE_SUBSYSTEMS = new HashMap<>();
 

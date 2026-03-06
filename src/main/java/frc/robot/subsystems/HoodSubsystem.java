@@ -113,27 +113,32 @@ public class HoodSubsystem extends SubsystemBase {
         this.sendTelemetry();
     }
 
-    static {
-        Constants.RUNNABLE_SUBSYSTEMS.put(Running.HOOD, () -> new SingleSubsystem() {
-            private final HoodSubsystem hood = new HoodSubsystem(() -> new Pose2d(),
-                    FieldConstants.HOOD_EXCLUSION_ZONES);
+    // This is a full robot config for testing the hood subsystem
+    public static class HoodTestConfiguration extends SingleSubsystem{
+        private final HoodSubsystem hood;
 
-            private int lastPos = 0;
+        private double lastPos;
 
-            @Override
-            protected void configureBindings() {
-                controller.a().onTrue(hood.runOnce(() -> hood.setHoodPosition(0.3)));
-                controller.b().onTrue(hood.runOnce(() -> hood.setHoodPosition(0.7)));
+        public HoodTestConfiguration(){
+            lastPos = 0;
+            hood = new HoodSubsystem(() -> new Pose2d(), 
+                                     FieldConstants.HOOD_EXCLUSION_ZONES);
+            configureBindings();
+        }
 
-                controller.x().onTrue(hood.runOnce(() -> {
-                    lastPos += 0.05;
-                    hood.setHoodPosition(lastPos);
-                }));
-                controller.y().onTrue(hood.runOnce(() -> {
-                    lastPos -= 0.05;
-                    hood.setHoodPosition(lastPos);
-                }));
-            }
-        });
-    }
+        @Override
+        protected void configureBindings() {
+            controller.a().onTrue(hood.runOnce(() -> hood.setHoodPosition(0.3)));
+            controller.b().onTrue(hood.runOnce(() -> hood.setHoodPosition(0.7)));
+
+            controller.x().onTrue(hood.runOnce(() -> {
+                lastPos += 0.05;
+                hood.setHoodPosition(lastPos);
+            }));
+            controller.y().onTrue(hood.runOnce(() -> {
+                lastPos -= 0.05;
+                hood.setHoodPosition(lastPos);
+            }));
+        }
+    };
 }

@@ -5,7 +5,9 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.TimedRobot;
 import frc.robot.constants.Constants;
+import frc.robot.subsystems.HoodSubsystem;
 
 // Here be dragons.
 public final class Main {
@@ -13,10 +15,19 @@ public final class Main {
     }
 
     public static void main(String... args) {
-        if (Constants.CURRENT_ROBOT == Constants.Running.FULL_ROBOT) {
-            RobotBase.startRobot(Robot::new);
-        } else {
-            RobotBase.startRobot(Constants.RUNNABLE_SUBSYSTEMS.get(Constants.CURRENT_ROBOT));
+        TimedRobot bot;
+
+        switch (Constants.CURRENT_ROBOT){
+            case FULL_ROBOT:
+                bot = new Robot();
+                break;
+            case HOOD:
+                bot = new HoodSubsystem.HoodTestConfiguration();
+                break;
+            default:
+                throw new IllegalStateException("Unknown robot configuration: " 
+                                                + Constants.CURRENT_ROBOT);
         }
+        RobotBase.startRobot(()->bot);
     }
 }
