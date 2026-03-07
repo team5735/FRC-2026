@@ -125,14 +125,14 @@ public class HoodSubsystem extends SubsystemBase {
         public Tester() {
             super();
 
-            controller.a().onTrue(hood.runOnce(() -> hood.setHoodPosition(0.3)));
-            controller.b().onTrue(hood.runOnce(() -> hood.setHoodPosition(0.7)));
+            controller.y().onTrue(hood.runOnce(() -> hood.setHoodPosition(0.7)));
+            controller.b().onTrue(hood.runOnce(() -> hood.setHoodPosition(0.3)));
 
             controller.x().onTrue(hood.runOnce(() -> {
                 lastPos += 0.05;
                 hood.setHoodPosition(lastPos);
             }));
-            controller.y().onTrue(hood.runOnce(() -> {
+            controller.a().onTrue(hood.runOnce(() -> {
                 lastPos -= 0.05;
                 hood.setHoodPosition(lastPos);
             }));
