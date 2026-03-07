@@ -18,7 +18,6 @@ import frc.robot.util.TunablePIDController;
 public class IntakeSubsystem extends SubsystemBase {
     private final TalonFX intakeSlapdown = new TalonFX(Constants.INTAKE_SLAPDOWN_TALONFX_ID);
     private final TalonFX intakeRoller = new TalonFX(Constants.INTAKE_ROLLER_TALONFX_ID);
-    private final DutyCycleOut rollerRequest = new DutyCycleOut(0);
     private final DutyCycleOut slapdownRequest = new DutyCycleOut(0);
     private final TunablePIDController pidController = new TunablePIDController("Intake Up and Down");
 
