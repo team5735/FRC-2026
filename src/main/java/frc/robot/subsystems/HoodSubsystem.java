@@ -120,21 +120,23 @@ public class HoodSubsystem extends SubsystemBase {
         private final HoodSubsystem hood = new HoodSubsystem(() -> new Pose2d(),
                 FieldConstants.HOOD_EXCLUSION_ZONES);
 
-        private double lastPos = 0;
+        private double lastPos = 0.5;
 
         public Tester() {
             super();
 
-            controller.y().onTrue(hood.runOnce(() -> hood.setHoodPosition(0.7)));
-            controller.b().onTrue(hood.runOnce(() -> hood.setHoodPosition(0.3)));
+            controller.y().onTrue(hood.runOnce(() -> hood.setHoodPosition(1.0)));
+            controller.b().onTrue(hood.runOnce(() -> hood.setHoodPosition(0.0)));
 
             controller.x().onTrue(hood.runOnce(() -> {
-                lastPos += 0.05;
-                hood.setHoodPosition(lastPos);
+                lastPos += 0.025;
+                lastPos = MathUtil.clamp(lastPos, 0.0, 1.0);
+                hood.setServoPosition(lastPos);
             }));
             controller.a().onTrue(hood.runOnce(() -> {
-                lastPos -= 0.05;
-                hood.setHoodPosition(lastPos);
+                lastPos -= 0.025;
+                lastPos = MathUtil.clamp(lastPos, 0.0, 1.0);
+                hood.setServoPosition(lastPos);
             }));
         }
     };
