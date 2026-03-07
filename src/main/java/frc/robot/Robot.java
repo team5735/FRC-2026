@@ -173,28 +173,28 @@ public class Robot extends TimedRobot {
         // @formatter:off
         driveController.a().onTrue(
             new ParallelDeadlineGroup(
-                    new ParallelCommandGroup(
-                        // drive to the arc
-                        new PIDToPose(drivetrain, () ->
-                            targetArc.getPoseFacingCenter(targetArc.nearestPointOnArc(
-                                drivetrain.getEstimatedPosition().getTranslation()
-                            )),
-                            "drive to arc (shoot)"),
 
-                        // while spinning up the shooter
-                        launcher.getLaunchFuel(RPM.of(3000), RPM.of(25))
-                            .until(() ->
-                                // if the back button is being pressed, skip waiting for the setpoint
-                                driveController.getHID().getBackButton() || launcher.atSetpoint()),
+                // drive to the arc
+                new PIDToPose(drivetrain, () ->
+                    targetArc.getPoseFacingCenter(targetArc.nearestPointOnArc(
+                        drivetrain.getEstimatedPosition().getTranslation()
+                    )),
+                    "drive to arc (shoot)"),
 
-                        // and setting the hood to the right position. this does not have an until
-                        // because we don't have a way to get the current servo's position
-                        hood.runOnce(() -> hood.setHoodAngle(HoodConstants.ANGLE_AT_ARC))
-                    ),
+                // while spinning up the shooter
+                launcher.getLaunchFuel(RPM.of(3000), RPM.of(25))
+                    .until(() ->
+                        // if the back button is being pressed, skip waiting for the setpoint
+                        driveController.getHID().getBackButton() || launcher.atSetpoint()),
+
+                // and setting the hood to the right position. this does not have an until
+                // because we don't have a way to get the current servo's position
+                hood.runOnce(() -> hood.setHoodAngle(HoodConstants.ANGLE_AT_ARC)),
 
                 // the above commands are kept in a deadline group because the turret command
                 // doesn't end when it's at the setpoint
                 turret.trackFieldPos(FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER))
+                    .until(turret::atGoal)
 
             ).andThen(new ParallelCommandGroup(
                 // now we're ready to shoot: spin the spindex and the feeder

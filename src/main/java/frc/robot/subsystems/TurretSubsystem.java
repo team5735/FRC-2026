@@ -279,6 +279,11 @@ public class TurretSubsystem extends SubsystemBase {
         pid.reset(currentState);
     }
 
+    /** {@return whether we're at the setpoint} */
+    public boolean atGoal() {
+        return this.pid.getController().atGoal();
+    }
+
     /**
      * @return the {@link Rotation2d} representing the robot-relative angle of the
      *         turret
