@@ -39,6 +39,7 @@ import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.FuelLauncherSubsystem;
 import frc.robot.subsystems.HoodSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.SpinDexSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
@@ -68,6 +69,7 @@ public class Robot extends TimedRobot {
     public final ClimberSubsystem climber = new ClimberSubsystem();
     public final SpinDexSubsystem spindex = new SpinDexSubsystem();
     public final TurretSubsystem turret;
+    public final IntakeSubsystem intake = new IntakeSubsystem();
 
     public final HoodSubsystem hood;
 
@@ -208,6 +210,12 @@ public class Robot extends TimedRobot {
             )
         );
         // @formatter:on
+
+        driveController.rightBumper().whileTrue(intake.getIntakeForwardRollCommand());
+        driveController.leftBumper().whileTrue(intake.getIntakeReverseRollCommand());
+        //I wasn't sure what values to give as targetPosition for these, I guessed 12.5
+        driveController.povLeft().onTrue(intake.getSlapdownCommand(12.5));
+        driveController.povRight().onTrue(intake.getLiftCommand(0.0));
     }
 
     private void setupSubsystemBindings() {
