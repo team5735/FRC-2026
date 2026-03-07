@@ -7,6 +7,8 @@ import static edu.wpi.first.units.Units.Kilograms;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
@@ -23,37 +25,37 @@ import edu.wpi.first.units.measure.Mass;
 public class CompbotConstants implements RobotConstants {
     @Override
     public PIDConstants getAutoPosConstants() {
-        return new PIDConstants(0, 0); // TODO
+        return new PIDConstants(12.5, 0); // TODO
     }
 
     @Override
     public PIDConstants getAutoRotConstants() {
-        return new PIDConstants(0, 0); // TODO
+        return new PIDConstants(10, 0); // TODO
     }
 
     @Override
     public double getRotKs() {
-        return 0; // TODO
+        return 0.17285;
     }
 
     @Override
     public double getRotKv() {
-        return 0; // TODO
+        return 4.4734;
     }
 
     @Override
     public double getRotKa() {
-        return 0; // TODO
+        return 0.39386;
     }
 
     @Override
     public double getOpenDriveKv() {
-        return 0; // TODO
+        return 1.6983;
     }
 
     @Override
     public double getOpenDriveKa() {
-        return 0; // TODO
+        return 0.24867;
     }
 
     @Override
@@ -63,7 +65,7 @@ public class CompbotConstants implements RobotConstants {
 
     @Override
     public Distance getRobotTotalLength() {
-        return Inches.of(20 + 7); // TODO - recalc w/ bumpers
+        return Inches.of(25 + 7); // TODO - recalc w/ bumpers
     }
 
     @Override
@@ -74,10 +76,10 @@ public class CompbotConstants implements RobotConstants {
     @Override
     public PathConstraints getPathFollowConstraints() {
         return new PathConstraints(
-                MetersPerSecond.of(0),
-                MetersPerSecondPerSecond.of(0),
-                DegreesPerSecond.of(0),
-                DegreesPerSecondPerSecond.of(0)); // TODO add and test values
+                MetersPerSecond.of(2),
+                MetersPerSecondPerSecond.of(0.5),
+                RotationsPerSecond.of(0.25),
+                RotationsPerSecondPerSecond.of(0.25));
     }
 
     @Override
@@ -102,7 +104,7 @@ public class CompbotConstants implements RobotConstants {
 
     @Override
     public Mass getRobotMass() {
-        return Kilograms.of(59.05); // TODO - reweigh under load
+        return Kilograms.of(56.85);
     }
 
     @Override

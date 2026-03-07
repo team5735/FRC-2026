@@ -427,7 +427,7 @@ public class DrivetrainSubsystem extends SwerveDrivetrain<TalonFX, TalonFX, CANc
     }
 
     public void autoDriveRobotRelative(ChassisSpeeds robotChassisSpeeds) {
-        var discrete = ChassisSpeeds.discretize(robotChassisSpeeds, 0.02);
+        var discrete = ChassisSpeeds.discretize(robotChassisSpeeds, 0.005);
 
         setControl(autoRequest.withSpeeds(discrete));
     }

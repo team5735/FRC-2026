@@ -48,7 +48,7 @@ public class CompbotTunerConstants {
     // When using closed-loop control, the drive motor uses the control
     // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
     public static final Slot0Configs DEFAULT_DRIVE_CONSTANTS = new Slot0Configs() // TODO
-            .withKP(0.15).withKI(0).withKD(0)
+            .withKP(0.125).withKI(0).withKD(0)
             .withKS(0.12).withKV(0.11).withKA(0.012);
 
     // The closed-loop output type to use for the steer motors;
@@ -93,7 +93,7 @@ public class CompbotTunerConstants {
 
     // Theoretical free speed (m/s) at 12 V applied output;
     // This needs to be tuned to your individual robot
-    public static final LinearVelocity SPEED_AT_12_VOLTS = MetersPerSecond.of(12 / DEFAULT_DRIVE_CONSTANTS.kV);
+    public static final LinearVelocity SPEED_AT_12_VOLTS = MetersPerSecond.of(12 / 1.6983);
 
     // Every 1 rotation of the azimuth results in kCoupleRatio drive motor turns;
     private static final double COUPLE_RATIO = 3.0088;
