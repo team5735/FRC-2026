@@ -154,20 +154,26 @@ public class HoodSubsystem extends SubsystemBase {
         public PeekABooBot() {
             super();
 
-            NTable.root().set("draggable robot for peek-a-bot", field2d);
+            NTable.root("SmartDashboard").sub("hood").set("draggable robot for peek-a-bot", field2d);
 
             hood.setHoodPosition(0.4);
 
             hood.exclusionZoneTrigger.onTrue(Commands.runOnce(() -> {
-                SmartDashboard.putBoolean("in_exclusion_zone", true);
+                SmartDashboard.putBoolean("hood/in_exclusion_zone", true);
                 hood.exzSaveServoPosition();
                 hood.setHoodPosition(0);
             }));
             hood.exclusionZoneTrigger.onFalse(Commands.runOnce(() -> {
-                SmartDashboard.putBoolean("in_exclusion_zone", false);
+                SmartDashboard.putBoolean("hood/in_exclusion_zone", false);
                 double pos = hood.exzGetSavedServoPosition();
                 hood.setServoPosition(pos);
             }));
         }
+
+        @Override
+        public void robotPeriodic() {
+            super.robotPeriodic();
+        }
+
     };
 }
