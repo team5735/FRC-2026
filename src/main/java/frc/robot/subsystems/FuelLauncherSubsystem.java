@@ -61,7 +61,7 @@ public class FuelLauncherSubsystem extends SubsystemBase {
         pid.setup(rpm);
     }
 
-    private void usePID() {
+    public void usePID() {
         double output = pid.calculate(getRPM()) + ff.calculate(pid.getController().getSetpoint());
         SmartDashboard.putNumber("launcher/output", output);
         krakenLeft.setVoltage(output);
@@ -112,7 +112,7 @@ public class FuelLauncherSubsystem extends SubsystemBase {
 
     public Command getFedLaunch(SpinDexSubsystem spindex, AngularVelocity speed, AngularVelocity correction) {
         return this.getLaunchFuel(speed, correction).until(pid::atSetpoint)
-                .andThen(this.getLaunchFuel(speed, correction).alongWith(spindex.getStart()));
+                .andThen(this.getLaunchFuel(speed, correction).alongWith(spindex.getRun()));
     }
 
     private SysIdRoutine routine = new SysIdRoutine(
@@ -136,5 +136,9 @@ public class FuelLauncherSubsystem extends SubsystemBase {
 
     public void retunePID() {
         pid.setup(pid.getController().getSetpoint());
+    }
+
+    public boolean atSetpoint() {
+        return pid.atSetpoint();
     }
 }
