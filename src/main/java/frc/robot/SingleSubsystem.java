@@ -2,7 +2,6 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.util.NTable;
 
@@ -11,10 +10,7 @@ public abstract class SingleSubsystem extends TimedRobot {
 
     protected SingleSubsystem() {
         NTable.root().set("scheduler", CommandScheduler.getInstance());
-        init();
     }
-
-    protected abstract void init();
 
     @Override
     public void robotPeriodic() {

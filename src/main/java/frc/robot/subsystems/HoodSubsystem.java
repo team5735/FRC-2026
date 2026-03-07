@@ -122,8 +122,9 @@ public class HoodSubsystem extends SubsystemBase {
 
         private double lastPos = 0;
 
-        @Override
-        protected void init() {
+        public Tester() {
+            super();
+
             controller.a().onTrue(hood.runOnce(() -> hood.setHoodPosition(0.3)));
             controller.b().onTrue(hood.runOnce(() -> hood.setHoodPosition(0.7)));
 
@@ -151,8 +152,9 @@ public class HoodSubsystem extends SubsystemBase {
             return e;
         }, FieldConstants.HOOD_EXCLUSION_ZONES);
 
-        @Override
-        protected void init() {
+        public PeekABooBot() {
+            super();
+
             hood.setHoodPosition(0.4);
 
             hood.exclusionZoneTrigger.onTrue(Commands.runOnce(() -> {

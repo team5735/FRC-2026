@@ -79,7 +79,11 @@ public class Robot extends TimedRobot {
         };
         hood = new HoodSubsystem(turret::getMechanismPose, FieldConstants.HOOD_EXCLUSION_ZONES);
 
-        NTable.root().set("mode", "full robot");
+        NTable.root().set("current robot", switch (Constants.CURRENT_ROBOT) {
+            case FULL_COMPBOT -> "compbot";
+            case FULL_DEVBOT -> "devbot";
+            default -> "???";
+        });
         NTable.root().set("scheduler", CommandScheduler.getInstance());
 
         configureBindings();
