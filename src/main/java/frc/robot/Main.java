@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.RobotBase;
 import frc.robot.constants.Constants;
 import frc.robot.constants.robot.CompbotTunerConstants;
 import frc.robot.constants.robot.DevbotTunerConstants;
+import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.HoodSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 
@@ -23,6 +24,7 @@ public final class Main {
             case HOOD -> new HoodSubsystem.Tester();
             case HOOD_PEEK_A_BOO -> new HoodSubsystem.PeekABooBot();
             case INTAKE -> new IntakeSubsystem.Tester();
+            case CLIMBER -> new ClimberSubsystem.Tester();
         });
     }
 }
