@@ -46,7 +46,7 @@ public class HoodSubsystem extends SubsystemBase {
         this.servoToAnglePosition.put(Constants.HOOD_HIGHEST_SERVO_POSITION, Constants.HOOD_HIGHEST_ANGLE_DEGREES);
     }
 
-    public double getServoPosition() {
+    public double getServoSetpoint() {
         return servo.get();
     }
 
@@ -58,7 +58,7 @@ public class HoodSubsystem extends SubsystemBase {
     }
 
     public double getHoodPosition() {
-        return this.servoToHoodPosition.get(this.getServoPosition());
+        return this.servoToHoodPosition.get(this.getServoSetpoint());
     }
 
     public void setHoodPosition(double hoodPosition) {
@@ -67,7 +67,7 @@ public class HoodSubsystem extends SubsystemBase {
     }
 
     public double getHoodAngle() {
-        return this.servoToAnglePosition.get(this.getServoPosition());
+        return this.servoToAnglePosition.get(this.getServoSetpoint());
     }
 
     public void setHoodAngle(double hoodAngleDegrees) {
@@ -95,8 +95,9 @@ public class HoodSubsystem extends SubsystemBase {
 
     public void sendTelemetry() {
         SmartDashboard.putNumber("hood/hood_position", this.getHoodPosition());
-        SmartDashboard.putNumber("hood/servo_position", this.getServoPosition());
-        SmartDashboard.putNumber("hood/servo_feedback_voltage", this.feedback.getValue());
+        SmartDashboard.putNumber("hood/servo_position", this.getServoSetpoint());
+        SmartDashboard.putNumber("hood/servo_feedback_voltage", this.getVoltage());
+        SmartDashboard.putNumber("hood/servo_feedback_position", getNormalizedPosition());
         SmartDashboard.putNumber("hood/hood_angle_degrees", this.getHoodAngle());
     }
 
