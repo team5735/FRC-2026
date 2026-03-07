@@ -18,8 +18,8 @@ public class Constants {
     public static final int SUBSYSTEM_CONTROLLER_PORT = 1;
     public static final int TEST_CONTROLLER_PORT = 2;
 
-    public static final int INTAKE_SLAPDOWN_TALONFX_ID = 58;
-    public static final int INTAKE_ROLLER_TALONFX_ID = 21;
+    public static final int INTAKE_SLAPDOWN_TALONFX_ID = 23;
+    public static final int INTAKE_ROLLER_TALONFX_ID = 27;
 
     public static final double START_REVOLUTION_POSITION = 0.4;
     public static final double END_REVOLUTION_POSITION = 0.6;

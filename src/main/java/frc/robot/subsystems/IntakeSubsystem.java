@@ -16,7 +16,7 @@ import frc.robot.constants.Constants;
 import frc.robot.util.TunablePIDController;
 
 public class IntakeSubsystem extends SubsystemBase {
-    private final TalonFX intake_slapdown = new TalonFX(Constants.INTAKE_SLAPDOWN_TALONFX_ID);
+    private final TalonFX intakeSlapdown = new TalonFX(Constants.INTAKE_SLAPDOWN_TALONFX_ID);
     private final TalonFX intakeRoller = new TalonFX(Constants.INTAKE_ROLLER_TALONFX_ID);
     private final DutyCycleOut rollerRequest = new DutyCycleOut(0);
     private final DutyCycleOut slapdownRequest = new DutyCycleOut(0);
@@ -29,15 +29,15 @@ public class IntakeSubsystem extends SubsystemBase {
 
         TalonFXConfiguration slapdownConfig = new TalonFXConfiguration();
         slapdownConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-        intake_slapdown.getConfigurator().apply(slapdownConfig);
+        intakeSlapdown.getConfigurator().apply(slapdownConfig);
     }
 
     public void forwardRoll() {
-        intakeRoller.setControl(rollerRequest.withOutput(1));
+        intakeRoller.setControl(rollerRequest.withOutput(0.3));
     }
 
     public void reverseRoll() {
-        intakeRoller.setControl(rollerRequest.withOutput(-1));
+        intakeRoller.setControl(rollerRequest.withOutput(-0.3));
     }
 
     public void stopRoll() {
@@ -51,7 +51,7 @@ public class IntakeSubsystem extends SubsystemBase {
     public void useSlapdownPID() {
         double pos = intakeRoller.getPosition().getValueAsDouble();
         double output = pidController.calculate(pos);
-        intake_slapdown.setControl(slapdownRequest.withOutput(output));
+        intakeSlapdown.setControl(slapdownRequest.withOutput(output));
     }
 
     public Command getIntakeForwardRollCommand() {
