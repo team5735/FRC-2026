@@ -41,7 +41,7 @@ public class SpinDexSubsystem extends SubsystemBase {
         wheelVortex.setVoltage(4);
     }
 
-    public Command getStart() {
+    public Command getRun() {
         return startEnd(() -> {
             runWheel();
             runFeeder();
