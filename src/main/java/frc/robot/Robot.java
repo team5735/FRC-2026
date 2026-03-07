@@ -18,7 +18,6 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathfindingCommand;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -27,11 +26,14 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.DriveOnArc;
 import frc.robot.commands.drivetrain.PIDToPose;
 import frc.robot.constants.Constants;
 import frc.robot.constants.FieldConstants;
+import frc.robot.constants.HoodConstants;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.FuelLauncherSubsystem;
@@ -156,23 +158,39 @@ public class Robot extends TimedRobot {
                         () -> driveController.getRightTriggerAxis(),
                         () -> driveController.getHID().getBButton()));
 
-        driveController.start().onTrue(drivetrain.runOnce(() -> {
-            Pose2d pose = limelights[1].new PoseEstimate().pose2d;
-            if (pose != null) {
-                drivetrain.resetPose(pose);
-            }
-        }).withName("Resetting Pose"));
+        driveController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
-        driveController.x().whileTrue(new DriveOnArc(drivetrain, targetArc,
-                () -> MathUtil.applyDeadband(driveController.getLeftX(), 0.1)));
-        driveController.y()
-                .onTrue(new PIDToPose(drivetrain,
+        driveController.x()
+                .whileTrue(new PIDToPose(drivetrain,
                         () -> targetArc.getPoseFacingCenter(
                                 targetArc.nearestPointOnArc(drivetrain.getEstimatedPosition().getTranslation())),
-                        "drive to arc"));
+                        "drive to arc")
 
-        driveController.a().whileTrue(
-                new DriveOnArc(drivetrain, targetArc, () -> MathUtil.applyDeadband(driveController.getLeftX(), 0.1)));
+                        .andThen(new DriveOnArc(drivetrain, targetArc,
+                                () -> MathUtil.applyDeadband(driveController.getLeftX(), 0.1))));
+
+        driveController.a().onTrue(
+                new ParallelCommandGroup(
+                        new ParallelDeadlineGroup(
+                                // drive to the arc
+                                new PIDToPose(drivetrain, () -> targetArc.getPoseFacingCenter(
+                                        targetArc
+                                                .nearestPointOnArc(drivetrain.getEstimatedPosition().getTranslation())),
+                                        "drive to arc (shoot)"),
+                                // while spinning up the shooter
+                                launcher.getLaunchFuel(RPM.of(3000), RPM.of(25)).until(launcher::atSetpoint),
+                                // and setting the hood to the right position. this does not have an until
+                                // because we don't have a way to get the current servo's position
+                                hood.runOnce(() -> hood.setHoodAngle(HoodConstants.ANGLE_AT_ARC))),
+                        // the above commands are kept in a deadline group because the turret command
+                        // doesn't end when it's at the setpoint
+                        turret.trackFieldPos(FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER)))
+                        .andThen(
+                                new ParallelCommandGroup(
+                                        // now we're ready to shoot: spin the spindex and the feeder
+                                        spindex.getRun(),
+                                        // make sure the shooter keeps spinning
+                                        launcher.run(launcher::usePID))));
     }
 
     private void setupSubsystemBindings() {
@@ -199,7 +217,7 @@ public class Robot extends TimedRobot {
         testController.rightBumper().whileTrue(turret.testForward());
         testController.leftBumper().whileTrue(turret.testReverse());
 
-        subsystemController.a().whileTrue(spindex.getStart());
+        subsystemController.a().whileTrue(spindex.getRun());
     }
 
     @Override
