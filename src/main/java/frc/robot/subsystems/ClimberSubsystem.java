@@ -7,7 +7,6 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.SingleSubsystem;
 import frc.robot.constants.ClimberConstants;
@@ -20,7 +19,6 @@ public class ClimberSubsystem extends SubsystemBase {
     private final DigitalInput limitDown = new DigitalInput(Constants.CLIMB_LOWER_LIMIT_PIN);
     private boolean canMoveUp;
     private boolean canMoveDown;
-    private boolean overridden;
 
     public ClimberSubsystem() {
         talon.getConfigurator().apply(new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Brake));
@@ -34,21 +32,16 @@ public class ClimberSubsystem extends SubsystemBase {
         return run(() -> climbUp()).finallyDo(a -> stop());
     }
 
-    public Command getFullyExtendCommand() {
-        return run(() -> climbUp()).until(this::isAtUpLimit).finallyDo(() -> stop());
+    public Command getClimbDownOverrideCommand() {
+        return run(() -> climbDownOverride()).finallyDo(a -> stop());
     }
 
-    public Command getFullyDetractCommand() {
-        return run(() -> climbDown()).until(this::isAtDownLimit).finallyDo(() -> stop());
-    }
-
-    // allows climber to move past limits when override is activated
-    public Command getOverrideCommand() {
-        return Commands.run(() -> overridden = true).finallyDo(() -> overridden = false);
+    public Command getClimbUpOverrideCommand() {
+        return run(() -> climbUpOverride()).finallyDo(a -> stop());
     }
 
     public void climbUp() {
-        if (canMoveUp || overridden) {
+        if (canMoveUp) {
             talon.setVoltage(ClimberConstants.UP_VOLTS);
         } else {
             talon.setVoltage(0);
@@ -56,11 +49,19 @@ public class ClimberSubsystem extends SubsystemBase {
     }
 
     public void climbDown() {
-        if (canMoveDown || overridden) {
+        if (canMoveDown) {
             talon.setVoltage(ClimberConstants.DOWN_VOLTS);
         } else {
             talon.setVoltage(0);
         }
+    }
+
+    public void climbUpOverride() {
+        talon.setVoltage(ClimberConstants.UP_VOLTS);
+    }
+
+    public void climbDownOverride() {
+        talon.setVoltage(ClimberConstants.DOWN_VOLTS);
     }
 
     public void stop() {
