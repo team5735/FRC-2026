@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Rectangle2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Servo;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -16,6 +17,7 @@ import frc.robot.SingleSubsystem;
 import frc.robot.constants.Constants;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.HoodConstants;
+import frc.robot.util.NTable;
 
 public class HoodSubsystem extends SubsystemBase {
     public final Trigger exclusionZoneTrigger = new Trigger(this::isInExclusionZone);
@@ -145,17 +147,14 @@ public class HoodSubsystem extends SubsystemBase {
     // move trench april tag closer / further from unmoving bot
     // to trigger response
     public static class PeekABooBot extends SingleSubsystem {
-        private LimelightSubsystem limelight = new LimelightSubsystem(null, "limelight-fone");
-
-        private final HoodSubsystem hood = new HoodSubsystem(() -> {
-            var e = limelight.getPoseEstimate();
-            if (e == null)
-                return new Pose2d();
-            return e;
-        }, FieldConstants.HOOD_EXCLUSION_ZONES);
+        private Field2d field2d = new Field2d();
+        private final HoodSubsystem hood = new HoodSubsystem(() -> field2d.getRobotPose(),
+                FieldConstants.HOOD_EXCLUSION_ZONES);
 
         public PeekABooBot() {
             super();
+
+            NTable.root().set("draggable robot for peek-a-bot", field2d);
 
             hood.setHoodPosition(0.4);
 
