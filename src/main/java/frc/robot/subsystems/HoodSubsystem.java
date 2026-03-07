@@ -15,12 +15,13 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.SingleSubsystem;
 import frc.robot.constants.Constants;
 import frc.robot.constants.FieldConstants;
+import frc.robot.constants.HoodConstants;
 
 public class HoodSubsystem extends SubsystemBase {
     public final Trigger exclusionZoneTrigger = new Trigger(this::isInExclusionZone);
 
-    private final Servo servo = new Servo(0);
-    private final AnalogInput feedback = new AnalogInput(0);
+    private final Servo servo = new Servo(Constants.HOOD_SERVO_PIN);
+    private final AnalogInput feedback = new AnalogInput(Constants.HOOD_FEEDBACK_PIN);
 
     private Supplier<Pose2d> turretPoseSupplier;
     private Rectangle2d[] exclusionZones;
@@ -35,15 +36,15 @@ public class HoodSubsystem extends SubsystemBase {
         this.turretPoseSupplier = turretPoseSupplier;
         this.exclusionZones = exclusionZones;
 
-        this.hoodToServoPosition.put(0.0, Constants.HOOD_LOWEST_SERVO_POSITION);
-        this.hoodToServoPosition.put(1.0, Constants.HOOD_HIGHEST_SERVO_POSITION);
-        this.servoToHoodPosition.put(Constants.HOOD_LOWEST_SERVO_POSITION, 0.0);
-        this.servoToHoodPosition.put(Constants.HOOD_HIGHEST_SERVO_POSITION, 1.0);
+        this.hoodToServoPosition.put(0.0, HoodConstants.LOWEST_SERVO_POSITION);
+        this.hoodToServoPosition.put(1.0, HoodConstants.HIGHEST_SERVO_POSITION);
+        this.servoToHoodPosition.put(HoodConstants.LOWEST_SERVO_POSITION, 0.0);
+        this.servoToHoodPosition.put(HoodConstants.HIGHEST_SERVO_POSITION, 1.0);
 
-        this.angleToServoPosition.put(Constants.HOOD_LOWEST_ANGLE_DEGREES, Constants.HOOD_LOWEST_SERVO_POSITION);
-        this.angleToServoPosition.put(Constants.HOOD_HIGHEST_ANGLE_DEGREES, Constants.HOOD_HIGHEST_SERVO_POSITION);
-        this.servoToAnglePosition.put(Constants.HOOD_LOWEST_SERVO_POSITION, Constants.HOOD_LOWEST_ANGLE_DEGREES);
-        this.servoToAnglePosition.put(Constants.HOOD_HIGHEST_SERVO_POSITION, Constants.HOOD_HIGHEST_ANGLE_DEGREES);
+        this.angleToServoPosition.put(HoodConstants.LOWEST_ANGLE_DEGREES, HoodConstants.LOWEST_SERVO_POSITION);
+        this.angleToServoPosition.put(HoodConstants.HIGHEST_ANGLE_DEGREES, HoodConstants.HIGHEST_SERVO_POSITION);
+        this.servoToAnglePosition.put(HoodConstants.LOWEST_SERVO_POSITION, HoodConstants.LOWEST_ANGLE_DEGREES);
+        this.servoToAnglePosition.put(HoodConstants.HIGHEST_SERVO_POSITION, HoodConstants.HIGHEST_ANGLE_DEGREES);
     }
 
     public double getServoSetpoint() {
