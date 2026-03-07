@@ -9,6 +9,7 @@ public class Constants {
         FULL_COMPBOT,
         HOOD,
         HOOD_PEEK_A_BOO,
+        INTAKE,
     }
 
     public static final BotConfiguration CURRENT_ROBOT = BotConfiguration.HOOD_PEEK_A_BOO;

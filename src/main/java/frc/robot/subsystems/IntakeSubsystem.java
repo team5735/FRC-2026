@@ -11,6 +11,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.SingleSubsystem;
 import frc.robot.constants.Constants;
 import frc.robot.util.TunablePIDController;
 
@@ -67,5 +68,14 @@ public class IntakeSubsystem extends SubsystemBase {
 
     public Command getSlapdownCommand(double targetPosition) {
         return startRun(() -> setSlapdownGoal(targetPosition), () -> useSlapdownPID()).finallyDo(a -> stopRoll());
+    }
+
+    public static class Tester extends SingleSubsystem {
+        private final IntakeSubsystem intake = new IntakeSubsystem();
+
+        public Tester() {
+            controller.a().whileTrue(intake.getIntakeForwardRollCommand());
+            controller.b().whileTrue(intake.getIntakeReverseRollCommand());
+        }
     }
 }
