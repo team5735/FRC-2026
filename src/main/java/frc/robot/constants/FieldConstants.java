@@ -11,6 +11,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.math.geometry.Rectangle2d;
 
 // This file provides positions, orientations, distances, and poses to field elements for
@@ -46,6 +48,27 @@ public class FieldConstants {
     public static Rectangle2d redElement(Rectangle2d blueElement) {
         return new Rectangle2d(redElement(blueElement.getCenter()),
                 blueElement.getXWidth(), blueElement.getYWidth());
+    }
+
+    public static Translation2d alliance(Translation2d element) {
+        if (DriverStation.getAlliance().get() == Alliance.Red) {
+            return redElement(element);
+        }
+        return element;
+    }
+
+    public static Pose2d alliance(Pose2d element) {
+        if (DriverStation.getAlliance().get() == Alliance.Red) {
+            return redElement(element);
+        }
+        return element;
+    }
+
+    public static Rectangle2d alliance(Rectangle2d element) {
+        if (DriverStation.getAlliance().get() == Alliance.Red) {
+            return redElement(element);
+        }
+        return element;
     }
 
     /**
