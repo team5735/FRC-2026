@@ -9,6 +9,7 @@ import frc.robot.constants.Constants;
 import frc.robot.constants.robot.CompbotTunerConstants;
 import frc.robot.constants.robot.DevbotTunerConstants;
 import frc.robot.subsystems.HoodSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
 
 // Here be dragons.
 public final class Main {
@@ -21,6 +22,7 @@ public final class Main {
             case FULL_COMPBOT -> new Robot(CompbotTunerConstants.createDrivetrain());
             case HOOD -> new HoodSubsystem.Tester();
             case HOOD_PEEK_A_BOO -> new HoodSubsystem.PeekABooBot();
+            case INTAKE -> new IntakeSubsystem.Tester();
         });
     }
 }
