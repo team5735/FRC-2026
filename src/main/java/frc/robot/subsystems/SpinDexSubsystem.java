@@ -59,7 +59,7 @@ public class SpinDexSubsystem extends SubsystemBase {
         private final SpinDexSubsystem spindex = new SpinDexSubsystem();
 
         public Tester() {
-            controller.a().whileTrue(spindex.getStart());
+            controller.a().whileTrue(spindex.getRun());
 
         }
     }
