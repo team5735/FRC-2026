@@ -9,8 +9,11 @@ import frc.robot.constants.Constants;
 import frc.robot.constants.robot.CompbotTunerConstants;
 import frc.robot.constants.robot.DevbotTunerConstants;
 import frc.robot.subsystems.ClimberSubsystem;
+import frc.robot.subsystems.FuelLauncherSubsystem;
 import frc.robot.subsystems.HoodSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.SpinDexSubsystem;
+import frc.robot.subsystems.TurretSubsystem;
 
 // Here be dragons.
 public final class Main {
@@ -25,6 +28,9 @@ public final class Main {
             case HOOD_PEEK_A_BOO -> new HoodSubsystem.PeekABooBot();
             case INTAKE -> new IntakeSubsystem.Tester();
             case CLIMBER -> new ClimberSubsystem.Tester();
+            case TURRET -> new TurretSubsystem.Tester();
+            case SPINDEX -> new SpinDexSubsystem.Tester();
+            case LAUNCHER -> new FuelLauncherSubsystem.Tester();
         });
     }
 }

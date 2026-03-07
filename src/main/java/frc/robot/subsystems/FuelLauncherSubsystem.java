@@ -25,6 +25,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
+import frc.robot.SingleSubsystem;
 import frc.robot.constants.Constants;
 import frc.robot.constants.FuelLauncherConstants;
 import frc.robot.util.NTable;
@@ -140,5 +141,20 @@ public class FuelLauncherSubsystem extends SubsystemBase {
 
     public boolean atSetpoint() {
         return pid.atSetpoint();
+    }
+
+    public static class Tester extends SingleSubsystem {
+        private final SpinDexSubsystem spindex = new SpinDexSubsystem();
+        private final FuelLauncherSubsystem launcher = new FuelLauncherSubsystem();
+        private final IntakeSubsystem intake = new IntakeSubsystem();
+
+        public Tester() {
+            super();
+            launcher.setDefaultCommand(launcher.getLaunchFuel(RPM.of(0), RPM.of(0)));
+
+            controller.a().whileTrue(launcher.getFedLaunch(spindex, RPM.of(3000), RPM.of(24)));
+            controller.x().whileTrue(spindex.startEnd(spindex::reverseWheel, spindex::stopWheel));
+            controller.rightBumper().whileTrue(intake.getIntakeForwardRollCommand());
+        }
     }
 }

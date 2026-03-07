@@ -351,4 +351,53 @@ public class TurretSubsystem extends SubsystemBase {
             isZeroed = true;
         }).ignoringDisable(true);
     }
+
+    public static class Tester extends SingleSubsystem {
+        private final TurretSubsystem turret = new TurretSubsystem(() -> Pose2d.kZero, new CompbotConstants());
+
+        public Tester() {
+            super();
+            // turret.setDefaultCommand(turret.holdRobotRel(Rotations.of(0)));
+            turret.limitTrigger.onTrue(turret.zeroCommand()); // resets the turrets position when it engages the
+                                                              // Hall-Effect
+                                                              // sensor
+            turret.setDefaultCommand(turret.holdRobotRel(Rotations.of(0)));
+
+            controller.a().onTrue(turret.holdRobotRel(Rotations.of(0.25)));
+            controller.b().onTrue(turret.holdRobotRel(Rotations.of(0.75)));
+            controller.rightBumper().whileTrue(turret.trackRobotRel(() -> {
+                double x = controller.getRightX();
+                double y = controller.getRightY();
+                return new Rotation2d(-y, -x).getMeasure();
+            }));
+            controller.x().whileTrue(turret.zeroSequence());
+
+            controller.povUp().whileTrue(turret.sysId());
+            controller.povDown().onTrue(Commands.runOnce(turret::remakePID, turret));
+        }
+    }
+}
+        private final TurretSubsystem turret = new TurretSubsystem(() -> Pose2d.kZero, new CompbotConstants());
+
+        public Tester() {
+            super();
+            // turret.setDefaultCommand(turret.holdRobotRel(Rotations.of(0)));
+            turret.limitTrigger.onTrue(turret.zeroCommand()); // resets the turrets position when it engages the
+                                                              // Hall-Effect
+                                                              // sensor
+            turret.setDefaultCommand(turret.holdRobotRel(Rotations.of(0)));
+
+            controller.a().onTrue(turret.holdRobotRel(Rotations.of(0.25)));
+            controller.b().onTrue(turret.holdRobotRel(Rotations.of(0.75)));
+            controller.rightBumper().whileTrue(turret.trackRobotRel(() -> {
+                double x = controller.getRightX();
+                double y = controller.getRightY();
+                return new Rotation2d(-y, -x).getMeasure();
+            }));
+            controller.x().whileTrue(turret.zeroSequence());
+
+            controller.povUp().whileTrue(turret.sysId());
+            controller.povDown().onTrue(Commands.runOnce(turret::remakePID, turret));
+        }
+    }
 }

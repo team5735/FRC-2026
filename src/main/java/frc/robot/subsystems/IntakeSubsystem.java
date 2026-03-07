@@ -33,15 +33,15 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public void forwardRoll() {
-        intakeRoller.setControl(rollerRequest.withOutput(0.3));
+        intakeRoller.setVoltage(4);
     }
 
     public void reverseRoll() {
-        intakeRoller.setControl(rollerRequest.withOutput(-0.3));
+        intakeRoller.setVoltage(-4);
     }
 
     public void stopRoll() {
-        intakeRoller.setControl(rollerRequest.withOutput(0));
+        intakeRoller.setVoltage(0);
     }
 
     public void setSlapdownGoal(double goal) {
@@ -49,7 +49,7 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public void useSlapdownPID() {
-        double pos = intakeRoller.getPosition().getValueAsDouble();
+        double pos = intakeSlapdown.getPosition().getValueAsDouble();
         double output = pidController.calculate(pos);
         intakeSlapdown.setControl(slapdownRequest.withOutput(output));
     }

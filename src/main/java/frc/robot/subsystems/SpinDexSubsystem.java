@@ -5,6 +5,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.SingleSubsystem;
 import frc.robot.constants.Constants;
 
 public class SpinDexSubsystem extends SubsystemBase {
@@ -17,7 +18,7 @@ public class SpinDexSubsystem extends SubsystemBase {
     }
 
     public void runFeeder() {
-        feedVortex.setVoltage(-5);
+        feedVortex.setVoltage(-6);
     }
 
     public void stopFeeder() {
@@ -29,14 +30,18 @@ public class SpinDexSubsystem extends SubsystemBase {
     }
 
     public void runWheel() {
-        wheelVortex.setVoltage(-2);
+        wheelVortex.setVoltage(-4);
     }
 
     public void stopWheel() {
         wheelVortex.setVoltage(0);
     }
 
-    public Command getRun() {
+    public void reverseWheel() {
+        wheelVortex.setVoltage(4);
+    }
+
+    public Command getStart() {
         return startEnd(() -> {
             runWheel();
             runFeeder();
@@ -48,5 +53,14 @@ public class SpinDexSubsystem extends SubsystemBase {
 
     public Command getBackwards() {
         return startEnd(this::runWheelBackwards, this::stopWheel);
+    }
+
+    public static class Tester extends SingleSubsystem {
+        private final SpinDexSubsystem spindex = new SpinDexSubsystem();
+
+        public Tester() {
+            controller.a().whileTrue(spindex.getStart());
+
+        }
     }
 }
