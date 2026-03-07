@@ -115,7 +115,7 @@ public class HoodSubsystem extends SubsystemBase {
     }
 
     // This is a full robot config for testing the hood subsystem
-    public static SingleSubsystem tester = new SingleSubsystem() {
+    public static class Tester extends SingleSubsystem {
         private final HoodSubsystem hood = new HoodSubsystem(() -> new Pose2d(),
                 FieldConstants.HOOD_EXCLUSION_ZONES);
 
@@ -140,7 +140,7 @@ public class HoodSubsystem extends SubsystemBase {
     // test hood up/down in exclusion zones
     // move trench april tag closer / further from unmoving bot
     // to trigger response
-    public static SingleSubsystem peekABooBot = new SingleSubsystem() {
+    public static class PeekABooBot extends SingleSubsystem {
         private LimelightSubsystem limelight = new LimelightSubsystem(null, "limelight-fone");
 
         private final HoodSubsystem hood = new HoodSubsystem(() -> {

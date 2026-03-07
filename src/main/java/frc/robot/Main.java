@@ -19,8 +19,8 @@ public final class Main {
         RobotBase.startRobot(() -> switch (Constants.CURRENT_ROBOT) {
             case FULL_DEVBOT -> new Robot(DevbotTunerConstants.createDrivetrain());
             case FULL_COMPBOT -> new Robot(CompbotTunerConstants.createDrivetrain());
-            case HOOD -> HoodSubsystem.tester;
-            case HOOD_PEEK_A_BOO -> HoodSubsystem.peekABooBot;
+            case HOOD -> new HoodSubsystem.Tester();
+            case HOOD_PEEK_A_BOO -> new HoodSubsystem.PeekABooBot();
         });
     }
 }
