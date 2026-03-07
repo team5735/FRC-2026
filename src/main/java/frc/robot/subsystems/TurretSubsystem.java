@@ -15,6 +15,7 @@ import static frc.robot.constants.TurretConstants.KS;
 import static frc.robot.constants.TurretConstants.KV;
 import static frc.robot.constants.TurretConstants.MAX_ACC;
 import static frc.robot.constants.TurretConstants.MAX_VEL;
+import static frc.robot.constants.TurretConstants.REVERSE_LIMIT_TUR_REL;
 import static frc.robot.constants.TurretConstants.SOFT_PADDING;
 import static frc.robot.constants.TurretConstants.START_POS_BOT_REL;
 import static frc.robot.constants.TurretConstants.formatInputRobotRel;
@@ -48,7 +49,9 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
+import frc.robot.SingleSubsystem;
 import frc.robot.constants.Constants;
+import frc.robot.constants.robot.CompbotConstants;
 import frc.robot.constants.robot.RobotConstants;
 import frc.robot.util.TunableProfiledPIDController;
 
@@ -62,7 +65,7 @@ public class TurretSubsystem extends SubsystemBase {
     private final TunableProfiledPIDController pid = new TunableProfiledPIDController("turret", KP, KI, KD,
             MAX_VEL.in(RotationsPerSecond), MAX_ACC.in(RotationsPerSecondPerSecond));
     private final SimpleMotorFeedforward ff = new SimpleMotorFeedforward(KS, KV, KA);
-
+    
     private Supplier<Pose2d> robotPoseSupplier;
     private double prevVel = 0;
     private RobotConstants driveConstants;
@@ -73,8 +76,8 @@ public class TurretSubsystem extends SubsystemBase {
                 .withInverted(InvertedValue.Clockwise_Positive));
         kraken.getConfigurator().apply(new FeedbackConfigs().withSensorToMechanismRatio(10));
         resetAngle(START_POS_BOT_REL);
-        pid.setup(START_POS_BOT_REL.in(Rotations));
-        pid.reset(START_POS_BOT_REL.in(Rotations));
+        pid.setup(robotRelToTurretRel(START_POS_BOT_REL).in(Rotations));
+        pid.reset(robotRelToTurretRel(START_POS_BOT_REL).in(Rotations));
 
         this.robotPoseSupplier = robotPoseSupplier;
     }
@@ -84,7 +87,7 @@ public class TurretSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("turret/posRots", getAngle().in(Rotations));
         SmartDashboard.putNumber("turret/velRPS", kraken.getVelocity().getValue().in(RotationsPerSecond));
         SmartDashboard.putNumber("turret/setpointPosRots",
-                robotRelToTurretRel(Rotations.of(pid.getController().getSetpoint().position)).in(Rotations));
+                turretRelToRobotRel(Rotations.of(pid.getController().getSetpoint().position)).in(Rotations));
         SmartDashboard.putNumber("turret/setpointVelRPS", pid.getController().getSetpoint().velocity);
         SmartDashboard.putNumber("turret/volts", kraken.getMotorVoltage().getValueAsDouble());
         SmartDashboard.putNumber("turret/posErrorRots", pid.getController().getPositionError());
@@ -131,11 +134,11 @@ public class TurretSubsystem extends SubsystemBase {
                         .angularVelocity(kraken.getVelocity().getValue())
                         .angularPosition(getAngleTurretRel());
             }, this));
-    public final BooleanSupplier isAtMax = () -> {
+    public final BooleanSupplier isAtForwardLim = () -> {
         return getAngleTurretRel().gte(FORWARD_LIMIT_TUR_REL.minus(SOFT_PADDING));
     };
-    public final BooleanSupplier isAtMin = () -> {
-        return getAngleTurretRel().lte(FORWARD_LIMIT_TUR_REL.minus(SOFT_PADDING));
+    public final BooleanSupplier isAtReverseLim = () -> {
+        return getAngleTurretRel().lte(REVERSE_LIMIT_TUR_REL.plus(SOFT_PADDING));
     };
 
     /**
@@ -148,10 +151,10 @@ public class TurretSubsystem extends SubsystemBase {
      */
     public Command sysId() {
         return Commands.print("Starting Turret SysId")
-                .andThen(routine.dynamic(Direction.kForward).until(isAtMax))
-                .andThen(routine.dynamic(Direction.kReverse).until(isAtMin))
-                .andThen(routine.quasistatic(Direction.kForward).until(isAtMax))
-                .andThen(routine.quasistatic(Direction.kReverse).until(isAtMin))
+                .andThen(routine.dynamic(Direction.kForward).until(isAtForwardLim))
+                .andThen(routine.dynamic(Direction.kReverse).until(isAtReverseLim))
+                .andThen(routine.quasistatic(Direction.kForward).until(isAtForwardLim))
+                .andThen(routine.quasistatic(Direction.kReverse).until(isAtReverseLim))
                 .andThen(Commands.print("SysId End"));
     }
 
@@ -308,7 +311,7 @@ public class TurretSubsystem extends SubsystemBase {
      * @param newPos the new robot-relative {@link Angle}
      */
     private void resetAngle(Angle newPos) {
-        kraken.setPosition(formatInputRobotRel(newPos));
+        kraken.setPosition(robotRelToTurretRel(newPos));
     }
 
     /**
@@ -331,7 +334,7 @@ public class TurretSubsystem extends SubsystemBase {
      * @return Command that performs the aforementioned task
      */
     public Command zeroSequence() {
-        return testForward().until(hallLimit::get).andThen(zeroCommand())
+        return testForward().until(limitTrigger::getAsBoolean).andThen(zeroCommand())
                 .andThen(holdRobotRel(FORWARD_LIMIT_BOT_REL.minus(SOFT_PADDING)));
     }
 
@@ -353,30 +356,6 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     public static class Tester extends SingleSubsystem {
-        private final TurretSubsystem turret = new TurretSubsystem(() -> Pose2d.kZero, new CompbotConstants());
-
-        public Tester() {
-            super();
-            // turret.setDefaultCommand(turret.holdRobotRel(Rotations.of(0)));
-            turret.limitTrigger.onTrue(turret.zeroCommand()); // resets the turrets position when it engages the
-                                                              // Hall-Effect
-                                                              // sensor
-            turret.setDefaultCommand(turret.holdRobotRel(Rotations.of(0)));
-
-            controller.a().onTrue(turret.holdRobotRel(Rotations.of(0.25)));
-            controller.b().onTrue(turret.holdRobotRel(Rotations.of(0.75)));
-            controller.rightBumper().whileTrue(turret.trackRobotRel(() -> {
-                double x = controller.getRightX();
-                double y = controller.getRightY();
-                return new Rotation2d(-y, -x).getMeasure();
-            }));
-            controller.x().whileTrue(turret.zeroSequence());
-
-            controller.povUp().whileTrue(turret.sysId());
-            controller.povDown().onTrue(Commands.runOnce(turret::remakePID, turret));
-        }
-    }
-}
         private final TurretSubsystem turret = new TurretSubsystem(() -> Pose2d.kZero, new CompbotConstants());
 
         public Tester() {

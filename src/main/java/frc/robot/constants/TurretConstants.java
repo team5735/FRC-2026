@@ -21,7 +21,7 @@ public class TurretConstants {
     // Simple Feedforward gains, all roughly tuned due to SysID misbehavior
     public static final double KS = 0.21;
     public static final double KV = 0.856;
-    public static final double KA = 0.13;
+    public static final double KA = 0.12;
 
     public static final AngularVelocity MAX_VEL = RotationsPerSecond.of(1);
     public static final AngularAcceleration MAX_ACC = RotationsPerSecondPerSecond.of(3.5);
@@ -30,13 +30,13 @@ public class TurretConstants {
 
     // Imaginary, robot-relative hard stops for the turret; all setpoints are to be
     // within a set padding of these
-    public static final Angle REVERSE_LIMIT_BOT_REL = Rotations.of(0.54); // limit the turret would hit whild driving CW
-    public static final Angle FORWARD_LIMIT_BOT_REL = Rotations.of(1); // limit the turret would hit while driving CCW
+    public static final Angle REVERSE_LIMIT_BOT_REL = Rotations.of(0.48); // limit the turret would hit whild driving CW
+    public static final Angle FORWARD_LIMIT_BOT_REL = Rotations.of(0.316); // limit the turret would hit while driving CCW
     public static final Angle ZERO_OFFSET = Rotations
             .of((REVERSE_LIMIT_BOT_REL.in(Rotations) + FORWARD_LIMIT_BOT_REL.in(Rotations)) / 2);
     public static final Angle REVERSE_LIMIT_TUR_REL = REVERSE_LIMIT_BOT_REL.minus(ZERO_OFFSET);
     public static final Angle FORWARD_LIMIT_TUR_REL = Rotations.of(1).minus(REVERSE_LIMIT_TUR_REL);
-    public static final Angle SOFT_PADDING = Rotations.of(0.05);
+    public static final Angle SOFT_PADDING = Rotations.of(0.025);
 
     // Ideal robot-relative starting angle
     public static final Angle START_POS_BOT_REL = Rotations.of(0);
