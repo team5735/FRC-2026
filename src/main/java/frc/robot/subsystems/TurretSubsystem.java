@@ -89,6 +89,7 @@ public class TurretSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("turret/volts", kraken.getMotorVoltage().getValueAsDouble());
         SmartDashboard.putNumber("turret/posErrorRots", pid.getController().getPositionError());
         SmartDashboard.putBoolean("turret/limitEngaged", !hallLimit.get());
+        SmartDashboard.putBoolean("turret/isZeroed", isZeroed);
     }
 
     /**
