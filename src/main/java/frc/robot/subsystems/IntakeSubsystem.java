@@ -74,6 +74,8 @@ public class IntakeSubsystem extends SubsystemBase {
         private final IntakeSubsystem intake = new IntakeSubsystem();
 
         public Tester() {
+            super();
+
             controller.a().whileTrue(intake.getIntakeForwardRollCommand());
             controller.b().whileTrue(intake.getIntakeReverseRollCommand());
         }
