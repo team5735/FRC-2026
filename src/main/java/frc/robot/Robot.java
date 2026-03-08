@@ -215,8 +215,8 @@ public class Robot extends TimedRobot {
         driveController.rightBumper().whileTrue(intake.getIntakeForwardRollCommand());
         driveController.leftBumper().whileTrue(intake.getIntakeReverseRollCommand());
         //I wasn't sure what values to give as targetPosition for these, I guessed 12.5
-        driveController.povLeft().onTrue(intake.getSlapdownCommand(12.5));
-        driveController.povRight().onTrue(intake.getLiftCommand(0.0));
+        driveController.povLeft().onTrue(intake.getSlapdownCommand());
+        driveController.povRight().onTrue(intake.getLiftCommand());
     }
 
     private void setupSubsystemBindings() {
