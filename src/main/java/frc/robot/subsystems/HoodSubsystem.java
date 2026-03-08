@@ -35,11 +35,11 @@ public class HoodSubsystem extends SubsystemBase {
     private InterpolatingDoubleTreeMap servoToAnglePosition = new InterpolatingDoubleTreeMap();
 
     public static double interp1(double x1, double x2, double y1, double y2, double x0) {
-    if (x1 == x2) {
-        throw new IllegalArgumentException("x1 and x2 cannot be equal for interpolation");
+        if (x1 == x2) {
+            throw new IllegalArgumentException("x1 and x2 cannot be equal for interpolation");
+        }
+        return y1 + (x0 - x1) * (y2 - y1) / (x2 - x1);
     }
-    return y1 + (x0 - x1) * (y2 - y1) / (x2 - x1);
-}
 
     public HoodSubsystem(Supplier<Pose2d> turretPoseSupplier, Rectangle2d[] exclusionZones) {
         super();
@@ -102,9 +102,9 @@ public class HoodSubsystem extends SubsystemBase {
     // Converts voltage (0-5V) into 0.0–1.0 normalized position
     public double getNormalizedPosition() {
         double v = this.getVoltage();
-        return this.interp1(HoodConstants.SERVO_VOLTAGE_ZERO_SETPOINT, 0.0,
-                            HoodConstants.SERVO_VOLTAGE_ONE_SETPOINT,  1.0,
-                            v);
+        return interp1(HoodConstants.SERVO_VOLTAGE_ZERO_SETPOINT, 0.0,
+                HoodConstants.SERVO_VOLTAGE_ONE_SETPOINT, 1.0,
+                v);
     }
 
     public void sendTelemetry() {
