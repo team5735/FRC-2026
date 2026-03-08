@@ -1,5 +1,7 @@
 package frc.robot;
 
+import com.ctre.phoenix6.SignalLogger;
+
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -10,6 +12,7 @@ public abstract class SingleSubsystem extends TimedRobot {
 
     protected SingleSubsystem() {
         NTable.root().set("scheduler", CommandScheduler.getInstance());
+        SignalLogger.enableAutoLogging(false);
     }
 
     @Override
