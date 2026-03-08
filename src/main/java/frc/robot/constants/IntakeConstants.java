@@ -7,8 +7,8 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 
 public class IntakeConstants {
-    public static final double ROLL_IN_VOLTS = 4.0;
-    public static final double ROLL_OUT_VOLTS = -4.0;
+    public static final double ROLL_IN_VOLTS = 6.0;
+    public static final double ROLL_OUT_VOLTS = -6.0;
 
     public static final double KS = 0; //TODO
     public static final double KV = 0; //TODO
