@@ -1,6 +1,7 @@
 package frc.robot;
 
 import com.ctre.phoenix6.SignalLogger;
+import com.revrobotics.util.StatusLogger;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -13,6 +14,7 @@ public abstract class SingleSubsystem extends TimedRobot {
     protected SingleSubsystem() {
         NTable.root().set("scheduler", CommandScheduler.getInstance());
         SignalLogger.enableAutoLogging(false);
+        StatusLogger.disableAutoLogging();
     }
 
     @Override

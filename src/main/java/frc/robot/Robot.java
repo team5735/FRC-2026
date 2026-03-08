@@ -16,6 +16,7 @@ import com.ctre.phoenix6.SignalLogger;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathfindingCommand;
+import com.revrobotics.util.StatusLogger;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -99,6 +100,7 @@ public class Robot extends TimedRobot {
                 PathfindingCommand.warmupCommand().withName("Warmup Pathfinding"));
 
         SignalLogger.enableAutoLogging(false);
+        StatusLogger.disableAutoLogging();
 
         DriverStation.silenceJoystickConnectionWarning(true);
 
@@ -231,7 +233,7 @@ drivetrain.getEstimatedPosition().getTranslation()
             turret.trackFieldPos(FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER))
                 .alongWith(
                     hood.runOnce(() -> hood.setServoPosition(HoodConstants.POS_AT_ARC))
-                                 // wait a minimum of two seconds to ensure the hood gets to the right spot
+                        // wait a minimum of two seconds to ensure the hood gets to the right spot
                         .andThen(Commands.waitTime(Seconds.of(2))
                             // also ensure the luancher is up to speed
                             .alongWith(launcher.getLaunchFuel(RPM.of(FuelLauncherConstants.DEFAULT_SETPOINT)).
