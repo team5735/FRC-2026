@@ -8,6 +8,8 @@ import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 
+import java.util.function.Supplier;
+
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -96,6 +98,13 @@ public class LauncherSubsystem extends SubsystemBase {
                 .andThen(startRun(() -> setTargetRPM(NTable.root("tuning").getDouble("rpm")),
                         this::usePID))
                 .withName("Launch Fuel /tuning/rpm");
+    }
+
+    public Command getDynamicLaunch(Supplier<AngularVelocity> speedSupplier) {
+        return startRun(this::retunePID, () -> {
+            setTargetRPM(speedSupplier.get().in(RPM));
+            usePID();
+        }).withName("Dynamic Launching");
     }
 
     public Command getFedLaunch(SpinDexSubsystem spindex, AngularVelocity speed) {

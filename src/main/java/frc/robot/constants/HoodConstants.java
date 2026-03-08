@@ -19,4 +19,6 @@ public class HoodConstants {
 
     public static final double SERVO_VOLTAGE_ZERO_SETPOINT = 2.783;
     public static final double SERVO_VOLTAGE_ONE_SETPOINT = 0.437;
+    
+    public static final double DYNAMIC_TOLERANCE_DEGREES = 5;
 }

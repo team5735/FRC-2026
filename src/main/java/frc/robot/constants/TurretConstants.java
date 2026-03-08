@@ -1,11 +1,13 @@
 package frc.robot.constants;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -38,6 +40,9 @@ public class TurretConstants {
     public static final Angle REVERSE_LIMIT_TUR_REL = REVERSE_LIMIT_BOT_REL.minus(ZERO_OFFSET);
     public static final Angle FORWARD_LIMIT_TUR_REL = Rotations.of(1).minus(REVERSE_LIMIT_TUR_REL);
     public static final Angle SOFT_PADDING = Rotations.of(0.025);
+    public static final Angle MAX_DECEL_PADDING = Rotations.of(MAX_VEL.in(RotationsPerSecond)
+            * MAX_VEL.in(RotationsPerSecond) / (MAX_ACC.in(RotationsPerSecondPerSecond) * 2));
+    public static final Angle TOLERANCE = Degrees.of(1);
 
     // Ideal robot-relative starting angle
     public static final Angle START_POS_BOT_REL = Rotations.of(0.25);
@@ -53,8 +58,12 @@ public class TurretConstants {
      *         subsystem; either the rotational equivalent of the input, or one of
      *         the bounds.
      */
-    public static Angle formatInputRobotRel(Angle input) {
-        return formatInputTurretRel(input.minus(ZERO_OFFSET));
+    public static Angle formatInputPosRobotRel(Angle input) {
+        return formatInputPosTurretRel(input.minus(ZERO_OFFSET));
+    }
+
+    public static State formatInputStateRobotRel(State input) {
+        return formatInputStateTurretRel(new State(input.position - ZERO_OFFSET.in(Rotations), input.velocity));
     }
 
     /**
@@ -67,11 +76,41 @@ public class TurretConstants {
      *         subsystem; either the rotational equivalent of the input, or one of
      *         the bounds.
      */
-    public static Angle formatInputTurretRel(Angle input) {
+    public static Angle formatInputPosTurretRel(Angle input) {
         double softLowerLimit = MathUtil.inputModulus(REVERSE_LIMIT_TUR_REL.plus(SOFT_PADDING).in(Rotations), 0, 1);
         double softUpperLimit = MathUtil.inputModulus(FORWARD_LIMIT_TUR_REL.minus(SOFT_PADDING).in(Rotations), 0, 1);
         double moddedInput = MathUtil.inputModulus(input.in(Rotations), 0, 1);
         return Rotations.of(MathUtil.clamp(moddedInput, softLowerLimit, softUpperLimit));
+    }
+
+    public static State formatInputStateTurretRel(State input) {
+        double softLowerLimit = MathUtil.inputModulus(REVERSE_LIMIT_TUR_REL.plus(SOFT_PADDING).in(Rotations), 0, 1);
+        double softUpperLimit = MathUtil.inputModulus(FORWARD_LIMIT_TUR_REL.minus(SOFT_PADDING).in(Rotations), 0, 1);
+        double moddedInput = MathUtil.inputModulus(input.position, 0, 1);
+        double newPos = MathUtil.clamp(moddedInput, softLowerLimit, softUpperLimit);
+
+        double newVel = input.velocity;
+
+        if (newVel > 0) {
+            if (MathUtil.isNear(FORWARD_LIMIT_TUR_REL.in(Rotations), newPos, MAX_DECEL_PADDING.in(Rotations))) {
+                newVel = Math.sqrt(
+                        MAX_VEL.in(RotationsPerSecond) * MAX_VEL.in(RotationsPerSecond)
+                                - 2 * MAX_ACC.in(RotationsPerSecondPerSecond)
+                                        * (newPos - FORWARD_LIMIT_TUR_REL.minus(SOFT_PADDING).in(Rotations)
+                                                + MAX_DECEL_PADDING.in(Rotations)));
+            }
+        } else if (newVel < 0) {
+            if (MathUtil.isNear(REVERSE_LIMIT_TUR_REL.in(Rotations), newPos, MAX_DECEL_PADDING.in(Rotations))) {
+                newVel = -Math.sqrt(
+                        MAX_VEL.in(RotationsPerSecond) * MAX_VEL.in(RotationsPerSecond)
+                                + 2 * MAX_ACC.in(RotationsPerSecondPerSecond)
+                                        * (newPos - REVERSE_LIMIT_TUR_REL.plus(SOFT_PADDING).in(Rotations)
+                                                - MAX_DECEL_PADDING.in(Rotations)));
+            }
+
+        }
+
+        return new State(newPos, newVel);
     }
 
     /**

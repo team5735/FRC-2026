@@ -5,20 +5,8 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
-import static frc.robot.constants.TurretConstants.FORWARD_LIMIT_BOT_REL;
-import static frc.robot.constants.TurretConstants.FORWARD_LIMIT_TUR_REL;
-import static frc.robot.constants.TurretConstants.KA;
-import static frc.robot.constants.TurretConstants.KD;
-import static frc.robot.constants.TurretConstants.KI;
-import static frc.robot.constants.TurretConstants.KP;
-import static frc.robot.constants.TurretConstants.KS;
-import static frc.robot.constants.TurretConstants.KV;
-import static frc.robot.constants.TurretConstants.MAX_ACC;
-import static frc.robot.constants.TurretConstants.MAX_VEL;
-import static frc.robot.constants.TurretConstants.REVERSE_LIMIT_TUR_REL;
-import static frc.robot.constants.TurretConstants.SOFT_PADDING;
-import static frc.robot.constants.TurretConstants.START_POS_BOT_REL;
-import static frc.robot.constants.TurretConstants.formatInputRobotRel;
+import static frc.robot.constants.TurretConstants.*;
+import static frc.robot.constants.TurretConstants.formatInputStateRobotRel;
 import static frc.robot.constants.TurretConstants.robotRelToTurretRel;
 import static frc.robot.constants.TurretConstants.turretRelToRobotRel;
 
@@ -198,7 +186,7 @@ public class TurretSubsystem extends SubsystemBase {
                 () -> {
                     pid.reset(new State(getAngleTurretRel().in(Rotations),
                             kraken.getVelocity().getValue().in(RotationsPerSecond)));
-                    pid.setGoal(new State(formatInputRobotRel(goal).in(Rotations), 0));
+                    pid.setGoal(new State(formatInputPosRobotRel(goal).in(Rotations), 0));
                 },
                 () -> {
                     double newVel = pid.getController().getSetpoint().velocity;
@@ -220,7 +208,7 @@ public class TurretSubsystem extends SubsystemBase {
      *         {@link ProfiledPIDController} to the motor.
      */
     public Command trackRobotRel(Supplier<Angle> angleSupplier) {
-        return trackStateTurretRel(() -> new State(formatInputRobotRel(angleSupplier.get()).in(Rotations), 0));
+        return trackStateTurretRel(() -> new State(formatInputPosRobotRel(angleSupplier.get()).in(Rotations), 0));
     }
 
     /**
@@ -237,7 +225,7 @@ public class TurretSubsystem extends SubsystemBase {
      */
     public Command trackRobotRelWithVelocity(Supplier<Angle> angleSupplier,
             Supplier<AngularVelocity> velocitySupplier) {
-        return trackStateTurretRel(() -> new State(formatInputRobotRel(angleSupplier.get()).in(Rotations),
+        return trackStateTurretRel(() -> new State(formatInputPosRobotRel(angleSupplier.get()).in(Rotations),
                 velocitySupplier.get().in(RotationsPerSecond)));
     }
 
@@ -251,7 +239,7 @@ public class TurretSubsystem extends SubsystemBase {
      */
     public Command holdFieldRelative(Angle fieldAngle) {
         return trackRobotRel(
-                () -> formatInputRobotRel(fieldAngle.minus(robotPoseSupplier.get().getRotation().getMeasure())));
+                () -> formatInputPosRobotRel(fieldAngle.minus(robotPoseSupplier.get().getRotation().getMeasure())));
     }
 
     /**
