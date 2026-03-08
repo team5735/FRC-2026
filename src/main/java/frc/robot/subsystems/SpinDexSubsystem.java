@@ -13,6 +13,7 @@ public class SpinDexSubsystem extends SubsystemBase {
     public final SparkFlex wheelVortex = new SparkFlex(Constants.SPINDEX_WHEEL_VORTEX_ID, MotorType.kBrushless);
 
     public SpinDexSubsystem() {
+        super();
         feedVortex.clearFaults();
         wheelVortex.clearFaults();
     }

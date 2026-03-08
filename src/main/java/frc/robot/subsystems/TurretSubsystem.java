@@ -71,6 +71,7 @@ public class TurretSubsystem extends SubsystemBase {
     private RobotConstants driveConstants;
 
     public TurretSubsystem(Supplier<Pose2d> robotPoseSupplier, RobotConstants driveConstants) {
+        super();
         this.driveConstants = driveConstants;
         kraken.getConfigurator().apply(new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Brake)
                 .withInverted(InvertedValue.Clockwise_Positive));
@@ -206,7 +207,7 @@ public class TurretSubsystem extends SubsystemBase {
                                     + 0.02 * MAX_ACC.in(RotationsPerSecondPerSecond) * Math.signum(newVel - prevVel));
                     kraken.setVoltage(voltsToSet);
                     prevVel = newVel;
-                });
+                }).withName("hold robot relative");
     }
 
     /**

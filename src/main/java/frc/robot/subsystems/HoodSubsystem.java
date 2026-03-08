@@ -35,6 +35,7 @@ public class HoodSubsystem extends SubsystemBase {
     private InterpolatingDoubleTreeMap servoToAnglePosition = new InterpolatingDoubleTreeMap();
 
     public HoodSubsystem(Supplier<Pose2d> turretPoseSupplier, Rectangle2d[] exclusionZones) {
+        super();
         this.turretPoseSupplier = turretPoseSupplier;
         this.exclusionZones = exclusionZones;
 

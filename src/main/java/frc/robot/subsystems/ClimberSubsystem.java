@@ -21,6 +21,7 @@ public class ClimberSubsystem extends SubsystemBase {
     private boolean canMoveDown;
 
     public ClimberSubsystem() {
+        super();
         talon.getConfigurator().apply(new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Brake));
     }
 

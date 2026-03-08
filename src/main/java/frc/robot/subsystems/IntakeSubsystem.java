@@ -31,6 +31,7 @@ public class IntakeSubsystem extends SubsystemBase {
     private final DigitalInput hallLimit = new DigitalInput(Constants.INTAKE_LIMIT_PIN);
 
     public IntakeSubsystem() {
+        super();
         TalonFXConfiguration rollerConfig = new TalonFXConfiguration();
         rollerConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         intakeRoller.getConfigurator().apply(rollerConfig);

@@ -42,6 +42,7 @@ public class FuelLauncherSubsystem extends SubsystemBase {
     private final NTable table = NTable.root("fuel_launcher");
 
     public FuelLauncherSubsystem() {
+        super();
         SmartDashboard.putNumber("shooter_volts", FuelLauncherConstants.LAUNCHER_VOLTS);
         krakenLeft.getConfigurator()
                 .apply(new MotorOutputConfigs().withInverted(InvertedValue.CounterClockwise_Positive)

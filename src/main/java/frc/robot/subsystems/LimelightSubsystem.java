@@ -36,6 +36,8 @@ public class LimelightSubsystem extends SubsystemBase {
     public LimelightSubsystem(
             DrivetrainSubsystem drivetrain,
             String limelightName) {
+        super();
+
         this.limelightName = limelightName;
         this.drivetrain = drivetrain;
         this.table = NTable.root("vision").sub(limelightName);
