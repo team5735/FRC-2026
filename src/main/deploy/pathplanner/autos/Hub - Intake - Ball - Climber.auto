@@ -29,9 +29,21 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "extend climber"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "Ball to Climber"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "detract climber"
           }
         }
       ]

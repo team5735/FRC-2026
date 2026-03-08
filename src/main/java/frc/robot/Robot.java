@@ -122,6 +122,8 @@ public class Robot extends TimedRobot {
             drivetrain.resetPose(limelights[1].getPoseEstimate());
             return pos;
         }, "stay in place !", true));
+        commandsForAuto.put("extend climber", climber.getFullyExtendCommand());
+        commandsForAuto.put("detract climber", climber.getFullyDetractCommand());
 
         NamedCommands.registerCommands(commandsForAuto);
 

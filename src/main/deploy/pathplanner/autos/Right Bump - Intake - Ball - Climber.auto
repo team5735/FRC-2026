@@ -19,7 +19,31 @@
         {
           "type": "path",
           "data": {
-            "pathName": null
+            "pathName": "Intake to Ball"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 1.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "extend climber"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Ball to Climber"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "detract climber"
           }
         }
       ]
