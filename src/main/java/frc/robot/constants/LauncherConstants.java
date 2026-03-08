@@ -20,5 +20,5 @@ public class LauncherConstants {
 
     public static final AngularVelocity DEFAULT_SETPOINT = RPM.of(3000);
 
-    public static final double BANGBANG_THRESHOLD = 0.97;
+    public static final double BANGBANG_THRESHOLD = 0.99;
 }

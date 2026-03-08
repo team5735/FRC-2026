@@ -4,12 +4,14 @@
 
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 
 import java.util.function.Supplier;
 
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -50,9 +52,11 @@ public class LauncherSubsystem extends SubsystemBase {
         krakenLeft.getConfigurator()
                 .apply(new MotorOutputConfigs().withInverted(InvertedValue.CounterClockwise_Positive)
                         .withNeutralMode(NeutralModeValue.Coast));
+        krakenLeft.getConfigurator().apply(new CurrentLimitsConfigs().withSupplyCurrentLimit(Amps.of(30)));
         krakenRight.setControl(new Follower(Constants.LAUNCHER_LEFT_KRAKEN_ID, MotorAlignmentValue.Opposed));
 
         table.ensure("!! threshold", LauncherConstants.BANGBANG_THRESHOLD);
+        table.ensure("!! mult", 5);
     }
 
     public double getRPM() {
@@ -67,7 +71,7 @@ public class LauncherSubsystem extends SubsystemBase {
     }
 
     public void usePID() {
-        double output = bangbang.calculate(getRPM()) + ff.calculate(setpoint);
+        double output = bangbang.calculate(getRPM()) * table.getDouble("!! mult") + ff.calculate(setpoint);
         SmartDashboard.putNumber("launcher/output", output);
         krakenLeft.setVoltage(output);
     }
@@ -132,7 +136,7 @@ public class LauncherSubsystem extends SubsystemBase {
     }
 
     public boolean atSetpoint() {
-        return bangbang.atSetpoint();
+        return bangbang.getMeasurement() > bangbang.getSetpoint();
     }
 
     public static class Tester extends PartialRobot {
