@@ -4,22 +4,31 @@
 
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.controller.ArmFeedforward;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.SingleSubsystem;
 import frc.robot.constants.Constants;
-import frc.robot.util.TunablePIDController;
+import frc.robot.constants.IntakeConstants;
 
 public class IntakeSubsystem extends SubsystemBase {
     private final TalonFX intakeSlapdown = new TalonFX(Constants.INTAKE_SLAPDOWN_TALONFX_ID);
     private final TalonFX intakeRoller = new TalonFX(Constants.INTAKE_ROLLER_TALONFX_ID);
-    private final DutyCycleOut slapdownRequest = new DutyCycleOut(0);
-    private final TunablePIDController pidController = new TunablePIDController("Intake Up and Down");
+    private final ArmFeedforward ff = new ArmFeedforward(0, 0, 0);
+    private final DigitalInput hallLimit = new DigitalInput(Constants.INTAKE_LIMIT_PIN);
 
     public IntakeSubsystem() {
         TalonFXConfiguration rollerConfig = new TalonFXConfiguration();
@@ -28,29 +37,33 @@ public class IntakeSubsystem extends SubsystemBase {
 
         TalonFXConfiguration slapdownConfig = new TalonFXConfiguration();
         slapdownConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        slapdownConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+        slapdownConfig.Feedback.SensorToMechanismRatio = IntakeConstants.GEAR_REDUCTION;
         intakeSlapdown.getConfigurator().apply(slapdownConfig);
     }
 
-    public void forwardRoll() {
-        intakeRoller.setVoltage(4);
+    private void forwardRoll() {
+        intakeRoller.setVoltage(IntakeConstants.ROLL_IN_VOLTS);
     }
 
-    public void reverseRoll() {
-        intakeRoller.setVoltage(-4);
+    private void reverseRoll() {
+        intakeRoller.setVoltage(IntakeConstants.ROLL_OUT_VOLTS);
     }
 
-    public void stopRoll() {
+    private void stopRoll() {
         intakeRoller.setVoltage(0);
     }
 
-    public void setSlapdownGoal(double goal) {
-        pidController.setup(goal);
+    private void runSlapdown(AngularVelocity velocity){
+        intakeSlapdown.setVoltage(ff.calculate(getSlapdownPosition().in(Rotations), velocity.in(RotationsPerSecond)));
     }
 
-    public void useSlapdownPID() {
-        double pos = intakeSlapdown.getPosition().getValueAsDouble();
-        double output = pidController.calculate(pos);
-        intakeSlapdown.setControl(slapdownRequest.withOutput(output));
+    public boolean isAtPosition(Angle position){
+        return getSlapdownPosition().isNear(position, IntakeConstants.ANGULAR_TOLERANCE);
+    }
+
+    public Angle getSlapdownPosition(){
+        return intakeSlapdown.getPosition().getValue();
     }
 
     public Command getIntakeForwardRollCommand() {
@@ -61,19 +74,26 @@ public class IntakeSubsystem extends SubsystemBase {
         return startEnd(() -> reverseRoll(), () -> stopRoll());
     }
 
-    public Command getLiftCommand(double targetPosition) {
-        return startRun(() -> setSlapdownGoal(targetPosition), () -> useSlapdownPID()).finallyDo(a -> stopRoll());
+    public Command getLiftCommand() {
+        return runEnd(() -> runSlapdown(IntakeConstants.LIFT_VEL), () -> intakeSlapdown.setVoltage(0)).until(() ->  isAtPosition(IntakeConstants.UPPER_RELEASE_POS));
     }
 
-    public Command getSlapdownCommand(double targetPosition) {
-        return startRun(() -> setSlapdownGoal(targetPosition), () -> useSlapdownPID()).finallyDo(a -> stopRoll());
+    public Command getSlapdownCommand() {
+        return runEnd(() -> runSlapdown(IntakeConstants.SLAPDOWN_VEL.unaryMinus()), () -> intakeSlapdown.setVoltage(0)).until(() ->  isAtPosition(IntakeConstants.UPPER_RELEASE_POS));
     }
+
+    public Command zeroSlapdownPosition(){
+        return Commands.runOnce(() -> intakeSlapdown.setPosition(IntakeConstants.START_POS)).ignoringDisable(true);
+    }
+
+    public Trigger limitEngaged = new Trigger(() -> !hallLimit.get());
 
     public static class Tester extends SingleSubsystem {
         private final IntakeSubsystem intake = new IntakeSubsystem();
 
         public Tester() {
             super();
+            intake.limitEngaged.onTrue(intake.zeroSlapdownPosition());
 
             controller.a().whileTrue(intake.getIntakeForwardRollCommand());
             controller.b().whileTrue(intake.getIntakeReverseRollCommand());
