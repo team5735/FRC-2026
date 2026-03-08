@@ -233,7 +233,7 @@ public class Robot extends TimedRobot {
         subsystemController.leftTrigger().whileTrue(climber.getClimbDownCommand());
     }
 
-    double current = 0.3;
+    double current = HoodConstants.ANGLE_AT_ARC;
 
     private void setupOtherBindings() {
         turret.setDefaultCommand(turret.holdRobotRel(TurretConstants.START_POS_BOT_REL));
@@ -257,12 +257,10 @@ public class Robot extends TimedRobot {
         testController.y()
                 .onTrue(drivetrain.runOnce(() -> drivetrain.resetPose(limelights[0].getPoseEstimate())));
 
-
-        testController.povUp().onTrue(Commands.runOnce(() -> hood.setHoodPosition(0.7)));
-        testController.povDown().onTrue(Commands.runOnce(() -> hood.setHoodPosition(0.3)));
+        testController.povUp().onTrue(Commands.runOnce(() -> hood.setHoodAngle(HoodConstants.HIGHEST_ANGLE_DEGREES)));
+        testController.povDown().onTrue(Commands.runOnce(() -> hood.setHoodAngle(HoodConstants.LOWEST_ANGLE_DEGREES)));
         testController.povLeft().onTrue(Commands.runOnce(() -> hood.setServoPosition(current -= .025)));
         testController.povRight().onTrue(Commands.runOnce(() -> hood.setServoPosition(current += .025)));
-        // testController.povLeft().onTrue(turret.runOnce(() -> turret.remakePID()));
 
         testController.rightBumper().whileTrue(turret.testForward());
         testController.leftBumper().whileTrue(turret.testReverse());

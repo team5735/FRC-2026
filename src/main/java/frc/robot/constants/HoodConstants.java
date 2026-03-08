@@ -13,7 +13,6 @@ public class HoodConstants {
     public static final double LOWEST_ANGLE_DEGREES = 8.0;
     public static final double HIGHEST_ANGLE_DEGREES = 45.0;
 
-    // TODO: acquire
-    public static final double POSITION_AT_ARC = 0;
-    public static final double ANGLE_AT_ARC = 0;
+    // TODO: test
+    public static final double ANGLE_AT_ARC = 8.0;
 }
