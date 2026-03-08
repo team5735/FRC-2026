@@ -7,7 +7,6 @@ package frc.robot;
 import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RPM;
-import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Seconds;
 
 import java.util.HashMap;
@@ -144,10 +143,6 @@ public class Robot extends TimedRobot {
             hood.setServoPosition(pos);
         }));
 
-        turret.setDefaultCommand(turret.holdRobotRel(TurretConstants.START_POS_BOT_REL));
-        turret.limitTrigger.onTrue(turret.zeroCommand()); // resets the turrets position when it engages the Hall-Effect
-                                                          // sensor
-
         setupDriverBindings();
         setupSubsystemBindings();
         setupOtherBindings();
@@ -239,6 +234,9 @@ public class Robot extends TimedRobot {
     }
 
     private void setupOtherBindings() {
+        turret.setDefaultCommand(turret.holdRobotRel(TurretConstants.START_POS_BOT_REL));
+        turret.limitTrigger.onTrue(turret.zeroCommand()); // resets the turrets position when it engages the Hall-Effect
+                                                          // sensor
         launcher.setDefaultCommand(launcher.getLaunchFuel(RPM.of(0), RPM.of(0)));
 
         // test individual parts of the a button command monster
