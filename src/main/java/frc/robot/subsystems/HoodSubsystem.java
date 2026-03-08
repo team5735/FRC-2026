@@ -94,7 +94,7 @@ public class HoodSubsystem extends SubsystemBase {
 
     // Converts voltage (0-5V) into 0.0–1.0 normalized position
     public double getNormalizedPosition() {
-        return feedback.getVoltage() / 5.0;
+        return 1.0-feedback.getVoltage() / 3.3;
     }
 
     public void sendTelemetry() {
@@ -123,7 +123,7 @@ public class HoodSubsystem extends SubsystemBase {
         private final HoodSubsystem hood = new HoodSubsystem(() -> new Pose2d(),
                 FieldConstants.HOOD_EXCLUSION_ZONES);
 
-        private double lastPos = 0.5;
+        private double lastPos = 0.6;
 
         public Tester() {
             super();
@@ -142,6 +142,13 @@ public class HoodSubsystem extends SubsystemBase {
                 hood.setServoPosition(lastPos);
             }));
         }
+
+        @Override
+        public void robotPeriodic() {
+            this.hood.sendTelemetry();
+            super.robotPeriodic();
+        }
+
     };
 
     // test hood up/down in exclusion zones
@@ -173,6 +180,7 @@ public class HoodSubsystem extends SubsystemBase {
 
         @Override
         public void robotPeriodic() {
+            this.hood.sendTelemetry();
             super.robotPeriodic();
         }
 
