@@ -248,7 +248,7 @@ public class Robot extends TimedRobot {
                         drivetrain.getEstimatedPosition().getTranslation())),
                 "drive to arc (shoot)")
                 .andThen(new DriveOnArc(drivetrain, targetArc,
-                        () -> MathUtil.applyDeadband(driveController.getLeftX(), 0.1))));
+                        () -> MathUtil.applyDeadband(testController.getLeftX(), 0.1))));
 
         testController.b().onTrue(launcher.getLaunchFuel(RPM.of(3000))
                 .until(() -> driveController.getHID().getBackButton() || launcher.atSetpoint())
@@ -266,7 +266,7 @@ public class Robot extends TimedRobot {
         testController.rightBumper().whileTrue(turret.testForward());
         testController.leftBumper().whileTrue(turret.testReverse());
 
-        subsystemController.a().whileTrue(spindex.getRun());
+        testController.start().whileTrue(spindex.getRun());
     }
 
     @Override
