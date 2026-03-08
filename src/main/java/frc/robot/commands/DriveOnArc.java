@@ -22,25 +22,28 @@ public class DriveOnArc extends Command {
     private Arc arc;
     // expected to be between -1 and 1
     private Supplier<Double> control;
+    private Rotation2d shootingPoseRotation;
 
     private TunablePIDController pidTheta = new TunablePIDController("drive on arc theta");
 
     private NTable table = NTable.root("drive on arc");
 
-    public DriveOnArc(DrivetrainSubsystem drivetrain, Arc arc, Supplier<Double> movement) {
+    public DriveOnArc(DrivetrainSubsystem drivetrain, Arc arc, Supplier<Double> movement,
+            Rotation2d shootingPoseRotation) {
         this.drivetrain = drivetrain;
         this.arc = arc;
         this.control = movement;
         this.pidTheta.ensureTolerance(Degrees.of(15).in(Radians));
+        this.pidTheta.ensureP(10);
+        this.shootingPoseRotation = shootingPoseRotation;
         addRequirements(drivetrain);
     }
 
     @Override
     public void initialize() {
-        Pose2d target = arc.getPoseFacingCenter(
-                arc.nearestPointOnArc(drivetrain.getEstimatedPosition().getTranslation()));
-
-        this.pidTheta.setup(target.getRotation().getRadians());
+        this.pidTheta
+                .setup(arc.getShootingPose(drivetrain.getEstimatedPosition().getTranslation(), shootingPoseRotation)
+                        .getRotation().getRadians());
         this.pidTheta.getController().enableContinuousInput(-Math.PI, Math.PI);
     }
 
@@ -50,19 +53,19 @@ public class DriveOnArc extends Command {
         double speed = drivetrain.constants.getDefaultSpeed().in(MetersPerSecond);
 
         Pose2d robotPose = drivetrain.getEstimatedPosition();
-        Pose2d nearestPose = arc.getPoseFacingCenter(
-                arc.nearestPointOnArc(robotPose.getTranslation()));
+        Pose2d shootingPose = arc.getShootingPose(drivetrain.getEstimatedPosition().getTranslation(),
+                shootingPoseRotation);
         Translation2d tangentialMovement = new Translation2d(2 * control * speed,
-                nearestPose.getRotation().plus(Rotation2d.kCCW_90deg));
+                shootingPose.getRotation().plus(Rotation2d.k180deg));
 
-        Translation2d radialWish = nearestPose.getTranslation().minus(robotPose.getTranslation()).times(speed);
+        Translation2d radialWish = shootingPose.getTranslation().minus(robotPose.getTranslation()).times(speed);
         this.table.set("radial wish", radialWish);
         if (radialWish.getNorm() < Centimeters.of(7).in(Meters) && control < 0.3) {
             radialWish = new Translation2d();
         }
 
         double omega = this.pidTheta.calculate(robotPose.getRotation().getRadians(),
-                nearestPose.getRotation().getRadians());
+                shootingPose.getRotation().getRadians());
         if (this.pidTheta.atSetpoint() && control == 0) {
             omega = 0;
         }

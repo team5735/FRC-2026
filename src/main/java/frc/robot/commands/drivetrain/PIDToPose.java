@@ -50,6 +50,10 @@ public class PIDToPose extends Command {
         this.pidY.ensureTolerance(Centimeters.of(2).in(Meters));
         this.pidTheta.ensureTolerance(Degrees.of(2).in(Radians));
 
+        this.pidX.ensureP(1);
+        this.pidY.ensureP(1);
+        this.pidTheta.ensureP(1);
+
         if (!skipRequirement) {
             addRequirements(drivetrain);
         }

@@ -9,7 +9,7 @@ import frc.robot.constants.Constants;
 import frc.robot.constants.robot.CompbotTunerConstants;
 import frc.robot.constants.robot.DevbotTunerConstants;
 import frc.robot.subsystems.ClimberSubsystem;
-import frc.robot.subsystems.FuelLauncherSubsystem;
+import frc.robot.subsystems.LauncherSubsystem;
 import frc.robot.subsystems.HoodSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.SpinDexSubsystem;
@@ -30,7 +30,7 @@ public final class Main {
             case CLIMBER -> new ClimberSubsystem.Tester();
             case TURRET -> new TurretSubsystem.Tester();
             case SPINDEX -> new SpinDexSubsystem.Tester();
-            case LAUNCHER -> new FuelLauncherSubsystem.Tester();
+            case LAUNCHER -> new LauncherSubsystem.Tester();
         });
     }
 }
