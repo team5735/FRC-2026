@@ -221,9 +221,6 @@ public class Robot extends TimedRobot {
     private void setupSubsystemBindings() {
         subsystemController.a().whileTrue(climber.getClimbUpCommand());
         subsystemController.b().whileTrue(climber.getClimbDownCommand());
-        subsystemController.x().onTrue(climber.getFullyExtendCommand());
-        subsystemController.y().onTrue(climber.getFullyDetractCommand());
-        subsystemController.leftBumper().whileTrue(climber.getOverrideCommand());
         subsystemController.rightTrigger().whileTrue(climber.getClimbUpCommand());
         subsystemController.leftTrigger().whileTrue(climber.getClimbDownCommand());
     }
