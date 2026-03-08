@@ -202,7 +202,7 @@ public class Robot extends TimedRobot {
 
                     // set the hood to the right position. this does not have an until
                     // because we don't have a way to get the current servo's position
-                    hood.runOnce(() -> hood.setServoPosition(HoodConstants.POS_AT_ARC))
+                    hood.runOnce(() -> hood.setHoodAngle(HoodConstants.LOWEST_ANGLE_DEGREES))
 
                 // shoot fuel. this only executes once:
                 // - robot is in the right place
@@ -233,7 +233,7 @@ public class Robot extends TimedRobot {
             // track the hub
             turret.trackFieldPos(FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER))
                 .alongWith(
-                    hood.runOnce(() -> hood.setServoPosition(HoodConstants.POS_AT_ARC))
+                    hood.runOnce(() -> hood.setHoodAngle(HoodConstants.LOWEST_ANGLE_DEGREES))
                         // wait a minimum of two seconds to ensure the hood gets to the right spot
                         .andThen(Commands.waitTime(Seconds.of(2))
                             // also ensure the luancher is up to speed
