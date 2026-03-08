@@ -233,6 +233,8 @@ public class Robot extends TimedRobot {
         subsystemController.leftTrigger().whileTrue(climber.getClimbDownCommand());
     }
 
+    double current = 0.3;
+
     private void setupOtherBindings() {
         turret.setDefaultCommand(turret.holdRobotRel(TurretConstants.START_POS_BOT_REL));
         turret.limitTrigger.onTrue(turret.zeroCommand()); // resets the turrets position when it engages the Hall-Effect
@@ -257,7 +259,9 @@ public class Robot extends TimedRobot {
 
         testController.povUp().onTrue(Commands.runOnce(() -> hood.setHoodPosition(0.7)));
         testController.povDown().onTrue(Commands.runOnce(() -> hood.setHoodPosition(0.3)));
-        testController.povLeft().onTrue(turret.runOnce(() -> turret.remakePID()));
+        testController.povLeft().onTrue(Commands.runOnce(() -> hood.setServoPosition(current -= .025)));
+        testController.povRight().onTrue(Commands.runOnce(() -> hood.setServoPosition(current += .025)));
+        // testController.povLeft().onTrue(turret.runOnce(() -> turret.remakePID()));
 
         testController.rightBumper().whileTrue(turret.testForward());
         testController.leftBumper().whileTrue(turret.testReverse());
