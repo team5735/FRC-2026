@@ -35,6 +35,7 @@ import frc.robot.constants.Constants;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.HoodConstants;
 import frc.robot.constants.LauncherConstants;
+import frc.robot.constants.TurretConstants;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.HoodSubsystem;
@@ -131,7 +132,7 @@ public class Robot extends TimedRobot {
         SmartDashboard.putData("Choose an Auto", autoChooser);
     }
 
-    double angle = HoodConstants.LOWEST_ANGLE_DEGREES;
+    double angle = 23;
 
     private void configureBindings() {
         drivetrain.registerTelemetry(logger::telemeterize);
@@ -171,11 +172,11 @@ public class Robot extends TimedRobot {
                 .whileTrue(new PIDToPose(drivetrain,
                         () -> targetArc.getShootingPose(
                                 drivetrain.getEstimatedPosition().getTranslation(),
-                                Rotation2d.kCCW_90deg),
+                                Rotation2d.kCW_90deg),
                         "drive to arc").andThen(
                                 new DriveOnArc(drivetrain, targetArc,
                                         () -> MathUtil.applyDeadband(driveController.getLeftX(), 0.1),
-                                        Rotation2d.kCCW_90deg)));
+                                        Rotation2d.kCW_90deg)));
 
         NTable tuning = NTable.root("tuning");
         tuning.set("rpm", 4000);
@@ -193,7 +194,7 @@ public class Robot extends TimedRobot {
                     new PIDToPose(
                         drivetrain,
                         () -> targetArc.getShootingPose(
-                            drivetrain.getEstimatedPosition().getTranslation(), Rotation2d.kCCW_90deg),
+                            drivetrain.getEstimatedPosition().getTranslation(), Rotation2d.kCW_90deg),
                         "drive to arc (shoot)"
                     ),
 
@@ -222,7 +223,7 @@ public class Robot extends TimedRobot {
                     // stick's X axis
                     new DriveOnArc(drivetrain, targetArc,
                         () -> MathUtil.applyDeadband(driveController.getLeftX(), 0.1),
-                        Rotation2d.kCCW_90deg)
+                        Rotation2d.kCW_90deg)
                 ))
             )
         );
@@ -269,6 +270,7 @@ public class Robot extends TimedRobot {
     double current = HoodConstants.ANGLE_AT_ARC;
 
     private void setupOtherBindings() {
+        turret.setDefaultCommand(turret.holdRobotRel(TurretConstants.START_POS_BOT_REL));
         turret.limitTrigger.onTrue(turret.zeroCommand()); // resets the turrets position when it engages the Hall-Effect
                                                           // sensor
 
