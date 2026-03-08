@@ -146,11 +146,7 @@ public class Robot extends TimedRobot {
             hood.setServoPosition(pos);
         }));
 
-        turret.setDefaultCommand(turret.holdRobotRel(TurretConstants.START_POS_BOT_REL));
-        turret.limitTrigger.onTrue(turret.zeroCommand()); // resets the turrets position when it engages the Hall-Effect
-                                                          // sensor
-
-        launcher.setDefaultCommand(launcher.getLaunchFuel(RPM.of(LauncherConstants.DEFAULT_SETPOINT)));
+        launcher.setDefaultCommand(launcher.getLaunchFuel(LauncherConstants.DEFAULT_SETPOINT));
 
         setupDriverBindings();
         setupSubsystemBindings();
@@ -241,7 +237,7 @@ public class Robot extends TimedRobot {
                         // wait a minimum of two seconds to ensure the hood gets to the right spot
                         .andThen(Commands.waitTime(Seconds.of(2))
                             // also ensure the luancher is up to speed
-                            .alongWith(launcher.getLaunchFuel(RPM.of(LauncherConstants.DEFAULT_SETPOINT)).
+                            .alongWith(launcher.getLaunchFuel(LauncherConstants.DEFAULT_SETPOINT).
                                 until(() -> driveController.getHID().getBackButton() || launcher.atSetpoint())))
                         // run the spindex!
                         .andThen(spindex.getRun())
