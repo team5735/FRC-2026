@@ -8,7 +8,7 @@ public class FuelLauncherConstants {
     public static final double KD = 0;
 
     public static final double KS = 0.2;
-    public static final double KV = 0.0008418;
+    public static final double KV = 0.00084853;
 
     public static final double GEARING = 36./15; //input 36 tooth pulley, output 15
 

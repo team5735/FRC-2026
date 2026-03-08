@@ -101,19 +101,19 @@ public class FuelLauncherSubsystem extends SubsystemBase {
         errorTable.set("min", lastMin);
     }
 
-    public Command getLaunchFuel(AngularVelocity speed, AngularVelocity correction) {
+    public Command getLaunchFuel(AngularVelocity speed) {
         return runOnce(this::retunePID)
                 .andThen(
                         startRun(() -> {
                             this.realSetpoint = speed.in(RPM);
-                            setTargetRPM(speed.minus(correction).in(RPM));
+                            setTargetRPM(speed.in(RPM));
                         }, this::usePID))
                 .withName("Launch Fuel at " + speed);
     }
 
-    public Command getFedLaunch(SpinDexSubsystem spindex, AngularVelocity speed, AngularVelocity correction) {
-        return this.getLaunchFuel(speed, correction).until(pid::atSetpoint)
-                .andThen(this.getLaunchFuel(speed, correction).alongWith(spindex.getRun()));
+    public Command getFedLaunch(SpinDexSubsystem spindex, AngularVelocity speed) {
+        return this.getLaunchFuel(speed).until(pid::atSetpoint)
+                .andThen(this.getLaunchFuel(speed).alongWith(spindex.getRun()));
     }
 
     private SysIdRoutine routine = new SysIdRoutine(
@@ -150,9 +150,9 @@ public class FuelLauncherSubsystem extends SubsystemBase {
 
         public Tester() {
             super();
-            launcher.setDefaultCommand(launcher.getLaunchFuel(RPM.of(0), RPM.of(0)));
+            launcher.setDefaultCommand(launcher.getLaunchFuel(RPM.of(0)));
 
-            controller.a().whileTrue(launcher.getFedLaunch(spindex, RPM.of(3000), RPM.of(24)));
+            controller.a().whileTrue(launcher.getFedLaunch(spindex, RPM.of(3000)));
             controller.x().whileTrue(spindex.startEnd(spindex::reverseWheel, spindex::stopWheel));
             controller.rightBumper().whileTrue(intake.getIntakeForwardRollCommand());
         }

@@ -187,7 +187,7 @@ public class Robot extends TimedRobot {
                     ),
 
                     // spin up the shooter
-                    launcher.getLaunchFuel(RPM.of(3000), RPM.of(24))
+                    launcher.getLaunchFuel(RPM.of(3000))
                         .until(() ->
                             // if the back button is being pressed, skip waiting for the setpoint
                             driveController.getHID().getBackButton() || launcher.atSetpoint())
@@ -237,7 +237,7 @@ public class Robot extends TimedRobot {
         turret.setDefaultCommand(turret.holdRobotRel(TurretConstants.START_POS_BOT_REL));
         turret.limitTrigger.onTrue(turret.zeroCommand()); // resets the turrets position when it engages the Hall-Effect
                                                           // sensor
-        launcher.setDefaultCommand(launcher.getLaunchFuel(RPM.of(0), RPM.of(0)));
+        launcher.setDefaultCommand(launcher.getLaunchFuel(RPM.of(0)));
 
         // test individual parts of the a button command monster
         testController.a().onTrue(new PIDToPose(
@@ -248,14 +248,14 @@ public class Robot extends TimedRobot {
                 .andThen(new DriveOnArc(drivetrain, targetArc,
                         () -> MathUtil.applyDeadband(driveController.getLeftX(), 0.1))));
 
-        testController.b().onTrue(launcher.getLaunchFuel(RPM.of(3000), RPM.of(24))
+        testController.b().onTrue(launcher.getLaunchFuel(RPM.of(3000))
                 .until(() -> driveController.getHID().getBackButton() || launcher.atSetpoint())
                 .withTimeout(Seconds.of(2)));
         testController.x().onTrue(hood.runOnce(() -> hood.setHoodAngle(HoodConstants.ANGLE_AT_ARC)));
 
-        testController.a().whileTrue(launcher.getFedLaunch(spindex, RPM.of(3000), RPM.of(24)));
-        testController.b().whileTrue(launcher.getFedLaunch(spindex, RPM.of(1500), RPM.of(12)));
-        testController.x().whileTrue(launcher.getFedLaunch(spindex, RPM.of(6000), RPM.of(48)));
+        testController.a().whileTrue(launcher.getFedLaunch(spindex, RPM.of(3000)));
+        testController.b().whileTrue(launcher.getFedLaunch(spindex, RPM.of(1500)));
+        testController.x().whileTrue(launcher.getFedLaunch(spindex, RPM.of(6000)));
 
         testController.povUp().onTrue(Commands.runOnce(() -> hood.setHoodPosition(0.7)));
         testController.povDown().onTrue(Commands.runOnce(() -> hood.setHoodPosition(0.3)));
