@@ -217,7 +217,7 @@ public class Robot extends TimedRobot {
                     // spin the spindex and the feeder
                     spindex.getRun(),
 
-                    // shooter is kept spinning by its default command
+                    launcher.run(launcher::usePID),
 
                     // let the driver drive along the arc that we drove to with the left
                     // stick's X axis
