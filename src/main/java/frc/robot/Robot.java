@@ -73,10 +73,11 @@ public class Robot extends TimedRobot {
 
     public final HoodSubsystem hood;
 
-    public final Telemetry logger = new Telemetry(this);
+    public final Telemetry logger;
 
     public Robot(DrivetrainSubsystem drivetrain) {
         this.drivetrain = drivetrain;
+        this.logger = new Telemetry(this);
         turret = new TurretSubsystem(drivetrain::getEstimatedPosition, drivetrain.constants);
         limelights = new LimelightSubsystem[] {
                 new LimelightSubsystem(drivetrain, "limelight-fone"),

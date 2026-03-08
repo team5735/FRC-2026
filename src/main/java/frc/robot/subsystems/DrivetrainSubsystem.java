@@ -214,13 +214,13 @@ public class DrivetrainSubsystem extends SwerveDrivetrain<TalonFX, TalonFX, CANc
         this.constants = constants;
 
         fieldCentricRequest = new SwerveRequest.FieldCentric()
-            .withDriveRequestType(DriveRequestType.Velocity)
-            .withCenterOfRotation(constants.getPigeonToCenterOfRotation());
+                .withDriveRequestType(DriveRequestType.Velocity)
+                .withCenterOfRotation(constants.getPigeonToCenterOfRotation());
 
         pidRequest = new SwerveRequest.FieldCentric()
-            .withDriveRequestType(DriveRequestType.Velocity)
-            .withCenterOfRotation(constants.getPigeonToCenterOfRotation())
-            .withForwardPerspective(ForwardPerspectiveValue.BlueAlliance);
+                .withDriveRequestType(DriveRequestType.Velocity)
+                .withCenterOfRotation(constants.getPigeonToCenterOfRotation())
+                .withForwardPerspective(ForwardPerspectiveValue.BlueAlliance);
 
         setUpAuto();
     }

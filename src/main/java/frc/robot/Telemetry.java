@@ -55,31 +55,7 @@ public class Telemetry {
     public static final Field2d field = new Field2d();
     public Robot robot;
 
-    private final Sendable sendableState = new Sendable() {
-        @Override
-        public void initSendable(SendableBuilder builder) {
-            builder.setSmartDashboardType("SwerveDrive");
-
-            SwerveModuleState[] states = Arrays.stream(new int[] { 0, 1, 2, 3 })
-                    .mapToObj(x -> Telemetry.this.robot.drivetrain.getModule(x).getCurrentState())
-                    .toArray(SwerveModuleState[]::new);
-
-            builder.addDoubleProperty("Front Left Angle", () -> states[0].angle.getRadians(), null);
-            builder.addDoubleProperty("Front Left Velocity", () -> states[0].speedMetersPerSecond, null);
-
-            builder.addDoubleProperty("Front Right Angle", () -> states[1].angle.getRadians(), null);
-            builder.addDoubleProperty("Front Right Velocity", () -> states[1].speedMetersPerSecond, null);
-
-            builder.addDoubleProperty("Back Left Angle", () -> states[2].angle.getRadians(), null);
-            builder.addDoubleProperty("Back Left Velocity", () -> states[2].speedMetersPerSecond, null);
-
-            builder.addDoubleProperty("Back Right Angle", () -> states[3].angle.getRadians(), null);
-            builder.addDoubleProperty("Back Right Velocity", () -> states[3].speedMetersPerSecond, null);
-
-            builder.addDoubleProperty("Robot Angle",
-                    () -> Telemetry.this.robot.drivetrain.getPigeon2().getYaw().getValue().in(Radians), null);
-        }
-    };
+    private final Sendable state;
 
     private final NTable table = NTable.root().sub("telemetry");
     private final NTable stateTable = table.sub("drive state");
@@ -90,7 +66,32 @@ public class Telemetry {
         field.getRobotObject().setPose(new Pose2d());
         field.getObject("arc").setPoses(this.robot.targetArc.getAsPoses());
         table.set("field", field);
-        table.set("swerve state", sendableState);
+        this.state = new Sendable() {
+            @Override
+            public void initSendable(SendableBuilder builder) {
+                builder.setSmartDashboardType("SwerveDrive");
+
+                SwerveModuleState[] states = Arrays.stream(new int[] { 0, 1, 2, 3 })
+                        .mapToObj(x -> Telemetry.this.robot.drivetrain.getModule(x).getCurrentState())
+                        .toArray(SwerveModuleState[]::new);
+
+                builder.addDoubleProperty("Front Left Angle", () -> states[0].angle.getRadians(), null);
+                builder.addDoubleProperty("Front Left Velocity", () -> states[0].speedMetersPerSecond, null);
+
+                builder.addDoubleProperty("Front Right Angle", () -> states[1].angle.getRadians(), null);
+                builder.addDoubleProperty("Front Right Velocity", () -> states[1].speedMetersPerSecond, null);
+
+                builder.addDoubleProperty("Back Left Angle", () -> states[2].angle.getRadians(), null);
+                builder.addDoubleProperty("Back Left Velocity", () -> states[2].speedMetersPerSecond, null);
+
+                builder.addDoubleProperty("Back Right Angle", () -> states[3].angle.getRadians(), null);
+                builder.addDoubleProperty("Back Right Velocity", () -> states[3].speedMetersPerSecond, null);
+
+                builder.addDoubleProperty("Robot Angle",
+                        () -> Telemetry.this.robot.drivetrain.getPigeon2().getYaw().getValue().in(Radians), null);
+            }
+        };
+        table.set("swerve state", state);
     }
 
     // Accept the swerve drive state and telemeterize it to SmartDashboard.
