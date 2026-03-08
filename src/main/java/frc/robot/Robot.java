@@ -196,7 +196,7 @@ public class Robot extends TimedRobot {
 
                     // set the hood to the right position. this does not have an until
                     // because we don't have a way to get the current servo's position
-                    hood.runOnce(() -> hood.setHoodAngle(HoodConstants.ANGLE_AT_ARC))
+                    hood.runOnce(() -> hood.setServoPosition(0.55))
 
                 // shoot fuel. this only executes once:
                 // - robot is in the right place
