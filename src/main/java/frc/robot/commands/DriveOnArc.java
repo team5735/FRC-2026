@@ -34,6 +34,7 @@ public class DriveOnArc extends Command {
         this.arc = arc;
         this.control = movement;
         this.pidTheta.ensureTolerance(Degrees.of(15).in(Radians));
+        this.pidTheta.ensureP(10);
         this.shootingPoseRotation = shootingPoseRotation;
         addRequirements(drivetrain);
     }
@@ -55,7 +56,7 @@ public class DriveOnArc extends Command {
         Pose2d shootingPose = arc.getShootingPose(drivetrain.getEstimatedPosition().getTranslation(),
                 shootingPoseRotation);
         Translation2d tangentialMovement = new Translation2d(2 * control * speed,
-                shootingPose.getRotation().plus(Rotation2d.kCCW_90deg));
+                shootingPose.getRotation().plus(Rotation2d.k180deg));
 
         Translation2d radialWish = shootingPose.getTranslation().minus(robotPose.getTranslation()).times(speed);
         this.table.set("radial wish", radialWish);

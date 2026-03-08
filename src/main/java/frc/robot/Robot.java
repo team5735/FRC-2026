@@ -35,7 +35,6 @@ import frc.robot.constants.Constants;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.HoodConstants;
 import frc.robot.constants.LauncherConstants;
-import frc.robot.constants.TurretConstants;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.HoodSubsystem;
@@ -58,7 +57,7 @@ public class Robot extends TimedRobot {
             Constants.TEST_CONTROLLER_PORT);
 
     public final Arc targetArc = new Arc(FieldConstants.BLUE_HUB_CENTER,
-            Feet.of(7.5).in(Meters),
+            Feet.of(9).in(Meters),
             Rotation2d.fromDegrees(90),
             Rotation2d.fromDegrees(270));
 
@@ -132,6 +131,8 @@ public class Robot extends TimedRobot {
         SmartDashboard.putData("Choose an Auto", autoChooser);
     }
 
+    double angle = HoodConstants.LOWEST_ANGLE_DEGREES;
+
     private void configureBindings() {
         drivetrain.registerTelemetry(logger::telemeterize);
 
@@ -148,11 +149,7 @@ public class Robot extends TimedRobot {
             hood.setServoPosition(pos);
         }));
 
-        turret.setDefaultCommand(turret.holdRobotRel(TurretConstants.START_POS_BOT_REL));
-        turret.limitTrigger.onTrue(turret.zeroCommand()); // resets the turrets position when it engages the Hall-Effect
-                                                          // sensor
-
-        launcher.setDefaultCommand(launcher.getLaunchFuel(RPM.of(LauncherConstants.DEFAULT_SETPOINT)));
+        launcher.setDefaultCommand(launcher.getLaunchFuel(LauncherConstants.DEFAULT_SETPOINT));
 
         setupDriverBindings();
         setupSubsystemBindings();
@@ -180,6 +177,8 @@ public class Robot extends TimedRobot {
                                         () -> MathUtil.applyDeadband(driveController.getLeftX(), 0.1),
                                         Rotation2d.kCCW_90deg)));
 
+        NTable tuning = NTable.root("tuning");
+        tuning.set("rpm", 4000);
         // @formatter:off
         // drive to targetArc and shoot
         driveController.a().whileTrue(
@@ -199,7 +198,7 @@ public class Robot extends TimedRobot {
                     ),
 
                     // spin up the shooter
-                    launcher.getLaunchFuel(RPM.of(3000))
+                    launcher.getLaunchFuelNT()
                         .until(() ->
                             // if the back button is being pressed, skip waiting for the setpoint
                             driveController.getHID().getBackButton() || launcher.atSetpoint())
@@ -208,7 +207,7 @@ public class Robot extends TimedRobot {
 
                     // set the hood to the right position. this does not have an until
                     // because we don't have a way to get the current servo's position
-                    hood.runOnce(() -> hood.setServoPosition(HoodConstants.POS_AT_ARC))
+                    hood.runOnce(() -> hood.setHoodAngle(angle))
 
                 // shoot fuel. this only executes once:
                 // - robot is in the right place
@@ -239,11 +238,11 @@ public class Robot extends TimedRobot {
             // track the hub
             turret.trackFieldPos(FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER))
                 .alongWith(
-                    hood.runOnce(() -> hood.setServoPosition(HoodConstants.POS_AT_ARC))
+                    hood.runOnce(() -> hood.setHoodAngle(angle))
                         // wait a minimum of two seconds to ensure the hood gets to the right spot
                         .andThen(Commands.waitTime(Seconds.of(2))
                             // also ensure the luancher is up to speed
-                            .alongWith(launcher.getLaunchFuel(RPM.of(LauncherConstants.DEFAULT_SETPOINT)).
+                            .alongWith(launcher.getLaunchFuel(LauncherConstants.DEFAULT_SETPOINT).
                                 until(() -> driveController.getHID().getBackButton() || launcher.atSetpoint())))
                         // run the spindex!
                         .andThen(spindex.getRun())
@@ -256,8 +255,8 @@ public class Robot extends TimedRobot {
         driveController.rightBumper().whileTrue(intake.getIntakeForwardRollCommand());
         driveController.leftBumper().whileTrue(intake.getIntakeReverseRollCommand());
         // I wasn't sure what values to give as targetPosition for these, I guessed 12.5
-        driveController.povLeft().onTrue(intake.getSlapdownCommand());
-        driveController.povRight().onTrue(intake.getLiftCommand());
+        driveController.povUp().onTrue(hood.runOnce(() -> hood.setHoodAngle(angle += 5)));
+        driveController.povDown().onTrue(hood.runOnce(() -> hood.setHoodAngle(angle -= 5)));
     }
 
     private void setupSubsystemBindings() {
@@ -270,15 +269,8 @@ public class Robot extends TimedRobot {
     double current = HoodConstants.ANGLE_AT_ARC;
 
     private void setupOtherBindings() {
-        // test individual parts of the a button command monster
-        testController.a().whileTrue(new PIDToPose(
-                drivetrain,
-                () -> targetArc.getShootingPose(drivetrain.getEstimatedPosition().getTranslation(),
-                        Rotation2d.kCCW_90deg),
-                "drive to arc (shoot)")
-                .andThen(new DriveOnArc(drivetrain, targetArc,
-                        () -> MathUtil.applyDeadband(testController.getLeftX(), 0.1),
-                        Rotation2d.kCCW_90deg)));
+        turret.limitTrigger.onTrue(turret.zeroCommand()); // resets the turrets position when it engages the Hall-Effect
+                                                          // sensor
 
         testController.b().onTrue(launcher.getLaunchFuel(RPM.of(3000))
                 .until(() -> driveController.getHID().getBackButton() || launcher.atSetpoint())
@@ -348,6 +340,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopPeriodic() {
+        NTable.root().sub("hood").set("current angle for tuning", angle);
     }
 
     @Override
