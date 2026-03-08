@@ -38,7 +38,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
         TalonFXConfiguration slapdownConfig = new TalonFXConfiguration();
         slapdownConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-        slapdownConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+        slapdownConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         slapdownConfig.Feedback.SensorToMechanismRatio = IntakeConstants.GEAR_REDUCTION;
         intakeSlapdown.getConfigurator().apply(slapdownConfig);
     }
