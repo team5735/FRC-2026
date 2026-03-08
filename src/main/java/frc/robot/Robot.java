@@ -240,7 +240,7 @@ public class Robot extends TimedRobot {
         launcher.setDefaultCommand(launcher.getLaunchFuel(RPM.of(0)));
 
         // test individual parts of the a button command monster
-        testController.a().onTrue(new PIDToPose(
+        testController.a().whileTrue(new PIDToPose(
                 drivetrain,
                 () -> targetArc.getPoseFacingCenter(targetArc.nearestPointOnArc(
                         drivetrain.getEstimatedPosition().getTranslation())),
@@ -252,10 +252,8 @@ public class Robot extends TimedRobot {
                 .until(() -> driveController.getHID().getBackButton() || launcher.atSetpoint())
                 .withTimeout(Seconds.of(2)));
         testController.x().onTrue(hood.runOnce(() -> hood.setHoodAngle(HoodConstants.ANGLE_AT_ARC)));
-
-        testController.a().whileTrue(launcher.getFedLaunch(spindex, RPM.of(3000)));
-        testController.b().whileTrue(launcher.getFedLaunch(spindex, RPM.of(1500)));
-        testController.x().whileTrue(launcher.getFedLaunch(spindex, RPM.of(6000)));
+        testController.y()
+                .onTrue(drivetrain.runOnce(() -> drivetrain.resetPose(limelights[0].new PoseEstimate().pose2d)));
 
         testController.povUp().onTrue(Commands.runOnce(() -> hood.setHoodPosition(0.7)));
         testController.povDown().onTrue(Commands.runOnce(() -> hood.setHoodPosition(0.3)));
@@ -269,10 +267,6 @@ public class Robot extends TimedRobot {
 
     @Override
     public void robotPeriodic() {
-        for (LimelightSubsystem limelight : limelights) {
-            limelight.handleVisionMeasurement();
-        }
-
         CommandScheduler.getInstance().run();
         NTable.updateAllSendables();
     }

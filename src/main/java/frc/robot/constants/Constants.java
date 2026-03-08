@@ -24,7 +24,7 @@ public class Constants {
 
     public static final int INTAKE_SLAPDOWN_TALONFX_ID = 23;
     public static final int INTAKE_ROLLER_TALONFX_ID = 25;
-    public static final int INTAKE_LIMIT_PIN = 2; //TODO - verify
+    public static final int INTAKE_LIMIT_PIN = 3; // TODO - verify
 
     public static final double START_REVOLUTION_POSITION = 0.4;
     public static final double END_REVOLUTION_POSITION = 0.6;

@@ -151,6 +151,11 @@ public class LimelightSubsystem extends SubsystemBase {
         return new PoseEstimate().pose2d;
     }
 
+    @Override
+    public void periodic() {
+        handleVisionMeasurement();
+    }
+
     public void handleVisionMeasurement() {
         if (!NTable.root("vision").get("enabled", true)) {
             this.table.sub("checks").set("enabled in network tables", false);
