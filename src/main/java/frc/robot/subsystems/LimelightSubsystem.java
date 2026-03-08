@@ -46,14 +46,10 @@ public class LimelightSubsystem extends SubsystemBase {
 
         NTable limits = this.table.sub("limits");
         limits.ensure("distance from ground", Centimeters.of(25).in(Meters));
-        limits.ensure(
-                "angular velocity",
-                DegreesPerSecond.of(10).in(RadiansPerSecond));
+        limits.ensure("angular velocity", DegreesPerSecond.of(10).in(RadiansPerSecond));
         limits.ensure("single tag ambiguity", 0.2);
         limits.ensure("multi tag ambiguity", 0.5);
-        limits.ensure(
-                "(stddevs) angular velocity",
-                DegreesPerSecond.of(1).in(RadiansPerSecond));
+        limits.ensure("(stddevs) angular velocity", DegreesPerSecond.of(1).in(RadiansPerSecond));
         limits.ensure("drivetrain distance from estimate", 1);
 
         lltable = NTable.root(limelightName);
@@ -73,9 +69,7 @@ public class LimelightSubsystem extends SubsystemBase {
         public PoseEstimate() {
             double[] stddevs = lltable.get("stddevs", new double[0]);
             double[] array = lltable.get("botpose_wpiblue", new double[0]);
-            double timestamp = lltable
-                    .getEntry("botpose_wpiblue")
-                    .getLastChange();
+            double timestamp = lltable.getEntry("botpose_wpiblue").getLastChange();
 
             if (array.length == 0) {
                 return;
@@ -96,13 +90,9 @@ public class LimelightSubsystem extends SubsystemBase {
 
             RawFiducial[] fiducials = new RawFiducial[nFiducials];
             for (int i = 0; i < nFiducials; i++) {
-                double[] fiducial = Arrays.copyOfRange(
-                        array,
-                        11 + 7 * i,
-                        18 + 7 * i);
-                fiducials[i] = new RawFiducial(
-                        fiducial[6],
-                        Meters.of(fiducial[4]));
+                double[] fiducial = Arrays.copyOfRange(array, 11 + 7 * i, 18 + 7 * i);
+
+                fiducials[i] = new RawFiducial(fiducial[6], Meters.of(fiducial[4]));
             }
 
             this.pose3d = new Pose3d(translation, rotation);
