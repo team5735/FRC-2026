@@ -32,6 +32,7 @@ import frc.robot.commands.DriveOnArc;
 import frc.robot.commands.drivetrain.PIDToPose;
 import frc.robot.constants.Constants;
 import frc.robot.constants.FieldConstants;
+import frc.robot.constants.FuelLauncherConstants;
 import frc.robot.constants.HoodConstants;
 import frc.robot.constants.TurretConstants;
 import frc.robot.subsystems.ClimberSubsystem;
@@ -143,6 +144,8 @@ public class Robot extends TimedRobot {
             hood.setServoPosition(pos);
         }));
 
+        launcher.setDefaultCommand(launcher.getLaunchFuel(RPM.of(FuelLauncherConstants.DEFAULT_SETPOINT)));
+
         setupDriverBindings();
         setupSubsystemBindings();
         setupOtherBindings();
@@ -169,6 +172,7 @@ public class Robot extends TimedRobot {
                                 () -> MathUtil.applyDeadband(driveController.getLeftX(), 0.1))));
 
         // @formatter:off
+        // drive to targetArc and shoot
         driveController.a().whileTrue(
             // track the hub the entire time
             turret.trackFieldPos(
@@ -181,7 +185,7 @@ public class Robot extends TimedRobot {
                     new PIDToPose(
                         drivetrain,
                         () -> targetArc.getPoseFacingCenter(targetArc.nearestPointOnArc(
-                            drivetrain.getEstimatedPosition().getTranslation()
+drivetrain.getEstimatedPosition().getTranslation()
                         )),
                         "drive to arc (shoot)"
                     ),
@@ -196,7 +200,7 @@ public class Robot extends TimedRobot {
 
                     // set the hood to the right position. this does not have an until
                     // because we don't have a way to get the current servo's position
-                    hood.runOnce(() -> hood.setServoPosition(0.55))
+                    hood.runOnce(() -> hood.setServoPosition(HoodConstants.POS_AT_ARC))
 
                 // shoot fuel. this only executes once:
                 // - robot is in the right place
@@ -204,8 +208,9 @@ public class Robot extends TimedRobot {
                 ).andThen(new ParallelCommandGroup(
                     // spin the spindex and the feeder
                     spindex.getRun(),
-                    // make sure the shooter keeps spinning
-                    launcher.run(launcher::usePID),
+
+                    // shooter is kept spinning by its default command
+
                     // let the driver drive along the arc that we drove to with the left
                     // stick's X axis
                     new DriveOnArc(drivetrain, targetArc,
@@ -218,6 +223,26 @@ public class Robot extends TimedRobot {
         // when the button is released, spin the spindex backwards for a bit to unclog
         // any possible clogs
         driveController.a().onFalse(spindex.getBackwards().withTimeout(Seconds.of(0.5)));
+
+        // @formatter:off
+        // shoot from wherever we are right now
+        driveController.b().onTrue(
+            // track the hub
+            turret.trackFieldPos(FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER))
+                .alongWith(
+                    hood.runOnce(() -> hood.setServoPosition(HoodConstants.POS_AT_ARC))
+                                 // wait a minimum of two seconds to ensure the hood gets to the right spot
+                        .andThen(Commands.waitTime(Seconds.of(2))
+                            // also ensure the luancher is up to speed
+                            .alongWith(launcher.getLaunchFuel(RPM.of(FuelLauncherConstants.DEFAULT_SETPOINT)).
+                                until(() -> driveController.getHID().getBackButton() || launcher.atSetpoint())))
+                        // run the spindex!
+                        .andThen(spindex.getRun())
+                )
+        );
+        // @formatter:on
+
+        driveController.b().onFalse(spindex.getBackwards().withTimeout(Seconds.of(0.5)));
 
         driveController.rightBumper().whileTrue(intake.getIntakeForwardRollCommand());
         driveController.leftBumper().whileTrue(intake.getIntakeReverseRollCommand());
@@ -239,7 +264,6 @@ public class Robot extends TimedRobot {
         turret.setDefaultCommand(turret.holdRobotRel(TurretConstants.START_POS_BOT_REL));
         turret.limitTrigger.onTrue(turret.zeroCommand()); // resets the turrets position when it engages the Hall-Effect
                                                           // sensor
-        launcher.setDefaultCommand(launcher.getLaunchFuel(RPM.of(0)));
 
         // test individual parts of the a button command monster
         testController.a().whileTrue(new PIDToPose(

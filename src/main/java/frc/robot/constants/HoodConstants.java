@@ -15,4 +15,5 @@ public class HoodConstants {
 
     // TODO: test
     public static final double ANGLE_AT_ARC = 8.0;
+    public static final double POS_AT_ARC = 0.575;
 }

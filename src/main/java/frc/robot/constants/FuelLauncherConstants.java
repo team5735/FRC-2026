@@ -13,4 +13,6 @@ public class FuelLauncherConstants {
     public static final double GEARING = 36./15; //input 36 tooth pulley, output 15
 
     public static final int LAUNCHER_VOLTS = 4;
+
+    public static final double DEFAULT_SETPOINT = 3000 - 24;
 }
