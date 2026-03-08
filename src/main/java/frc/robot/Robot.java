@@ -33,12 +33,12 @@ import frc.robot.commands.DriveOnArc;
 import frc.robot.commands.drivetrain.PIDToPose;
 import frc.robot.constants.Constants;
 import frc.robot.constants.FieldConstants;
-import frc.robot.constants.FuelLauncherConstants;
+import frc.robot.constants.LauncherConstants;
 import frc.robot.constants.HoodConstants;
 import frc.robot.constants.TurretConstants;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.DrivetrainSubsystem;
-import frc.robot.subsystems.FuelLauncherSubsystem;
+import frc.robot.subsystems.LauncherSubsystem;
 import frc.robot.subsystems.HoodSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
@@ -66,7 +66,7 @@ public class Robot extends TimedRobot {
 
     public final LimelightSubsystem limelights[];
 
-    public final FuelLauncherSubsystem launcher = new FuelLauncherSubsystem();
+    public final LauncherSubsystem launcher = new LauncherSubsystem();
     public final ClimberSubsystem climber = new ClimberSubsystem();
     public final SpinDexSubsystem spindex = new SpinDexSubsystem();
     public final TurretSubsystem turret;
@@ -146,7 +146,7 @@ public class Robot extends TimedRobot {
             hood.setServoPosition(pos);
         }));
 
-        launcher.setDefaultCommand(launcher.getLaunchFuel(RPM.of(FuelLauncherConstants.DEFAULT_SETPOINT)));
+        launcher.setDefaultCommand(launcher.getLaunchFuel(RPM.of(LauncherConstants.DEFAULT_SETPOINT)));
 
         setupDriverBindings();
         setupSubsystemBindings();
@@ -236,7 +236,7 @@ drivetrain.getEstimatedPosition().getTranslation()
                         // wait a minimum of two seconds to ensure the hood gets to the right spot
                         .andThen(Commands.waitTime(Seconds.of(2))
                             // also ensure the luancher is up to speed
-                            .alongWith(launcher.getLaunchFuel(RPM.of(FuelLauncherConstants.DEFAULT_SETPOINT)).
+                            .alongWith(launcher.getLaunchFuel(RPM.of(LauncherConstants.DEFAULT_SETPOINT)).
                                 until(() -> driveController.getHID().getBackButton() || launcher.atSetpoint())))
                         // run the spindex!
                         .andThen(spindex.getRun())

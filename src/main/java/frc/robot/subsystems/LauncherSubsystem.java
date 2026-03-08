@@ -27,36 +27,36 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import frc.robot.PartialRobot;
 import frc.robot.constants.Constants;
-import frc.robot.constants.FuelLauncherConstants;
+import frc.robot.constants.LauncherConstants;
 import frc.robot.util.NTable;
 import frc.robot.util.TunablePIDController;
 
-public class FuelLauncherSubsystem extends SubsystemBase {
+public class LauncherSubsystem extends SubsystemBase {
     private final TalonFX krakenLeft = new TalonFX(Constants.LAUNCHER_LEFT_KRAKEN_ID);
     private final TalonFX krakenRight = new TalonFX(Constants.LAUNCHER_RIGHT_KRAKEN_ID);
 
     private final TunablePIDController pid = new TunablePIDController("fuel_launcher");
-    private final SimpleMotorFeedforward ff = new SimpleMotorFeedforward(FuelLauncherConstants.KS,
-            FuelLauncherConstants.KV);
+    private final SimpleMotorFeedforward ff = new SimpleMotorFeedforward(LauncherConstants.KS,
+            LauncherConstants.KV);
 
     private final NTable table = NTable.root("fuel_launcher");
 
-    public FuelLauncherSubsystem() {
+    public LauncherSubsystem() {
         super();
-        SmartDashboard.putNumber("shooter_volts", FuelLauncherConstants.LAUNCHER_VOLTS);
+        SmartDashboard.putNumber("shooter_volts", LauncherConstants.LAUNCHER_VOLTS);
         krakenLeft.getConfigurator()
                 .apply(new MotorOutputConfigs().withInverted(InvertedValue.CounterClockwise_Positive)
                         .withNeutralMode(NeutralModeValue.Coast));
         krakenRight.setControl(new Follower(Constants.LAUNCHER_LEFT_KRAKEN_ID, MotorAlignmentValue.Opposed));
 
-        pid.ensureP(FuelLauncherConstants.KP);
-        pid.ensureTolerance(FuelLauncherConstants.RPM_TOLERANCE);
+        pid.ensureP(LauncherConstants.KP);
+        pid.ensureTolerance(LauncherConstants.RPM_TOLERANCE);
         pid.setup(0);
     }
 
     public double getRPM() {
         SmartDashboard.putNumber("launcher/motorRPS", krakenLeft.getVelocity().getValueAsDouble());
-        return krakenLeft.getVelocity().getValue().in(RPM) * FuelLauncherConstants.GEARING;
+        return krakenLeft.getVelocity().getValue().in(RPM) * LauncherConstants.GEARING;
     }
 
     private void setTargetRPM(double rpm) {
@@ -146,7 +146,7 @@ public class FuelLauncherSubsystem extends SubsystemBase {
 
     public static class Tester extends PartialRobot {
         private final SpinDexSubsystem spindex = new SpinDexSubsystem();
-        private final FuelLauncherSubsystem launcher = new FuelLauncherSubsystem();
+        private final LauncherSubsystem launcher = new LauncherSubsystem();
         private final IntakeSubsystem intake = new IntakeSubsystem();
 
         public Tester() {
