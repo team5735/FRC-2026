@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.SingleSubsystem;
+import frc.robot.PartialRobot;
 import frc.robot.constants.ClimberConstants;
 import frc.robot.constants.Constants;
 
@@ -105,7 +105,7 @@ public class ClimberSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("Climber/ReverseLimit", reverseLimit);
     }
 
-    public static class Tester extends SingleSubsystem {
+    public static class Tester extends PartialRobot {
 
         ClimberSubsystem climber = new ClimberSubsystem();
 

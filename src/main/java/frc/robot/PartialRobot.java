@@ -1,15 +1,20 @@
 package frc.robot;
 
+import com.ctre.phoenix6.SignalLogger;
+import com.revrobotics.util.StatusLogger;
+
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.util.NTable;
 
-public abstract class SingleSubsystem extends TimedRobot {
+public abstract class PartialRobot extends TimedRobot {
     protected final CommandXboxController controller = new CommandXboxController(0);
 
-    protected SingleSubsystem() {
+    protected PartialRobot() {
         NTable.root().set("scheduler", CommandScheduler.getInstance());
+        SignalLogger.enableAutoLogging(false);
+        StatusLogger.disableAutoLogging();
     }
 
     @Override

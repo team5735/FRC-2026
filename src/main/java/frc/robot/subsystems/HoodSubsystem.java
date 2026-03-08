@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.SingleSubsystem;
+import frc.robot.PartialRobot;
 import frc.robot.constants.Constants;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.HoodConstants;
@@ -119,7 +119,7 @@ public class HoodSubsystem extends SubsystemBase {
     }
 
     // This is a full robot config for testing the hood subsystem
-    public static class Tester extends SingleSubsystem {
+    public static class Tester extends PartialRobot {
         private final HoodSubsystem hood = new HoodSubsystem(() -> new Pose2d(),
                 FieldConstants.HOOD_EXCLUSION_ZONES);
 
@@ -154,7 +154,7 @@ public class HoodSubsystem extends SubsystemBase {
     // test hood up/down in exclusion zones
     // move trench april tag closer / further from unmoving bot
     // to trigger response
-    public static class PeekABooBot extends SingleSubsystem {
+    public static class PeekABooBot extends PartialRobot {
         private Field2d field2d = new Field2d();
         private final HoodSubsystem hood = new HoodSubsystem(() -> field2d.getRobotPose(),
                 FieldConstants.HOOD_EXCLUSION_ZONES);
