@@ -16,7 +16,7 @@ public class Constants {
         LAUNCHER
     }
 
-    public static final BotConfiguration CURRENT_ROBOT = BotConfiguration.FULL_COMPBOT;
+    public static final BotConfiguration CURRENT_ROBOT = BotConfiguration.LAUNCHER;
 
     public static final int DRIVE_CONTROLLER_PORT = 0;
     public static final int SUBSYSTEM_CONTROLLER_PORT = 1;

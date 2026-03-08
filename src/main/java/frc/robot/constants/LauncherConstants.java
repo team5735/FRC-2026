@@ -19,4 +19,6 @@ public class LauncherConstants {
     public static final int LAUNCHER_VOLTS = 4;
 
     public static final AngularVelocity DEFAULT_SETPOINT = RPM.of(3000);
+
+    public static final double PID_RAISE_THRESHOLD_PERCENT = 0.97;
 }

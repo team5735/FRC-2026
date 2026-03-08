@@ -64,7 +64,13 @@ public class LauncherSubsystem extends SubsystemBase {
     }
 
     public void usePID() {
-        double output = pid.calculate(getRPM()) + ff.calculate(pid.getController().getSetpoint());
+        double rpm = getRPM();
+        if (rpm < pid.getController().getSetpoint() * LauncherConstants.PID_RAISE_THRESHOLD_PERCENT) {
+            pid.getController().setP(NTable.root("tuning").sub("launcher").getDouble("higher kp"));
+        } else {
+            pid.refetch();
+        }
+        double output = pid.calculate(rpm) + ff.calculate(pid.getController().getSetpoint());
         SmartDashboard.putNumber("launcher/output", output);
         krakenLeft.setVoltage(output);
     }
@@ -156,7 +162,7 @@ public class LauncherSubsystem extends SubsystemBase {
             super();
             launcher.setDefaultCommand(launcher.getLaunchFuel(RPM.of(0)));
 
-            controller.a().whileTrue(launcher.getFedLaunch(spindex, RPM.of(3000)));
+            controller.a().whileTrue(launcher.getFedLaunch(spindex, RPM.of(3125)));
             controller.x().whileTrue(spindex.startEnd(spindex::reverseWheel, spindex::stopWheel));
             controller.rightBumper().whileTrue(intake.getIntakeForwardRollCommand());
         }
