@@ -264,15 +264,8 @@ public class Robot extends TimedRobot {
     double current = HoodConstants.ANGLE_AT_ARC;
 
     private void setupOtherBindings() {
-        // test individual parts of the a button command monster
-        testController.a().whileTrue(new PIDToPose(
-                drivetrain,
-                () -> targetArc.getShootingPose(drivetrain.getEstimatedPosition().getTranslation(),
-                        Rotation2d.kCCW_90deg),
-                "drive to arc (shoot)")
-                .andThen(new DriveOnArc(drivetrain, targetArc,
-                        () -> MathUtil.applyDeadband(testController.getLeftX(), 0.1),
-                        Rotation2d.kCCW_90deg)));
+        turret.limitTrigger.onTrue(turret.zeroCommand()); // resets the turrets position when it engages the Hall-Effect
+                                                          // sensor
 
         testController.b().onTrue(launcher.getLaunchFuel(RPM.of(3000))
                 .until(() -> driveController.getHID().getBackButton() || launcher.atSetpoint())
