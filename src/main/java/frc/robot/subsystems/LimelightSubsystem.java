@@ -63,7 +63,6 @@ public class LimelightSubsystem extends SubsystemBase {
     }
 
     public class PoseEstimate {
-
         public RawFiducial[] fiducials;
         public Pose2d pose2d;
         public Pose3d pose3d;

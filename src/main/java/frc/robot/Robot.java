@@ -116,7 +116,7 @@ public class Robot extends TimedRobot {
         // robot during the auto
         commandsForAuto.put("pid adjust", new PIDToPose(drivetrain, () -> {
             var pos = drivetrain.getEstimatedPosition();
-            drivetrain.resetPose(limelights[1].new PoseEstimate().pose2d);
+            drivetrain.resetPose(limelights[1].getPoseEstimate());
             return pos;
         }, "stay in place !", true));
 
@@ -255,7 +255,8 @@ public class Robot extends TimedRobot {
                 .withTimeout(Seconds.of(2)));
         testController.x().onTrue(hood.runOnce(() -> hood.setHoodAngle(HoodConstants.ANGLE_AT_ARC)));
         testController.y()
-                .onTrue(drivetrain.runOnce(() -> drivetrain.resetPose(limelights[0].new PoseEstimate().pose2d)));
+                .onTrue(drivetrain.runOnce(() -> drivetrain.resetPose(limelights[0].getPoseEstimate())));
+
 
         testController.povUp().onTrue(Commands.runOnce(() -> hood.setHoodPosition(0.7)));
         testController.povDown().onTrue(Commands.runOnce(() -> hood.setHoodPosition(0.3)));
