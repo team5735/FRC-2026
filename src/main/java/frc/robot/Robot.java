@@ -33,14 +33,14 @@ import frc.robot.commands.DriveOnArc;
 import frc.robot.commands.drivetrain.PIDToPose;
 import frc.robot.constants.Constants;
 import frc.robot.constants.FieldConstants;
-import frc.robot.constants.LauncherConstants;
 import frc.robot.constants.HoodConstants;
+import frc.robot.constants.LauncherConstants;
 import frc.robot.constants.TurretConstants;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.DrivetrainSubsystem;
-import frc.robot.subsystems.LauncherSubsystem;
 import frc.robot.subsystems.HoodSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.LauncherSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.SpinDexSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
@@ -145,6 +145,10 @@ public class Robot extends TimedRobot {
             double pos = hood.exzGetSavedServoPosition();
             hood.setServoPosition(pos);
         }));
+
+        turret.setDefaultCommand(turret.holdRobotRel(TurretConstants.START_POS_BOT_REL));
+        turret.limitTrigger.onTrue(turret.zeroCommand()); // resets the turrets position when it engages the Hall-Effect
+                                                          // sensor
 
         launcher.setDefaultCommand(launcher.getLaunchFuel(RPM.of(LauncherConstants.DEFAULT_SETPOINT)));
 
@@ -264,10 +268,6 @@ public class Robot extends TimedRobot {
     double current = HoodConstants.ANGLE_AT_ARC;
 
     private void setupOtherBindings() {
-        turret.setDefaultCommand(turret.holdRobotRel(TurretConstants.START_POS_BOT_REL));
-        turret.limitTrigger.onTrue(turret.zeroCommand()); // resets the turrets position when it engages the Hall-Effect
-                                                          // sensor
-
         // test individual parts of the a button command monster
         testController.a().whileTrue(new PIDToPose(
                 drivetrain,
