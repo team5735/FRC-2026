@@ -241,6 +241,20 @@ public class Robot extends TimedRobot {
     private void setupOtherBindings() {
         launcher.setDefaultCommand(launcher.getLaunchFuel(RPM.of(0), RPM.of(0)));
 
+        // test individual parts of the a button command monster
+        testController.a().onTrue(new PIDToPose(
+                drivetrain,
+                () -> targetArc.getPoseFacingCenter(targetArc.nearestPointOnArc(
+                        drivetrain.getEstimatedPosition().getTranslation())),
+                "drive to arc (shoot)")
+                .andThen(new DriveOnArc(drivetrain, targetArc,
+                        () -> MathUtil.applyDeadband(driveController.getLeftX(), 0.1))));
+
+        testController.b().onTrue(launcher.getLaunchFuel(RPM.of(3000), RPM.of(24))
+                .until(() -> driveController.getHID().getBackButton() || launcher.atSetpoint())
+                .withTimeout(Seconds.of(2)));
+        testController.x().onTrue(hood.runOnce(() -> hood.setHoodAngle(HoodConstants.ANGLE_AT_ARC)));
+
         testController.a().whileTrue(launcher.getFedLaunch(spindex, RPM.of(3000), RPM.of(24)));
         testController.b().whileTrue(launcher.getFedLaunch(spindex, RPM.of(1500), RPM.of(12)));
         testController.x().whileTrue(launcher.getFedLaunch(spindex, RPM.of(6000), RPM.of(48)));
