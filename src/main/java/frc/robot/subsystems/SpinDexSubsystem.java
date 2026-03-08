@@ -7,31 +7,34 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.PartialRobot;
 import frc.robot.constants.Constants;
+import frc.robot.util.NTable;
 
 public class SpinDexSubsystem extends SubsystemBase {
     public final SparkFlex feedVortex = new SparkFlex(Constants.SPINDEX_FEED_VORTEX_ID, MotorType.kBrushless);
     public final SparkFlex wheelVortex = new SparkFlex(Constants.SPINDEX_WHEEL_VORTEX_ID, MotorType.kBrushless);
+    private NTable table = NTable.root("tuning").sub("spindex");
 
     public SpinDexSubsystem() {
         super();
+
         feedVortex.clearFaults();
         wheelVortex.clearFaults();
+
+        table.ensure("feed", -6);
+        table.ensure("wheel: fwd", -4);
+        table.ensure("wheel: bck", 4);
     }
 
     public void runFeeder() {
-        feedVortex.setVoltage(-6);
+        feedVortex.setVoltage(table.getDouble("feed"));
     }
 
     public void stopFeeder() {
         feedVortex.setVoltage(0);
     }
 
-    public void runWheelBackwards() {
-        wheelVortex.setVoltage(2);
-    }
-
     public void runWheel() {
-        wheelVortex.setVoltage(-4);
+        wheelVortex.setVoltage(table.getDouble("wheel: fwd"));
     }
 
     public void stopWheel() {
@@ -39,7 +42,7 @@ public class SpinDexSubsystem extends SubsystemBase {
     }
 
     public void reverseWheel() {
-        wheelVortex.setVoltage(4);
+        wheelVortex.setVoltage(table.getDouble("wheel: bck"));
     }
 
     public Command getRun() {
@@ -53,7 +56,7 @@ public class SpinDexSubsystem extends SubsystemBase {
     }
 
     public Command getBackwards() {
-        return startEnd(this::runWheelBackwards, this::stopWheel);
+        return startEnd(this::reverseWheel, this::stopWheel);
     }
 
     public static class Tester extends PartialRobot {
