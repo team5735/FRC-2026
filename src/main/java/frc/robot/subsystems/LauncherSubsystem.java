@@ -15,8 +15,8 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.controller.BangBangController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -29,17 +29,18 @@ import frc.robot.PartialRobot;
 import frc.robot.constants.Constants;
 import frc.robot.constants.LauncherConstants;
 import frc.robot.util.NTable;
-import frc.robot.util.TunablePIDController;
 
 public class LauncherSubsystem extends SubsystemBase {
     private final TalonFX krakenLeft = new TalonFX(Constants.LAUNCHER_LEFT_KRAKEN_ID);
     private final TalonFX krakenRight = new TalonFX(Constants.LAUNCHER_RIGHT_KRAKEN_ID);
 
-    private final TunablePIDController pid = new TunablePIDController("fuel_launcher");
+    private final BangBangController bangbang = new BangBangController();
     private final SimpleMotorFeedforward ff = new SimpleMotorFeedforward(LauncherConstants.KS,
             LauncherConstants.KV);
 
     private final NTable table = NTable.root("fuel_launcher");
+
+    private double setpoint = 0;
 
     public LauncherSubsystem() {
         super();
@@ -49,9 +50,7 @@ public class LauncherSubsystem extends SubsystemBase {
                         .withNeutralMode(NeutralModeValue.Coast));
         krakenRight.setControl(new Follower(Constants.LAUNCHER_LEFT_KRAKEN_ID, MotorAlignmentValue.Opposed));
 
-        pid.ensureP(LauncherConstants.KP);
-        pid.ensureTolerance(LauncherConstants.RPM_TOLERANCE);
-        pid.setup(0);
+        table.ensure("!! threshold", LauncherConstants.BANGBANG_THRESHOLD);
     }
 
     public double getRPM() {
@@ -60,52 +59,30 @@ public class LauncherSubsystem extends SubsystemBase {
     }
 
     private void setTargetRPM(double rpm) {
-        pid.setup(rpm);
+        this.setpoint = rpm;
+        bangbang.setSetpoint(rpm * LauncherConstants.BANGBANG_THRESHOLD);
+        bangbang.setTolerance(rpm * 0.01);
     }
 
     public void usePID() {
-        double rpm = getRPM();
-        if (rpm < pid.getController().getSetpoint() * LauncherConstants.PID_RAISE_THRESHOLD_PERCENT) {
-            pid.getController().setP(NTable.root("tuning").sub("launcher").getDouble("higher kp"));
-        } else {
-            pid.refetch();
-        }
-        double output = pid.calculate(rpm) + ff.calculate(pid.getController().getSetpoint());
+        double output = bangbang.calculate(getRPM()) + ff.calculate(setpoint);
         SmartDashboard.putNumber("launcher/output", output);
         krakenLeft.setVoltage(output);
     }
-
-    LinearFilter filter = LinearFilter.movingAverage(50);
-
-    double lastMax = 0, lastMin = 0;
-    double realSetpoint = 0;
-    int ticksSinceMax = 0, ticksSinceMin = 0;
-    LinearFilter errorAverage = LinearFilter.movingAverage(50);
 
     @Override
     // Multiplying krakenMotor by 60 to turn rotations per second into rotations per
     // minute (RPM)
     public void periodic() {
         double currentRPM = getRPM();
-        this.table.set("speed_rpm", currentRPM);
-        this.table.set("target_speed", pid.getController().getSetpoint());
-        this.table.set("moving_average", filter.calculate(currentRPM));
+        this.table.set("speed rpm", currentRPM);
+        this.table.set("setpoint", setpoint);
+        this.table.set("!! setpoint", bangbang.getSetpoint());
+    }
 
-        ticksSinceMax++;
-        ticksSinceMin++;
-        double error = Math.abs(currentRPM - realSetpoint);
-        if (error > lastMax || ticksSinceMax >= 50) {
-            lastMax = error;
-            ticksSinceMax = 0;
-        }
-        if (error < lastMin || ticksSinceMin >= 50) {
-            lastMin = error;
-            ticksSinceMin = 0;
-        }
-        NTable errorTable = this.table.sub("error");
-        errorTable.set("mean", errorAverage.calculate(error));
-        errorTable.set("max", lastMax);
-        errorTable.set("min", lastMin);
+    public void retunePID() {
+        bangbang.setSetpoint(setpoint * table.getDouble("!! threshold"));
+        bangbang.setTolerance(setpoint * 0.01);
     }
 
     public Command getLaunchFuel(AngularVelocity speed) {
@@ -122,7 +99,7 @@ public class LauncherSubsystem extends SubsystemBase {
     }
 
     public Command getFedLaunch(SpinDexSubsystem spindex, AngularVelocity speed) {
-        return this.getLaunchFuel(speed).until(pid::atSetpoint)
+        return this.getLaunchFuel(speed).until(bangbang::atSetpoint)
                 .andThen(this.getLaunchFuel(speed).alongWith(spindex.getRun()));
     }
 
@@ -142,15 +119,11 @@ public class LauncherSubsystem extends SubsystemBase {
     }
 
     public Command runAtSpeed(AngularVelocity speed) {
-        return startRun(() -> pid.setup(speed.in(RPM)), this::usePID);
-    }
-
-    public void retunePID() {
-        pid.setup(pid.getController().getSetpoint());
+        return startRun(() -> bangbang.setSetpoint(speed.in(RPM)), this::usePID);
     }
 
     public boolean atSetpoint() {
-        return pid.atSetpoint();
+        return bangbang.atSetpoint();
     }
 
     public static class Tester extends PartialRobot {
