@@ -49,7 +49,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
-import frc.robot.SingleSubsystem;
+import frc.robot.PartialRobot;
 import frc.robot.constants.Constants;
 import frc.robot.constants.robot.CompbotConstants;
 import frc.robot.constants.robot.RobotConstants;
@@ -65,7 +65,7 @@ public class TurretSubsystem extends SubsystemBase {
     private final TunableProfiledPIDController pid = new TunableProfiledPIDController("turret", KP, KI, KD,
             MAX_VEL.in(RotationsPerSecond), MAX_ACC.in(RotationsPerSecondPerSecond));
     private final SimpleMotorFeedforward ff = new SimpleMotorFeedforward(KS, KV, KA);
-    
+
     private Supplier<Pose2d> robotPoseSupplier;
     private double prevVel = 0;
     private RobotConstants driveConstants;
@@ -98,7 +98,7 @@ public class TurretSubsystem extends SubsystemBase {
 
     /**
      * Tests the turret's turning capability at a constant voltage
-     * 
+     *
      * @return {@link Command} that sets the motor to a constant forward voltage on
      *         scheduling and stops it on ending
      */
@@ -108,7 +108,7 @@ public class TurretSubsystem extends SubsystemBase {
 
     /**
      * Tests the turret's turning capability at a constant voltage
-     * 
+     *
      * @return {@link Command} that sets the motor to a constant backward voltage on
      *         scheduling and stops it on ending
      */
@@ -118,7 +118,7 @@ public class TurretSubsystem extends SubsystemBase {
 
     /**
      * Stops the turret motor completely
-     * 
+     *
      * @return {@link Command} that sets the motor to a voltage of zero on
      *         scheduling and does not deschedule itself unless interrupted
      */
@@ -144,7 +144,7 @@ public class TurretSubsystem extends SubsystemBase {
 
     /**
      * SysId command for this subsystem
-     * 
+     *
      * @return {@link Command} that runs a {@link SysIdRoutine} for this subsystem,
      *         forward and backward, dynamic and quasistatic. All parts of the
      *         routine end when they hit the upper and lower limit of this
@@ -164,7 +164,7 @@ public class TurretSubsystem extends SubsystemBase {
      * the
      * positional aspect is not clamped. Use {@link #trackRobotRelWithVelocity()}
      * instead.
-     * 
+     *
      * @param goalSupplier Combined position/velocity supplier in the form of a
      *                     {@link State}.
      * @return {@link Command} that repeatedly applies the output of the
@@ -186,7 +186,7 @@ public class TurretSubsystem extends SubsystemBase {
 
     /**
      * Runs the turret to a specified, moving {@link Angle}.
-     * 
+     *
      * @param goal Robot-relative {@link Angle}, will be
      *             clamped to the functional range of this subsystem
      *             automatically.
@@ -212,7 +212,7 @@ public class TurretSubsystem extends SubsystemBase {
 
     /**
      * Runs the turret to a specified, moving {@link Angle}.
-     * 
+     *
      * @param angleSupplier Supplier for a robot-relative {@link Angle}, will be
      *                      clamped to the functional range of this subsystem
      *                      automatically.
@@ -226,7 +226,7 @@ public class TurretSubsystem extends SubsystemBase {
     /**
      * Runs the turret to a specified, moving {@link Angle}, with a goal velocity at
      * said angle.
-     * 
+     *
      * @param angleSupplier   supplier for a robot-relative {@link Angle}, will be
      *                        clamped to the functional range of this subsystem
      *                        automatically.
@@ -243,9 +243,9 @@ public class TurretSubsystem extends SubsystemBase {
 
     /**
      * Runs the turret to a specified, static {@link Angle}.
-     * 
+     *
      * @param fieldAngle Field-relative {@link Angle}.
-     * 
+     *
      * @return {@link Command} that repeatedly applies the output of the
      *         {@link ProfiledPIDController} to the motor.
      */
@@ -256,7 +256,7 @@ public class TurretSubsystem extends SubsystemBase {
 
     /**
      * Runs the turret to aim at a specified, static {@link Translation2d}.
-     * 
+     *
      * @param positionToTrack Field-relative {@link Translation2d}.
      * @return {@link Command} that repeatedly applies the output of the
      *         {@link ProfiledPIDController} to the motor.
@@ -313,7 +313,7 @@ public class TurretSubsystem extends SubsystemBase {
 
     /**
      * Sets the known angle of the turret subsystem to a new value
-     * 
+     *
      * @param newPos the new robot-relative {@link Angle}
      */
     private void resetAngle(Angle newPos) {
@@ -336,7 +336,7 @@ public class TurretSubsystem extends SubsystemBase {
      * run the motor until the turret reaches its limit switch, then will reset its
      * position, and will finally set its control to hold an angle very close to
      * said limit.
-     * 
+     *
      * @return Command that performs the aforementioned task
      */
     public Command zeroSequence() {
@@ -350,7 +350,7 @@ public class TurretSubsystem extends SubsystemBase {
      * <p>
      * This is intended to be bound to {@link TurretSubsystem#limitTrigger} and used
      * by very little else.
-     * 
+     *
      * @return a Command generated with {@link Commands#runOnce()} that sets this
      *         subsystem's known angle to its limit
      */
@@ -361,7 +361,7 @@ public class TurretSubsystem extends SubsystemBase {
         }).ignoringDisable(true);
     }
 
-    public static class Tester extends SingleSubsystem {
+    public static class Tester extends PartialRobot {
         private final TurretSubsystem turret = new TurretSubsystem(() -> Pose2d.kZero, new CompbotConstants());
 
         public Tester() {

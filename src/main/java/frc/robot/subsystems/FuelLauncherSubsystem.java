@@ -25,7 +25,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
-import frc.robot.SingleSubsystem;
+import frc.robot.PartialRobot;
 import frc.robot.constants.Constants;
 import frc.robot.constants.FuelLauncherConstants;
 import frc.robot.util.NTable;
@@ -144,7 +144,7 @@ public class FuelLauncherSubsystem extends SubsystemBase {
         return pid.atSetpoint();
     }
 
-    public static class Tester extends SingleSubsystem {
+    public static class Tester extends PartialRobot {
         private final SpinDexSubsystem spindex = new SpinDexSubsystem();
         private final FuelLauncherSubsystem launcher = new FuelLauncherSubsystem();
         private final IntakeSubsystem intake = new IntakeSubsystem();

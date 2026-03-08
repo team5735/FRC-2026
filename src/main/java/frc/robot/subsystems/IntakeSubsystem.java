@@ -20,7 +20,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.SingleSubsystem;
+import frc.robot.PartialRobot;
 import frc.robot.constants.Constants;
 import frc.robot.constants.IntakeConstants;
 
@@ -55,15 +55,15 @@ public class IntakeSubsystem extends SubsystemBase {
         intakeRoller.setVoltage(0);
     }
 
-    private void runSlapdown(AngularVelocity velocity){
+    private void runSlapdown(AngularVelocity velocity) {
         intakeSlapdown.setVoltage(ff.calculate(getSlapdownPosition().in(Rotations), velocity.in(RotationsPerSecond)));
     }
 
-    public boolean isAtPosition(Angle position){
+    public boolean isAtPosition(Angle position) {
         return getSlapdownPosition().isNear(position, IntakeConstants.ANGULAR_TOLERANCE);
     }
 
-    public Angle getSlapdownPosition(){
+    public Angle getSlapdownPosition() {
         return intakeSlapdown.getPosition().getValue();
     }
 
@@ -76,20 +76,22 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public Command getLiftCommand() {
-        return runEnd(() -> runSlapdown(IntakeConstants.LIFT_VEL), () -> intakeSlapdown.setVoltage(0)).until(() ->  isAtPosition(IntakeConstants.UPPER_RELEASE_POS));
+        return runEnd(() -> runSlapdown(IntakeConstants.LIFT_VEL), () -> intakeSlapdown.setVoltage(0))
+                .until(() -> isAtPosition(IntakeConstants.UPPER_RELEASE_POS));
     }
 
     public Command getSlapdownCommand() {
-        return runEnd(() -> runSlapdown(IntakeConstants.SLAPDOWN_VEL.unaryMinus()), () -> intakeSlapdown.setVoltage(0)).until(() ->  isAtPosition(IntakeConstants.UPPER_RELEASE_POS));
+        return runEnd(() -> runSlapdown(IntakeConstants.SLAPDOWN_VEL.unaryMinus()), () -> intakeSlapdown.setVoltage(0))
+                .until(() -> isAtPosition(IntakeConstants.UPPER_RELEASE_POS));
     }
 
-    public Command zeroSlapdownPosition(){
+    public Command zeroSlapdownPosition() {
         return Commands.runOnce(() -> intakeSlapdown.setPosition(IntakeConstants.START_POS)).ignoringDisable(true);
     }
 
     public Trigger limitEngaged = new Trigger(() -> !hallLimit.get());
 
-    public static class Tester extends SingleSubsystem {
+    public static class Tester extends PartialRobot {
         private final IntakeSubsystem intake = new IntakeSubsystem();
 
         public Tester() {

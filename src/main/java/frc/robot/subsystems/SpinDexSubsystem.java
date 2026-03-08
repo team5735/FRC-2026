@@ -5,7 +5,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.SingleSubsystem;
+import frc.robot.PartialRobot;
 import frc.robot.constants.Constants;
 
 public class SpinDexSubsystem extends SubsystemBase {
@@ -56,7 +56,7 @@ public class SpinDexSubsystem extends SubsystemBase {
         return startEnd(this::runWheelBackwards, this::stopWheel);
     }
 
-    public static class Tester extends SingleSubsystem {
+    public static class Tester extends PartialRobot {
         private final SpinDexSubsystem spindex = new SpinDexSubsystem();
 
         public Tester() {
