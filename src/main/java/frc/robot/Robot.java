@@ -271,8 +271,8 @@ public class Robot extends TimedRobot {
         // test individual parts of the a button command monster
         testController.a().whileTrue(new PIDToPose(
                 drivetrain,
-                () -> targetArc.getPoseFacingCenter(targetArc.nearestPointOnArc(
-                        drivetrain.getEstimatedPosition().getTranslation())),
+                () -> targetArc.getShootingPose(drivetrain.getEstimatedPosition().getTranslation(),
+                        Rotation2d.kCCW_90deg),
                 "drive to arc (shoot)")
                 .andThen(new DriveOnArc(drivetrain, targetArc,
                         () -> MathUtil.applyDeadband(testController.getLeftX(), 0.1),
