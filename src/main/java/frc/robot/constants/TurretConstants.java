@@ -31,7 +31,8 @@ public class TurretConstants {
     // Imaginary, robot-relative hard stops for the turret; all setpoints are to be
     // within a set padding of these
     public static final Angle REVERSE_LIMIT_BOT_REL = Rotations.of(0.48); // limit the turret would hit whild driving CW
-    public static final Angle FORWARD_LIMIT_BOT_REL = Rotations.of(0.316); // limit the turret would hit while driving CCW
+    public static final Angle FORWARD_LIMIT_BOT_REL = Rotations.of(0.306); // limit the turret would hit while driving
+                                                                           // CCW
     public static final Angle ZERO_OFFSET = Rotations
             .of((REVERSE_LIMIT_BOT_REL.in(Rotations) + FORWARD_LIMIT_BOT_REL.in(Rotations)) / 2);
     public static final Angle REVERSE_LIMIT_TUR_REL = REVERSE_LIMIT_BOT_REL.minus(ZERO_OFFSET);
@@ -44,9 +45,9 @@ public class TurretConstants {
     /**
      * Clamps a goal angle and to the functional range of this subsystem, converting
      * it to the turret-relative space
-     * 
+     *
      * @param input the robot-relative goal position to be clamped.
-     * 
+     *
      * @return turret-relative {@link Angle} inclusively between the upper and lower
      *         bounds of this
      *         subsystem; either the rotational equivalent of the input, or one of
@@ -58,9 +59,9 @@ public class TurretConstants {
 
     /**
      * Clamps a goal angle and to the functional range of this subsystem
-     * 
+     *
      * @param input the turret-relative goal position to be clamped.
-     * 
+     *
      * @return turret-relative {@link Angle} inclusively between the upper and lower
      *         bounds of this
      *         subsystem; either the rotational equivalent of the input, or one of
@@ -75,7 +76,7 @@ public class TurretConstants {
 
     /**
      * Converts a turret-relative {@link Angle} to a robot-relative one
-     * 
+     *
      * @param input the turret-relative position to be converted
      * @return a robot-relative equivalent of the input, calculated by adding
      *         {@link #ZERO_OFFSET}
@@ -86,7 +87,7 @@ public class TurretConstants {
 
     /**
      * Converts a robot-relative {@link Angle} to a turret-relative one
-     * 
+     *
      * @param input the robot-relative position to be converted
      * @return a turret-relative equivalent of the input, calculated by subtracting
      *         {@link #ZERO_OFFSET}
