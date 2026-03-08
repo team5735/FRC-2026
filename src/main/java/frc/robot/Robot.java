@@ -149,7 +149,7 @@ public class Robot extends TimedRobot {
             hood.setServoPosition(pos);
         }));
 
-        launcher.setDefaultCommand(launcher.getLaunchFuel(LauncherConstants.DEFAULT_SETPOINT));
+        launcher.setDefaultCommand(launcher.getLaunchFuel(RPM.of(0)));
 
         setupDriverBindings();
         setupSubsystemBindings();
