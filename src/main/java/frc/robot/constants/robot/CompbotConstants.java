@@ -147,7 +147,7 @@ public class CompbotConstants implements RobotConstants {
     }
 
     public Translation2d getRobotToTurretCenter() {
-        return new Translation2d(Inches.of(-4.245), Inches.of(6.5));
+        return new Translation2d(Inches.of(-4.25), Inches.of(6.5));
     }
 
     public Distance getBumperWidth() {
