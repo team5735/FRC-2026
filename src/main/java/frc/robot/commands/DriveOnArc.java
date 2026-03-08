@@ -34,6 +34,7 @@ public class DriveOnArc extends Command {
         this.arc = arc;
         this.control = movement;
         this.pidTheta.ensureTolerance(Degrees.of(15).in(Radians));
+        this.pidTheta.ensureP(1);
         this.shootingPoseRotation = shootingPoseRotation;
         addRequirements(drivetrain);
     }
