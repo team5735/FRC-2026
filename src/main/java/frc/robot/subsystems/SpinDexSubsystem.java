@@ -21,8 +21,8 @@ public class SpinDexSubsystem extends SubsystemBase {
         wheelVortex.clearFaults();
 
         table.ensure("feed", -6);
-        table.ensure("wheel: fwd", -4);
-        table.ensure("wheel: bck", 4);
+        table.ensure("wheel: fwd", -2.5);
+        table.ensure("wheel: bck", 2.5);
     }
 
     public void runFeeder() {
