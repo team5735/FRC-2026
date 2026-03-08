@@ -62,6 +62,11 @@ public class Arc {
         return new Pose2d(position, center.minus(position).getAngle());
     }
 
+    public Pose2d getShootingPose(Translation2d pose, Rotation2d offset) {
+        Pose2d facingCenterOnArc = getPoseFacingCenter(nearestPointOnArc(pose));
+        return new Pose2d(facingCenterOnArc.getTranslation(), facingCenterOnArc.getRotation().plus(offset));
+    }
+
     public Translation2d getCenter() {
         return center;
     }

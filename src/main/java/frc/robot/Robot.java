@@ -166,12 +166,13 @@ public class Robot extends TimedRobot {
 
         driveController.x()
                 .whileTrue(new PIDToPose(drivetrain,
-                        () -> targetArc.getPoseFacingCenter(
-                                targetArc.nearestPointOnArc(drivetrain.getEstimatedPosition().getTranslation())),
-                        "drive to arc")
-
-                        .andThen(new DriveOnArc(drivetrain, targetArc,
-                                () -> MathUtil.applyDeadband(driveController.getLeftX(), 0.1))));
+                        () -> targetArc.getShootingPose(
+                                drivetrain.getEstimatedPosition().getTranslation(),
+                                Rotation2d.kCCW_90deg),
+                        "drive to arc").andThen(
+                                new DriveOnArc(drivetrain, targetArc,
+                                        () -> MathUtil.applyDeadband(driveController.getLeftX(), 0.1),
+                                        Rotation2d.kCCW_90deg)));
 
         // @formatter:off
         // drive to targetArc and shoot
@@ -186,9 +187,8 @@ public class Robot extends TimedRobot {
                     // drive to the arc
                     new PIDToPose(
                         drivetrain,
-                        () -> targetArc.getPoseFacingCenter(targetArc.nearestPointOnArc(
-drivetrain.getEstimatedPosition().getTranslation()
-                        )),
+                        () -> targetArc.getShootingPose(
+                            drivetrain.getEstimatedPosition().getTranslation(), Rotation2d.kCCW_90deg),
                         "drive to arc (shoot)"
                     ),
 
@@ -216,7 +216,8 @@ drivetrain.getEstimatedPosition().getTranslation()
                     // let the driver drive along the arc that we drove to with the left
                     // stick's X axis
                     new DriveOnArc(drivetrain, targetArc,
-                        () -> MathUtil.applyDeadband(driveController.getLeftX(), 0.1))
+                        () -> MathUtil.applyDeadband(driveController.getLeftX(), 0.1),
+                        Rotation2d.kCCW_90deg)
                 ))
             )
         );
@@ -274,7 +275,8 @@ drivetrain.getEstimatedPosition().getTranslation()
                         drivetrain.getEstimatedPosition().getTranslation())),
                 "drive to arc (shoot)")
                 .andThen(new DriveOnArc(drivetrain, targetArc,
-                        () -> MathUtil.applyDeadband(testController.getLeftX(), 0.1))));
+                        () -> MathUtil.applyDeadband(testController.getLeftX(), 0.1),
+                        Rotation2d.kCCW_90deg)));
 
         testController.b().onTrue(launcher.getLaunchFuel(RPM.of(3000))
                 .until(() -> driveController.getHID().getBackButton() || launcher.atSetpoint())
