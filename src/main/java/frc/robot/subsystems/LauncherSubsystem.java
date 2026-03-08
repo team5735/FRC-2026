@@ -104,12 +104,15 @@ public class LauncherSubsystem extends SubsystemBase {
 
     public Command getLaunchFuel(AngularVelocity speed) {
         return runOnce(this::retunePID)
-                .andThen(
-                        startRun(() -> {
-                            this.realSetpoint = speed.in(RPM);
-                            setTargetRPM(speed.in(RPM));
-                        }, this::usePID))
+                .andThen(startRun(() -> setTargetRPM(speed.in(RPM)), this::usePID))
                 .withName("Launch Fuel at " + speed);
+    }
+
+    public Command getLaunchFuelNT() {
+        return runOnce(this::retunePID)
+                .andThen(startRun(() -> setTargetRPM(NTable.root("tuning").getDouble("rpm")),
+                        this::usePID))
+                .withName("Launch Fuel /tuning/rpm");
     }
 
     public Command getFedLaunch(SpinDexSubsystem spindex, AngularVelocity speed) {

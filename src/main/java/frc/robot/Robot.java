@@ -58,7 +58,7 @@ public class Robot extends TimedRobot {
             Constants.TEST_CONTROLLER_PORT);
 
     public final Arc targetArc = new Arc(FieldConstants.BLUE_HUB_CENTER,
-            Feet.of(7.5).in(Meters),
+            Feet.of(9).in(Meters),
             Rotation2d.fromDegrees(90),
             Rotation2d.fromDegrees(270));
 
@@ -130,6 +130,8 @@ public class Robot extends TimedRobot {
         SmartDashboard.putData("Choose an Auto", autoChooser);
     }
 
+    double angle = HoodConstants.LOWEST_ANGLE_DEGREES;
+
     private void configureBindings() {
         drivetrain.registerTelemetry(logger::telemeterize);
 
@@ -174,6 +176,8 @@ public class Robot extends TimedRobot {
                                         () -> MathUtil.applyDeadband(driveController.getLeftX(), 0.1),
                                         Rotation2d.kCCW_90deg)));
 
+        NTable tuning = NTable.root("tuning");
+        tuning.set("rpm", 4000);
         // @formatter:off
         // drive to targetArc and shoot
         driveController.a().whileTrue(
@@ -193,7 +197,7 @@ public class Robot extends TimedRobot {
                     ),
 
                     // spin up the shooter
-                    launcher.getLaunchFuel(RPM.of(3000))
+                    launcher.getLaunchFuelNT()
                         .until(() ->
                             // if the back button is being pressed, skip waiting for the setpoint
                             driveController.getHID().getBackButton() || launcher.atSetpoint())
@@ -202,7 +206,7 @@ public class Robot extends TimedRobot {
 
                     // set the hood to the right position. this does not have an until
                     // because we don't have a way to get the current servo's position
-                    hood.runOnce(() -> hood.setHoodAngle(HoodConstants.LOWEST_ANGLE_DEGREES))
+                    hood.runOnce(() -> hood.setHoodAngle(angle))
 
                 // shoot fuel. this only executes once:
                 // - robot is in the right place
@@ -233,7 +237,7 @@ public class Robot extends TimedRobot {
             // track the hub
             turret.trackFieldPos(FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER))
                 .alongWith(
-                    hood.runOnce(() -> hood.setHoodAngle(HoodConstants.LOWEST_ANGLE_DEGREES))
+                    hood.runOnce(() -> hood.setHoodAngle(angle))
                         // wait a minimum of two seconds to ensure the hood gets to the right spot
                         .andThen(Commands.waitTime(Seconds.of(2))
                             // also ensure the luancher is up to speed
@@ -250,8 +254,8 @@ public class Robot extends TimedRobot {
         driveController.rightBumper().whileTrue(intake.getIntakeForwardRollCommand());
         driveController.leftBumper().whileTrue(intake.getIntakeReverseRollCommand());
         // I wasn't sure what values to give as targetPosition for these, I guessed 12.5
-        driveController.povLeft().onTrue(intake.getSlapdownCommand());
-        driveController.povRight().onTrue(intake.getLiftCommand());
+        driveController.povUp().onTrue(hood.runOnce(() -> hood.setHoodAngle(angle += 5)));
+        driveController.povDown().onTrue(hood.runOnce(() -> hood.setHoodAngle(angle -= 5)));
     }
 
     private void setupSubsystemBindings() {
@@ -335,6 +339,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopPeriodic() {
+        NTable.root().sub("hood").set("current angle for tuning", angle);
     }
 
     @Override
