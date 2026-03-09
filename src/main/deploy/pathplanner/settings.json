@@ -25,8 +25,13 @@
     "Top Sweep",
     "ball"
   ],
+<<<<<<< HEAD
   "defaultMaxVel": 2.0,
   "defaultMaxAccel": 3.5,
+=======
+  "defaultMaxVel": 0.2,
+  "defaultMaxAccel": 0.2,
+>>>>>>> 6648849 (update speed)
   "defaultMaxAngVel": 180.0,
   "defaultMaxAngAccel": 360.0,
   "defaultNominalVoltage": 12.0,

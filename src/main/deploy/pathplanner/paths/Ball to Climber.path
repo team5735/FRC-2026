@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.617,
-        "y": 0.690428118024554
+        "x": 0.6131749906994046,
+        "y": 0.6932829357328876
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.4489263276599704,
-        "y": 0.5317027646019359
+        "x": 0.8523169526599701,
+        "y": 1.4502174595424115
       },
       "isLocked": false,
-      "linkedName": "Right Trench Start"
+      "linkedName": "Ball"
     },
     {
       "anchor": {
-        "x": 0.558219749813988,
-        "y": 3.468318684895834
+        "x": 1.1102191452752976,
+        "y": 2.5808782087053577
       },
       "prevControl": {
-        "x": 0.17608200799851176,
-        "y": 2.736108921595982
+        "x": 0.8217296200706843,
+        "y": 1.9302856445312502
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Bottom"
     }
   ],
   "rotationTargets": [],
@@ -33,27 +33,22 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-<<<<<<< HEAD
-    "maxVelocity": 2.0,
-    "maxAcceleration": 3.5,
-=======
     "maxVelocity": 0.2,
     "maxAcceleration": 0.2,
->>>>>>> 6648849 (update speed)
     "maxAngularVelocity": 180.0,
-    "maxAngularAcceleration": 360.0,
+    "maxAngularAcceleration": 180.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": -90.0
   },
   "reversed": false,
-  "folder": "Right Trench",
+  "folder": "Ball",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }
