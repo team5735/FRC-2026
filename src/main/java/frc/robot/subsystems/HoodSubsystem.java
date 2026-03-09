@@ -33,32 +33,31 @@ public class HoodSubsystem extends SubsystemBase {
     private Rectangle2d[] exclusionZones;
     private double exclusionZoneSavedServoPosition;
 
-    private InterpolatingDoubleTreeMap hoodToServoPosition = new InterpolatingDoubleTreeMap();
-    private InterpolatingDoubleTreeMap servoToHoodPosition = new InterpolatingDoubleTreeMap();
-    private InterpolatingDoubleTreeMap angleToServoPosition = new InterpolatingDoubleTreeMap();
-    private InterpolatingDoubleTreeMap servoToAnglePosition = new InterpolatingDoubleTreeMap();
+    /**
+     * Linear interpolation. Returns the interpolated value of query point xq
+     * against the line
+     * defined by (x0, y0) and (x1, y1).
+     * xq should be between x0 and x1. The value returned is "yq"
+     * If xq is outside x0 and x1, the value will be clamped to y0 and y1
+     * respectively.
+     */
 
-    public static double interp1(double x1, double x2, double y1, double y2, double x0) {
-        if (x1 == x2) {
+    public static double interp1(double x0, double x1, double y0, double y1, double xq) {
+        if (x0 == x1) {
             throw new IllegalArgumentException("x1 and x2 cannot be equal for interpolation");
         }
-        return y1 + (x0 - x1) * (y2 - y1) / (x2 - x1);
+        if (xq >= x1)
+            return y1;
+        if (xq <= x0)
+            return y0;
+
+        return y0 + (xq - x0) * (y1 - y0) / (x1 - x0);
     }
 
     public HoodSubsystem(Supplier<Pose2d> turretPoseSupplier, Rectangle2d[] exclusionZones) {
         super();
         this.turretPoseSupplier = turretPoseSupplier;
         this.exclusionZones = exclusionZones;
-
-        this.hoodToServoPosition.put(0.0, HoodConstants.LOWEST_SERVO_POSITION);
-        this.hoodToServoPosition.put(1.0, HoodConstants.HIGHEST_SERVO_POSITION);
-        this.servoToHoodPosition.put(HoodConstants.LOWEST_SERVO_POSITION, 0.0);
-        this.servoToHoodPosition.put(HoodConstants.HIGHEST_SERVO_POSITION, 1.0);
-
-        this.angleToServoPosition.put(HoodConstants.LOWEST_ANGLE_DEGREES, HoodConstants.LOWEST_SERVO_POSITION);
-        this.angleToServoPosition.put(HoodConstants.HIGHEST_ANGLE_DEGREES, HoodConstants.HIGHEST_SERVO_POSITION);
-        this.servoToAnglePosition.put(HoodConstants.LOWEST_SERVO_POSITION, HoodConstants.LOWEST_ANGLE_DEGREES);
-        this.servoToAnglePosition.put(HoodConstants.HIGHEST_SERVO_POSITION, HoodConstants.HIGHEST_ANGLE_DEGREES);
     }
 
     public double getServoSetpoint() {
@@ -73,20 +72,33 @@ public class HoodSubsystem extends SubsystemBase {
     }
 
     public double getHoodPosition() {
-        return this.servoToHoodPosition.get(this.getServoSetpoint());
+        return interp1(
+                HoodConstants.LOWEST_SERVO_POSITION, 0.0,
+                HoodConstants.HIGHEST_SERVO_POSITION, 1.0,
+                this.getServoSetpoint());
     }
 
     public void setHoodPosition(double hoodPosition) {
-        double servoPosition = this.hoodToServoPosition.get(hoodPosition);
+        double servoPosition = interp1(
+                0, HoodConstants.LOWEST_SERVO_POSITION,
+                1, HoodConstants.HIGHEST_SERVO_POSITION,
+                hoodPosition);
         this.setServoPosition(servoPosition);
     }
 
     public double getHoodAngle() {
-        return this.servoToAnglePosition.get(this.getServoSetpoint());
+        return interp1(
+                HoodConstants.LOWEST_SERVO_POSITION, HoodConstants.LOWEST_ANGLE_DEGREES,
+                HoodConstants.HIGHEST_SERVO_POSITION, HoodConstants.HIGHEST_ANGLE_DEGREES,
+                this.getServoSetpoint());
     }
 
     public void setHoodAngle(double hoodAngleDegrees) {
-        double servoPosition = this.angleToServoPosition.get(hoodAngleDegrees);
+        double servoPosition = interp1(
+                HoodConstants.LOWEST_ANGLE_DEGREES, HoodConstants.LOWEST_SERVO_POSITION,
+                HoodConstants.HIGHEST_ANGLE_DEGREES, HoodConstants.HIGHEST_SERVO_POSITION,
+                hoodAngleDegrees);
+
         this.setServoPosition(servoPosition);
     }
 
@@ -127,7 +139,7 @@ public class HoodSubsystem extends SubsystemBase {
         return false;
     }
 
-    public Command getDynamicTracking(Supplier<Angle> angleSupplier){
+    public Command getDynamicTracking(Supplier<Angle> angleSupplier) {
         return run(() -> setHoodAngle(angleSupplier.get().in(Degrees)));
     }
 
