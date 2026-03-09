@@ -60,8 +60,8 @@ public class LaunchCalculator {
         scoreSpeedMap.put(0., 3000.);
         scoreHoodMap.put(50., 3000.);
 
-        scoreTOFMap.put(0., 10.);
-        scoreTOFMap.put(50., 10.);
+        scoreTOFMap.put(0., 1.);
+        scoreTOFMap.put(50., 1.);
     }
 
     private static final LinearFilter turretVelFiler = LinearFilter.movingAverage(5);
@@ -156,7 +156,8 @@ public class LaunchCalculator {
         Angle turretAngle = turretRot.getMeasure();
 
         Telemetry.field.getObject("launch origin").setPose(turretPose);
-        Telemetry.field.getObject("launch lookahead").setPose(new Pose2d(launchOrigin, turretRot));
+        Telemetry.field.getObject("launch lookahead")
+                .setPose(new Pose2d(launchOrigin, turretRot.plus(drivetrain.getEstimatedPosition().getRotation())));
 
         if (oldTurretAngle == null)
             oldTurretAngle = turretAngle;
@@ -166,7 +167,7 @@ public class LaunchCalculator {
                         turretAngle.minus(oldTurretAngle).in(Rotations) / RECALC_PERIOD));
 
         cachedParams = new LaunchParams(
-                true, //TODO - set exclusion zones
+                true, // TODO - set exclusion zones
                 turretAngle,
                 turretVel,
                 Degrees.of(scoreHoodMap.get(launchDist)),
@@ -190,6 +191,7 @@ public class LaunchCalculator {
                 hood.getDynamicTracking(() -> getCachedParams().hoodAngle),
                 turret.trackRobotRelWithVelocity(() -> getCachedParams().turretAngle,
                         () -> getCachedParams().turretVelocity),
+                launcher.getDynamicLaunch(() -> getCachedParams().flywheelVelocity),
                 spindex.getInformedRun(() -> {
                     LaunchParams params = getCachedParams();
                     return params.isValid
@@ -206,14 +208,13 @@ public class LaunchCalculator {
 
     public static Command dynamicLaunchTeleop(CommandXboxController controller, LaunchGoal goal,
             HoodSubsystem hood, TurretSubsystem turret, DrivetrainSubsystem drivetrain,
-            LauncherSubsystem launcher, SpinDexSubsystem spindex){
+            LauncherSubsystem launcher, SpinDexSubsystem spindex) {
         return dynamicLaunchCommand(goal, hood, turret, drivetrain, launcher, spindex)
-        .alongWith(drivetrain.joystickDriveCommand(
+                .alongWith(drivetrain.joystickDriveCommand(
                         () -> controller.getLeftX() * DRIVETRAIN_VELOCITY_SCALING,
                         () -> controller.getLeftY() * DRIVETRAIN_VELOCITY_SCALING,
                         () -> controller.getLeftTriggerAxis() * DRIVETRAIN_VELOCITY_SCALING,
                         () -> controller.getRightTriggerAxis() * DRIVETRAIN_VELOCITY_SCALING,
-                        () -> controller.getHID().getBButton()),
-                launcher.getDynamicLaunch(() -> getCachedParams().flywheelVelocity));
+                        () -> controller.getHID().getBButton()));
     }
 }
