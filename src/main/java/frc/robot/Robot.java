@@ -150,14 +150,17 @@ public class Robot extends TimedRobot {
             hood.setServoPosition(pos);
         }));
 
-        launcher.setDefaultCommand(launcher.getLaunchFuel(RPM.of(0)));
-
+        setDefaultCommands();
+        setupMiscTriggers();
         setupDriverBindings();
         setupSubsystemBindings();
         setupOtherBindings();
     }
 
-    private void setupDriverBindings() {
+    // all default commands go here
+    private void setDefaultCommands() {
+        launcher.setDefaultCommand(launcher.getResting());
+
         drivetrain.setDefaultCommand(
                 drivetrain.joystickDriveCommand(
                         () -> driveController.getLeftX(),
@@ -166,6 +169,16 @@ public class Robot extends TimedRobot {
                         () -> driveController.getRightTriggerAxis(),
                         () -> driveController.getHID().getBButton()));
 
+        turret.setDefaultCommand(turret.holdRobotRel(TurretConstants.START_POS_BOT_REL));
+    }
+
+    // any trigger that isn't a button goes here
+    private void setupMiscTriggers() {
+        // resets the turrets position when it engages the Hall-Effect sensor
+        turret.limitTrigger.onTrue(turret.zeroCommand());
+    }
+
+    private void setupDriverBindings() {
         driveController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
         driveController.x()
@@ -270,10 +283,6 @@ public class Robot extends TimedRobot {
     double current = HoodConstants.ANGLE_AT_ARC;
 
     private void setupOtherBindings() {
-        turret.setDefaultCommand(turret.holdRobotRel(TurretConstants.START_POS_BOT_REL));
-        turret.limitTrigger.onTrue(turret.zeroCommand()); // resets the turrets position when it engages the Hall-Effect
-                                                          // sensor
-
         testController.b().onTrue(launcher.getLaunchFuel(RPM.of(3000))
                 .until(() -> driveController.getHID().getBackButton() || launcher.atSetpoint())
                 .withTimeout(Seconds.of(2)));

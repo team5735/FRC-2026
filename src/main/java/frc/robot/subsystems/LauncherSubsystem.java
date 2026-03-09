@@ -86,6 +86,10 @@ public class LauncherSubsystem extends SubsystemBase {
         this.table.set("!! setpoint", bangbang.getSetpoint());
     }
 
+    public Command getResting() {
+        return run(() -> krakenLeft.setVoltage(0)).withName("zero turret voltage");
+    }
+
     public void retunePID() {
         bangbang.setSetpoint(setpoint * table.getDouble("!! threshold"));
         bangbang.setTolerance(setpoint * 0.01);

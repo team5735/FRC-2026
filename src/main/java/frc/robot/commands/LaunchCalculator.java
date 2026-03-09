@@ -1,6 +1,6 @@
 //Logic based on FRC 6328 and write-ups by the independent developer Oblarg
 
-package frc.robot;
+package frc.robot.commands;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.RPM;
@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Telemetry;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.HoodConstants;
 import frc.robot.constants.LauncherConstants;
@@ -34,13 +35,33 @@ import frc.robot.subsystems.SpinDexSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
 
 public class LaunchCalculator {
-    private static final InterpolatingTreeMap<Double, Rotation2d> scoreHoodMap = new InterpolatingTreeMap<>(
-            InverseInterpolator.forDouble(), Rotation2d::interpolate);
+    // key: distance (m) value: angle(deg)
+    private static final InterpolatingDoubleTreeMap scoreHoodMap = new InterpolatingDoubleTreeMap();
+    // key: distance(m) value: evlocity(RPM)
     private static final InterpolatingDoubleTreeMap scoreSpeedMap = new InterpolatingDoubleTreeMap();
+    // key: distance(m) value: Time of Flight (s)
     private static final InterpolatingDoubleTreeMap scoreTOFMap = new InterpolatingDoubleTreeMap();
 
+    // key: distance (m) value: angle(deg)
+    private static final InterpolatingTreeMap<Double, Rotation2d> ferryHoodMap = new InterpolatingTreeMap<>(
+            InverseInterpolator.forDouble(), Rotation2d::interpolate);
+    // key: distance(m) value: evlocity(RPM)
+    private static final InterpolatingDoubleTreeMap ferrySpeedMap = new InterpolatingDoubleTreeMap();
+    // key: distance(m) value: Time of Flight (s)
+    private static final InterpolatingDoubleTreeMap ferryTOFMap = new InterpolatingDoubleTreeMap();
+
     static {
-        // TODO populate tree maps here
+        // TODO populate tree maps here with REAL POSITIONS
+
+        // ALL THESE VALUES ARE DUMMIES FOR TESTING !!
+        scoreHoodMap.put(0., HoodConstants.LOWEST_ANGLE_DEGREES);
+        scoreHoodMap.put(50., HoodConstants.LOWEST_ANGLE_DEGREES);
+
+        scoreSpeedMap.put(0., 3000.);
+        scoreHoodMap.put(50., 3000.);
+
+        scoreTOFMap.put(0., 10.);
+        scoreTOFMap.put(50., 10.);
     }
 
     private static final LinearFilter turretVelFiler = LinearFilter.movingAverage(5);
@@ -129,9 +150,13 @@ public class LaunchCalculator {
             oldTOF = timeOfFlight;
         }
 
-        Angle turretAngle = launchTarget.minus(turretPose.getTranslation()).getAngle()
-                .minus(drivetrain.getEstimatedPosition().getRotation())
-                .getMeasure();
+        Rotation2d turretRot = launchTarget.minus(turretPose.getTranslation()).getAngle()
+                .minus(drivetrain.getEstimatedPosition().getRotation());
+
+        Angle turretAngle = turretRot.getMeasure();
+
+        Telemetry.field.getObject("launch origin").setPose(turretPose);
+        Telemetry.field.getObject("launch lookahead").setPose(new Pose2d(launchOrigin, turretRot));
 
         if (oldTurretAngle == null)
             oldTurretAngle = turretAngle;
@@ -141,10 +166,10 @@ public class LaunchCalculator {
                         turretAngle.minus(oldTurretAngle).in(Rotations) / RECALC_PERIOD));
 
         cachedParams = new LaunchParams(
-                false,
+                true, //TODO - set exclusion zones
                 turretAngle,
                 turretVel,
-                scoreHoodMap.get(launchDist).getMeasure(),
+                Degrees.of(scoreHoodMap.get(launchDist)),
                 RPM.of(scoreSpeedMap.get(launchDist)));
     }
 
@@ -152,7 +177,12 @@ public class LaunchCalculator {
         return cachedParams;
     }
 
-    public static Command dynamicLaunchCommand(LaunchGoal goal, CommandXboxController controller,
+    private static Command reCalcParams(LaunchGoal goal, TurretSubsystem turret, DrivetrainSubsystem drivetrain) {
+        return Commands.run(() -> calculate(goal, drivetrain, drivetrain.getChassisSpeeds(),
+                turret.getMechanismPose()));
+    }
+
+    public static Command dynamicLaunchCommand(LaunchGoal goal,
             HoodSubsystem hood, TurretSubsystem turret, DrivetrainSubsystem drivetrain,
             LauncherSubsystem launcher, SpinDexSubsystem spindex) {
         return Commands.parallel(
@@ -160,24 +190,30 @@ public class LaunchCalculator {
                 hood.getDynamicTracking(() -> getCachedParams().hoodAngle),
                 turret.trackRobotRelWithVelocity(() -> getCachedParams().turretAngle,
                         () -> getCachedParams().turretVelocity),
-                drivetrain.joystickDriveCommand(
+                spindex.getInformedRun(() -> {
+                    LaunchParams params = getCachedParams();
+                    return params.isValid
+                            && MathUtil.isNear(params.hoodAngle.in(Degrees),
+                                    hood.getHoodAngle(),
+                                    HoodConstants.DYNAMIC_TOLERANCE_DEGREES)
+                            && turret.getAngle().isNear(params.turretAngle,
+                                    TurretConstants.TOLERANCE)
+                            && MathUtil.isNear(params.flywheelVelocity.in(RPM),
+                                    launcher.getRPM(),
+                                    LauncherConstants.RPM_TOLERANCE);
+                }));
+    }
+
+    public static Command dynamicLaunchTeleop(CommandXboxController controller, LaunchGoal goal,
+            HoodSubsystem hood, TurretSubsystem turret, DrivetrainSubsystem drivetrain,
+            LauncherSubsystem launcher, SpinDexSubsystem spindex){
+        return dynamicLaunchCommand(goal, hood, turret, drivetrain, launcher, spindex)
+        .alongWith(drivetrain.joystickDriveCommand(
                         () -> controller.getLeftX() * DRIVETRAIN_VELOCITY_SCALING,
                         () -> controller.getLeftY() * DRIVETRAIN_VELOCITY_SCALING,
                         () -> controller.getLeftTriggerAxis() * DRIVETRAIN_VELOCITY_SCALING,
                         () -> controller.getRightTriggerAxis() * DRIVETRAIN_VELOCITY_SCALING,
                         () -> controller.getHID().getBButton()),
-                launcher.getDynamicLaunch(() -> getCachedParams().flywheelVelocity),
-                spindex.getInformedRun(() -> {
-                    LaunchParams params = getCachedParams();
-                    return params.isValid 
-                    && MathUtil.isNear(params.hoodAngle.in(Degrees), hood.getHoodAngle(), HoodConstants.DYNAMIC_TOLERANCE_DEGREES)
-                    && turret.getAngle().isNear(params.turretAngle, TurretConstants.TOLERANCE)
-                    && MathUtil.isNear(params.flywheelVelocity.in(RPM), launcher.getRPM(), LauncherConstants.RPM_TOLERANCE);
-                }));
-    }
-
-    private static Command reCalcParams(LaunchGoal goal, TurretSubsystem turret, DrivetrainSubsystem drivetrain) {
-        return Commands.run(() -> calculate(goal, drivetrain, drivetrain.getChassisSpeeds(),
-                turret.getMechanismPose()));
+                launcher.getDynamicLaunch(() -> getCachedParams().flywheelVelocity));
     }
 }
