@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Telemetry;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.HoodConstants;
 import frc.robot.constants.LauncherConstants;
@@ -149,9 +150,13 @@ public class LaunchCalculator {
             oldTOF = timeOfFlight;
         }
 
-        Angle turretAngle = launchTarget.minus(turretPose.getTranslation()).getAngle()
-                .minus(drivetrain.getEstimatedPosition().getRotation())
-                .getMeasure();
+        Rotation2d turretRot = launchTarget.minus(turretPose.getTranslation()).getAngle()
+                .minus(drivetrain.getEstimatedPosition().getRotation());
+
+        Angle turretAngle = turretRot.getMeasure();
+
+        Telemetry.field.getObject("launch origin").setPose(turretPose);
+        Telemetry.field.getObject("launch lookahead").setPose(new Pose2d(launchOrigin, turretRot));
 
         if (oldTurretAngle == null)
             oldTurretAngle = turretAngle;
