@@ -30,6 +30,8 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.DriveOnArc;
+import frc.robot.commands.LaunchCalculator;
+import frc.robot.commands.LaunchCalculator.LaunchGoal;
 import frc.robot.commands.drivetrain.PIDToPose;
 import frc.robot.constants.Constants;
 import frc.robot.constants.FieldConstants;
@@ -124,6 +126,11 @@ public class Robot extends TimedRobot {
         }, "stay in place !", true));
         commandsForAuto.put("extend climber", climber.getFullyExtendCommand());
         commandsForAuto.put("detract climber", climber.getFullyDetractCommand());
+        commandsForAuto.put("drop intake", intake.getSlapdownCommand());
+        commandsForAuto.put("run intake", intake.getIntakeForwardRollCommand());
+        commandsForAuto.put("run spindex", spindex.getRun());
+        commandsForAuto.put("dynamic launch",
+                LaunchCalculator.dynamicLaunchCommand(LaunchGoal.SCORE, hood, turret, drivetrain, launcher, spindex));
 
         NamedCommands.registerCommands(commandsForAuto);
 
