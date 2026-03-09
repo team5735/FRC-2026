@@ -5,20 +5,9 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
-import static frc.robot.constants.TurretConstants.FORWARD_LIMIT_BOT_REL;
-import static frc.robot.constants.TurretConstants.FORWARD_LIMIT_TUR_REL;
-import static frc.robot.constants.TurretConstants.KA;
-import static frc.robot.constants.TurretConstants.KD;
-import static frc.robot.constants.TurretConstants.KI;
-import static frc.robot.constants.TurretConstants.KP;
-import static frc.robot.constants.TurretConstants.KS;
-import static frc.robot.constants.TurretConstants.KV;
-import static frc.robot.constants.TurretConstants.MAX_ACC;
-import static frc.robot.constants.TurretConstants.MAX_VEL;
-import static frc.robot.constants.TurretConstants.REVERSE_LIMIT_TUR_REL;
-import static frc.robot.constants.TurretConstants.SOFT_PADDING;
-import static frc.robot.constants.TurretConstants.START_POS_BOT_REL;
+import static frc.robot.constants.TurretConstants.*;
 import static frc.robot.constants.TurretConstants.formatInputPosRobotRel;
+import static frc.robot.constants.TurretConstants.formatInputStateRobotRel;
 import static frc.robot.constants.TurretConstants.robotRelToTurretRel;
 import static frc.robot.constants.TurretConstants.turretRelToRobotRel;
 
@@ -237,8 +226,8 @@ public class TurretSubsystem extends SubsystemBase {
      */
     public Command trackRobotRelWithVelocity(Supplier<Angle> angleSupplier,
             Supplier<AngularVelocity> velocitySupplier) {
-        return trackStateTurretRel(() -> new State(formatInputPosRobotRel(angleSupplier.get()).in(Rotations),
-                velocitySupplier.get().in(RotationsPerSecond)));
+        return trackStateTurretRel(() -> formatInputStateRobotRel(
+                new State(angleSupplier.get().in(Rotations), velocitySupplier.get().in(RotationsPerSecond))));
     }
 
     /**
