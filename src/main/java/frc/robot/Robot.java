@@ -159,7 +159,7 @@ public class Robot extends TimedRobot {
 
     // all default commands go here
     private void setDefaultCommands() {
-        launcher.setDefaultCommand(launcher.getLaunchFuel(RPM.of(0)));
+        launcher.setDefaultCommand(launcher.getResting());
 
         drivetrain.setDefaultCommand(
                 drivetrain.joystickDriveCommand(
