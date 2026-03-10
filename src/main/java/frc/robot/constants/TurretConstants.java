@@ -93,19 +93,20 @@ public class TurretConstants {
 
         if (newVel > 0) {
             if (MathUtil.isNear(FORWARD_LIMIT_TUR_REL.in(Rotations), newPos, MAX_DECEL_PADDING.in(Rotations))) {
-                newVel = Math.sqrt(
+                newVel = MathUtil.clamp(newVel, 0, Math.sqrt(
                         MAX_VEL.in(RotationsPerSecond) * MAX_VEL.in(RotationsPerSecond)
                                 - 2 * MAX_ACC.in(RotationsPerSecondPerSecond)
                                         * (newPos - FORWARD_LIMIT_TUR_REL.minus(SOFT_PADDING).in(Rotations)
-                                                + MAX_DECEL_PADDING.in(Rotations)));
+                                                + MAX_DECEL_PADDING.in(Rotations))));
             }
         } else if (newVel < 0) {
             if (MathUtil.isNear(REVERSE_LIMIT_TUR_REL.in(Rotations), newPos, MAX_DECEL_PADDING.in(Rotations))) {
-                newVel = -Math.sqrt(
+                newVel = -MathUtil.clamp(newVel, Math.sqrt(
                         MAX_VEL.in(RotationsPerSecond) * MAX_VEL.in(RotationsPerSecond)
                                 + 2 * MAX_ACC.in(RotationsPerSecondPerSecond)
                                         * (newPos - REVERSE_LIMIT_TUR_REL.plus(SOFT_PADDING).in(Rotations)
-                                                - MAX_DECEL_PADDING.in(Rotations)));
+                                                - MAX_DECEL_PADDING.in(Rotations))),
+                        0);
             }
 
         }
