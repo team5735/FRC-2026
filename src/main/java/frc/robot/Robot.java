@@ -130,7 +130,7 @@ public class Robot extends TimedRobot {
         commandsForAuto.put("run intake", intake.getIntakeForwardRollCommand());
         commandsForAuto.put("run spindex", spindex.getRun());
         commandsForAuto.put("dynamic launch",
-                LaunchCalculator.dynamicLaunchCommand(LaunchGoal.SCORE, hood, turret, drivetrain, launcher, spindex));
+                LaunchCalculator.dynamicLaunchCommand(LaunchGoal.SCORE, () -> false, hood, turret, drivetrain, launcher, spindex));
 
         NamedCommands.registerCommands(commandsForAuto);
 
