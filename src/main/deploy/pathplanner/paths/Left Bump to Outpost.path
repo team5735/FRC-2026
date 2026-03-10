@@ -8,24 +8,24 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.588144089471726,
-        "y": 4.239323381696428
+        "x": 3.456059651692708,
+        "y": 4.737896902901786
       },
       "isLocked": false,
-      "linkedName": "Left Bump"
+      "linkedName": "Left Bump Start"
     },
     {
       "anchor": {
-        "x": 1.0613257575757575,
-        "y": 2.947054924242425
+        "x": 0.663,
+        "y": 0.6932829357328876
       },
       "prevControl": {
-        "x": 2.695148127832453,
-        "y": 2.463163322679925
+        "x": 1.5930078473772318,
+        "y": 1.6699364653087807
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Bottom"
+      "linkedName": "Outpost"
     }
   ],
   "rotationTargets": [],
@@ -42,10 +42,10 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -90.0
+    "rotation": 180.0
   },
   "reversed": false,
-  "folder": "Left Bump",
+  "folder": "Outpost",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 0.0

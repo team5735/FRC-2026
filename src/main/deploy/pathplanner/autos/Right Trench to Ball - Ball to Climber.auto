@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Right Trench to Ball"
+            "pathName": "Right Trench to Outpost"
           }
         },
         {
@@ -19,7 +19,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Ball to Climber"
+            "pathName": "Outpost to Climber"
           }
         }
       ]

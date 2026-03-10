@@ -4,28 +4,28 @@
     {
       "anchor": {
         "x": 3.617,
-        "y": 5.722758033389137
+        "y": 4.0
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.617,
-        "y": 5.722758033389137
+        "x": 2.087283958798363,
+        "y": 3.4316648646763395
       },
       "isLocked": false,
-      "linkedName": "Left Bump"
+      "linkedName": "Hub"
     },
     {
       "anchor": {
-        "x": 0.5512356422071678,
-        "y": 3.9798918224516022
+        "x": 0.663,
+        "y": 0.6932829357328876
       },
       "prevControl": {
-        "x": 0.19739118303571446,
-        "y": 6.011145600818453
+        "x": 1.593211762927827,
+        "y": 0.8798656645275309
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Left Side "
+      "linkedName": "Outpost"
     }
   ],
   "rotationTargets": [],
@@ -45,10 +45,10 @@
     "rotation": 180.0
   },
   "reversed": false,
-  "folder": "Left Bump",
+  "folder": "Outpost",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": -0.2941049721494235
   },
   "useDefaultConstraints": true
 }

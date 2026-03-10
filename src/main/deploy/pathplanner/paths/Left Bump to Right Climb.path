@@ -4,24 +4,24 @@
     {
       "anchor": {
         "x": 3.617,
-        "y": 4.0
+        "y": 5.722758033389137
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.617,
-        "y": 4.0
+        "x": 3.6170000000000004,
+        "y": 0.7227580333891366
       },
       "isLocked": false,
-      "linkedName": "Hub"
+      "linkedName": "Left Bump Start"
     },
     {
       "anchor": {
-        "x": 0.5554159109935186,
-        "y": 3.8408214169518367
+        "x": 1.0613257575757575,
+        "y": 2.947054924242425
       },
       "prevControl": {
-        "x": 0.3988597470240248,
-        "y": 7.0551422409845745
+        "x": -0.18860571923594405,
+        "y": 2.9339666365271184
       },
       "nextControl": null,
       "isLocked": false,
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": -90.0
   },
   "reversed": false,
-  "folder": "Hub",
+  "folder": "Left Bump",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -0.2941049721494235
+    "rotation": 0.0
   },
   "useDefaultConstraints": true
 }

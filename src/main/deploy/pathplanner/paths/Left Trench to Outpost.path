@@ -4,28 +4,28 @@
     {
       "anchor": {
         "x": 3.617,
-        "y": 2.0
+        "y": 7.421017717633929
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.192963192894345,
-        "y": 2.0421333240327386
+        "x": 2.117,
+        "y": 7.421017717633929
       },
       "isLocked": false,
-      "linkedName": "Right Bump"
+      "linkedName": "Left Trench Start"
     },
     {
       "anchor": {
-        "x": 1.0567932710193453,
-        "y": 2.619673142206102
+        "x": 0.663,
+        "y": 0.6932829357328876
       },
       "prevControl": {
-        "x": 2.1600783575148808,
-        "y": 1.9529712495349703
+        "x": 2.6630000000000003,
+        "y": 0.6932829357328872
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Outpost"
     }
   ],
   "rotationTargets": [],
@@ -42,10 +42,10 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -90.0
+    "rotation": 180.0
   },
   "reversed": false,
-  "folder": "Right Bump",
+  "folder": "Outpost",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 0.0

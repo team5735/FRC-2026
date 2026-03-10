@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.617,
-        "y": 5.722758033389137
+        "x": 1.02,
+        "y": 5.957617768787202
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.617,
-        "y": 5.722758033389137
+        "x": 0.961119384765625,
+        "y": 5.217251383463543
       },
       "isLocked": false,
-      "linkedName": "Left Bump"
+      "linkedName": "Depot"
     },
     {
       "anchor": {
@@ -20,12 +20,12 @@
         "y": 4.52499053030303
       },
       "prevControl": {
-        "x": 2.558260545606737,
-        "y": 5.097330501936215
+        "x": 1.8921994410808272,
+        "y": 4.52499053030303
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Top "
+      "linkedName": "Left Climb"
     }
   ],
   "rotationTargets": [],
@@ -45,10 +45,10 @@
     "rotation": 90.0
   },
   "reversed": false,
-  "folder": "Left Bump",
+  "folder": "Intake ",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }

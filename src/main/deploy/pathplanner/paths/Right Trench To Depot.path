@@ -4,36 +4,31 @@
     {
       "anchor": {
         "x": 3.617,
-        "y": 5.722758033389137
+        "y": 0.690428118024554
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.763052652994792,
-        "y": 5.639305594308037
+        "x": 2.117,
+        "y": 0.6904281180245542
       },
       "isLocked": false,
-      "linkedName": "Left Bump"
+      "linkedName": "Right Trench Start"
     },
     {
       "anchor": {
-        "x": 1.139837878999256,
+        "x": 1.02,
         "y": 5.957617768787202
       },
       "prevControl": {
-        "x": 1.5633194986979166,
-        "y": 5.907760416666667
+        "x": 1.6164529854910712,
+        "y": 4.916679861886162
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Ball Intake"
+      "linkedName": "Depot"
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 1,
-      "rotationDegrees": 0.0
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],

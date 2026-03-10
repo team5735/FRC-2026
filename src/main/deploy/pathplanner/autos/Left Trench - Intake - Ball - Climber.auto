@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Left Trench To Ball Intake"
+            "pathName": "Left Trench To Depot"
           }
         },
         {
@@ -19,7 +19,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Intake to Ball"
+            "pathName": "Depot to Outpost"
           }
         },
         {
@@ -29,21 +29,9 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "extend climber"
-          }
-        },
-        {
           "type": "path",
           "data": {
-            "pathName": "Ball to Climber"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "detract climber"
+            "pathName": "Outpost to Climber"
           }
         }
       ]

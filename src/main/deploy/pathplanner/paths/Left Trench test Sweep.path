@@ -12,7 +12,7 @@
         "y": 7.421017717633929
       },
       "isLocked": false,
-      "linkedName": "Left Trench"
+      "linkedName": "Left Trench Start"
     },
     {
       "anchor": {
@@ -25,7 +25,7 @@
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Test Start Top Sweep"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],

@@ -4,15 +4,15 @@
     {
       "anchor": {
         "x": 3.617,
-        "y": 5.722758033389137
+        "y": 2.0
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.456059651692708,
-        "y": 4.737896902901786
+        "x": 2.408450950985863,
+        "y": 1.4507272484188989
       },
       "isLocked": false,
-      "linkedName": "Left Bump"
+      "linkedName": "Right Bump Start"
     },
     {
       "anchor": {
@@ -20,12 +20,12 @@
         "y": 0.6932829357328876
       },
       "prevControl": {
-        "x": 1.5930078473772318,
-        "y": 1.6699364653087807
+        "x": 1.6615744512648807,
+        "y": 1.3703335425967267
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Ball"
+      "linkedName": "Outpost"
     }
   ],
   "rotationTargets": [],
@@ -45,7 +45,7 @@
     "rotation": 180.0
   },
   "reversed": false,
-  "folder": "Ball",
+  "folder": "Outpost",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 0.0

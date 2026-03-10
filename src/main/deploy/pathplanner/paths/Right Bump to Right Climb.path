@@ -4,28 +4,28 @@
     {
       "anchor": {
         "x": 3.617,
-        "y": 7.421017717633929
+        "y": 2.0
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.416956984752752,
-        "y": 7.755439220603874
+        "x": 2.192963192894345,
+        "y": 2.0421333240327386
       },
       "isLocked": false,
-      "linkedName": "Left Trench"
+      "linkedName": "Right Bump Start"
     },
     {
       "anchor": {
-        "x": 1.139837878999256,
-        "y": 5.957617768787202
+        "x": 1.0613257575757575,
+        "y": 2.947054924242425
       },
       "prevControl": {
-        "x": 0.4646734909784225,
-        "y": 7.501309465680803
+        "x": 2.164610844071293,
+        "y": 2.280353031571293
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Ball Intake"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -42,10 +42,10 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": -90.0
   },
   "reversed": false,
-  "folder": "Intake ",
+  "folder": "Right Bump",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 0.0

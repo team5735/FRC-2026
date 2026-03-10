@@ -3,9 +3,8 @@
   "robotLength": 0.813,
   "holonomicMode": true,
   "pathFolders": [
-    "Ball",
+    "Outpost",
     "Calibration",
-    "Hub",
     "Intake ",
     "Left Bump",
     "Left Trench",
