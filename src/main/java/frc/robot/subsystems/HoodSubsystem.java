@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.Rectangle2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.AnalogPotentiometer;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -28,6 +29,7 @@ public class HoodSubsystem extends SubsystemBase {
 
     private final Servo servo = new Servo(Constants.HOOD_SERVO_PIN);
     private final AnalogInput feedback = new AnalogInput(Constants.HOOD_FEEDBACK_PIN);
+    private final AnalogPotentiometer pot = new AnalogPotentiometer(feedback, 100, 30);
 
     private Supplier<Pose2d> turretPoseSupplier;
     private Rectangle2d[] exclusionZones;
@@ -46,10 +48,10 @@ public class HoodSubsystem extends SubsystemBase {
         if (x0 == x1) {
             throw new IllegalArgumentException("x1 and x2 cannot be equal for interpolation");
         }
-        if (xq >= x1)
-            return y1;
-        if (xq <= x0)
-            return y0;
+        // if (xq >= x1)
+        // return y1;
+        // if (xq <= x0)
+        // return y0;
 
         return y0 + (xq - x0) * (y1 - y0) / (x1 - x0);
     }
@@ -58,6 +60,9 @@ public class HoodSubsystem extends SubsystemBase {
         super();
         this.turretPoseSupplier = turretPoseSupplier;
         this.exclusionZones = exclusionZones;
+
+        // makes the feedback more stable by averaging 2^4=16 samples
+        this.feedback.setAverageBits(4);
     }
 
     public double getServoSetpoint() {
@@ -73,30 +78,30 @@ public class HoodSubsystem extends SubsystemBase {
 
     public double getHoodPosition() {
         return interp1(
-                HoodConstants.LOWEST_SERVO_POSITION, 0.0,
-                HoodConstants.HIGHEST_SERVO_POSITION, 1.0,
+                HoodConstants.LOWEST_SERVO_POSITION, HoodConstants.HIGHEST_SERVO_POSITION,
+                0.0,                                 1.0,
                 this.getServoSetpoint());
     }
 
     public void setHoodPosition(double hoodPosition) {
         double servoPosition = interp1(
-                0, HoodConstants.LOWEST_SERVO_POSITION,
-                1, HoodConstants.HIGHEST_SERVO_POSITION,
+                0,                                   1,
+                HoodConstants.LOWEST_SERVO_POSITION, HoodConstants.HIGHEST_SERVO_POSITION,
                 hoodPosition);
         this.setServoPosition(servoPosition);
     }
 
     public double getHoodAngle() {
         return interp1(
-                HoodConstants.LOWEST_SERVO_POSITION, HoodConstants.LOWEST_ANGLE_DEGREES,
-                HoodConstants.HIGHEST_SERVO_POSITION, HoodConstants.HIGHEST_ANGLE_DEGREES,
+                HoodConstants.LOWEST_SERVO_POSITION, HoodConstants.HIGHEST_SERVO_POSITION,
+                HoodConstants.LOWEST_ANGLE_DEGREES,  HoodConstants.HIGHEST_ANGLE_DEGREES,
                 this.getServoSetpoint());
     }
 
     public void setHoodAngle(double hoodAngleDegrees) {
         double servoPosition = interp1(
-                HoodConstants.LOWEST_ANGLE_DEGREES, HoodConstants.LOWEST_SERVO_POSITION,
-                HoodConstants.HIGHEST_ANGLE_DEGREES, HoodConstants.HIGHEST_SERVO_POSITION,
+                HoodConstants.LOWEST_ANGLE_DEGREES,  HoodConstants.HIGHEST_ANGLE_DEGREES,
+                HoodConstants.LOWEST_SERVO_POSITION, HoodConstants.HIGHEST_SERVO_POSITION,
                 hoodAngleDegrees);
 
         this.setServoPosition(servoPosition);
@@ -118,8 +123,9 @@ public class HoodSubsystem extends SubsystemBase {
     // Converts voltage (0-5V) into 0.0–1.0 normalized position
     public double getNormalizedPosition() {
         double v = this.getVoltage();
-        return interp1(HoodConstants.SERVO_VOLTAGE_ZERO_SETPOINT, 0.0,
-                HoodConstants.SERVO_VOLTAGE_ONE_SETPOINT, 1.0,
+        return interp1(
+                HoodConstants.SERVO_VOLTAGE_AT_REF0,HoodConstants.SERVO_VOLTAGE_AT_REF1,
+                HoodConstants.SERVO_VOLTAGE_REF0,   HoodConstants.SERVO_VOLTAGE_REF1,
                 v);
     }
 
