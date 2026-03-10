@@ -4,8 +4,11 @@
 
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Second;
+import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -16,10 +19,14 @@ import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import frc.robot.PartialRobot;
 import frc.robot.constants.Constants;
 import frc.robot.constants.IntakeConstants;
@@ -37,10 +44,12 @@ public class IntakeSubsystem extends SubsystemBase {
         intakeRoller.getConfigurator().apply(rollerConfig);
 
         TalonFXConfiguration slapdownConfig = new TalonFXConfiguration();
-        slapdownConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-        slapdownConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        slapdownConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        slapdownConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast; // TODO swap back to brake
         slapdownConfig.Feedback.SensorToMechanismRatio = IntakeConstants.GEAR_REDUCTION;
         intakeSlapdown.getConfigurator().apply(slapdownConfig);
+
+        intakeSlapdown.setPosition(IntakeConstants.START_POS);
     }
 
     private void forwardRoll() {
@@ -87,6 +96,19 @@ public class IntakeSubsystem extends SubsystemBase {
 
     public Command zeroSlapdownPosition() {
         return Commands.runOnce(() -> intakeSlapdown.setPosition(IntakeConstants.START_POS)).ignoringDisable(true);
+    }
+
+    public SysIdRoutine routine = new SysIdRoutine(
+            new Config(Volts.of(0.1).per(Second), Volts.of(0.5), null),
+            new Mechanism(v -> intakeSlapdown.setVoltage(v.in(Volts)), log -> {
+                log.motor("slapdown").angularPosition(getSlapdownPosition())
+                        .angularVelocity(intakeSlapdown.getVelocity().getValue());
+            }, this));
+
+    @Override
+    public void periodic() {
+        SmartDashboard.putBoolean("intake/limit_engaged", !hallLimit.get());
+        SmartDashboard.putNumber("intake/slapdown_pos_deg", getSlapdownPosition().in(Degrees));
     }
 
     public Trigger limitEngaged = new Trigger(() -> !hallLimit.get());
