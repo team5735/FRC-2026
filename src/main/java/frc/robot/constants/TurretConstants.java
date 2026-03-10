@@ -108,7 +108,6 @@ public class TurretConstants {
                                                 - MAX_DECEL_PADDING.in(Rotations))),
                         0);
             }
-
         }
 
         return new State(newPos, newVel);
