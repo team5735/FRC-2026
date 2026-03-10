@@ -3,12 +3,12 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.5,
+        "x": 3.617,
         "y": 4.0
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.9702839587983632,
+        "x": 2.087283958798363,
         "y": 3.4316648646763395
       },
       "isLocked": false,
@@ -16,11 +16,11 @@
     },
     {
       "anchor": {
-        "x": 0.6131749906994046,
+        "x": 0.663,
         "y": 0.6932829357328876
       },
       "prevControl": {
-        "x": 1.5433867536272317,
+        "x": 1.593211762927827,
         "y": 0.8798656645275309
       },
       "nextControl": null,
@@ -33,10 +33,10 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 0.5,
-    "maxAcceleration": 1.0,
+    "maxVelocity": 2.0,
+    "maxAcceleration": 3.5,
     "maxAngularVelocity": 180.0,
-    "maxAngularAcceleration": 180.0,
+    "maxAngularAcceleration": 360.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },
@@ -48,7 +48,7 @@
   "folder": "Ball",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": -0.2941049721494235
   },
   "useDefaultConstraints": true
 }
