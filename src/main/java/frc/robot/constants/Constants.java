@@ -16,7 +16,7 @@ public class Constants {
         LAUNCHER
     }
 
-    public static final BotConfiguration CURRENT_ROBOT = BotConfiguration.INTAKE;
+    public static final BotConfiguration CURRENT_ROBOT = BotConfiguration.FULL_COMPBOT;
 
     public static final int DRIVE_CONTROLLER_PORT = 0;
     public static final int SUBSYSTEM_CONTROLLER_PORT = 1;
@@ -25,7 +25,6 @@ public class Constants {
     public static final int INTAKE_SLAPDOWN_TALONFX_ID = 23;
     public static final int INTAKE_ROLLER_TALONFX_ID = 25;
     public static final int INTAKE_LIMIT_PIN = 3;  //DIO
-    // TODO - verify intake pin
 
     public static final double START_REVOLUTION_POSITION = 0.4;
     public static final double END_REVOLUTION_POSITION = 0.6;

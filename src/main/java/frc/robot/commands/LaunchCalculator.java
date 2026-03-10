@@ -21,7 +21,9 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -60,13 +62,14 @@ public class LaunchCalculator {
         scoreHoodMap.put(50., HoodConstants.LOWEST_ANGLE_DEGREES);
 
         scoreSpeedMap.put(0., 3000.);
-        scoreHoodMap.put(50., 3000.);
+        scoreSpeedMap.put(50., 3000.);
 
-        scoreTOFMap.put(0., 1.);
-        scoreTOFMap.put(50., 1.);
+        scoreTOFMap.put(0., 0.);
+        scoreTOFMap.put(50., 0.);
     }
 
-    private static final LinearFilter turretVelFiler = LinearFilter.movingAverage(5);
+    private static final LinearFilter turretVelFiler = LinearFilter.movingAverage(50);
+    private static final Timer timer = new Timer();
 
     private static boolean allianceKnown = false;
     private static boolean isBlue = true;
@@ -122,6 +125,7 @@ public class LaunchCalculator {
                                                 .getRotation()
                                                 .getRadians()));
 
+        SmartDashboard.putNumber("launchCalc/turret_vx", turretVelX);
         double turretVelY = robotVel.vyMetersPerSecond
                 + robotVel.omegaRadiansPerSecond
                         * (drivetrain.constants.getRobotToTurretCenter().getX()
@@ -132,9 +136,11 @@ public class LaunchCalculator {
                                                 .getEstimatedPosition()
                                                 .getRotation()
                                                 .getRadians()));
+        SmartDashboard.putNumber("launchCalc/turret_vy", turretVelX);
 
         double launchDist = launchTarget.getDistance(launchOrigin); // naive initial estimate
 
+        SmartDashboard.putNumber("launchCalc/naive_dist", launchDist);
         double timeOfFlight;
         double oldTOF = 100000; // arbitrarily large; be glad I didn't make this 67676767
         for (int i = 0; i < 20; i++) {
@@ -152,6 +158,8 @@ public class LaunchCalculator {
             oldTOF = timeOfFlight;
         }
 
+        SmartDashboard.putNumber("launchCalc/wise_dist", launchDist);
+        
         Rotation2d turretRot = launchTarget.minus(turretPose.getTranslation()).getAngle()
                 .minus(drivetrain.getEstimatedPosition().getRotation());
 
@@ -159,21 +167,33 @@ public class LaunchCalculator {
 
         Telemetry.field.getObject("launch origin").setPose(turretPose);
         Telemetry.field.getObject("launch lookahead")
-                .setPose(new Pose2d(launchOrigin, turretRot.plus(drivetrain.getEstimatedPosition().getRotation())));
+                .setPose(new Pose2d(launchOrigin,
+                        turretRot.plus(drivetrain.getEstimatedPosition().getRotation())));
 
         if (oldTurretAngle == null)
             oldTurretAngle = turretAngle;
 
         AngularVelocity turretVel = RotationsPerSecond
                 .of(turretVelFiler.calculate(
-                        turretAngle.minus(oldTurretAngle).in(Rotations) / RECALC_PERIOD));
+                        turretAngle.minus(oldTurretAngle).in(Rotations) / timer.get()));
+
+        timer.reset();
+
+        oldTurretAngle = turretAngle;
+        Angle hoodAngle = Degrees.of(scoreHoodMap.get(launchDist));
+
+        AngularVelocity flywheelVel = RPM.of(scoreSpeedMap.get(launchDist));
+        SmartDashboard.putNumber("launchCalc/turret_angle_rot", turretAngle.in(Rotations));
+        SmartDashboard.putNumber("launchCalc/turret_vel_rps", turretVel.in(RotationsPerSecond));
+        SmartDashboard.putNumber("launchCalc/hood_angle_deg", hoodAngle.in(Degrees));
+        SmartDashboard.putNumber("launchCalc/flywheel_vel_rpm", flywheelVel.in(RPM));
 
         cachedParams = new LaunchParams(
                 true, // TODO - set exclusion zones
                 turretAngle,
-                turretVel,
-                Degrees.of(scoreHoodMap.get(launchDist)),
-                RPM.of(scoreSpeedMap.get(launchDist)));
+                RotationsPerSecond.of(0),
+                hoodAngle,
+                flywheelVel);
     }
 
     public static LaunchParams getCachedParams() {
@@ -188,7 +208,7 @@ public class LaunchCalculator {
     public static Command dynamicLaunchCommand(LaunchGoal goal, BooleanSupplier override,
             HoodSubsystem hood, TurretSubsystem turret, DrivetrainSubsystem drivetrain,
             LauncherSubsystem launcher, SpinDexSubsystem spindex) {
-        return Commands.parallel(
+        return Commands.runOnce(() -> timer.reset()).andThen(Commands.parallel(
                 reCalcParams(goal, turret, drivetrain),
                 hood.getDynamicTracking(() -> getCachedParams().hoodAngle),
                 turret.trackRobotRelWithVelocity(() -> getCachedParams().turretAngle,
@@ -204,11 +224,13 @@ public class LaunchCalculator {
                                     TurretConstants.TOLERANCE)
                             && MathUtil.isNear(params.flywheelVelocity.in(RPM),
                                     launcher.getRPM(),
-                                    LauncherConstants.RPM_TOLERANCE)) || override.getAsBoolean();
-                }));
+                                    LauncherConstants.RPM_TOLERANCE))
+                            || override.getAsBoolean();
+                })));
     }
 
-    public static Command dynamicLaunchTeleop(CommandXboxController controller, BooleanSupplier override, LaunchGoal goal,
+    public static Command dynamicLaunchTeleop(CommandXboxController controller, BooleanSupplier override,
+            LaunchGoal goal,
             HoodSubsystem hood, TurretSubsystem turret, DrivetrainSubsystem drivetrain,
             LauncherSubsystem launcher, SpinDexSubsystem spindex) {
         return dynamicLaunchCommand(goal, override, hood, turret, drivetrain, launcher, spindex)
