@@ -7,6 +7,8 @@ import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
+import java.util.function.BooleanSupplier;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -183,7 +185,7 @@ public class LaunchCalculator {
                 turret.getMechanismPose()));
     }
 
-    public static Command dynamicLaunchCommand(LaunchGoal goal,
+    public static Command dynamicLaunchCommand(LaunchGoal goal, BooleanSupplier override,
             HoodSubsystem hood, TurretSubsystem turret, DrivetrainSubsystem drivetrain,
             LauncherSubsystem launcher, SpinDexSubsystem spindex) {
         return Commands.parallel(
@@ -194,7 +196,7 @@ public class LaunchCalculator {
                 launcher.getDynamicLaunch(() -> getCachedParams().flywheelVelocity),
                 spindex.getInformedRun(() -> {
                     LaunchParams params = getCachedParams();
-                    return params.isValid
+                    return (params.isValid
                             && MathUtil.isNear(params.hoodAngle.in(Degrees),
                                     hood.getHoodAngle(),
                                     HoodConstants.DYNAMIC_TOLERANCE_DEGREES)
@@ -202,14 +204,14 @@ public class LaunchCalculator {
                                     TurretConstants.TOLERANCE)
                             && MathUtil.isNear(params.flywheelVelocity.in(RPM),
                                     launcher.getRPM(),
-                                    LauncherConstants.RPM_TOLERANCE);
+                                    LauncherConstants.RPM_TOLERANCE)) || override.getAsBoolean();
                 }));
     }
 
-    public static Command dynamicLaunchTeleop(CommandXboxController controller, LaunchGoal goal,
+    public static Command dynamicLaunchTeleop(CommandXboxController controller, BooleanSupplier override, LaunchGoal goal,
             HoodSubsystem hood, TurretSubsystem turret, DrivetrainSubsystem drivetrain,
             LauncherSubsystem launcher, SpinDexSubsystem spindex) {
-        return dynamicLaunchCommand(goal, hood, turret, drivetrain, launcher, spindex)
+        return dynamicLaunchCommand(goal, override, hood, turret, drivetrain, launcher, spindex)
                 .alongWith(drivetrain.joystickDriveCommand(
                         () -> controller.getLeftX() * DRIVETRAIN_VELOCITY_SCALING,
                         () -> controller.getLeftY() * DRIVETRAIN_VELOCITY_SCALING,
