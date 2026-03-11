@@ -9,12 +9,14 @@ import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
+import frc.robot.constants.FieldConstants;
 import frc.robot.constants.robot.CompbotTunerConstants;
 import frc.robot.util.NTable;
 
@@ -59,8 +61,19 @@ public class Telemetry {
     Telemetry(Robot robot) {
         this.robot = robot;
         field.getRobotObject().setPose(new Pose2d());
-        field.getObject("arc").setPoses(this.robot.targetArc.getAsPoses());
+        // field.getObject("arc").setPoses(this.robot.targetArc.getAsPoses());
         table.set("field", field);
+
+        double cx = FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_LEFT.getCenter().getX();
+        double cy = FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_LEFT.getCenter().getY();
+        double xw2 = FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_LEFT.getXWidth()/2.0;
+        double yw2 = FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_LEFT.getYWidth()/2.0;
+
+        field.getObject("exz").setPoses(new Pose2d[]{
+                                        new Pose2d(cx-xw2,cy-yw2, Rotation2d.kZero),
+                                        new Pose2d(cx-xw2,cy+yw2, Rotation2d.kZero),
+                                        new Pose2d(cx+xw2,cy-yw2, Rotation2d.kZero),
+                                        new Pose2d(cx+xw2,cy+yw2, Rotation2d.kZero)});
     }
 
     // Accept the swerve drive state and telemeterize it to SmartDashboard.
