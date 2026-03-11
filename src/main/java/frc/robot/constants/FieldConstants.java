@@ -61,14 +61,14 @@ public class FieldConstants {
     }
 
     public static Translation2d alliance(Translation2d element) {
-        if (DriverStation.getAlliance().get() == Alliance.Red) {
+        if (shouldSwitchAlliance()) {
             return redElement(element);
         }
         return element;
     }
 
     public static Pose2d alliance(Pose2d element) {
-        if (DriverStation.getAlliance().get() == Alliance.Red) {
+        if (shouldSwitchAlliance()) {
             return redElement(element);
         }
         return element;
