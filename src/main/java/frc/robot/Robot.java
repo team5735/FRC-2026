@@ -59,7 +59,7 @@ public class Robot extends TimedRobot {
     public final CommandXboxController testController = new CommandXboxController(
             Constants.TEST_CONTROLLER_PORT);
 
-    public final Arc targetArc = new Arc(FieldConstants.BLUE_HUB_CENTER,
+    public final Arc targetArc = new Arc(FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER),
             Feet.of(9).in(Meters),
             Rotation2d.fromDegrees(90),
             Rotation2d.fromDegrees(270));
@@ -130,7 +130,8 @@ public class Robot extends TimedRobot {
         commandsForAuto.put("run intake", intake.getIntakeForwardRollCommand());
         commandsForAuto.put("run spindex", spindex.getRun());
         commandsForAuto.put("dynamic launch",
-                LaunchCalculator.dynamicLaunchCommand(LaunchGoal.SCORE, () -> false, hood, turret, drivetrain, launcher, spindex));
+                LaunchCalculator.dynamicLaunchCommand(LaunchGoal.SCORE, () -> false, hood, turret, drivetrain, launcher,
+                        spindex));
 
         NamedCommands.registerCommands(commandsForAuto);
 
