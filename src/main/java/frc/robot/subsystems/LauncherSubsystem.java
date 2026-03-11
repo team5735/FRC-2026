@@ -54,6 +54,7 @@ public class LauncherSubsystem extends SubsystemBase {
                         .withNeutralMode(NeutralModeValue.Coast));
         krakenLeft.getConfigurator().apply(new CurrentLimitsConfigs().withSupplyCurrentLimit(Amps.of(30)));
         krakenRight.setControl(new Follower(Constants.LAUNCHER_LEFT_KRAKEN_ID, MotorAlignmentValue.Opposed));
+        krakenRight.getConfigurator().apply(new CurrentLimitsConfigs().withSupplyCurrentLimit(Amps.of(30)));
 
         table.ensure("!! threshold", LauncherConstants.BANGBANG_THRESHOLD);
         table.ensure("!! mult", 5);
