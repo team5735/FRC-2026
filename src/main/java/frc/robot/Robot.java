@@ -273,6 +273,9 @@ public class Robot extends TimedRobot {
 
         driveController.b().onFalse(spindex.getBackwards().withTimeout(Seconds.of(0.5)));
 
+        driveController.povLeft().whileTrue(intake.getLiftCommand());
+        driveController.povRight().whileTrue(intake.getSlapdownCommand());
+
         driveController.rightBumper().whileTrue(intake.getIntakeForwardRollCommand());
         driveController.leftBumper().whileTrue(intake.getIntakeReverseRollCommand());
         // I wasn't sure what values to give as targetPosition for these, I guessed 12.5
