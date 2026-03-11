@@ -42,7 +42,7 @@ public class CompbotTunerConstants {
     // The steer motor uses any SwerveModule.SteerRequestType control request with
     // the output type specified by SwerveModuleConstants.SteerMotorClosedLoopOutput
     public static final Slot0Configs DEFAULT_STEER_CONSTANTS = new Slot0Configs()
-            .withKP(45).withKI(0).withKD(0.1)
+            .withKP(35).withKI(0).withKD(0.1)
             .withKS(0.13).withKV(1.43).withKA(0.13)
             .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
     // When using closed-loop control, the drive motor uses the control
