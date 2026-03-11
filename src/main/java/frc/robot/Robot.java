@@ -171,8 +171,6 @@ public class Robot extends TimedRobot {
 
     // all default commands go here
     private void setDefaultCommands() {
-        launcher.setDefaultCommand(launcher.getResting());
-
         drivetrain.setDefaultCommand(
                 drivetrain.joystickDriveCommand(
                         () -> driveController.getLeftX(),
@@ -224,7 +222,7 @@ public class Robot extends TimedRobot {
                     ),
 
                     // spin up the shooter
-                    launcher.getLaunchFuelNT()
+                    launcher.getLaunchFuel(RPM.of(3000))
                         .until(() ->
                             // if the back button is being pressed, skip waiting for the setpoint
                             driveController.getHID().getBackButton() || launcher.atSetpoint())
@@ -257,6 +255,7 @@ public class Robot extends TimedRobot {
         // when the button is released, spin the spindex backwards for a bit to unclog
         // any possible clogs
         driveController.a().onFalse(spindex.getBackwards().withTimeout(Seconds.of(0.5)));
+        driveController.a().onFalse(Commands.waitTime(Seconds.of(0.5)).andThen(launcher.getResting()));
 
         // @formatter:off
         // shoot from wherever we are right now
