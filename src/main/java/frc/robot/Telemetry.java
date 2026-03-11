@@ -72,8 +72,8 @@ public class Telemetry {
         field.getObject("exz").setPoses(new Pose2d[]{
                                         new Pose2d(cx-xw2,cy-yw2, Rotation2d.kZero),
                                         new Pose2d(cx-xw2,cy+yw2, Rotation2d.kZero),
-                                        new Pose2d(cx+xw2,cy-yw2, Rotation2d.kZero),
-                                        new Pose2d(cx+xw2,cy+yw2, Rotation2d.kZero)});
+                                        new Pose2d(cx+xw2,cy+yw2, Rotation2d.kZero),
+                                        new Pose2d(cx+xw2,cy-yw2, Rotation2d.kZero)});
     }
 
     // Accept the swerve drive state and telemeterize it to SmartDashboard.

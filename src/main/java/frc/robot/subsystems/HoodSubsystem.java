@@ -39,20 +39,15 @@ public class HoodSubsystem extends SubsystemBase {
      * Linear interpolation. Returns the interpolated value of query point xq
      * against the line
      * defined by (x0, y0) and (x1, y1).
-     * xq should be between x0 and x1. The value returned is "yq"
-     * If xq is outside x0 and x1, the value will be clamped to y0 and y1
-     * respectively.
+     * Requirements:
+     * x0 does not have to be less than x1
+     * x0 must not equal x1
      */
 
     public static double interp1(double x0, double x1, double y0, double y1, double xq) {
         if (x0 == x1) {
             throw new IllegalArgumentException("x1 and x2 cannot be equal for interpolation");
         }
-        // if (xq >= x1)
-        // return y1;
-        // if (xq <= x0)
-        // return y0;
-
         return y0 + (xq - x0) * (y1 - y0) / (x1 - x0);
     }
 
