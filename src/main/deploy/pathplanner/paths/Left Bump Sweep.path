@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.617,
+        "x": 3.546908017113095,
         "y": 5.722758033389137
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.706315011160714,
+        "x": 3.6362230282738093,
         "y": 6.610147530691965
       },
       "isLocked": false,
-      "linkedName": "Left Bump Start"
+      "linkedName": "Left Bump"
     },
     {
       "anchor": {
@@ -49,15 +49,10 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-<<<<<<< HEAD
-    "maxVelocity": 2.0,
-    "maxAcceleration": 3.5,
-=======
     "maxVelocity": 0.2,
     "maxAcceleration": 0.2,
->>>>>>> 6648849 (update speed)
     "maxAngularVelocity": 180.0,
-    "maxAngularAcceleration": 360.0,
+    "maxAngularAcceleration": 180.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },

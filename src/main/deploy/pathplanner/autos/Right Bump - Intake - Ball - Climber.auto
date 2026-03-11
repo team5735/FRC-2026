@@ -7,13 +7,43 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Right Bump to Depot"
+            "pathName": "Right Bump to Ball Intake"
           }
         },
         {
           "type": "wait",
           "data": {
             "waitTime": 1.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Intake to Ball"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 1.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "extend climber"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Ball to Climber"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "detract climber"
           }
         }
       ]

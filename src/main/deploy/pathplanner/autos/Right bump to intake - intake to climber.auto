@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Right Bump to Depot"
+            "pathName": "Right Bump to Ball Intake"
           }
         },
         {
@@ -19,7 +19,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Depot to Climber"
+            "pathName": "Intake to Climber"
           }
         }
       ]

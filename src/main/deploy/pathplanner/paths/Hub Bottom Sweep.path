@@ -3,12 +3,12 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.617,
+        "x": 3.5,
         "y": 4.0
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.3017030203683033,
+        "x": 3.1847030203683033,
         "y": 2.896692417689733
       },
       "isLocked": false,
@@ -41,7 +41,7 @@
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Start Sweep Bottom"
+      "linkedName": "start Sweep Bottom"
     }
   ],
   "rotationTargets": [],
@@ -49,15 +49,10 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-<<<<<<< HEAD
-    "maxVelocity": 2.0,
-    "maxAcceleration": 3.5,
-=======
     "maxVelocity": 0.2,
     "maxAcceleration": 0.2,
->>>>>>> 6648849 (update speed)
     "maxAngularVelocity": 180.0,
-    "maxAngularAcceleration": 360.0,
+    "maxAngularAcceleration": 180.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },
@@ -69,7 +64,7 @@
   "folder": "Sweep",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -0.2941049721494235
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }

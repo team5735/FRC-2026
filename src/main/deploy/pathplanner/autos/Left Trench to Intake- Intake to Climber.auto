@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Left Trench To Depot"
+            "pathName": "Left Trench To Ball Intake"
           }
         },
         {
@@ -19,7 +19,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Depot to Climber"
+            "pathName": "Intake to Climber"
           }
         }
       ]
