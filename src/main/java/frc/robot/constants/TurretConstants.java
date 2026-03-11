@@ -32,7 +32,7 @@ public class TurretConstants {
 
     // Imaginary, robot-relative hard stops for the turret; all setpoints are to be
     // within a set padding of these
-    public static final Angle REVERSE_LIMIT_BOT_REL = Rotations.of(0.56); // limit the turret would hit whild driving CW
+    public static final Angle REVERSE_LIMIT_BOT_REL = Rotations.of(0.48); // limit the turret would hit whild driving CW
     public static final Angle FORWARD_LIMIT_BOT_REL = Rotations.of(0.306); // limit the turret would hit while driving
                                                                            // CCW
     public static final Angle ZERO_OFFSET = Rotations
