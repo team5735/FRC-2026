@@ -33,8 +33,13 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
+<<<<<<< HEAD:src/main/deploy/pathplanner/paths/Left Bump to Right Climb.path
     "maxVelocity": 2.0,
     "maxAcceleration": 3.5,
+=======
+    "maxVelocity": 0.2,
+    "maxAcceleration": 0.2,
+>>>>>>> 6648849 (update speed):src/main/deploy/pathplanner/paths/Left Bump 270.path
     "maxAngularVelocity": 180.0,
     "maxAngularAcceleration": 360.0,
     "nominalVoltage": 12.0,

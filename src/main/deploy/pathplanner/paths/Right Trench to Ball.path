@@ -1,0 +1,54 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 3.294052734375,
+        "y": 0.690428118024554
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.3725658017113096,
+        "y": 0.6310606166294657
+      },
+      "isLocked": false,
+      "linkedName": "Right Trench"
+    },
+    {
+      "anchor": {
+        "x": 0.6131749906994046,
+        "y": 0.6932829357328876
+      },
+      "prevControl": {
+        "x": 1.3836698986235116,
+        "y": 0.42457321893601263
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Ball"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 0.2,
+    "maxAcceleration": 0.2,
+    "maxAngularVelocity": 180.0,
+    "maxAngularAcceleration": 180.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 180.0
+  },
+  "reversed": false,
+  "folder": "Ball",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 0.0
+  },
+  "useDefaultConstraints": true
+}

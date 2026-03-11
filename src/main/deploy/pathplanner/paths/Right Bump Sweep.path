@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.617,
+        "x": 3.5,
         "y": 2.0
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.6668138137090773,
+        "x": 3.5498138137090773,
         "y": 1.0885732305617568
       },
       "isLocked": false,
-      "linkedName": "Right Bump Start"
+      "linkedName": "Right Bump"
     },
     {
       "anchor": {
@@ -41,7 +41,7 @@
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Start Sweep Bottom"
+      "linkedName": "start Sweep Bottom"
     }
   ],
   "rotationTargets": [],
@@ -49,10 +49,10 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 2.0,
-    "maxAcceleration": 3.5,
+    "maxVelocity": 0.2,
+    "maxAcceleration": 0.2,
     "maxAngularVelocity": 180.0,
-    "maxAngularAcceleration": 360.0,
+    "maxAngularAcceleration": 180.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },

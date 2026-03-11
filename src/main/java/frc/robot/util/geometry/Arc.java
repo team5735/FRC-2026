@@ -4,29 +4,36 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.constants.FieldConstants;
 import frc.robot.util.NTable;
 
 public class Arc {
     Translation2d center;
     double radius;
-    Rotation2d start, end;
+    Rotation2d start, delta;
 
     NTable table = NTable.root("arc").sub("debugging");
 
-    public Arc(Translation2d center, double radius, Rotation2d start, Rotation2d end) {
+    // delta must be positive
+    public Arc(Translation2d center, double radius, Rotation2d start, Rotation2d delta) {
         this.center = center;
         this.radius = radius;
         this.start = start;
-        this.end = end;
+        this.delta = delta;
+    }
+
+    private double mod(double in) {
+        return MathUtil.inputModulus(in, 0, 2 * Math.PI);
+    }
+
+    private Rotation2d mod(Rotation2d in) {
+        return Rotation2d.fromRadians(mod(in.getRadians()));
     }
 
     public boolean angleInRange(Rotation2d theta_) {
-        double theta = MathUtil.inputModulus(theta_.getRadians(), 0, 2 * Math.PI);
-        double first = MathUtil.inputModulus(start.getRadians(), 0, 2 * Math.PI);
-        double second = MathUtil.inputModulus(end.getRadians(), 0, 2 * Math.PI);
+        double theta = mod(theta_.getRadians());
+        double first = mod(start.getRadians());
+        double second = mod(start.plus(delta).getRadians());
 
         table.set("theta wrapped", theta);
         table.set("first wrapped", first);
@@ -48,7 +55,7 @@ public class Arc {
 
         table.set("thetaA", thetaA.getDegrees());
         table.set("start", start.getDegrees());
-        table.set("end", end.getDegrees());
+        table.set("end", delta.getDegrees());
         if (angleInRange(thetaA)) {
             table.set("in range", true);
             return new Translation2d(radius, thetaA).plus(center);
@@ -56,7 +63,7 @@ public class Arc {
         table.set("in range", false);
 
         Translation2d p1 = center.plus(new Translation2d(radius, start));
-        Translation2d p2 = center.plus(new Translation2d(radius, end));
+        Translation2d p2 = center.plus(new Translation2d(radius, start.plus(delta)));
 
         return position.getDistance(p1) <= position.getDistance(p2) ? p1 : p2;
     }
@@ -82,27 +89,29 @@ public class Arc {
         return start;
     }
 
+    public Rotation2d getDelta() {
+        return delta;
+    }
+
     public Rotation2d getEnd() {
-        return end;
+        return start.plus(delta);
     }
 
     public Pose2d[] getAsPoses() {
         Pose2d[] result = new Pose2d[100];
         for (int i = 0; i < 100; i++) {
-            Rotation2d theta = start.interpolate(end, i / (100 - 1.0));
+            Rotation2d theta = start.interpolate(start.plus(delta), i / (100 - 1.0));
             result[i] = new Pose2d(center.plus(new Translation2d(radius, theta)), Rotation2d.kZero);
         }
         return result;
     }
 
     public Arc alliance() {
-        boolean shouldFlip = FieldConstants.shouldSwitchAlliance();
         Rotation2d start = this.start;
-        Rotation2d end = this.end;
-        if (shouldFlip) {
-            start = this.end;
-            end = this.start;
+        Rotation2d delta = this.delta;
+        if (FieldConstants.shouldSwitchAlliance()) {
+            start = mod(Rotation2d.k180deg.plus(start));
         }
-        return new Arc(FieldConstants.alliance(this.center), this.radius, start, end);
+        return new Arc(FieldConstants.alliance(this.center), this.radius, start, delta);
     }
 }

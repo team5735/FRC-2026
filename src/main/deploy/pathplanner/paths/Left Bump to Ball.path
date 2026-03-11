@@ -1,0 +1,54 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 3.546908017113095,
+        "y": 5.722758033389137
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 3.385967668805803,
+        "y": 4.737896902901786
+      },
+      "isLocked": false,
+      "linkedName": "Left Bump"
+    },
+    {
+      "anchor": {
+        "x": 0.6131749906994046,
+        "y": 0.6932829357328876
+      },
+      "prevControl": {
+        "x": 1.5431828380766364,
+        "y": 1.6699364653087805
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Ball"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 0.2,
+    "maxAcceleration": 0.2,
+    "maxAngularVelocity": 180.0,
+    "maxAngularAcceleration": 180.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 180.0
+  },
+  "reversed": false,
+  "folder": "Ball",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 0.0
+  },
+  "useDefaultConstraints": true
+}

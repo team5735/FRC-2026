@@ -33,8 +33,13 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
+<<<<<<< HEAD:src/main/deploy/pathplanner/paths/Hub To Depot.path
     "maxVelocity": 2.0,
     "maxAcceleration": 3.5,
+=======
+    "maxVelocity": 0.2,
+    "maxAcceleration": 0.2,
+>>>>>>> 6648849 (update speed):src/main/deploy/pathplanner/paths/Hub To Ball Intake.path
     "maxAngularVelocity": 180.0,
     "maxAngularAcceleration": 360.0,
     "nominalVoltage": 12.0,
