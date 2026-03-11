@@ -96,11 +96,13 @@ public class Arc {
     }
 
     public Arc alliance() {
-        boolean shouldFlip = DriverStation.getAlliance().get() == Alliance.Red;
-        return new Arc(
-                FieldConstants.alliance(this.center),
-                this.radius,
-                this.end,
-                this.start.plus(shouldFlip ? Rotation2d.k180deg : Rotation2d.kZero));
+        boolean shouldFlip = FieldConstants.shouldSwitchAlliance();
+        Rotation2d start = this.start;
+        Rotation2d end = this.end;
+        if (shouldFlip) {
+            start = this.end;
+            end = this.start;
+        }
+        return new Arc(FieldConstants.alliance(this.center), this.radius, start, end);
     }
 }
