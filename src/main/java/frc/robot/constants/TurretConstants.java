@@ -22,7 +22,7 @@ public class TurretConstants {
 
     // Simple Feedforward gains, all roughly tuned due to SysID misbehavior
     public static final double KS = 0.21;
-    public static final double KV = 0.856;
+    public static final double KV = 0.61;
     public static final double KA = 0.12;
 
     public static final AngularVelocity MAX_VEL = RotationsPerSecond.of(2);
@@ -32,7 +32,7 @@ public class TurretConstants {
 
     // Imaginary, robot-relative hard stops for the turret; all setpoints are to be
     // within a set padding of these
-    public static final Angle REVERSE_LIMIT_BOT_REL = Rotations.of(0.48); // limit the turret would hit whild driving CW
+    public static final Angle REVERSE_LIMIT_BOT_REL = Rotations.of(0.56); // limit the turret would hit whild driving CW
     public static final Angle FORWARD_LIMIT_BOT_REL = Rotations.of(0.306); // limit the turret would hit while driving
                                                                            // CCW
     public static final Angle ZERO_OFFSET = Rotations

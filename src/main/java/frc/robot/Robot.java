@@ -7,6 +7,7 @@ package frc.robot;
 import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RPM;
+import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Seconds;
 
 import java.util.HashMap;
@@ -25,6 +26,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
@@ -125,7 +127,8 @@ public class Robot extends TimedRobot {
             return pos;
         }, "stay in place !", true));
         commandsForAuto.put("extend climber", climber.getFullyExtendCommand());
-        commandsForAuto.put("detract climber", climber.getFullyDetractCommand());
+        commandsForAuto.put("detract climber",
+                climber.getFullyDetractCommand().alongWith(turret.holdRobotRel(Rotations.of(0.75))));
         commandsForAuto.put("drop intake", intake.getSlapdownCommand());
         commandsForAuto.put("run intake", intake.getIntakeForwardRollCommand());
         commandsForAuto.put("run spindex", spindex.getRun());
@@ -177,7 +180,6 @@ public class Robot extends TimedRobot {
                         () -> driveController.getRightTriggerAxis(),
                         () -> driveController.getHID().getYButton()));
 
-        turret.setDefaultCommand(turret.holdRobotRel(TurretConstants.START_POS_BOT_REL));
     }
 
     // any trigger that isn't a button goes here
@@ -287,7 +289,8 @@ public class Robot extends TimedRobot {
     private void setupSubsystemBindings() {
         subsystemController.a().whileTrue(climber.getClimbUpCommand());
         subsystemController.b().whileTrue(climber.getClimbDownCommand());
-        subsystemController.rightTrigger().whileTrue(climber.getClimbUpCommand());
+        subsystemController.rightTrigger().whileTrue(climber.getClimbUpCommand().alongWith(
+                turret.holdRobotRel(Rotations.of(0.75)).withInterruptBehavior(InterruptionBehavior.kCancelIncoming)));
         subsystemController.leftTrigger().whileTrue(climber.getClimbDownCommand());
     }
 

@@ -359,7 +359,7 @@ public class TurretSubsystem extends SubsystemBase {
             turret.limitTrigger.onTrue(turret.zeroCommand()); // resets the turrets position when it engages the
                                                               // Hall-Effect
                                                               // sensor
-            turret.setDefaultCommand(turret.holdRobotRel(Rotations.of(0)));
+            // turret.setDefaultCommand(turret.holdRobotRel(Rotations.of(0)));
 
             controller.a().onTrue(turret.holdRobotRel(Rotations.of(0.25)));
             controller.b().onTrue(turret.holdRobotRel(Rotations.of(0.75)));

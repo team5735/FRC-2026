@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import frc.robot.PartialRobot;
 import frc.robot.constants.Constants;
@@ -106,6 +107,15 @@ public class IntakeSubsystem extends SubsystemBase {
                         .angularVelocity(intakeSlapdown.getVelocity().getValue());
             }, this));
 
+    public Command sysIdQuasistatic(Direction direction){
+        return routine.quasistatic(direction);
+    }
+
+    public Command sysIdDynamic(Direction direction){
+        return routine.dynamic(direction);
+    }
+
+
     @Override
     public void periodic() {
         SmartDashboard.putBoolean("intake/limit_engaged", !hallLimit.get());
@@ -121,8 +131,13 @@ public class IntakeSubsystem extends SubsystemBase {
             super();
             intake.limitEngaged.onTrue(intake.zeroSlapdownPosition());
 
-            controller.a().whileTrue(intake.getIntakeForwardRollCommand());
-            controller.b().whileTrue(intake.getIntakeReverseRollCommand());
+            // controller.a().whileTrue(intake.getIntakeForwardRollCommand());
+            // controller.b().whileTrue(intake.getIntakeReverseRollCommand());
+            
+            controller.a().whileTrue(intake.sysIdDynamic(Direction.kForward));
+            controller.b().whileTrue(intake.sysIdDynamic(Direction.kReverse));
+            controller.x().whileTrue(intake.sysIdQuasistatic(Direction.kForward));
+            controller.y().whileTrue(intake.sysIdQuasistatic(Direction.kReverse));
         }
     }
 }
