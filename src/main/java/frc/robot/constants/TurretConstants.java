@@ -77,15 +77,15 @@ public class TurretConstants {
      *         the bounds.
      */
     public static Angle formatInputPosTurretRel(Angle input) {
-        double softLowerLimit = MathUtil.inputModulus(REVERSE_LIMIT_TUR_REL.plus(SOFT_PADDING).in(Rotations), 0, 1);
-        double softUpperLimit = MathUtil.inputModulus(FORWARD_LIMIT_TUR_REL.minus(SOFT_PADDING).in(Rotations), 0, 1);
+        double softLowerLimit = REVERSE_LIMIT_TUR_REL.plus(SOFT_PADDING).in(Rotations);
+        double softUpperLimit = FORWARD_LIMIT_TUR_REL.minus(SOFT_PADDING).in(Rotations);
         double moddedInput = MathUtil.inputModulus(input.in(Rotations), 0, 1);
         return Rotations.of(MathUtil.clamp(moddedInput, softLowerLimit, softUpperLimit));
     }
 
     public static State formatInputStateTurretRel(State input) {
-        double softLowerLimit = MathUtil.inputModulus(REVERSE_LIMIT_TUR_REL.plus(SOFT_PADDING).in(Rotations), 0, 1);
-        double softUpperLimit = MathUtil.inputModulus(FORWARD_LIMIT_TUR_REL.minus(SOFT_PADDING).in(Rotations), 0, 1);
+        double softLowerLimit = REVERSE_LIMIT_TUR_REL.plus(SOFT_PADDING).in(Rotations);
+        double softUpperLimit = FORWARD_LIMIT_TUR_REL.minus(SOFT_PADDING).in(Rotations);
         double moddedInput = MathUtil.inputModulus(input.position, 0, 1);
         double newPos = MathUtil.clamp(moddedInput, softLowerLimit, softUpperLimit);
 
