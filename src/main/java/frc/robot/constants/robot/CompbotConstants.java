@@ -59,12 +59,12 @@ public class CompbotConstants implements RobotConstants {
 
     @Override
     public Distance getRobotTotalWidth() {
-        return Inches.of(25 + 7); // TODO - recalc w/ bumpers
+        return Inches.of(25).plus(getBumperWidth().times(2)); 
     }
 
     @Override
     public Distance getRobotTotalLength() {
-        return Inches.of(29.5 + 7); // TODO - recalc w/ bumpers
+        return Inches.of(29.5).plus(getBumperWidth().times(2));
     }
 
     @Override
