@@ -144,7 +144,7 @@ public class Robot extends TimedRobot {
         SmartDashboard.putData("Choose an Auto", autoChooser);
     }
 
-    double angle = 23;
+    double angle = 12;
 
     private void configureBindings() {
         drivetrain.registerTelemetry(logger::telemeterize);
