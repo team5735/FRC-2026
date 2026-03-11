@@ -26,8 +26,8 @@
     "Top Sweep",
     "ball"
   ],
-  "defaultMaxVel": 0.2,
-  "defaultMaxAccel": 0.2,
+  "defaultMaxVel": 1.0,
+  "defaultMaxAccel": 1.0,
   "defaultMaxAngVel": 180.0,
   "defaultMaxAngAccel": 180.0,
   "defaultNominalVoltage": 12.0,
