@@ -4,6 +4,9 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.SignalLogger;
+import com.revrobotics.util.StatusLogger;
+
 import edu.wpi.first.wpilibj.RobotBase;
 import frc.robot.constants.Constants;
 import frc.robot.constants.robot.CompbotTunerConstants;
@@ -21,6 +24,8 @@ public final class Main {
     }
 
     public static void main(String... args) {
+        SignalLogger.enableAutoLogging(false);
+        StatusLogger.disableAutoLogging();
         RobotBase.startRobot(() -> switch (Constants.CURRENT_ROBOT) {
             case FULL_DEVBOT -> new Robot(DevbotTunerConstants.createDrivetrain());
             case FULL_COMPBOT -> new Robot(CompbotTunerConstants.createDrivetrain());
