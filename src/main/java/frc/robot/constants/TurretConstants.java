@@ -16,7 +16,7 @@ public class TurretConstants {
     public static final double GEAR_REDUCTION = 200 / 20; // initial gear 20T, secondary gear 200T
 
     // PID gains (with motion profiling)
-    public static final double KP = 10;
+    public static final double KP = 12.5;
     public static final double KI = 0;
     public static final double KD = 0.65;
 
@@ -25,7 +25,7 @@ public class TurretConstants {
     public static final double KV = 0.856;
     public static final double KA = 0.12;
 
-    public static final AngularVelocity MAX_VEL = RotationsPerSecond.of(1);
+    public static final AngularVelocity MAX_VEL = RotationsPerSecond.of(2);
     public static final AngularAcceleration MAX_ACC = RotationsPerSecondPerSecond.of(3.5);
     public static final TrapezoidProfile.Constraints CONSTRAINTS = new TrapezoidProfile.Constraints(
             MAX_VEL.in(RotationsPerSecond), MAX_ACC.in(RotationsPerSecondPerSecond));
