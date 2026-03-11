@@ -71,7 +71,9 @@ public class LauncherSubsystem extends SubsystemBase {
     }
 
     public void usePID() {
-        double output = bangbang.calculate(getRPM()) * table.getDouble("!! mult") + ff.calculate(setpoint);
+        double output = (bangbang.getSetpoint() != 0)
+                ? bangbang.calculate(getRPM()) * table.getDouble("!! mult") + ff.calculate(setpoint)
+                : 0;
         SmartDashboard.putNumber("launcher/output", output);
         krakenLeft.setVoltage(output);
     }
