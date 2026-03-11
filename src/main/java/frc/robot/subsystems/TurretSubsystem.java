@@ -28,6 +28,7 @@ import java.util.function.Supplier;
 
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -74,6 +75,7 @@ public class TurretSubsystem extends SubsystemBase {
     public TurretSubsystem(Supplier<Pose2d> robotPoseSupplier, RobotConstants driveConstants) {
         super();
         this.driveConstants = driveConstants;
+        kraken.getConfigurator().apply(new TalonFXConfiguration());
         kraken.getConfigurator().apply(new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Brake)
                 .withInverted(InvertedValue.Clockwise_Positive));
         kraken.getConfigurator().apply(new FeedbackConfigs().withSensorToMechanismRatio(10));
