@@ -39,6 +39,7 @@ import frc.robot.constants.Constants;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.HoodConstants;
 import frc.robot.constants.LauncherConstants;
+import frc.robot.constants.TurretConstants;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.HoodSubsystem;
@@ -180,6 +181,7 @@ public class Robot extends TimedRobot {
                         () -> driveController.getRightTriggerAxis(),
                         () -> driveController.getHID().getYButton()));
 
+        turret.setDefaultCommand(turret.holdRobotRel(TurretConstants.START_POS_BOT_REL));
     }
 
     // any trigger that isn't a button goes here
