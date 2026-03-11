@@ -11,6 +11,8 @@ import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 
+import java.util.Arrays;
+
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -24,7 +26,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Telemetry;
 import frc.robot.constants.FieldConstants;
 import frc.robot.util.NTable;
-import java.util.Arrays;
 
 public class LimelightSubsystem extends SubsystemBase {
     private final DrivetrainSubsystem drivetrain;
@@ -134,8 +135,6 @@ public class LimelightSubsystem extends SubsystemBase {
         return ok;
     }
 
-    private int ticks_since_pose_reset = 0;
-
     public Pose2d getPoseEstimate() {
         return new PoseEstimate().pose2d;
     }
@@ -201,21 +200,6 @@ public class LimelightSubsystem extends SubsystemBase {
                 drivetrain.getPigeon2().getAngularVelocityZWorld().getValueAsDouble(),
                 "angular velocity")
                 && accepted;
-
-        boolean close_enough = check(
-                drivetrain.getEstimatedPosition().getTranslation().getDistance(estimate.pose2d.getTranslation()),
-                "drivetrain distance from estimate");
-        if (!close_enough) {
-            ticks_since_pose_reset++;
-            if (ticks_since_pose_reset > 50) {
-                drivetrain.resetPose(estimate.pose2d);
-                ticks_since_pose_reset = 0;
-                System.out.println("resetting drivetrain pose because it's been 50 ticks since we last reset");
-            }
-        } else {
-            ticks_since_pose_reset = 0;
-        }
-        accepted = close_enough && accepted;
 
         if (!accepted) {
             return;
