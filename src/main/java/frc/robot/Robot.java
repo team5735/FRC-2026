@@ -59,10 +59,10 @@ public class Robot extends TimedRobot {
     public final CommandXboxController testController = new CommandXboxController(
             Constants.TEST_CONTROLLER_PORT);
 
-    public final Arc targetArc = new Arc(FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER),
+    public final Arc targetArc = new Arc(FieldConstants.BLUE_HUB_CENTER,
             Feet.of(9).in(Meters),
             Rotation2d.fromDegrees(90),
-            Rotation2d.fromDegrees(270));
+            Rotation2d.fromDegrees(270)).alliance();
 
     public final DrivetrainSubsystem drivetrain;
 
