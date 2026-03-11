@@ -12,7 +12,7 @@ import frc.robot.util.geometry.Arc;
 public class ArcTest {
     @Test
     void arcTest() {
-        Arc arc = new Arc(new Translation2d(100, 150), 10, Rotation2d.fromDegrees(135), Rotation2d.fromDegrees(225));
+        Arc arc = new Arc(new Translation2d(100, 150), 10, Rotation2d.fromDegrees(135), Rotation2d.fromDegrees(90));
 
         assertEquals(new Translation2d(90, 150), arc.nearestPointOnArc(new Translation2d(50, 150)));
         assertEquals(new Translation2d(90, 150), arc.nearestPointOnArc(new Translation2d(95, 150)));
