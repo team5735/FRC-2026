@@ -4,6 +4,9 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import frc.robot.constants.FieldConstants;
 import frc.robot.util.NTable;
 
 public class Arc {
@@ -90,5 +93,14 @@ public class Arc {
             result[i] = new Pose2d(center.plus(new Translation2d(radius, theta)), Rotation2d.kZero);
         }
         return result;
+    }
+
+    public Arc alliance() {
+        boolean shouldFlip = DriverStation.getAlliance().get() == Alliance.Red;
+        return new Arc(
+                FieldConstants.alliance(this.center),
+                this.radius,
+                this.end,
+                this.start.plus(shouldFlip ? Rotation2d.k180deg : Rotation2d.kZero));
     }
 }
