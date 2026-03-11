@@ -175,7 +175,7 @@ public class Robot extends TimedRobot {
                         () -> driveController.getLeftY(),
                         () -> driveController.getLeftTriggerAxis(),
                         () -> driveController.getRightTriggerAxis(),
-                        () -> driveController.getHID().getLeftStickButton()));
+                        () -> driveController.getHID().getYButton()));
 
         turret.setDefaultCommand(turret.holdRobotRel(TurretConstants.START_POS_BOT_REL));
     }
