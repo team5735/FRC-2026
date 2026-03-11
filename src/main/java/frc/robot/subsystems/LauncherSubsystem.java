@@ -90,7 +90,7 @@ public class LauncherSubsystem extends SubsystemBase {
     }
 
     public Command getResting() {
-        return run(() -> krakenLeft.setVoltage(0)).withName("zero turret voltage");
+        return runOnce(() -> krakenLeft.setVoltage(0)).withName("zero launcher voltage");
     }
 
     public void retunePID() {
@@ -143,7 +143,7 @@ public class LauncherSubsystem extends SubsystemBase {
     }
 
     public boolean atSetpoint() {
-        return bangbang.getMeasurement() > bangbang.getSetpoint();
+        return getRPM() > bangbang.getSetpoint();
     }
 
     public static class Tester extends PartialRobot {
