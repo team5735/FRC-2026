@@ -2,6 +2,8 @@ package frc.robot.constants;
 
 import static edu.wpi.first.units.Units.Meters;
 
+import java.util.Optional;
+
 import static edu.wpi.first.units.Units.Inches;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -20,6 +22,14 @@ import edu.wpi.first.math.geometry.Rectangle2d;
 // These are based on the AndyMark field specifications
 
 public class FieldConstants {
+    public static boolean shouldSwitchAlliance() {
+        Optional<Alliance> thing = DriverStation.getAlliance();
+        if (thing.isPresent() && thing.get() == Alliance.Red) {
+            return true;
+        }
+        return false;
+    }
+
     private static Distance inch(double inches) {
         return Inches.of(inches);
     }
