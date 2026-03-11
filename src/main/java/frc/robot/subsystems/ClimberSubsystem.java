@@ -26,54 +26,54 @@ public class ClimberSubsystem extends SubsystemBase {
         talon.getConfigurator().apply(new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Brake));
     }
 
-    public Command getClimbDownCommand() {
-        return run(() -> climbDown()).finallyDo(a -> stop());
+    public Command getExtendCommand() {
+        return run(() -> extend()).finallyDo(a -> stop());
     }
 
-    public Command getClimbUpCommand() {
-        return run(() -> climbUp()).finallyDo(a -> stop());
+    public Command getRetractCommand() {
+        return run(() -> retract()).finallyDo(a -> stop());
     }
 
-    public Command getClimbDownOverrideCommand() {
-        return run(() -> climbDownOverride()).finallyDo(a -> stop());
+    public Command getExtendOverrideCommand() {
+        return run(() -> extendOverride()).finallyDo(a -> stop());
     }
 
-    public Command getClimbUpOverrideCommand() {
-        return run(() -> climbUpOverride()).finallyDo(a -> stop());
+    public Command getRetractOverrideCommand() {
+        return run(() -> retractOverride()).finallyDo(a -> stop());
     }
 
-    public void climbUp() {
+    public void retract() {
         if (canMoveUp) {
-            talon.setVoltage(ClimberConstants.UP_VOLTS);
+            talon.setVoltage(ClimberConstants.RETRACT_VOLTS);
         } else {
             talon.setVoltage(0);
         }
     }
 
-    public void climbDown() {
+    public void extend() {
         if (canMoveDown) {
-            talon.setVoltage(ClimberConstants.DOWN_VOLTS);
+            talon.setVoltage(ClimberConstants.EXTEND_VOLTS);
         } else {
             talon.setVoltage(0);
         }
     }
 
     public Command getFullyExtendCommand() {
-        return run(() -> climbUp()).until(this::isAtUpLimit).finallyDo(() -> stop());
+        return run(() -> retract()).until(this::isAtUpLimit).finallyDo(() -> stop());
     }
 
     public Command getFullyDetractCommand() {
-        return run(() -> climbDown()).until(this::isAtDownLimit).finallyDo(() -> stop());
+        return run(() -> extend()).until(this::isAtDownLimit).finallyDo(() -> stop());
     }
 
-    public void climbUpOverride() {
+    public void retractOverride() {
         overriden=true;
-        talon.setVoltage(ClimberConstants.UP_VOLTS);
+        talon.setVoltage(ClimberConstants.RETRACT_VOLTS);
     }
 
-    public void climbDownOverride() {
+    public void extendOverride() {
         overriden=true;
-        talon.setVoltage(ClimberConstants.DOWN_VOLTS);
+        talon.setVoltage(ClimberConstants.EXTEND_VOLTS);
     }
 
     public void stop() {
@@ -123,8 +123,8 @@ public class ClimberSubsystem extends SubsystemBase {
 
         public Tester() {
             super();
-            controller.rightTrigger().whileTrue(climber.getClimbUpCommand());
-            controller.leftTrigger().whileTrue(climber.getClimbDownCommand());
+            controller.rightTrigger().whileTrue(climber.getRetractCommand());
+            controller.leftTrigger().whileTrue(climber.getExtendCommand());
 
         }
     };

@@ -289,11 +289,11 @@ public class Robot extends TimedRobot {
     }
 
     private void setupSubsystemBindings() {
-        subsystemController.a().whileTrue(climber.getClimbUpCommand());
-        subsystemController.b().whileTrue(climber.getClimbDownCommand());
-        subsystemController.rightTrigger().whileTrue(climber.getClimbUpCommand().alongWith(
+        subsystemController.a().whileTrue(climber.getRetractCommand());
+        subsystemController.b().whileTrue(climber.getExtendCommand());
+        subsystemController.rightTrigger().whileTrue(climber.getRetractCommand().alongWith(
                 turret.holdRobotRel(Rotations.of(0.75)).withInterruptBehavior(InterruptionBehavior.kCancelIncoming)));
-        subsystemController.leftTrigger().whileTrue(climber.getClimbDownCommand());
+        subsystemController.leftTrigger().whileTrue(climber.getExtendCommand());
     }
 
     double current = HoodConstants.ANGLE_AT_ARC;
