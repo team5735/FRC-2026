@@ -1,11 +1,7 @@
 package frc.robot.subsystems;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import org.junit.jupiter.api.Test;
-
-import frc.robot.constants.HoodConstants;
-import frc.robot.subsystems.HoodSubsystem;
 
 public class Interp1Test {
     @Test
