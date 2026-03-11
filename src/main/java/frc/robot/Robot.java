@@ -204,7 +204,7 @@ public class Robot extends TimedRobot {
                                         Rotation2d.kCW_90deg)));
 
         NTable tuning = NTable.root("tuning");
-        tuning.set("rpm", 4000);
+        tuning.set("rpm", 3000);
         // @formatter:off
         // drive to targetArc and shoot
         driveController.a().whileTrue(
