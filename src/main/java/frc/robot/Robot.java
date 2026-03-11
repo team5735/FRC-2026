@@ -129,7 +129,7 @@ public class Robot extends TimedRobot {
         }, "stay in place !", true));
         commandsForAuto.put("extend climber", climber.getFullyExtendCommand());
         commandsForAuto.put("detract climber",
-                climber.getFullyDetractCommand().alongWith(turret.holdRobotRel(Rotations.of(0.75))));
+                climber.getFullyDetractCommand()/*.alongWith(turret.holdRobotRel(Rotations.of(0.75)))*/);
         commandsForAuto.put("drop intake", intake.getSlapdownCommand());
         commandsForAuto.put("run intake", intake.getIntakeForwardRollCommand());
         commandsForAuto.put("run spindex", spindex.getRun());
