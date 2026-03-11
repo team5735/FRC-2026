@@ -241,6 +241,7 @@ public class TurretSubsystem extends SubsystemBase {
     public Command holdFieldRelative(Angle fieldAngle) {
         return trackRobotRel(
                 () -> fieldAngle.minus(robotPoseSupplier.get().getRotation().getMeasure()));
+    }
 
     /**
      * Runs the turret to aim at a specified, static {@link Translation2d}.
