@@ -41,6 +41,7 @@ public class IntakeSubsystem extends SubsystemBase {
         super();
         TalonFXConfiguration rollerConfig = new TalonFXConfiguration();
         rollerConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        rollerConfig.CurrentLimits.SupplyCurrentLimit = 10;
         intakeRoller.getConfigurator().apply(rollerConfig);
 
         TalonFXConfiguration slapdownConfig = new TalonFXConfiguration();

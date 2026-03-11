@@ -7,14 +7,14 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 
 public class IntakeConstants {
-    public static final double ROLL_IN_VOLTS = 6.0;
+    public static final double ROLL_IN_VOLTS = 8.0;
     public static final double ROLL_OUT_VOLTS = -6.0;
 
     public static final double KS = 0; //TODO
     public static final double KV = 0; //TODO
     public static final double KG = 0; //TODO
 
-    public static final Angle START_POS = Degrees.of(195); //TODO
+    public static final Angle START_POS = Degrees.of(195);
     public static final Angle UPPER_RELEASE_POS = Degrees.of(180);
     public static final Angle LOWER_RELEASE_POS = Degrees.of(105);
 
