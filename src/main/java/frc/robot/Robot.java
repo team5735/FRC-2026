@@ -20,7 +20,9 @@ import com.pathplanner.lib.commands.PathfindingCommand;
 import com.revrobotics.util.StatusLogger;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -190,6 +192,8 @@ public class Robot extends TimedRobot {
     private void setupDriverBindings() {
         driveController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
+        Translation2d hub = FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER);
+
         // @formatter:off
         // drive to and along the arc
         driveController.a()
@@ -213,8 +217,16 @@ public class Robot extends TimedRobot {
         driveController.b().onTrue(hood.runOnce(() -> hood.setHoodAngle(NTable.root("hood").getDouble("angle"))));
         driveController.b().whileTrue(
             // track the hub
-            turret.trackFieldPos(FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER)).alongWith(
+            turret.trackFieldPos(hub).alongWith(
                 new SequentialCommandGroup(
+                    Commands.either(
+                        Commands.none(),
+                        new PIDToPose(drivetrain, () -> {
+                            Pose2d pos = drivetrain.getEstimatedPosition();
+                            return new Pose2d(pos.getTranslation(), pos.getRotation().plus(Rotation2d.kCW_90deg));
+                        }, "get out of deadzone"),
+                        () -> turret.canTurnTo(hub)
+                    ),
                     // spin up the shooter
                     launcher.getLaunchFuelNT().until(() ->
                         // are we ready?
