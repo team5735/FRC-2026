@@ -20,6 +20,7 @@ import static frc.robot.constants.TurretConstants.SOFT_PADDING;
 import static frc.robot.constants.TurretConstants.START_POS_BOT_REL;
 import static frc.robot.constants.TurretConstants.formatInputPosRobotRel;
 import static frc.robot.constants.TurretConstants.formatInputStateRobotRel;
+import static frc.robot.constants.TurretConstants.isInDeadZone;
 import static frc.robot.constants.TurretConstants.robotRelToTurretRel;
 import static frc.robot.constants.TurretConstants.turretRelToRobotRel;
 
@@ -373,6 +374,10 @@ public class TurretSubsystem extends SubsystemBase {
 
     public boolean getZeroStatus() {
         return isZeroed;
+    }
+
+    public boolean canTurnTo(Translation2d target){
+        return isInDeadZone(target.minus(getMechanismPose().getTranslation()).getAngle().getMeasure());
     }
 
     public static class Tester extends PartialRobot {

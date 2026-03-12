@@ -134,4 +134,8 @@ public class TurretConstants {
     public static Angle robotRelToTurretRel(Angle input) {
         return Rotations.of(MathUtil.inputModulus(input.minus(ZERO_OFFSET).in(Rotations), 0, 1));
     }
+
+    public static boolean isInDeadZone(Angle input){
+        return robotRelToTurretRel(input).equals(formatInputPosRobotRel(input));
+    }
 }
