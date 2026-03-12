@@ -30,6 +30,7 @@ import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.DriveOnArc;
 import frc.robot.commands.LaunchCalculator;
@@ -38,7 +39,6 @@ import frc.robot.commands.drivetrain.PIDToPose;
 import frc.robot.constants.Constants;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.HoodConstants;
-import frc.robot.constants.LauncherConstants;
 import frc.robot.constants.TurretConstants;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.DrivetrainSubsystem;
@@ -191,91 +191,53 @@ public class Robot extends TimedRobot {
     private void setupDriverBindings() {
         driveController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
-        driveController.x()
-                .whileTrue(new PIDToPose(drivetrain,
-                        () -> targetArc.getShootingPose(
-                                drivetrain.getEstimatedPosition().getTranslation(),
-                                Rotation2d.kCW_90deg),
-                        "drive to arc").andThen(
-                                new DriveOnArc(drivetrain, targetArc,
-                                        () -> MathUtil.applyDeadband(driveController.getLeftX(), 0.1),
-                                        Rotation2d.kCW_90deg)));
-
-        NTable tuning = NTable.root("tuning");
-        tuning.set("rpm", 3000);
         // @formatter:off
-        // drive to targetArc and shoot
-        driveController.a().whileTrue(
-            // track the hub the entire time
-            turret.trackFieldPos(
-                FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER)
-            ).alongWith(
-
-                // prepare to shoot fuel
-                new ParallelCommandGroup(
-                    // drive to the arc
-                    new PIDToPose(
-                        drivetrain,
+        // drive to and along the arc
+        driveController.a()
+            .whileTrue(
+                new SequentialCommandGroup(
+                    // drive to the arc, this ends when we're at the arc
+                    new PIDToPose(drivetrain,
                         () -> targetArc.getShootingPose(
-                            drivetrain.getEstimatedPosition().getTranslation(), Rotation2d.kCW_90deg),
-                        "drive to arc (shoot)"
-                    ),
-
-                    // spin up the shooter
-                    launcher.getLaunchFuel(RPM.of(3000))
-                        .until(() ->
-                            // if the back button is being pressed, skip waiting for the setpoint
-                            driveController.getHID().getBackButton() || launcher.atSetpoint())
-                        // another failsafe: if we're taking too long to spin up, assume something is wrong
-                        .withTimeout(Seconds.of(2)),
-
-                    // set the hood to the right position. this does not have an until
-                    // because we don't have a way to get the current servo's position
-                    hood.runOnce(() -> hood.setHoodAngle(angle))
-
-                // shoot fuel. this only executes once:
-                // - robot is in the right place
-                // - the shooter is up to speed
-                ).andThen(new ParallelCommandGroup(
-                    // spin the spindex and the feeder
-                    spindex.getRun(),
-
-                    launcher.run(launcher::usePID),
-
-                    // let the driver drive along the arc that we drove to with the left
-                    // stick's X axis
+                            drivetrain.getEstimatedPosition().getTranslation(),
+                            Rotation2d.kCW_90deg
+                        ),
+                        "drive to arc"),
+                    // if we haven't been cancelled by then, let the driver drive along the arc
                     new DriveOnArc(drivetrain, targetArc,
                         () -> MathUtil.applyDeadband(driveController.getLeftX(), 0.1),
                         Rotation2d.kCW_90deg)
-                ))
+                )
+            );
+
+        // set the hood angle
+        driveController.b().onTrue(hood.runOnce(() -> hood.setHoodAngle(angle)));
+        driveController.b().whileTrue(
+            // track the hub
+            turret.trackFieldPos(FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER)).alongWith(
+                new SequentialCommandGroup(
+                    // spin up the shooter
+                    launcher.getLaunchFuel(RPM.of(3000)).until(() ->
+                        // are we ready?
+                        (turret.atGoal() && launcher.atSetpoint()) ||
+                        // override with back button
+                        driveController.getHID().getBackButton()
+                    ),
+                    new ParallelCommandGroup(
+                        // spin the spindex (and the feeder)
+                        spindex.getRun(),
+
+                        // continue spinning the shooter
+                        launcher.run(launcher::usePID)
+                    )
+                )
             )
         );
-        // @formatter:on
-
-        // when the button is released, spin the spindex backwards for a bit to unclog
-        // any possible clogs
-        driveController.a().onFalse(spindex.getBackwards().withTimeout(Seconds.of(0.5)));
-        driveController.a().onFalse(Commands.waitTime(Seconds.of(0.5)).andThen(launcher.getResting()));
-
-        // @formatter:off
-        // shoot from wherever we are right now
-        driveController.b().onTrue(
-            // track the hub
-            turret.trackFieldPos(FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER))
-                .alongWith(
-                    hood.runOnce(() -> hood.setHoodAngle(angle))
-                        // wait a minimum of two seconds to ensure the hood gets to the right spot
-                        .andThen(Commands.waitTime(Seconds.of(2))
-                            // also ensure the luancher is up to speed
-                            .alongWith(launcher.getLaunchFuel(LauncherConstants.DEFAULT_SETPOINT).
-                                until(() -> driveController.getHID().getBackButton() || launcher.atSetpoint())))
-                        // run the spindex!
-                        .andThen(spindex.getRun())
-                )
-        );
-        // @formatter:on
-
+        // spin the spindex backwards to unclog
         driveController.b().onFalse(spindex.getBackwards().withTimeout(Seconds.of(0.5)));
+        // stop spinning the shooter (with delay to fix unknown bug)
+        driveController.b().onFalse(Commands.waitTime(Seconds.of(0.5)).andThen(launcher.getResting()));
+        // @formatter:on
 
         driveController.povLeft().whileTrue(intake.getSlapdownCommand());
         driveController.povRight().whileTrue(intake.getLiftCommand());
