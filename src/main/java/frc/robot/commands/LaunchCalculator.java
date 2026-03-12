@@ -21,8 +21,8 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -57,12 +57,16 @@ public class LaunchCalculator {
     static {
         // TODO populate tree maps here with REAL POSITIONS
 
-        // ALL THESE VALUES ARE DUMMIES FOR TESTING !!
-        scoreHoodMap.put(0., HoodConstants.LOWEST_ANGLE_DEGREES);
-        scoreHoodMap.put(50., HoodConstants.LOWEST_ANGLE_DEGREES);
+        // ALL THESE VALUES ARE TEMP FOR TESTING !!
+        scoreHoodMap.put(0.91, 8.);
+        scoreHoodMap.put(2.56, 13.);
+        scoreHoodMap.put(3.94, 38.);
+        scoreHoodMap.put(4.295, 38.);
 
-        scoreSpeedMap.put(0., 3000.);
-        scoreSpeedMap.put(50., 3000.);
+        scoreHoodMap.put(0.91, 3000.);
+        scoreHoodMap.put(2.56, 3000.);
+        scoreHoodMap.put(3.94, 3500.);
+        scoreHoodMap.put(4.295, 3750.);
 
         scoreTOFMap.put(0., 0.);
         scoreTOFMap.put(50., 0.);
@@ -70,6 +74,9 @@ public class LaunchCalculator {
 
     private static final LinearFilter turretVelFiler = LinearFilter.movingAverage(50);
     private static final Timer timer = new Timer();
+
+    private static final double MIN_SCORE_DIST_M = 0.91; //TODO update
+    private static final double MAX_SCORE_DIST_M = 4.295; //TODO update
 
     private static boolean allianceKnown = false;
     private static boolean isBlue = true;
@@ -159,7 +166,7 @@ public class LaunchCalculator {
         }
 
         SmartDashboard.putNumber("launchCalc/wise_dist", launchDist);
-        
+
         Rotation2d turretRot = launchTarget.minus(turretPose.getTranslation()).getAngle()
                 .minus(drivetrain.getEstimatedPosition().getRotation());
 
