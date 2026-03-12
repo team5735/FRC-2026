@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Second;
@@ -35,7 +36,7 @@ import frc.robot.constants.IntakeConstants;
 public class IntakeSubsystem extends SubsystemBase {
     private final TalonFX intakeSlapdown = new TalonFX(Constants.INTAKE_SLAPDOWN_TALONFX_ID);
     private final TalonFX intakeRoller = new TalonFX(Constants.INTAKE_ROLLER_TALONFX_ID);
-    private final ArmFeedforward ff = new ArmFeedforward(0, 0, 0);
+    private final ArmFeedforward ff = new ArmFeedforward(IntakeConstants.KS, IntakeConstants.KG, IntakeConstants.KV);
     private final DigitalInput hallLimit = new DigitalInput(Constants.INTAKE_LIMIT_PIN);
 
     public IntakeSubsystem() {
@@ -93,7 +94,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     public Command getSlapdownCommand() {
         return runEnd(() -> runSlapdown(IntakeConstants.SLAPDOWN_VEL.unaryMinus()), () -> intakeSlapdown.setVoltage(0))
-                .until(() -> isAtPosition(IntakeConstants.UPPER_RELEASE_POS));
+                .until(() -> isAtPosition(IntakeConstants.LOWER_RELEASE_POS));
     }
 
     public Command zeroSlapdownPosition() {
@@ -104,7 +105,7 @@ public class IntakeSubsystem extends SubsystemBase {
             new Config(Volts.of(0.1).per(Second), Volts.of(0.5), null),
             new Mechanism(v -> intakeSlapdown.setVoltage(v.in(Volts)), log -> {
                 log.motor("slapdown").angularPosition(getSlapdownPosition())
-                        .angularVelocity(intakeSlapdown.getVelocity().getValue());
+                        .angularVelocity(intakeSlapdown.getVelocity().getValue()).voltage(intakeSlapdown.getMotorVoltage().getValue());
             }, this));
 
     public Command sysIdQuasistatic(Direction direction){
@@ -120,6 +121,7 @@ public class IntakeSubsystem extends SubsystemBase {
     public void periodic() {
         SmartDashboard.putBoolean("intake/limit_engaged", !hallLimit.get());
         SmartDashboard.putNumber("intake/slapdown_pos_deg", getSlapdownPosition().in(Degrees));
+        SmartDashboard.putNumber("intake/slapdown_vel_dps", intakeSlapdown.getVelocity().getValue().in(DegreesPerSecond));
     }
 
     public Trigger limitEngaged = new Trigger(() -> !hallLimit.get());
@@ -130,11 +132,12 @@ public class IntakeSubsystem extends SubsystemBase {
         public Tester() {
             super();
             intake.limitEngaged.onTrue(intake.zeroSlapdownPosition());
-
-            // controller.a().whileTrue(intake.getIntakeForwardRollCommand());
-            // controller.b().whileTrue(intake.getIntakeReverseRollCommand());
             
-            controller.a().whileTrue(intake.sysIdDynamic(Direction.kForward));
+            controller.rightBumper().whileTrue(intake.getLiftCommand());
+            controller.leftBumper().whileTrue(intake.getSlapdownCommand());
+
+
+            controller.a().whileTrue(intake.sysIdDynamic(Direction.kForward)); // forward = up
             controller.b().whileTrue(intake.sysIdDynamic(Direction.kReverse));
             controller.x().whileTrue(intake.sysIdQuasistatic(Direction.kForward));
             controller.y().whileTrue(intake.sysIdQuasistatic(Direction.kReverse));
