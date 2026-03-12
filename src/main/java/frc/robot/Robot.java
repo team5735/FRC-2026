@@ -339,6 +339,11 @@ public class Robot extends TimedRobot {
             limelight.setIMUMode(3);
         }
 
+        if(!turret.getZeroStatus()){
+            CommandScheduler.getInstance().schedule(turret.zeroSequence());
+        }
+
+
         Command auto = autoChooser.getSelected();
         if (auto == null) {
             DriverStation.reportWarning("null auto command retrieved!", false);
@@ -361,6 +366,10 @@ public class Robot extends TimedRobot {
 
         for (LimelightSubsystem limelight : limelights) {
             limelight.setIMUMode(3);
+        }
+
+        if(!turret.getZeroStatus()){
+            CommandScheduler.getInstance().schedule(turret.zeroSequence());
         }
     }
 

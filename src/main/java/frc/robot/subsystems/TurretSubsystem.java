@@ -44,6 +44,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -108,7 +109,7 @@ public class TurretSubsystem extends SubsystemBase {
      *         scheduling and stops it on ending
      */
     public Command testForward() {
-        return startEnd(() -> kraken.setVoltage(0.5), () -> kraken.setVoltage(0));
+        return startEnd(() -> kraken.setVoltage(1), () -> kraken.setVoltage(0));
     }
 
     /**
@@ -346,7 +347,7 @@ public class TurretSubsystem extends SubsystemBase {
      */
     public Command zeroSequence() {
         return testForward().until(limitTrigger::getAsBoolean).andThen(zeroCommand())
-                .andThen(holdRobotRel(FORWARD_LIMIT_BOT_REL.minus(SOFT_PADDING)));
+                .andThen(holdRobotRel(START_POS_BOT_REL));
     }
 
     /**
@@ -364,6 +365,10 @@ public class TurretSubsystem extends SubsystemBase {
             resetAngle(FORWARD_LIMIT_BOT_REL);
             isZeroed = true;
         }).ignoringDisable(true);
+    }
+
+    public boolean getZeroStatus(){
+        return isZeroed;
     }
 
     public static class Tester extends PartialRobot {
@@ -388,6 +393,20 @@ public class TurretSubsystem extends SubsystemBase {
 
             controller.povUp().whileTrue(turret.sysId());
             controller.povDown().onTrue(Commands.runOnce(turret::remakePID, turret));
+        }
+
+        @Override
+        public void teleopInit(){
+            if(!turret.getZeroStatus()){
+                CommandScheduler.getInstance().schedule(turret.zeroSequence());
+            }
+        }
+
+        @Override
+        public void autonomousInit(){
+            if(!turret.getZeroStatus()){
+                CommandScheduler.getInstance().schedule(turret.zeroSequence());
+            }
         }
     }
 }
