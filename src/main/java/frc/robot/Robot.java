@@ -256,11 +256,15 @@ public class Robot extends TimedRobot {
         driveController.povRight().whileTrue(intake.getLiftCommand());
     }
 
+    double angle = 8;
+
     private void setupSubsystemBindings() {
-        subsystemController.povDown().whileTrue(hood.runOnce(() -> {
+        subsystemController.b().whileTrue(hood.runOnce(() -> {
             hood.exzSaveServoPosition();
             hood.setHoodPosition(0);
         }));
+        subsystemController.povUp().onTrue(hood.runOnce(() -> hood.setHoodAngle(angle += 5)));
+        subsystemController.povDown().onTrue(hood.runOnce(() -> hood.setHoodAngle(angle -= 5)));
         subsystemController.a().whileTrue(spindex.getBackwards());
         subsystemController.rightTrigger().whileTrue(climber.getExtendCommand());
         subsystemController.leftTrigger().whileTrue(climber.getRetractCommand().alongWith(
