@@ -54,6 +54,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import frc.robot.PartialRobot;
 import frc.robot.constants.Constants;
+import frc.robot.constants.FieldConstants;
 import frc.robot.constants.robot.CompbotConstants;
 import frc.robot.constants.robot.RobotConstants;
 import frc.robot.util.TunableProfiledPIDController;
@@ -98,8 +99,11 @@ public class TurretSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("turret/posErrorRots", pid.getController().getPositionError());
         SmartDashboard.putBoolean("turret/limitEngaged", !hallLimit.get());
         SmartDashboard.putBoolean("turret/isZeroed", isZeroed);
-        SmartDashboard.putBoolean("atForwardSoftwareLimit", isAtForwardLim.getAsBoolean());
-        SmartDashboard.putBoolean("atReverseSoftwareLimit", isAtReverseLim.getAsBoolean());
+        SmartDashboard.putBoolean("turret/atForwardSoftwareLimit", isAtForwardLim.getAsBoolean());
+        SmartDashboard.putBoolean("turret/atReverseSoftwareLimit", isAtReverseLim.getAsBoolean());
+        SmartDashboard.putNumber("turret/distance to hub",
+                FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER)
+                        .getDistance(this.getMechanismPose().getTranslation()));
     }
 
     /**
@@ -367,7 +371,7 @@ public class TurretSubsystem extends SubsystemBase {
         }).ignoringDisable(true);
     }
 
-    public boolean getZeroStatus(){
+    public boolean getZeroStatus() {
         return isZeroed;
     }
 
@@ -396,15 +400,15 @@ public class TurretSubsystem extends SubsystemBase {
         }
 
         @Override
-        public void teleopInit(){
-            if(!turret.getZeroStatus()){
+        public void teleopInit() {
+            if (!turret.getZeroStatus()) {
                 CommandScheduler.getInstance().schedule(turret.zeroSequence());
             }
         }
 
         @Override
-        public void autonomousInit(){
-            if(!turret.getZeroStatus()){
+        public void autonomousInit() {
+            if (!turret.getZeroStatus()) {
                 CommandScheduler.getInstance().schedule(turret.zeroSequence());
             }
         }

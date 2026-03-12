@@ -42,7 +42,7 @@ public class LauncherSubsystem extends SubsystemBase {
     private final SimpleMotorFeedforward ff = new SimpleMotorFeedforward(LauncherConstants.KS,
             LauncherConstants.KV);
 
-    private final NTable table = NTable.root("fuel_launcher");
+    private final NTable table = NTable.root("launcher");
 
     private double setpoint = 0;
 
@@ -58,6 +58,7 @@ public class LauncherSubsystem extends SubsystemBase {
 
         table.ensure("!! threshold", LauncherConstants.BANGBANG_THRESHOLD);
         table.ensure("!! mult", 5);
+        table.set("rpm", 3000.0);
     }
 
     public double getRPM() {
@@ -106,7 +107,7 @@ public class LauncherSubsystem extends SubsystemBase {
 
     public Command getLaunchFuelNT() {
         return runOnce(this::retunePID)
-                .andThen(startRun(() -> setTargetRPM(NTable.root("tuning").getDouble("rpm")),
+                .andThen(startRun(() -> setTargetRPM(table.getDouble("rpm")),
                         this::usePID))
                 .withName("Launch Fuel /tuning/rpm");
     }
