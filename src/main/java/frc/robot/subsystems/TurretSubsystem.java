@@ -105,6 +105,8 @@ public class TurretSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("turret/distance to hub",
                 FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER)
                         .getDistance(this.getMechanismPose().getTranslation()));
+        SmartDashboard.putBoolean("turret/canTurnTo",
+                canTurnTo(FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER)));
     }
 
     /**
@@ -376,8 +378,8 @@ public class TurretSubsystem extends SubsystemBase {
         return isZeroed;
     }
 
-    public boolean canTurnTo(Translation2d target){
-        return isInDeadZone(target.minus(getMechanismPose().getTranslation()).getAngle().getMeasure());
+    public boolean canTurnTo(Translation2d target) {
+        return !isInDeadZone(target.minus(getMechanismPose().getTranslation()).getAngle().getMeasure());
     }
 
     public static class Tester extends PartialRobot {
