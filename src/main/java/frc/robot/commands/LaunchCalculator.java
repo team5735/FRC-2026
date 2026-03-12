@@ -3,6 +3,7 @@
 package frc.robot.commands;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
@@ -20,6 +21,7 @@ import edu.wpi.first.math.interpolation.InverseInterpolator;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
@@ -49,9 +51,9 @@ public class LaunchCalculator {
     // key: distance (m) value: angle(deg)
     private static final InterpolatingTreeMap<Double, Rotation2d> ferryHoodMap = new InterpolatingTreeMap<>(
             InverseInterpolator.forDouble(), Rotation2d::interpolate);
-    // key: distance(m) value: evlocity(RPM)
+    // key: distance (m) value: velocity(RPM)
     private static final InterpolatingDoubleTreeMap ferrySpeedMap = new InterpolatingDoubleTreeMap();
-    // key: distance(m) value: Time of Flight (s)
+    // key: distance (m) value: Time of Flight (s)
     private static final InterpolatingDoubleTreeMap ferryTOFMap = new InterpolatingDoubleTreeMap();
 
     static {
@@ -75,8 +77,8 @@ public class LaunchCalculator {
     private static final LinearFilter turretVelFiler = LinearFilter.movingAverage(50);
     private static final Timer timer = new Timer();
 
-    private static final double MIN_SCORE_DIST_M = 0.91; //TODO update
-    private static final double MAX_SCORE_DIST_M = 4.295; //TODO update
+    private static final Distance MIN_SCORE_DIST_M = Meters.of(0.91); // TODO update
+    private static final Distance MAX_SCORE_DIST_M = Meters.of(4.295); // TODO update
 
     private static boolean allianceKnown = false;
     private static boolean isBlue = true;
