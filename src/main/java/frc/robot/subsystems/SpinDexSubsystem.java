@@ -31,6 +31,10 @@ public class SpinDexSubsystem extends SubsystemBase {
         feedVortex.setVoltage(table.getDouble("feed"));
     }
 
+    public void reverseFeeder() {
+        feedVortex.setVoltage(-table.getDouble("feed"));
+    }
+
     public void stopFeeder() {
         feedVortex.setVoltage(0);
     }
@@ -73,7 +77,13 @@ public class SpinDexSubsystem extends SubsystemBase {
     }
 
     public Command getBackwards() {
-        return startEnd(this::reverseWheel, this::stopWheel);
+        return startEnd(() -> {
+            reverseWheel();
+            reverseFeeder();
+        }, () -> {
+            stopWheel();
+            stopFeeder();
+        });
     }
 
     public static class Tester extends PartialRobot {
