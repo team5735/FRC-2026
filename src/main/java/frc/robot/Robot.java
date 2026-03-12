@@ -97,6 +97,8 @@ public class Robot extends TimedRobot {
         });
         NTable.root().set("scheduler", CommandScheduler.getInstance());
 
+        NTable.root("hood").set("angle", 20.0);
+
         configureBindings();
         setupAutoChooser();
 
@@ -142,8 +144,6 @@ public class Robot extends TimedRobot {
 
         SmartDashboard.putData("Choose an Auto", autoChooser);
     }
-
-    double angle = 12;
 
     private void configureBindings() {
         drivetrain.registerTelemetry(logger::telemeterize);
@@ -210,7 +210,7 @@ public class Robot extends TimedRobot {
             );
 
         // set the hood angle
-        driveController.b().onTrue(hood.runOnce(() -> hood.setHoodAngle(angle)));
+        driveController.b().onTrue(hood.runOnce(() -> hood.setHoodAngle(NTable.root("hood").getDouble("angle"))));
         driveController.b().whileTrue(
             // track the hub
             turret.trackFieldPos(FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER)).alongWith(
@@ -225,27 +225,23 @@ public class Robot extends TimedRobot {
                     new ParallelCommandGroup(
                         // spin the spindex (and the feeder)
                         spindex.getRun(),
-
                         // continue spinning the shooter
                         launcher.run(launcher::usePID)
                     )
                 )
             )
         );
+
         // spin the spindex backwards to unclog
         driveController.b().onFalse(spindex.getBackwards().withTimeout(Seconds.of(0.5)));
         // stop spinning the shooter (with delay to fix unknown bug)
         driveController.b().onFalse(Commands.waitTime(Seconds.of(0.5)).andThen(launcher.getResting()));
         // @formatter:on
 
-        driveController.povLeft().whileTrue(intake.getSlapdownCommand());
-        driveController.povRight().whileTrue(intake.getLiftCommand());
-
         driveController.rightBumper().whileTrue(intake.getIntakeForwardRollCommand());
         driveController.leftBumper().whileTrue(intake.getIntakeReverseRollCommand());
-        // I wasn't sure what values to give as targetPosition for these, I guessed 12.5
-        driveController.povUp().onTrue(hood.runOnce(() -> hood.setHoodAngle(angle += 5)));
-        driveController.povDown().onTrue(hood.runOnce(() -> hood.setHoodAngle(angle -= 5)));
+        driveController.povLeft().whileTrue(intake.getSlapdownCommand());
+        driveController.povRight().whileTrue(intake.getLiftCommand());
     }
 
     private void setupSubsystemBindings() {
@@ -338,7 +334,6 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopPeriodic() {
-        NTable.root().sub("hood").set("current angle for tuning", angle);
     }
 
     @Override
