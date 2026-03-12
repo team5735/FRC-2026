@@ -129,7 +129,7 @@ public class Robot extends TimedRobot {
         }, "stay in place !", true));
         commandsForAuto.put("extend climber", climber.getFullyExtendCommand());
         commandsForAuto.put("detract climber",
-                climber.getFullyDetractCommand()/*.alongWith(turret.holdRobotRel(Rotations.of(0.75)))*/);
+                climber.getFullyDetractCommand()/* .alongWith(turret.holdRobotRel(Rotations.of(0.75))) */);
         commandsForAuto.put("drop intake", intake.getSlapdownCommand());
         commandsForAuto.put("run intake", intake.getIntakeForwardRollCommand());
         commandsForAuto.put("run spindex", spindex.getRun());
@@ -277,8 +277,8 @@ public class Robot extends TimedRobot {
 
         driveController.b().onFalse(spindex.getBackwards().withTimeout(Seconds.of(0.5)));
 
-        driveController.povLeft().whileTrue(intake.getLiftCommand());
-        driveController.povRight().whileTrue(intake.getSlapdownCommand());
+        driveController.povLeft().whileTrue(intake.getSlapdownCommand());
+        driveController.povRight().whileTrue(intake.getLiftCommand());
 
         driveController.rightBumper().whileTrue(intake.getIntakeForwardRollCommand());
         driveController.leftBumper().whileTrue(intake.getIntakeReverseRollCommand());
@@ -288,11 +288,14 @@ public class Robot extends TimedRobot {
     }
 
     private void setupSubsystemBindings() {
-        subsystemController.a().whileTrue(climber.getRetractCommand());
-        subsystemController.b().whileTrue(climber.getExtendCommand());
-        subsystemController.rightTrigger().whileTrue(climber.getRetractCommand().alongWith(
-                turret.holdRobotRel(Rotations.of(0.75)).withInterruptBehavior(InterruptionBehavior.kCancelIncoming)));
-        subsystemController.leftTrigger().whileTrue(climber.getExtendCommand());
+        subsystemController.povDown().whileTrue(hood.runOnce(() -> {
+            hood.exzSaveServoPosition();
+            hood.setHoodPosition(0);
+        }));
+        subsystemController.a().whileTrue(spindex.getBackwards());
+        subsystemController.rightTrigger().whileTrue(climber.getExtendCommand());
+        subsystemController.leftTrigger().whileTrue(climber.getRetractCommand().alongWith(
+                turret.holdRobotRel(Rotations.of(0.75))));
     }
 
     double current = HoodConstants.ANGLE_AT_ARC;
@@ -339,10 +342,9 @@ public class Robot extends TimedRobot {
             limelight.setIMUMode(3);
         }
 
-        if(!turret.getZeroStatus()){
+        if (!turret.getZeroStatus()) {
             CommandScheduler.getInstance().schedule(turret.zeroSequence());
         }
-
 
         Command auto = autoChooser.getSelected();
         if (auto == null) {
@@ -368,7 +370,7 @@ public class Robot extends TimedRobot {
             limelight.setIMUMode(3);
         }
 
-        if(!turret.getZeroStatus()){
+        if (!turret.getZeroStatus()) {
             CommandScheduler.getInstance().schedule(turret.zeroSequence());
         }
     }
