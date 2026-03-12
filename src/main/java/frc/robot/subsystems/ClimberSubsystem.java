@@ -123,10 +123,8 @@ public class ClimberSubsystem extends SubsystemBase {
 
         public Tester() {
             super();
-            controller.rightTrigger().whileTrue(climber.getRetractCommand());
-            controller.leftTrigger().whileTrue(climber.getExtendCommand());
-
+            controller.rightTrigger().whileTrue(climber.getExtendCommand());
+            controller.leftTrigger().whileTrue(climber.getRetractCommand());
         }
     };
-
 }
