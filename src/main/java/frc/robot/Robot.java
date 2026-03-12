@@ -202,7 +202,7 @@ public class Robot extends TimedRobot {
                             Rotation2d.kCW_90deg
                         ),
                         "drive to arc"),
-                    // if we haven't been cancelled by then, let the driver drive along the arc
+                    // if we haven't been cancelled by now, let the driver drive along the arc
                     new DriveOnArc(drivetrain, targetArc,
                         () -> MathUtil.applyDeadband(driveController.getLeftX(), 0.1),
                         Rotation2d.kCW_90deg)
@@ -216,12 +216,12 @@ public class Robot extends TimedRobot {
             turret.trackFieldPos(FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER)).alongWith(
                 new SequentialCommandGroup(
                     // spin up the shooter
-                    launcher.getLaunchFuel(RPM.of(3000)).until(() ->
+                    launcher.getLaunchFuelNT().until(() ->
                         // are we ready?
-                        (turret.atGoal() && launcher.atSetpoint()) ||
+                        launcher.atSetpoint() ||
                         // override with back button
                         driveController.getHID().getBackButton()
-                    ),
+                    ).withTimeout(Seconds.of(2)),
                     new ParallelCommandGroup(
                         // spin the spindex (and the feeder)
                         spindex.getRun(),
