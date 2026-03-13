@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.467278994605655,
-        "y": 7.421017717633929
+        "x": 3.572142566499256,
+        "y": 7.418060942150298
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.3258181617373506,
-        "y": 6.046609991164434
+        "x": 2.4306817336309514,
+        "y": 6.043653215680803
       },
       "isLocked": false,
       "linkedName": "Left Trench"
@@ -33,8 +33,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 1.0,
-    "maxAcceleration": 1.0,
+    "maxVelocity": 0.2,
+    "maxAcceleration": 0.2,
     "maxAngularVelocity": 180.0,
     "maxAngularAcceleration": 180.0,
     "nominalVoltage": 12.0,
@@ -48,7 +48,7 @@
   "folder": "Left Trench",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 90.0
+    "rotation": 0.0
   },
   "useDefaultConstraints": true
 }
