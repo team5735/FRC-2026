@@ -24,15 +24,15 @@
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "Precise Hub to Climber 2"
+            "name": "pid adjust"
           }
         },
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "detract climber"
+            "pathName": "approach climb"
           }
         },
         {
