@@ -153,6 +153,7 @@ public class Robot extends TimedRobot {
         autoChooser = AutoBuilder.buildAutoChooser();
 
         SmartDashboard.putData("Choose an Auto", autoChooser);
+    }
     
     private void configureBindings() {
         drivetrain.registerTelemetry(logger::telemeterize);
