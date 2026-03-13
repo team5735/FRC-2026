@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.014274088541667,
-        "y": 4.8410496884300604
+        "x": 2.046590136913985,
+        "y": 4.245620355716573
       },
       "isLocked": false,
       "linkedName": "asdfasdfc"
@@ -20,8 +20,8 @@
         "y": 4.51
       },
       "prevControl": {
-        "x": 2.051749558221726,
-        "y": 4.130666097005209
+        "x": 2.0373232701385766,
+        "y": 4.262144737143704
       },
       "nextControl": null,
       "isLocked": false,
@@ -33,8 +33,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 0.2,
-    "maxAcceleration": 0.2,
+    "maxVelocity": 1.0,
+    "maxAcceleration": 1.0,
     "maxAngularVelocity": 180.0,
     "maxAngularAcceleration": 180.0,
     "nominalVoltage": 12.0,
