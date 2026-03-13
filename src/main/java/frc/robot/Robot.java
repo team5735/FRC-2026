@@ -25,6 +25,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -49,6 +50,7 @@ import frc.robot.subsystems.LauncherSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.SpinDexSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
+import frc.robot.util.MatchState;
 import frc.robot.util.NTable;
 import frc.robot.util.geometry.Arc;
 
@@ -187,6 +189,8 @@ public class Robot extends TimedRobot {
     private void setupMiscTriggers() {
         // resets the turrets position when it engages the Hall-Effect sensor
         turret.limitTrigger.onTrue(turret.zeroCommand());
+        MatchState.hubActiveTrigger.onTrue(Commands.runOnce(() -> driveController.setRumble(RumbleType.kBothRumble, 0.5)));
+        MatchState.hubActiveTrigger.onFalse(Commands.runOnce(() -> driveController.setRumble(RumbleType.kBothRumble, 0)));
     }
 
     private void setupDriverBindings() {
