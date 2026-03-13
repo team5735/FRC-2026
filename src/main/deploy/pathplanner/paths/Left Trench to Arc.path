@@ -8,30 +8,49 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.267235979358407,
-        "y": 7.755439220603874
+        "x": 3.02728021530878,
+        "y": 5.563092157273065
       },
       "isLocked": false,
       "linkedName": "Left Trench"
     },
     {
       "anchor": {
-        "x": 1.139837878999256,
-        "y": 5.957617768787202
+        "x": 2.5667369442894348,
+        "y": 4.813600551060269
       },
       "prevControl": {
-        "x": 0.4646734909784225,
-        "y": 7.501309465680803
+        "x": 3.0689809454055057,
+        "y": 5.8620323544456845
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Ball Intake"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "launch at 3000 rpm",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "Turret track Blue Hub",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "run spindex",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 0.2,
     "maxAcceleration": 0.2,
@@ -42,10 +61,10 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 0.0
   },
   "reversed": false,
-  "folder": "Intake ",
+  "folder": null,
   "idealStartingState": {
     "velocity": 0,
     "rotation": 0.0

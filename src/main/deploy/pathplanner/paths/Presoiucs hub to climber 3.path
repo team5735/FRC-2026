@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.07,
+        "x": 2.070100620814732,
         "y": 4.51
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.6237305824477057,
-        "y": 4.6083881869161525
+        "x": 1.6238314383370533,
+        "y": 4.411610746837798
       },
       "isLocked": false,
       "linkedName": "xzxcv"
     },
     {
       "anchor": {
-        "x": 1.018,
-        "y": 4.53
+        "x": 1.069,
+        "y": 4.51
       },
       "prevControl": {
-        "x": 1.4743174018172378,
-        "y": 4.614902986823509
+        "x": 1.5253177485899123,
+        "y": 4.594901123046876
       },
       "nextControl": null,
       "isLocked": false,
@@ -33,8 +33,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 1.0,
-    "maxAcceleration": 1.0,
+    "maxVelocity": 0.2,
+    "maxAcceleration": 0.2,
     "maxAngularVelocity": 180.0,
     "maxAngularAcceleration": 180.0,
     "nominalVoltage": 12.0,
@@ -45,7 +45,7 @@
     "rotation": 90.0
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Comp climb auto",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 90.0

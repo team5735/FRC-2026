@@ -9,6 +9,7 @@
     "Intake ",
     "Left Bump",
     "Left Trench",
+    "Comp climb auto",
     "Right Bump",
     "Right Trench",
     "Sweep",
@@ -26,8 +27,8 @@
     "Top Sweep",
     "ball"
   ],
-  "defaultMaxVel": 1.0,
-  "defaultMaxAccel": 1.0,
+  "defaultMaxVel": 0.2,
+  "defaultMaxAccel": 0.2,
   "defaultMaxAngVel": 180.0,
   "defaultMaxAngAccel": 180.0,
   "defaultNominalVoltage": 12.0,

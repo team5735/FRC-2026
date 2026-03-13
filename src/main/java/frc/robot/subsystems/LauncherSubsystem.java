@@ -124,6 +124,7 @@ public class LauncherSubsystem extends SubsystemBase {
                 .andThen(this.getLaunchFuel(speed).alongWith(spindex.getRun()));
     }
 
+
     private SysIdRoutine routine = new SysIdRoutine(
             new Config(Volts.of(0.5).per(Second), Volts.of(4), null, null),
             new Mechanism(v -> krakenLeft.setVoltage(v.in(Volts)), log -> {
