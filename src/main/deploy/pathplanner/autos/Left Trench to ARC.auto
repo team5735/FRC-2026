@@ -5,27 +5,53 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "Left Trench to Arc"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Left Trench to Arc"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "launch at 3000 rpm"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Turret track Blue Hub"
+                }
+              }
+            ]
           }
         },
         {
-          "type": "named",
+          "type": "parallel",
           "data": {
-            "name": "Turret track Blue Hub"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "run spindex"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "launch at 3000 rpm"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "launch at 3000 rpm"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Turret track Blue Hub"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "run spindex"
+                }
+              }
+            ]
           }
         }
       ]
