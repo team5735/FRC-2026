@@ -1,6 +1,6 @@
 {
-  "robotWidth": 0.94,
-  "robotLength": 0.94,
+  "robotWidth": 0.635,
+  "robotLength": 0.7493,
   "holonomicMode": true,
   "pathFolders": [
     "Ball",
@@ -41,18 +41,18 @@
   "driveMotorType": "krakenX60",
   "driveCurrentLimit": 35.0,
   "wheelCOF": 1.5,
-  "flModuleX": 0.318,
-  "flModuleY": 0.318,
-  "frModuleX": 0.318,
-  "frModuleY": -0.318,
-  "blModuleX": -0.318,
-  "blModuleY": 0.318,
-  "brModuleX": -0.318,
-  "brModuleY": -0.318,
+  "flModuleX": 0.25,
+  "flModuleY": 0.25,
+  "frModuleX": 0.25,
+  "frModuleY": -0.25,
+  "blModuleX": -0.25,
+  "blModuleY": 0.25,
+  "brModuleX": -0.25,
+  "brModuleY": -0.25,
   "bumperOffsetX": 0.0,
   "bumperOffsetY": 0.0,
   "robotFeatures": [
-    "{\"name\":\"Climber\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":-0.35,\"y\":0.0},\"size\":{\"width\":0.2,\"length\":0.2},\"borderRadius\":0.05,\"strokeWidth\":0.02,\"filled\":false}}",
-    "{\"name\":\"Shooter\",\"type\":\"circle\",\"data\":{\"center\":{\"x\":0.35,\"y\":0.0},\"radius\":0.1,\"strokeWidth\":0.02,\"filled\":false}}"
+    "{\"name\":\"Climber\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":-0.27,\"y\":0.0},\"size\":{\"width\":0.2,\"length\":0.2},\"borderRadius\":0.05,\"strokeWidth\":0.02,\"filled\":false}}",
+    "{\"name\":\"Shooter\",\"type\":\"circle\",\"data\":{\"center\":{\"x\":0.27,\"y\":0.0},\"radius\":0.1,\"strokeWidth\":0.02,\"filled\":false}}"
   ]
 }
