@@ -11,19 +11,19 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Left Trench to Arc"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "launch at 3000 rpm"
+                  "pathName": "Hub To ARC"
                 }
               },
               {
                 "type": "named",
                 "data": {
                   "name": "Turret track Blue Hub"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "launch at 3000 rpm"
                 }
               }
             ]
@@ -36,12 +36,6 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "launch at 3000 rpm"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
                   "name": "Turret track Blue Hub"
                 }
               },
@@ -49,6 +43,12 @@
                 "type": "named",
                 "data": {
                   "name": "run spindex"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "launch at 3000 rpm"
                 }
               }
             ]

@@ -8,40 +8,24 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.550771379193039,
-        "y": 5.044107538147099
+        "x": 2.691530201934694,
+        "y": 3.947025121829438
       },
       "isLocked": false,
       "linkedName": "Hub"
     },
     {
       "anchor": {
-        "x": 3.362925211588541,
-        "y": 6.675553443545386
+        "x": 2.5131258618751104,
+        "y": 4.00100003489189
       },
       "prevControl": {
-        "x": 3.293091575985862,
-        "y": 4.636448916480655
-      },
-      "nextControl": {
-        "x": 3.4065368534759153,
-        "y": 7.948989884850454
-      },
-      "isLocked": false,
-      "linkedName": null
-    },
-    {
-      "anchor": {
-        "x": 7.644489048549106,
-        "y": 7.036891799200149
-      },
-      "prevControl": {
-        "x": 5.964377848307291,
-        "y": 7.379979713076638
+        "x": 2.855903997785449,
+        "y": 3.9968037015490543
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Start Sweep Top"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -58,10 +42,10 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -90.0
+    "rotation": 0.0
   },
   "reversed": false,
-  "folder": "Sweep",
+  "folder": "ARC",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 90.0

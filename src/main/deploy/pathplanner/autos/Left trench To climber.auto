@@ -11,7 +11,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Precise Hub to Climber"
+                  "pathName": "Left Trench to Climber"
                 }
               },
               {
@@ -27,18 +27,6 @@
           "type": "path",
           "data": {
             "pathName": "Precise Hub to Climber 2"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "detract climber"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "detract climber"
           }
         }
       ]

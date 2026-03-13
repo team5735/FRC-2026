@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.5,
-        "y": 4.0
+        "x": 3.640709170386905,
+        "y": 0.42100469680059516
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.8402386765252974,
-        "y": 3.996408982049852
+        "x": 2.8308970640755757,
+        "y": 1.493651854852777
       },
       "isLocked": false,
-      "linkedName": "Hub"
+      "linkedName": "Right Trench"
     },
     {
       "anchor": {
-        "x": 1.844799968,
-        "y": 4.0
+        "x": 2.4659384822635566,
+        "y": 2.31993384816006
       },
       "prevControl": {
-        "x": 2.3439938098433775,
-        "y": 4.000240652901786
+        "x": 2.902188441476889,
+        "y": 1.6473592219517377
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "12 inches to climber"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -33,8 +33,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 1.0,
-    "maxAcceleration": 1.0,
+    "maxVelocity": 0.2,
+    "maxAcceleration": 0.2,
     "maxAngularVelocity": 180.0,
     "maxAngularAcceleration": 180.0,
     "nominalVoltage": 12.0,
@@ -42,10 +42,10 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 32.19722931720353
   },
   "reversed": false,
-  "folder": "Test auto for limelight",
+  "folder": "ARC",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 90.0
