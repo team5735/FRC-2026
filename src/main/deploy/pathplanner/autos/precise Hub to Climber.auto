@@ -11,7 +11,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Precisuse Hub to Climber"
+                  "pathName": "Precise Hub to Climber"
                 }
               },
               {
@@ -26,7 +26,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Presicuos Hub to Climber 2"
+            "pathName": "Precise Hub to Climber 2"
           }
         },
         {
@@ -45,6 +45,6 @@
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "Comp",
   "choreoAuto": false
 }
