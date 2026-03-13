@@ -301,7 +301,7 @@ public class Robot extends TimedRobot {
         testController.povLeft().onTrue(Commands.runOnce(() -> hood.setServoPosition(current -= .025)));
         testController.povRight().onTrue(Commands.runOnce(() -> hood.setServoPosition(current += .025)));
 
-        testController.rightBumper().whileTrue(turret.testForward());
+        testController.rightBumper().whileTrue(turret.hardRunToForwardLimit());
         testController.leftBumper().whileTrue(turret.testReverse());
 
         testController.start().whileTrue(spindex.getRun());
