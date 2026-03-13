@@ -9,6 +9,18 @@
           "data": {
             "pathName": "go forward"
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "extend climber"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "go backward"
+          }
         }
       ]
     }

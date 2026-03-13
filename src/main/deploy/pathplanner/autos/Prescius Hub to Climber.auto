@@ -5,9 +5,22 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "Precisuse Hub to Climber"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Precisuse Hub to Climber"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "extend climber"
+                }
+              }
+            ]
           }
         },
         {
@@ -19,13 +32,7 @@
         {
           "type": "named",
           "data": {
-            "name": "extend climber"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Presoiucs hub to climber 3"
+            "name": "detract climber"
           }
         },
         {
