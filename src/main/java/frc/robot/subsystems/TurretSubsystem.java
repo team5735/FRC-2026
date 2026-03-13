@@ -118,7 +118,7 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     public Command softRunReverse() {
-        return startEnd(() -> kraken.setVoltage(0.25), () -> kraken.setVoltage(0));
+        return startEnd(() -> kraken.setVoltage(-0.25), () -> kraken.setVoltage(0));
     }
 
     public Command hardRunReverse() {
@@ -349,10 +349,10 @@ public class TurretSubsystem extends SubsystemBase {
      * @return Command that performs the aforementioned task
      */
     public Command zeroSequence() {
-        return hardRunForward().until(limitTrigger::getAsBoolean).andThen(zeroCommand())
+        return hardRunForward().until(limitTrigger::getAsBoolean)
                 .andThen(softRunReverse()).until(() -> !limitTrigger.getAsBoolean())
                 .andThen(softRunForward().until(limitTrigger::getAsBoolean)).andThen(zeroCommand())
-                .andThen(holdRobotRel(FORWARD_LIMIT_BOT_REL.minus(SOFT_PADDING)));
+                .andThen(holdRobotRel(START_POS_BOT_REL));
     }
 
     /**
