@@ -122,7 +122,7 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     public Command hardRunReverse() {
-        return startEnd(() -> kraken.setVoltage(-0.5), () -> kraken.setVoltage(0));
+        return startEnd(() -> kraken.setVoltage(-1), () -> kraken.setVoltage(0));
     }
 
     /**
