@@ -15,8 +15,8 @@ import frc.robot.constants.Constants;
 public class ClimberSubsystem extends SubsystemBase {
     public final TalonFX talon = new TalonFX(Constants.CLIMB_TALON_ID);
 
-    private final DigitalInput limitUp = new DigitalInput(Constants.CLIMB_UPPER_LIMIT_PIN);
-    private final DigitalInput limitDown = new DigitalInput(Constants.CLIMB_LOWER_LIMIT_PIN);
+    private final DigitalInput limitDown = new DigitalInput(Constants.CLIMB_UPPER_LIMIT_PIN);
+    private final DigitalInput limitUp = new DigitalInput(Constants.CLIMB_LOWER_LIMIT_PIN);
     private boolean canMoveUp;
     private boolean canMoveDown;
     private boolean overriden;
@@ -59,20 +59,20 @@ public class ClimberSubsystem extends SubsystemBase {
     }
 
     public Command getFullyExtendCommand() {
-        return run(() -> retract()).until(this::isAtUpLimit).finallyDo(() -> stop());
+        return run(() -> extend()).until(this::isAtUpLimit).finallyDo(() -> stop());
     }
 
     public Command getFullyDetractCommand() {
-        return run(() -> extend()).until(this::isAtDownLimit).finallyDo(() -> stop());
+        return run(() -> retract()).until(this::isAtDownLimit).finallyDo(() -> stop());
     }
 
     public void retractOverride() {
-        overriden=true;
+        overriden = true;
         talon.setVoltage(ClimberConstants.RETRACT_VOLTS);
     }
 
     public void extendOverride() {
-        overriden=true;
+        overriden = true;
         talon.setVoltage(ClimberConstants.EXTEND_VOLTS);
     }
 
@@ -81,19 +81,19 @@ public class ClimberSubsystem extends SubsystemBase {
         overriden = false;
     }
 
-    public boolean isAtUpLimit() {
-        return !limitUp.get();
-    }
-
     public boolean isAtDownLimit() {
         return !limitDown.get();
+    }
+
+    public boolean isAtUpLimit() {
+        return !limitUp.get();
     }
 
     @Override
     public void periodic() {
         // DIO
-        canMoveUp = limitUp.get();
-        canMoveDown = limitDown.get();
+        canMoveUp = limitDown.get();
+        canMoveDown = limitUp.get();
 
         if (!canMoveDown && talon.getMotorVoltage().getValueAsDouble() < 0 && !overriden) {
             talon.setVoltage(0);
@@ -101,8 +101,8 @@ public class ClimberSubsystem extends SubsystemBase {
             talon.setVoltage(0);
         }
 
-        SmartDashboard.putBoolean("limitDown", limitDown.get());
         SmartDashboard.putBoolean("limitUp", limitUp.get());
+        SmartDashboard.putBoolean("limitDown", limitDown.get());
 
         double current = talon.getSupplyCurrent().getValueAsDouble();
         SmartDashboard.putNumber("Climber/Current", current);

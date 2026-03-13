@@ -24,8 +24,8 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -50,7 +50,6 @@ import frc.robot.subsystems.LauncherSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.SpinDexSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
-import frc.robot.util.MatchState;
 import frc.robot.util.NTable;
 import frc.robot.util.geometry.Arc;
 
@@ -129,12 +128,18 @@ public class Robot extends TimedRobot {
         // robot during the auto
         commandsForAuto.put("pid adjust", new PIDToPose(drivetrain, () -> {
             var pos = drivetrain.getEstimatedPosition();
-            drivetrain.resetPose(limelights[1].getPoseEstimate());
+            Pose2d pose = limelights[0].getPoseEstimate();
+            if (pos == null) {
+                pos = limelights[1].getPoseEstimate();
+            }
+            if (pos != null) {
+                drivetrain.resetPose(pose);
+            }
             return pos;
         }, "stay in place !", true));
         commandsForAuto.put("extend climber", climber.getFullyExtendCommand());
         commandsForAuto.put("detract climber",
-                climber.getFullyDetractCommand()/* .alongWith(turret.holdRobotRel(Rotations.of(0.75))) */);
+                climber.getFullyDetractCommand().alongWith(turret.holdRobotRel(Rotations.of(0.75))));
         commandsForAuto.put("drop intake", intake.getSlapdownCommand());
         commandsForAuto.put("run intake", intake.getIntakeForwardRollCommand());
         commandsForAuto.put("run spindex", spindex.getRun());
@@ -189,8 +194,11 @@ public class Robot extends TimedRobot {
     private void setupMiscTriggers() {
         // resets the turrets position when it engages the Hall-Effect sensor
         turret.limitTrigger.onTrue(turret.zeroCommand());
-        MatchState.hubActiveTrigger.onTrue(Commands.runOnce(() -> driveController.setRumble(RumbleType.kBothRumble, 0.5)));
-        MatchState.hubActiveTrigger.onFalse(Commands.runOnce(() -> driveController.setRumble(RumbleType.kBothRumble, 0)));
+        // MatchState.hubActiveTrigger.onTrue(Commands.runOnce(() ->
+        // driveController.setRumble(RumbleType.kBothRumble, 0.5)));
+        // MatchState.hubActiveTrigger.onFalse(Commands.runOnce(() ->
+        // driveController.setRumble(RumbleType.kBothRumble, 0)));
+        driveController.setRumble(RumbleType.kBothRumble, 0);
     }
 
     private void setupDriverBindings() {
