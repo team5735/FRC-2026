@@ -109,14 +109,12 @@ public class TurretSubsystem extends SubsystemBase {
                 canTurnTo(FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER)));
     }
 
-    /**
-     * Tests the turret's turning capability at a constant voltage
-     *
-     * @return {@link Command} that sets the motor to a constant forward voltage on
-     *         scheduling and stops it on ending
-     */
-    public Command testForward() {
+    public Command hardRunToForwardLimit() {
         return startEnd(() -> kraken.setVoltage(1), () -> kraken.setVoltage(0));
+    }
+
+    public Command softRunToForwardLimit() {
+        return startEnd(() -> kraken.setVoltage(0.25), () -> kraken.setVoltage(0));
     }
 
     /**
@@ -353,8 +351,9 @@ public class TurretSubsystem extends SubsystemBase {
      * @return Command that performs the aforementioned task
      */
     public Command zeroSequence() {
-        return testForward().until(limitTrigger::getAsBoolean).andThen(zeroCommand())
-                .andThen(holdRobotRel(START_POS_BOT_REL));
+        return hardRunToForwardLimit().until(limitTrigger::getAsBoolean).andThen(zeroCommand())
+                .andThen(holdRobotRel(FORWARD_LIMIT_BOT_REL.minus(SOFT_PADDING)).withTimeout(0.1))
+                .andThen(softRunToForwardLimit().until(limitTrigger::getAsBoolean)).andThen(zeroCommand());
     }
 
     /**
