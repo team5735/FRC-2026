@@ -1,6 +1,6 @@
 {
-  "robotWidth": 0.635,
-  "robotLength": 0.7493,
+  "robotWidth": 0.749,
+  "robotLength": 0.635,
   "holonomicMode": true,
   "pathFolders": [
     "Ball",
@@ -30,8 +30,8 @@
     "Top Sweep",
     "ball"
   ],
-  "defaultMaxVel": 0.2,
-  "defaultMaxAccel": 0.2,
+  "defaultMaxVel": 1.0,
+  "defaultMaxAccel": 1.0,
   "defaultMaxAngVel": 180.0,
   "defaultMaxAngAccel": 180.0,
   "defaultNominalVoltage": 12.0,

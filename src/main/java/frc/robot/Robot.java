@@ -147,14 +147,15 @@ public class Robot extends TimedRobot {
                 LaunchCalculator.dynamicLaunchCommand(LaunchGoal.SCORE, () -> false, hood, turret, drivetrain, launcher,
                         spindex));
         commandsForAuto.put("launch at 3000 rpm", launcher.getLaunchFuel(RPM.of(3000)));
-        commandsForAuto.put("Turret track Blue hub", turret.trackFieldPos(FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER)));
+        commandsForAuto.put("Turret track Blue hub",
+                turret.trackFieldPos(FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER)));
         NamedCommands.registerCommands(commandsForAuto);
 
         autoChooser = AutoBuilder.buildAutoChooser();
 
         SmartDashboard.putData("Choose an Auto", autoChooser);
     }
-    
+
     private void configureBindings() {
         drivetrain.registerTelemetry(logger::telemeterize);
 
