@@ -11,12 +11,6 @@
           }
         },
         {
-          "type": "wait",
-          "data": {
-            "waitTime": 5.0
-          }
-        },
-        {
           "type": "path",
           "data": {
             "pathName": "Presicuos Hub to Climber 2"
@@ -29,15 +23,15 @@
           }
         },
         {
-          "type": "wait",
-          "data": {
-            "waitTime": 5.0
-          }
-        },
-        {
           "type": "path",
           "data": {
             "pathName": "Presoiucs hub to climber 3"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "detract climber"
           }
         }
       ]
