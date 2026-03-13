@@ -83,7 +83,7 @@ public class CompbotConstants implements RobotConstants {
 
     @Override
     public LinearVelocity getDefaultSpeed() {
-        return MetersPerSecond.of(1);
+        return MetersPerSecond.of(2);
     }
 
     @Override
