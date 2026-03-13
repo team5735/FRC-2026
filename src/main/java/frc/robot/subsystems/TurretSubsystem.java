@@ -109,21 +109,19 @@ public class TurretSubsystem extends SubsystemBase {
                 canTurnTo(FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER)));
     }
 
-    public Command hardRunToForwardLimit() {
+    public Command hardRunForward() {
         return startEnd(() -> kraken.setVoltage(1), () -> kraken.setVoltage(0));
     }
 
-    public Command softRunToForwardLimit() {
+    public Command softRunForward() {
         return startEnd(() -> kraken.setVoltage(0.25), () -> kraken.setVoltage(0));
     }
 
-    /**
-     * Tests the turret's turning capability at a constant voltage
-     *
-     * @return {@link Command} that sets the motor to a constant backward voltage on
-     *         scheduling and stops it on ending
-     */
-    public Command testReverse() {
+    public Command softRunReverse() {
+        return startEnd(() -> kraken.setVoltage(0.25), () -> kraken.setVoltage(0));
+    }
+
+    public Command hardRunReverse() {
         return startEnd(() -> kraken.setVoltage(-0.5), () -> kraken.setVoltage(0));
     }
 
@@ -351,9 +349,10 @@ public class TurretSubsystem extends SubsystemBase {
      * @return Command that performs the aforementioned task
      */
     public Command zeroSequence() {
-        return hardRunToForwardLimit().until(limitTrigger::getAsBoolean).andThen(zeroCommand())
-                .andThen(holdRobotRel(FORWARD_LIMIT_BOT_REL.minus(SOFT_PADDING)).withTimeout(0.1))
-                .andThen(softRunToForwardLimit().until(limitTrigger::getAsBoolean)).andThen(zeroCommand());
+        return hardRunForward().until(limitTrigger::getAsBoolean).andThen(zeroCommand())
+                .andThen(softRunReverse()).until(() -> !limitTrigger.getAsBoolean())
+                .andThen(softRunForward().until(limitTrigger::getAsBoolean)).andThen(zeroCommand())
+                .andThen(holdRobotRel(FORWARD_LIMIT_BOT_REL.minus(SOFT_PADDING)));
     }
 
     /**
