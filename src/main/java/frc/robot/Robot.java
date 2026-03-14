@@ -149,6 +149,7 @@ public class Robot extends TimedRobot {
         commandsForAuto.put("Turret track Blue hub",
                 turret.trackFieldPos(FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER)));
         NamedCommands.registerCommands(commandsForAuto);
+
         autoChooser = AutoBuilder.buildAutoChooser();
 
         SmartDashboard.putData("Choose an Auto", autoChooser);
