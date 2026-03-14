@@ -33,11 +33,11 @@ public class TurretConstants {
     // Imaginary, robot-relative hard stops for the turret; all setpoints are to be
     // within a set padding of these
     public static final Angle REVERSE_LIMIT_BOT_REL = Rotations.of(0.56); // limit the turret would hit whild driving CW
-    public static final Angle FORWARD_LIMIT_BOT_REL = Rotations.of(0.324); // limit the turret would hit while driving
+    public static final Angle FORWARD_LIMIT_BOT_REL = Rotations.of(0.320); // limit the turret would hit while driving
                                                                            // CCW
     public static final Angle ZERO_OFFSET = Rotations
             .of((REVERSE_LIMIT_BOT_REL.in(Rotations) + FORWARD_LIMIT_BOT_REL.in(Rotations)) / 2);
-            
+
     public static final Angle REVERSE_LIMIT_TUR_REL = REVERSE_LIMIT_BOT_REL.minus(ZERO_OFFSET);
     public static final Angle FORWARD_LIMIT_TUR_REL = Rotations.of(1).minus(REVERSE_LIMIT_TUR_REL);
 
@@ -49,7 +49,8 @@ public class TurretConstants {
     // Ideal robot-relative starting angle
     public static final Angle START_POS_BOT_REL = Rotations.of(0.25);
 
-    public static final Angle CLIMB_POS_BOT_REL = Rotations.of(0.30); 
+    public static final Angle CLIMB_POS_BOT_REL = Rotations.of(0.30);
+
     /**
      * Clamps a goal angle and to the functional range of this subsystem, converting
      * it to the turret-relative space
@@ -138,7 +139,7 @@ public class TurretConstants {
         return Rotations.of(MathUtil.inputModulus(input.minus(ZERO_OFFSET).in(Rotations), 0, 1));
     }
 
-    public static boolean isInDeadZone(Angle input){
+    public static boolean isInDeadZone(Angle input) {
         return !robotRelToTurretRel(input).isNear(formatInputPosRobotRel(input), Degrees.of(0.2));
     }
 }
