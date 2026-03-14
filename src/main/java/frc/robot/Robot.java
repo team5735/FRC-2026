@@ -155,6 +155,8 @@ public class Robot extends TimedRobot {
         commandsForAuto.put("launch at 3000 rpm", launcher.getLaunchFuel(RPM.of(3000)));
         commandsForAuto.put("Turret track Blue Hub",
                 turret.trackFieldPos(FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER)));
+        commandsForAuto.put("Hood atZero", hood.runOnce(() -> hood.setHoodAngle(0)));
+        commandsForAuto.put("Hood at20", hood.runOnce(() -> hood.setHoodAngle(20)));
         NamedCommands.registerCommands(commandsForAuto);
 
         autoChooser = AutoBuilder.buildAutoChooser();
@@ -227,7 +229,11 @@ public class Robot extends TimedRobot {
                         drivetrain.getEstimatedPosition().getTranslation(),
                         Rotation2d.kCW_90deg
                     ),
-                    "drive to arc")
+                    "drive to arc"),
+                // if we haven't been cancelled by now, let the driver drive along the arc
+                new DriveOnArc(drivetrain, () -> targetArc,
+                    () -> MathUtil.applyDeadband(driveController.getLeftX(), 0.1),
+                    Rotation2d.kCW_90deg)
             ).withName("drive to and on arc")
         );
 
@@ -341,7 +347,7 @@ public class Robot extends TimedRobot {
     double current = HoodConstants.ANGLE_AT_ARC;
 
     private void setupOtherBindings() {
-        hood.setHoodPosition(0.5); // set hood to an initial value
+        hood.setHoodAngle(20.0); // set hood to an initial value (make it similar to other values in this file)
         testController.b().onTrue(launcher.getLaunchFuel(RPM.of(3000))
                 .until(() -> driveController.getHID().getBackButton() || launcher.atSetpoint())
                 .withTimeout(Seconds.of(2)));
