@@ -42,15 +42,15 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "drop intake"
+          }
+        },
+        {
           "type": "parallel",
           "data": {
             "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "drop intake"
-                }
-              },
               {
                 "type": "named",
                 "data": {
