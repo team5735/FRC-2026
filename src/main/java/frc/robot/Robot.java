@@ -7,7 +7,6 @@ package frc.robot;
 import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RPM;
-import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Seconds;
 
 import java.util.HashMap;
@@ -233,14 +232,6 @@ public class Robot extends TimedRobot {
             // track the hub
             turret.trackFieldPos(hub).alongWith(
                 new SequentialCommandGroup(
-                    Commands.either(
-                        Commands.none(),
-                        new PIDToPose(drivetrain, () -> {
-                            Pose2d pos = drivetrain.getEstimatedPosition();
-                            return new Pose2d(pos.getTranslation(), pos.getRotation().plus(Rotation2d.kCW_90deg));
-                        }, "get out of deadzone"),
-                        () -> turret.canTurnTo(hub)
-                    ),
                     // spin up the shooter
                     launcher.getLaunchFuelNT().until(() ->
                         // are we ready?
