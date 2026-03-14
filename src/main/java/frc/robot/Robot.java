@@ -343,7 +343,7 @@ public class Robot extends TimedRobot {
     double current = HoodConstants.ANGLE_AT_ARC;
 
     private void setupOtherBindings() {
-        hood.setHoodPosition(0.5); // set hood to an initial value
+        hood.setHoodAngle(20.0); // set hood to an initial value (make it similar to other values in this file)
         testController.b().onTrue(launcher.getLaunchFuel(RPM.of(3000))
                 .until(() -> driveController.getHID().getBackButton() || launcher.atSetpoint())
                 .withTimeout(Seconds.of(2)));
