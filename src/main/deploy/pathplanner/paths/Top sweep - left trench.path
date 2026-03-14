@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.546908017113095,
-        "y": 5.722758033389137
+        "x": 7.644489048549106,
+        "y": 7.036891799200149
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.546908017113095,
-        "y": 5.722758033389137
+        "x": 8.644489048549106,
+        "y": 7.03689179920015
       },
       "isLocked": false,
-      "linkedName": "Left Bump"
+      "linkedName": "Start Sweep Top"
     },
     {
       "anchor": {
-        "x": 1.018,
-        "y": 4.53
+        "x": 3.6268938918340776,
+        "y": 7.667092808314733
       },
       "prevControl": {
-        "x": 2.4983249395461304,
-        "y": 5.102339971633185
+        "x": 2.6268938918340776,
+        "y": 7.667092808314733
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Top "
+      "linkedName": "Left Trench"
     }
   ],
   "rotationTargets": [],
@@ -45,7 +45,7 @@
     "rotation": 90.0
   },
   "reversed": false,
-  "folder": "Left Bump",
+  "folder": "Comp Sweep",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 0.0

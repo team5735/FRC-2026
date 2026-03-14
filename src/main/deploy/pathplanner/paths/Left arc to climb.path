@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.546908017113095,
-        "y": 5.722758033389137
+        "x": 2.7092229352678574,
+        "y": 5.714142601376489
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.546908017113095,
-        "y": 5.722758033389137
+        "x": 2.1488630022321424,
+        "y": 4.6241120256696435
       },
       "isLocked": false,
-      "linkedName": "Left Bump"
+      "linkedName": "left side arc"
     },
     {
       "anchor": {
-        "x": 1.018,
-        "y": 4.53
+        "x": 2.0534676649305563,
+        "y": 4.289043981481481
       },
       "prevControl": {
-        "x": 2.4983249395461304,
-        "y": 5.102339971633185
+        "x": 2.34125732421875,
+        "y": 5.088631649925596
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Top "
+      "linkedName": "asdfasdfc"
     }
   ],
   "rotationTargets": [],
@@ -45,10 +45,10 @@
     "rotation": 90.0
   },
   "reversed": false,
-  "folder": "Left Bump",
+  "folder": "Comp climb auto",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": -136.77489750172754
   },
   "useDefaultConstraints": true
 }

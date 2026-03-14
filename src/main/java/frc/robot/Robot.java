@@ -254,6 +254,28 @@ public class Robot extends TimedRobot {
         );
 
 
+        // drive to the nearest ferry shoot position
+        driveController.x()
+            .whileTrue(
+                new SequentialCommandGroup(
+                    Commands.runOnce(() -> this.lastDroveToArc = false),
+                    hood.runOnce(() -> hood.setHoodAngle(HoodConstants.HIGHEST_ANGLE_DEGREES)),
+                    // drive to the nearest shooting start position
+                    new PIDToPose(drivetrain,
+                        () -> {
+                            Pose2d estimate = drivetrain.getEstimatedPosition();
+                            Translation2d res = FieldConstants.closestFerryShootPos(estimate.getTranslation());
+                            Rotation2d offset = estimate.getRotation();
+                            if (!turret.canTurnTo(res)) {
+                                offset = offset.plus(Rotation2d.kCW_90deg);
+                            }
+                            return new Pose2d(res, offset);
+                        },
+                    "drive to shooting pos")
+                ).withName("drive to shooting pos")
+            );
+
+
         // set the hood angle
         driveController.b().onTrue(
             Commands.either(
