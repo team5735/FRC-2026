@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
+import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Second;
@@ -68,7 +69,7 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     private void runSlapdown(AngularVelocity velocity) {
-        intakeSlapdown.setVoltage(ff.calculate(getSlapdownPosition().in(Rotations), velocity.in(RotationsPerSecond)));
+        intakeSlapdown.setVoltage(ff.calculate(getSlapdownPosition().in(Radians), velocity.in(RotationsPerSecond)));
     }
 
     public boolean isAtPosition(Angle position) {
@@ -89,16 +90,16 @@ public class IntakeSubsystem extends SubsystemBase {
 
     public Command getLiftCommand() {
         return runEnd(() -> runSlapdown(IntakeConstants.LIFT_VEL), () -> intakeSlapdown.setVoltage(0))
-                .until(() -> getSlapdownPosition().gte(IntakeConstants.UPPER_RELEASE_POS.minus(Degrees.of(5))));
+                .until(() -> isAtPosition(IntakeConstants.UPPER_RELEASE_POS));
     }
 
     public Command getSlapdownCommand() {
-        return runEnd(() -> runSlapdown(IntakeConstants.SLAPDOWN_VEL.unaryMinus()), () -> intakeSlapdown.setVoltage(0))
-                .until(() -> getSlapdownPosition().lte(IntakeConstants.LOWER_RELEASE_POS.plus(Degrees.of(5))));
+        return runEnd(() -> runSlapdown(IntakeConstants.SLAPDOWN_VEL), () -> intakeSlapdown.setVoltage(0))
+                .until(() -> isAtPosition(IntakeConstants.LOWER_RELEASE_POS));
     }
 
     public Command zeroSlapdownPosition() {
-        return Commands.runOnce(() -> intakeSlapdown.setPosition(IntakeConstants.START_POS)).ignoringDisable(true);
+        return Commands.runOnce(() -> intakeSlapdown.setPosition(IntakeConstants.LIMIT_POS)).ignoringDisable(true);
     }
 
     public SysIdRoutine routine = new SysIdRoutine(
@@ -120,6 +121,7 @@ public class IntakeSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         SmartDashboard.putBoolean("intake/limit_engaged", !hallLimit.get());
+        SmartDashboard.putNumber("intake/slapdown_volts", intakeSlapdown.getMotorVoltage().getValueAsDouble());
         SmartDashboard.putNumber("intake/slapdown_pos_deg", getSlapdownPosition().in(Degrees));
         SmartDashboard.putNumber("intake/slapdown_vel_dps", intakeSlapdown.getVelocity().getValue().in(DegreesPerSecond));
     }
@@ -135,7 +137,6 @@ public class IntakeSubsystem extends SubsystemBase {
             
             controller.rightBumper().whileTrue(intake.getLiftCommand());
             controller.leftBumper().whileTrue(intake.getSlapdownCommand());
-
 
             controller.a().whileTrue(intake.sysIdDynamic(Direction.kForward)); // forward = up
             controller.b().whileTrue(intake.sysIdDynamic(Direction.kReverse));
