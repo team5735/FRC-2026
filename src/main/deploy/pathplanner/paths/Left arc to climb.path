@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 90.0
   },
   "reversed": false,
   "folder": "Comp climb auto",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -46.58473437126027
+    "rotation": -136.77489750172754
   },
   "useDefaultConstraints": true
 }
