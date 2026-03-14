@@ -45,7 +45,7 @@ public class TurretConstants {
     public static final Angle TOLERANCE = Degrees.of(1);
 
     // Ideal robot-relative starting angle
-    public static final Angle START_POS_BOT_REL = Rotations.of(0);
+    public static final Angle START_POS_BOT_REL = Rotations.of(0.25);
 
     /**
      * Clamps a goal angle and to the functional range of this subsystem, converting
