@@ -280,6 +280,15 @@ public class TurretSubsystem extends SubsystemBase {
         });
     }
 
+    public Command trackFieldPosDynamic(Supplier<Translation2d> positionSupplier) {
+        return trackRobotRel(() -> {
+            Pose2d robotPoseInField = robotPoseSupplier.get();
+            Translation2d mechanismInField = getMechanismPose().getTranslation();
+            Angle fieldAngle = positionSupplier.get().minus(mechanismInField).getAngle().getMeasure();
+            return fieldAngle.minus(robotPoseInField.getRotation().getMeasure());
+        });
+    }
+
     /**
      * Testing method that resets the Turret's {@link TunableProfiledPIDController}
      * to the constants set in NT

@@ -22,7 +22,7 @@ import edu.wpi.first.math.geometry.Rectangle2d;
 // These are based on the AndyMark field specifications
 
 public class FieldConstants {
-    public static boolean shouldSwitchAlliance() {
+    public static boolean isRed() {
         Optional<Alliance> thing = DriverStation.getAlliance();
         if (thing.isPresent() && thing.get() == Alliance.Red) {
             return true;
@@ -61,14 +61,14 @@ public class FieldConstants {
     }
 
     public static Translation2d alliance(Translation2d element) {
-        if (shouldSwitchAlliance()) {
+        if (isRed()) {
             return redElement(element);
         }
         return element;
     }
 
     public static Pose2d alliance(Pose2d element) {
-        if (shouldSwitchAlliance()) {
+        if (isRed()) {
             return redElement(element);
         }
         return element;
@@ -212,4 +212,32 @@ public class FieldConstants {
                                                      // climber is 3 inches
                                                      // inside robot
             CLIMBER_BLUE_LEFT_CLIMB_ALIGN_POSE.getRotation());
+
+    public static final Translation2d FERRY_TARGET_1 = new Translation2d(1, 0.732);
+    public static final Translation2d FERRY_TARGET_2 = new Translation2d(
+            FERRY_TARGET_1.getX(), FIELD_LENGTH_Y.minus(FERRY_TARGET_1.getMeasureY()).in(Meters));
+
+    public static final Translation2d FERRY_SHOOT_POS_1 = new Translation2d(5.837, 0.732);
+    public static final Translation2d FERRY_SHOOT_POS_2 = new Translation2d(
+            FERRY_SHOOT_POS_1.getX(), FIELD_LENGTH_Y.minus(FERRY_SHOOT_POS_1.getMeasureY()).in(Meters));
+
+    public static Translation2d closestFerryShootPos(Translation2d drivetrainPos) {
+        Translation2d one = FERRY_SHOOT_POS_1;
+        Translation2d two = FERRY_SHOOT_POS_2;
+        if (isRed()) {
+            one = redElement(one);
+            two = redElement(two);
+        }
+        return drivetrainPos.getDistance(one) < drivetrainPos.getDistance(two) ? one : two;
+    }
+
+    public static Translation2d closestFerryTarget(Translation2d drivetrainPos) {
+        Translation2d one = FERRY_TARGET_1;
+        Translation2d two = FERRY_TARGET_2;
+        if (isRed()) {
+            one = redElement(one);
+            two = redElement(two);
+        }
+        return drivetrainPos.getDistance(one) < drivetrainPos.getDistance(two) ? one : two;
+    }
 }
