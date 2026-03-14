@@ -42,34 +42,15 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "drop intake"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "run intake"
-                }
-              },
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Top - half"
-                }
-              }
-            ]
+            "pathName": "Top - half"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Rotate 180"
+            "pathName": "Turn 180"
           }
         },
         {
