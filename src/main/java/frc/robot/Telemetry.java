@@ -61,7 +61,6 @@ public class Telemetry {
     Telemetry(Robot robot) {
         this.robot = robot;
         field.getRobotObject().setPose(new Pose2d());
-        field.getObject("arc").setPoses(this.robot.targetArc.getAsPoses());
         field.getObject("ferry target 1").setPose(new Pose2d(FieldConstants.FERRY_TARGET_1, Rotation2d.kZero));
         field.getObject("ferry target 2").setPose(new Pose2d(FieldConstants.FERRY_TARGET_2, Rotation2d.kZero));
         field.getObject("ferry src 1").setPose(new Pose2d(FieldConstants.FERRY_SHOOT_POS_1, Rotation2d.kZero));
@@ -106,9 +105,11 @@ public class Telemetry {
         field.setRobotPose(this.robot.drivetrain.getEstimatedPosition());
         field.getObject("turret_pose").setPose(this.robot.turret.getMechanismPose());
 
-        field.getObject("nearest point on arc")
-                .setPose(this.robot.targetArc.getPoseFacingCenter(this.robot.targetArc
-                        .nearestPointOnArc(this.robot.drivetrain.getEstimatedPosition().getTranslation())));
+        if (this.robot.targetArc != null) {
+            field.getObject("nearest point on arc")
+                    .setPose(this.robot.targetArc.getPoseFacingCenter(this.robot.targetArc
+                            .nearestPointOnArc(this.robot.drivetrain.getEstimatedPosition().getTranslation())));
+        }
 
         var modules = this.robot.drivetrain.getModules();
         NTable[] tables = Arrays.stream(new String[] { "FL", "FR", "BL", "BR" })

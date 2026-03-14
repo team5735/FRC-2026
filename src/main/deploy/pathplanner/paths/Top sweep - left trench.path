@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.010207868303571,
-        "y": 7.382579636346726
+        "x": 8.644489048549106,
+        "y": 7.03689179920015
       },
       "isLocked": false,
       "linkedName": "Start Sweep Top"
@@ -20,8 +20,8 @@
         "y": 7.667092808314733
       },
       "prevControl": {
-        "x": 5.56449945359003,
-        "y": 7.250442359561012
+        "x": 2.6268938918340776,
+        "y": 7.667092808314733
       },
       "nextControl": null,
       "isLocked": false,
@@ -42,7 +42,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 180.0
   },
   "reversed": false,
   "folder": "Comp Sweep",

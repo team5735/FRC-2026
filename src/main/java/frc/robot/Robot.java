@@ -62,11 +62,7 @@ public class Robot extends TimedRobot {
     public final CommandXboxController testController = new CommandXboxController(
             Constants.TEST_CONTROLLER_PORT);
 
-    public final Arc targetArc = new Arc(
-            FieldConstants.BLUE_HUB_CENTER,
-            Feet.of(9).in(Meters),
-            Rotation2d.fromDegrees(90),
-            Rotation2d.fromDegrees(180)).alliance();
+    public Arc targetArc;
 
     public final DrivetrainSubsystem drivetrain;
 
@@ -81,6 +77,15 @@ public class Robot extends TimedRobot {
     public final HoodSubsystem hood;
 
     public final Telemetry logger;
+
+    private void resolveAllianceDependencies() {
+        this.targetArc = new Arc(
+                FieldConstants.BLUE_HUB_CENTER,
+                Feet.of(9).in(Meters),
+                Rotation2d.fromDegrees(90),
+                Rotation2d.fromDegrees(180)).alliance();
+        Telemetry.field.getObject("arc").setPoses(this.targetArc.getAsPoses());
+    }
 
     public Robot(DrivetrainSubsystem drivetrain) {
         this.drivetrain = drivetrain;
@@ -275,7 +280,7 @@ public class Robot extends TimedRobot {
                         new PIDToPose(drivetrain, () -> {
                             Pose2d pos = drivetrain.getEstimatedPosition();
                             return new Pose2d(pos.getTranslation(), pos.getRotation().plus(Rotation2d.kCW_90deg));
-                        }, "get out of deadzone"),
+                        }, "get out of deadzone").withTimeout(Seconds.of(2)),
                         () -> turret.canTurnTo(hub)
                     ),
                     // spin up the shooter
@@ -362,6 +367,8 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
+        resolveAllianceDependencies();
+
         for (LimelightSubsystem limelight : limelights) {
             limelight.setIMUMode(3);
         }
@@ -386,6 +393,8 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
+        resolveAllianceDependencies();
+
         if (storedAuto != null) {
             storedAuto.cancel();
         }
@@ -405,6 +414,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void testInit() {
+        resolveAllianceDependencies();
         CommandScheduler.getInstance().cancelAll();
     }
 

@@ -42,9 +42,28 @@
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "Half Sweep Bottom top and back"
+            "name": "drop intake"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "run intake"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Half Sweep Bottom top and back"
+                }
+              }
+            ]
           }
         },
         {
