@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "RIght Trench To Arc"
+            "pathName": "Left Trench to Arc"
           }
         },
         {
@@ -17,7 +17,7 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 5.0
+                  "waitTime": 3.0
                 }
               },
               {
@@ -38,7 +38,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Right Trench to half sweeep"
+            "pathName": "Left Arc - top sweep"
           }
         },
         {
@@ -60,7 +60,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Half Sweep Bottom top and back"
+                  "pathName": "Top - half"
                 }
               }
             ]
@@ -69,25 +69,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Turn 180"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Half To bottom"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Bottom sweep to right trench"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "RIght Trench To Arc"
+            "pathName": "Making sure the intake doesn't cross white line"
           }
         },
         {

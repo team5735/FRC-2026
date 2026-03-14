@@ -12,7 +12,7 @@
         "y": 6.506762346540179
       },
       "isLocked": false,
-      "linkedName": "left side arc"
+      "linkedName": null
     },
     {
       "anchor": {
@@ -41,7 +41,7 @@
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Start Sweep Top"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -58,7 +58,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": -90.0
   },
   "reversed": false,
   "folder": "Comp Sweep",
