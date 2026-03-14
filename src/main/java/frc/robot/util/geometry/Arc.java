@@ -109,7 +109,7 @@ public class Arc {
     public Arc alliance() {
         Rotation2d start = this.start;
         Rotation2d delta = this.delta;
-        if (FieldConstants.shouldSwitchAlliance()) {
+        if (FieldConstants.isRed()) {
             start = mod(Rotation2d.k180deg.plus(start));
         }
         return new Arc(FieldConstants.alliance(this.center), this.radius, start, delta);

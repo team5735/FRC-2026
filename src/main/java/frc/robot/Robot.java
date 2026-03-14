@@ -62,11 +62,7 @@ public class Robot extends TimedRobot {
     public final CommandXboxController testController = new CommandXboxController(
             Constants.TEST_CONTROLLER_PORT);
 
-    public final Arc targetArc = new Arc(
-            FieldConstants.BLUE_HUB_CENTER,
-            Feet.of(9).in(Meters),
-            Rotation2d.fromDegrees(90),
-            Rotation2d.fromDegrees(180)).alliance();
+    public Arc targetArc;
 
     public final DrivetrainSubsystem drivetrain;
 
@@ -81,6 +77,15 @@ public class Robot extends TimedRobot {
     public final HoodSubsystem hood;
 
     public final Telemetry logger;
+
+    private void resolveAllianceDependencies() {
+        this.targetArc = new Arc(
+                FieldConstants.BLUE_HUB_CENTER,
+                Feet.of(9).in(Meters),
+                Rotation2d.fromDegrees(90),
+                Rotation2d.fromDegrees(180)).alliance();
+        Telemetry.field.getObject("arc").setPoses(this.targetArc.getAsPoses());
+    }
 
     public Robot(DrivetrainSubsystem drivetrain) {
         this.drivetrain = drivetrain;
@@ -163,13 +168,13 @@ public class Robot extends TimedRobot {
             // todo: add telemetry / debug / logging
             hood.exzSaveServoPosition();
             hood.setHoodPosition(0);
-        }));
+        }).withName("enter exclusion zone"));
         hood.exclusionZoneTrigger.onFalse(Commands.runOnce(() -> {
             SmartDashboard.putBoolean("in_exclusion_zone", false);
             // todo: add telemetry / debug / logging
             double pos = hood.exzGetSavedServoPosition();
             hood.setServoPosition(pos);
-        }));
+        }).withName("leave exclusion zone"));
 
         setDefaultCommands();
         setupMiscTriggers();
@@ -202,6 +207,8 @@ public class Robot extends TimedRobot {
         driveController.setRumble(RumbleType.kBothRumble, 0);
     }
 
+    boolean lastDroveToArc = true;
+
     private void setupDriverBindings() {
         driveController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
@@ -209,50 +216,85 @@ public class Robot extends TimedRobot {
 
         // @formatter:off
         // drive to and along the arc
-        driveController.a()
-            .whileTrue(
-                new SequentialCommandGroup(
-                    // drive to the arc, this ends when we're at the arc
-                    new PIDToPose(drivetrain,
-                        () -> targetArc.getShootingPose(
-                            drivetrain.getEstimatedPosition().getTranslation(),
-                            Rotation2d.kCW_90deg
-                        ),
-                        "drive to arc"),
-                    // if we haven't been cancelled by now, let the driver drive along the arc
-                    new DriveOnArc(drivetrain, targetArc,
-                        () -> MathUtil.applyDeadband(driveController.getLeftX(), 0.1),
-                        Rotation2d.kCW_90deg)
-                )
-            );
+        driveController.a().whileTrue(
+            new SequentialCommandGroup(
+                Commands.runOnce(() -> this.lastDroveToArc = true),
+                // drive to the arc, this ends when we're at the arc
+                new PIDToPose(drivetrain,
+                    () -> targetArc.getShootingPose(
+                        drivetrain.getEstimatedPosition().getTranslation(),
+                        Rotation2d.kCW_90deg
+                    ),
+                    "drive to arc"),
+                // if we haven't been cancelled by now, let the driver drive along the arc
+                new DriveOnArc(drivetrain, targetArc,
+                    () -> MathUtil.applyDeadband(driveController.getLeftX(), 0.1),
+                    Rotation2d.kCW_90deg)
+            ).withName("drive to and on arc")
+        );
+
+        // drive to the nearest ferry shoot position
+        driveController.x().whileTrue(
+            new SequentialCommandGroup(
+                Commands.runOnce(() -> this.lastDroveToArc = false),
+                hood.runOnce(() -> hood.setHoodAngle(HoodConstants.HIGHEST_ANGLE_DEGREES)),
+                // drive to the nearest shooting start position
+                new PIDToPose(drivetrain,
+                    () -> {
+                        Pose2d estimate = drivetrain.getEstimatedPosition();
+                        Translation2d res = FieldConstants.closestFerryShootPos(estimate.getTranslation());
+                        Rotation2d offset = estimate.getRotation();
+                        if (!turret.canTurnTo(res)) {
+                            offset = offset.plus(Rotation2d.kCW_90deg);
+                        }
+                        return new Pose2d(res, offset);
+                    },
+                "drive to shooting pos")
+            ).withName("drive to shooting pos")
+        );
+
 
         // set the hood angle
-        driveController.b().onTrue(hood.runOnce(() -> hood.setHoodAngle(NTable.root("hood").getDouble("angle"))));
+        driveController.b().onTrue(
+            Commands.either(
+                // get the angle from NT if we're at the arc
+                hood.runOnce(() -> hood.setHoodAngle(NTable.root("hood").getDouble("angle"))),
+                // otherwise, shoot at the max angle
+                hood.runOnce(() -> hood.setHoodAngle(HoodConstants.HIGHEST_ANGLE_DEGREES)),
+                () -> lastDroveToArc
+            ));
         driveController.b().whileTrue(
-            // track the hub
-            turret.trackFieldPos(hub).alongWith(
-                new SequentialCommandGroup(
-                    // spin up the shooter
-                    launcher.getLaunchFuelNT().until(() ->
-                        // are we ready?
-                        launcher.atSetpoint() ||
-                        // override with back button
-                        driveController.getHID().getBackButton()
-                    ).withTimeout(Seconds.of(2)),
-                    new ParallelCommandGroup(
-                        // spin the spindex (and the feeder)
-                        spindex.getRun(),
-                        // continue spinning the shooter
-                        launcher.run(launcher::usePID)
-                    )
-                )
+            // track the shooting target
+            Commands.either(
+                turret.trackFieldPos(hub),
+                turret.trackFieldPosDynamic(
+                    () -> FieldConstants.closestFerryTarget(drivetrain.getEstimatedPosition().getTranslation())
+                ),
+                () -> lastDroveToArc
             )
+        );
+        driveController.b().whileTrue(
+            new SequentialCommandGroup(
+                // spin up the shooter
+                launcher.getLaunchFuelNT().until(() ->
+                    // are we ready?
+                    launcher.atSetpoint() ||
+                    // override with back button
+                    driveController.getHID().getBackButton()
+                ).withTimeout(Seconds.of(2)),
+                new ParallelCommandGroup(
+                    // spin the spindex (and the feeder)
+                    spindex.getRun(),
+                    // continue spinning the shooter
+                    launcher.run(launcher::usePID)
+                )
+            ).withName("shoot")
         );
 
         // spin the spindex backwards to unclog
-        driveController.b().onFalse(spindex.getBackwards().withTimeout(Seconds.of(0.5)));
+        driveController.b().onFalse(spindex.getBackwards().withTimeout(Seconds.of(0.5)).withName("spindex backwards"));
         // stop spinning the shooter (with delay to fix unknown bug)
-        driveController.b().onFalse(Commands.waitTime(Seconds.of(0.5)).andThen(launcher.getResting()));
+        driveController.b().onFalse(Commands.waitTime(Seconds.of(0.5)).andThen(launcher.getResting()).withName("stop shooter"));
         // @formatter:on
 
         driveController.rightBumper().whileTrue(intake.getIntakeForwardRollCommand());
@@ -299,6 +341,8 @@ public class Robot extends TimedRobot {
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
         NTable.updateAllSendables();
+
+        NTable.root("telemetry").set("last drove to arc", lastDroveToArc);
     }
 
     @Override
@@ -314,12 +358,14 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
+        resolveAllianceDependencies();
+
         for (LimelightSubsystem limelight : limelights) {
             limelight.setIMUMode(3);
         }
 
         // if (!turret.getZeroStatus()) {
-        //     CommandScheduler.getInstance().schedule(turret.zeroSequence());
+        // CommandScheduler.getInstance().schedule(turret.zeroSequence());
         // }
 
         Command auto = autoChooser.getSelected();
@@ -338,6 +384,8 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
+        resolveAllianceDependencies();
+
         if (storedAuto != null) {
             storedAuto.cancel();
         }
@@ -357,6 +405,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void testInit() {
+        resolveAllianceDependencies();
         CommandScheduler.getInstance().cancelAll();
     }
 
