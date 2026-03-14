@@ -227,7 +227,7 @@ public class Robot extends TimedRobot {
                     ),
                     "drive to arc"),
                 // if we haven't been cancelled by now, let the driver drive along the arc
-                new DriveOnArc(drivetrain, targetArc,
+                new DriveOnArc(drivetrain, () -> targetArc,
                     () -> MathUtil.applyDeadband(driveController.getLeftX(), 0.1),
                     Rotation2d.kCW_90deg)
             ).withName("drive to and on arc")

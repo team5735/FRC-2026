@@ -20,6 +20,7 @@ import frc.robot.util.geometry.Arc;
 public class DriveOnArc extends Command {
     private DrivetrainSubsystem drivetrain;
     private Arc arc;
+    private Supplier<Arc> arcSupplier;
     // expected to be between -1 and 1
     private Supplier<Double> control;
     private Rotation2d shootingPoseRotation;
@@ -28,10 +29,10 @@ public class DriveOnArc extends Command {
 
     private NTable table = NTable.root("drive on arc");
 
-    public DriveOnArc(DrivetrainSubsystem drivetrain, Arc arc, Supplier<Double> movement,
+    public DriveOnArc(DrivetrainSubsystem drivetrain, Supplier<Arc> arcSupplier, Supplier<Double> movement,
             Rotation2d shootingPoseRotation) {
         this.drivetrain = drivetrain;
-        this.arc = arc;
+        this.arcSupplier = arcSupplier;
         this.control = movement;
         this.pidTheta.ensureTolerance(Degrees.of(15).in(Radians));
         this.pidTheta.ensureP(10);
@@ -41,6 +42,7 @@ public class DriveOnArc extends Command {
 
     @Override
     public void initialize() {
+        arc = arcSupplier.get();
         this.pidTheta
                 .setup(arc.getShootingPose(drivetrain.getEstimatedPosition().getTranslation(), shootingPoseRotation)
                         .getRotation().getRadians());
