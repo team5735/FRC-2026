@@ -11,7 +11,13 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "named",
+          "data": {
+            "name": "drop intake"
+          }
+        },
+        {
+          "type": "deadline",
           "data": {
             "commands": [
               {
@@ -29,7 +35,7 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "run intake"
+                  "name": "launch at 3000 rpm"
                 }
               }
             ]
@@ -38,19 +44,19 @@
         {
           "type": "named",
           "data": {
-            "name": "Stop spindex"
+            "name": "Hood atZero"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Right Trench to half sweeep"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Stop laucnher"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "drop intake"
+            "name": "Hood at20"
           }
         },
         {
@@ -62,14 +68,20 @@
                 "data": {
                   "name": "run intake"
                 }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Half Sweep Bottom top and back"
+                }
               }
             ]
           }
         },
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "Stop intake"
+            "pathName": "Half of bottom to right trench "
           }
         },
         {

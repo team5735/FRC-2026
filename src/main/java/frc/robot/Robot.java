@@ -153,6 +153,8 @@ public class Robot extends TimedRobot {
         commandsForAuto.put("launch at 3000 rpm", launcher.getLaunchFuel(RPM.of(3000)));
         commandsForAuto.put("Turret track Blue Hub",
                 turret.trackFieldPos(FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER)));
+        commandsForAuto.put("Hood atZero", hood.runOnce(() -> hood.setHoodAngle(0)));
+        commandsForAuto.put("Hood at20", hood.runOnce(() -> hood.setHoodAngle(20)));
         NamedCommands.registerCommands(commandsForAuto);
 
         autoChooser = AutoBuilder.buildAutoChooser();

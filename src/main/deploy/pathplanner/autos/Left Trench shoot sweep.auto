@@ -35,16 +35,28 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "run intake"
+                  "name": "launch at 3000 rpm"
                 }
               }
             ]
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "Hood atZero"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "Left Arc - top sweep"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Hood at20"
           }
         },
         {
