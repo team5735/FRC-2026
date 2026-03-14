@@ -47,7 +47,8 @@ public class MatchState {
      * @return
      */
     public static boolean didWinAuto(Alliance allianceToCheck) {
-        return allianceToCheck.equals(autoVictor.get());
+        var victor = getAutoVictor();
+        return (victor.isEmpty()) ? false : allianceToCheck.equals(victor);
     }
 
     public static boolean didWeWinAuto() {
