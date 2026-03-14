@@ -163,13 +163,13 @@ public class Robot extends TimedRobot {
             // todo: add telemetry / debug / logging
             hood.exzSaveServoPosition();
             hood.setHoodPosition(0);
-        }));
+        }).withName("enter exclusion zone"));
         hood.exclusionZoneTrigger.onFalse(Commands.runOnce(() -> {
             SmartDashboard.putBoolean("in_exclusion_zone", false);
             // todo: add telemetry / debug / logging
             double pos = hood.exzGetSavedServoPosition();
             hood.setServoPosition(pos);
-        }));
+        }).withName("leave exclusion zone"));
 
         setDefaultCommands();
         setupMiscTriggers();
@@ -226,14 +226,15 @@ public class Robot extends TimedRobot {
                     new DriveOnArc(drivetrain, targetArc,
                         () -> MathUtil.applyDeadband(driveController.getLeftX(), 0.1),
                         Rotation2d.kCW_90deg)
-                )
+                ).withName("drive to and on arc")
             );
 
         // drive to the nearest ferry shoot position
-        driveController.a()
+        driveController.x()
             .whileTrue(
                 new SequentialCommandGroup(
                     Commands.runOnce(() -> this.lastDroveToArc = false),
+                    hood.runOnce(() -> hood.setHoodAngle(HoodConstants.HIGHEST_ANGLE_DEGREES)),
                     // drive to the nearest shooting start position
                     new PIDToPose(drivetrain,
                         () -> {
@@ -245,8 +246,8 @@ public class Robot extends TimedRobot {
                             }
                             return new Pose2d(res, offset);
                         },
-                        "drive to shooting pos")
-                )
+                    "drive to shooting pos")
+                ).withName("drive to shooting pos")
             );
 
 
@@ -283,13 +284,13 @@ public class Robot extends TimedRobot {
                         launcher.run(launcher::usePID)
                     )
                 )
-            )
+            ).withName("shoot")
         );
 
         // spin the spindex backwards to unclog
-        driveController.b().onFalse(spindex.getBackwards().withTimeout(Seconds.of(0.5)));
+        driveController.b().onFalse(spindex.getBackwards().withTimeout(Seconds.of(0.5)).withName("spindex backwards"));
         // stop spinning the shooter (with delay to fix unknown bug)
-        driveController.b().onFalse(Commands.waitTime(Seconds.of(0.5)).andThen(launcher.getResting()));
+        driveController.b().onFalse(Commands.waitTime(Seconds.of(0.5)).andThen(launcher.getResting()).withName("stop shooter"));
         // @formatter:on
 
         driveController.rightBumper().whileTrue(intake.getIntakeForwardRollCommand());
@@ -336,6 +337,8 @@ public class Robot extends TimedRobot {
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
         NTable.updateAllSendables();
+
+        NTable.root("telemetry").set("last drove to arc", lastDroveToArc);
     }
 
     @Override
@@ -356,7 +359,7 @@ public class Robot extends TimedRobot {
         }
 
         // if (!turret.getZeroStatus()) {
-        //     CommandScheduler.getInstance().schedule(turret.zeroSequence());
+        // CommandScheduler.getInstance().schedule(turret.zeroSequence());
         // }
 
         Command auto = autoChooser.getSelected();
