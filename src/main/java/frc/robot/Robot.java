@@ -275,7 +275,7 @@ public class Robot extends TimedRobot {
                         new PIDToPose(drivetrain, () -> {
                             Pose2d pos = drivetrain.getEstimatedPosition();
                             return new Pose2d(pos.getTranslation(), pos.getRotation().plus(Rotation2d.kCW_90deg));
-                        }, "get out of deadzone"),
+                        }, "get out of deadzone").withTimeout(Seconds.of(2)),
                         () -> turret.canTurnTo(hub)
                     ),
                     // spin up the shooter
