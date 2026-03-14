@@ -235,6 +235,7 @@ public class Robot extends TimedRobot {
             ).withName("drive to and on arc")
         );
         driveController.a().whileTrue(launcher.getLaunchFuelNT());
+        driveController.a().onFalse(Commands.waitTime(Seconds.of(0.1)).andThen(launcher.getResting()).withName("stop shooter"));
 
         // drive to the nearest ferry shoot position
         driveController.x().whileTrue(
@@ -255,7 +256,8 @@ public class Robot extends TimedRobot {
                 "drive to shooting pos")
             ).withName("drive to shooting pos")
         );
-        driveController.a().whileTrue(launcher.getLaunchFuelNT());
+        driveController.x().whileTrue(launcher.getLaunchFuelNT());
+        driveController.x().onFalse(Commands.waitTime(Seconds.of(0.1)).andThen(launcher.getResting()).withName("stop shooter"));
 
 
         // set the hood angle
@@ -298,7 +300,7 @@ public class Robot extends TimedRobot {
         // spin the spindex backwards to unclog
         driveController.b().onFalse(spindex.getBackwards().withTimeout(Seconds.of(0.5)).withName("spindex backwards"));
         // stop spinning the shooter (with delay to fix unknown bug)
-        driveController.b().onFalse(Commands.waitTime(Seconds.of(0.5)).andThen(launcher.getResting()).withName("stop shooter"));
+        driveController.b().onFalse(Commands.waitTime(Seconds.of(0.1)).andThen(launcher.getResting()).withName("stop shooter"));
         // @formatter:on
 
         driveController.rightBumper().whileTrue(intake.getIntakeForwardRollCommand());
