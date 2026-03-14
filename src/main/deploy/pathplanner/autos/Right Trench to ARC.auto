@@ -5,12 +5,6 @@
     "data": {
       "commands": [
         {
-          "type": "named",
-          "data": {
-            "name": "drop intake"
-          }
-        },
-        {
           "type": "deadline",
           "data": {
             "commands": [
@@ -24,6 +18,12 @@
                 "type": "named",
                 "data": {
                   "name": "launch at 3000 rpm"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "drop intake"
                 }
               }
             ]
