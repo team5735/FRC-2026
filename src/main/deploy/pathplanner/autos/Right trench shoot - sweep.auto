@@ -7,17 +7,11 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Left Trench to Arc"
+            "pathName": "RIght Trench To Arc"
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "drop intake"
-          }
-        },
-        {
-          "type": "deadline",
+          "type": "parallel",
           "data": {
             "commands": [
               {
@@ -35,7 +29,7 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "run intake"
+                  "name": "launch at 3000 rpm"
                 }
               }
             ]
@@ -56,7 +50,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Left Arc - top sweep"
+            "pathName": "Right side arc to bottom sweep"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "drop intake"
           }
         },
         {
@@ -72,7 +72,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Top - half"
+                  "pathName": "Bottom to half"
                 }
               }
             ]
@@ -87,7 +87,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Making sure the intake doesn't cross white line"
+            "pathName": "Bottom half to right trench"
           }
         },
         {
