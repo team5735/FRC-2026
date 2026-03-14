@@ -1,8 +1,9 @@
 {
-  "robotWidth": 0.749,
-  "robotLength": 0.635,
+  "robotWidth": 0.75,
+  "robotLength": 0.6,
   "holonomicMode": true,
   "pathFolders": [
+    "ARC",
     "Ball",
     "Calibration",
     "Comp climb auto",
@@ -10,7 +11,7 @@
     "Intake ",
     "Left Bump",
     "Left Trench",
-    "ARC",
+    "Comp Sweep",
     "Right Bump",
     "Right Trench",
     "Sweep",
@@ -20,8 +21,8 @@
   "autoFolders": [
     "Comp"
   ],
-  "defaultMaxVel": 1.0,
-  "defaultMaxAccel": 1.0,
+  "defaultMaxVel": 3.5,
+  "defaultMaxAccel": 2.0,
   "defaultMaxAngVel": 180.0,
   "defaultMaxAngAccel": 180.0,
   "defaultNominalVoltage": 12.0,
@@ -45,7 +46,11 @@
   "bumperOffsetX": 0.0,
   "bumperOffsetY": 0.0,
   "robotFeatures": [
-    "{\"name\":\"Climber\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":-0.27,\"y\":0.0},\"size\":{\"width\":0.2,\"length\":0.2},\"borderRadius\":0.05,\"strokeWidth\":0.02,\"filled\":false}}",
-    "{\"name\":\"Shooter\",\"type\":\"circle\",\"data\":{\"center\":{\"x\":0.27,\"y\":0.0},\"radius\":0.1,\"strokeWidth\":0.02,\"filled\":false}}"
+    "{\"name\":\"Climber\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":-0.2,\"y\":0.0},\"size\":{\"width\":0.2,\"length\":0.2},\"borderRadius\":0.05,\"strokeWidth\":0.02,\"filled\":false}}",
+    "{\"name\":\"Intake\",\"type\":\"circle\",\"data\":{\"center\":{\"x\":0.2,\"y\":0.0},\"radius\":0.1,\"strokeWidth\":0.02,\"filled\":false}}",
+    "{\"name\":\"Shooter\",\"type\":\"line\",\"data\":{\"start\":{\"x\":-0.25,\"y\":0.25},\"end\":{\"x\":-0.25,\"y\":1.0},\"strokeWidth\":0.02}}",
+    "{\"name\":\"ARC\",\"type\":\"circle\",\"data\":{\"center\":{\"x\":3.63,\"y\":-1.0},\"radius\":3.0,\"strokeWidth\":0.02,\"filled\":false}}",
+    "{\"name\":\"Limelight 1\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":-0.25,\"y\":-0.25},\"size\":{\"width\":0.12,\"length\":0.12},\"borderRadius\":0.005,\"strokeWidth\":0.02,\"filled\":true}}",
+    "{\"name\":\"Limelight 2\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":-0.25,\"y\":0.25},\"size\":{\"width\":0.12,\"length\":0.12},\"borderRadius\":0.01,\"strokeWidth\":0.02,\"filled\":true}}"
   ]
 }
