@@ -273,21 +273,22 @@ public class Robot extends TimedRobot {
                     () -> FieldConstants.closestFerryTarget(drivetrain.getEstimatedPosition().getTranslation())
                 ),
                 () -> lastDroveToArc
-            ).alongWith(
-                new SequentialCommandGroup(
-                    // spin up the shooter
-                    launcher.getLaunchFuelNT().until(() ->
-                        // are we ready?
-                        launcher.atSetpoint() ||
-                        // override with back button
-                        driveController.getHID().getBackButton()
-                    ).withTimeout(Seconds.of(2)),
-                    new ParallelCommandGroup(
-                        // spin the spindex (and the feeder)
-                        spindex.getRun(),
-                        // continue spinning the shooter
-                        launcher.run(launcher::usePID)
-                    )
+            )
+        );
+        driveController.b().whileTrue(
+            new SequentialCommandGroup(
+                // spin up the shooter
+                launcher.getLaunchFuelNT().until(() ->
+                    // are we ready?
+                    launcher.atSetpoint() ||
+                    // override with back button
+                    driveController.getHID().getBackButton()
+                ).withTimeout(Seconds.of(2)),
+                new ParallelCommandGroup(
+                    // spin the spindex (and the feeder)
+                    spindex.getRun(),
+                    // continue spinning the shooter
+                    launcher.run(launcher::usePID)
                 )
             ).withName("shoot")
         );
