@@ -16,16 +16,16 @@
     },
     {
       "anchor": {
-        "x": 2.4206672933009723,
-        "y": 4.995298161674766
+        "x": 2.7092229352678574,
+        "y": 5.714142601376489
       },
       "prevControl": {
-        "x": 2.8670710110499176,
-        "y": 5.9726278764891045
+        "x": 3.1556266530168027,
+        "y": 6.691472316190827
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "left side arc"
     }
   ],
   "rotationTargets": [],
@@ -33,8 +33,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 0.2,
-    "maxAcceleration": 0.2,
+    "maxVelocity": 3.5,
+    "maxAcceleration": 2.0,
     "maxAngularVelocity": 180.0,
     "maxAngularAcceleration": 180.0,
     "nominalVoltage": 12.0,
@@ -42,7 +42,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -27.141737227838306
+    "rotation": -46.58473437126027
   },
   "reversed": false,
   "folder": "ARC",

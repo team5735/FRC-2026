@@ -19,20 +19,20 @@
                 "data": {
                   "name": "extend climber"
                 }
-              },
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Precise Hub to Climber 2"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "detract climber"
-                }
               }
             ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Precise Hub to Climber 2"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "detract climber"
           }
         }
       ]

@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.944,
-        "y": 4.0
+        "x": 2.0534676649305563,
+        "y": 4.289043981481481
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.0861207710812035,
-        "y": 4.691817152969202
+        "x": 2.19558843601176,
+        "y": 4.9808611344506835
       },
       "isLocked": false,
       "linkedName": "asdfasdfc"
@@ -20,8 +20,8 @@
         "y": 5.154670818526658
       },
       "prevControl": {
-        "x": 1.4071344933908776,
-        "y": 5.350753609340908
+        "x": 1.407134493390881,
+        "y": 5.350753609340912
       },
       "nextControl": {
         "x": 1.0969633203493248,
@@ -49,8 +49,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 1.0,
-    "maxAcceleration": 1.0,
+    "maxVelocity": 3.5,
+    "maxAcceleration": 2.0,
     "maxAngularVelocity": 180.0,
     "maxAngularAcceleration": 180.0,
     "nominalVoltage": 12.0,

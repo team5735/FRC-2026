@@ -9,7 +9,7 @@
       "prevControl": null,
       "nextControl": {
         "x": 2.7192222377232143,
-        "y": 0.3616371954055069
+        "y": 0.36163719540550693
       },
       "isLocked": false,
       "linkedName": "Right Trench"
@@ -33,8 +33,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 0.2,
-    "maxAcceleration": 0.2,
+    "maxVelocity": 3.5,
+    "maxAcceleration": 2.0,
     "maxAngularVelocity": 180.0,
     "maxAngularAcceleration": 180.0,
     "nominalVoltage": 12.0,

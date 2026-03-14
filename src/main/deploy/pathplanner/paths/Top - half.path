@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.6268938918340776,
-        "y": 7.667092808314733
+        "x": 7.644489048549106,
+        "y": 7.036891799200149
       },
       "prevControl": null,
       "nextControl": {
-        "x": 0.6853610956101193,
-        "y": 6.953184465680804
+        "x": 7.85849841889881,
+        "y": 5.222247314453125
       },
       "isLocked": false,
-      "linkedName": "Left Trench"
+      "linkedName": "Start Sweep Top"
     },
     {
       "anchor": {
-        "x": 2.0534676649305563,
-        "y": 4.289043981481481
+        "x": 7.748384021577381,
+        "y": 3.9651589239211313
       },
       "prevControl": {
-        "x": 1.956111828031994,
-        "y": 4.739120396205358
+        "x": 7.7826928129650295,
+        "y": 5.3378164527529774
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "asdfasdfc"
+      "linkedName": "Half Of Sweep"
     }
   ],
   "rotationTargets": [],
@@ -42,10 +42,10 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 90.0
+    "rotation": 0.0
   },
   "reversed": false,
-  "folder": "Comp climb auto",
+  "folder": "Comp Sweep",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 0.0

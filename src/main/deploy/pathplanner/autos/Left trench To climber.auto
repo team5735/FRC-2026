@@ -28,6 +28,12 @@
           "data": {
             "pathName": "Precise Hub to Climber 2"
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "detract climber"
+          }
         }
       ]
     }
