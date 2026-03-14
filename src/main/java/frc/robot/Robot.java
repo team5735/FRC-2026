@@ -62,11 +62,7 @@ public class Robot extends TimedRobot {
     public final CommandXboxController testController = new CommandXboxController(
             Constants.TEST_CONTROLLER_PORT);
 
-    public final Arc targetArc = new Arc(
-            FieldConstants.BLUE_HUB_CENTER,
-            Feet.of(9).in(Meters),
-            Rotation2d.fromDegrees(90),
-            Rotation2d.fromDegrees(180)).alliance();
+    public Arc targetArc;
 
     public final DrivetrainSubsystem drivetrain;
 
@@ -81,6 +77,15 @@ public class Robot extends TimedRobot {
     public final HoodSubsystem hood;
 
     public final Telemetry logger;
+
+    private void resolveAllianceDependencies() {
+        this.targetArc = new Arc(
+                FieldConstants.BLUE_HUB_CENTER,
+                Feet.of(9).in(Meters),
+                Rotation2d.fromDegrees(90),
+                Rotation2d.fromDegrees(180)).alliance();
+        Telemetry.field.getObject("arc").setPoses(this.targetArc.getAsPoses());
+    }
 
     public Robot(DrivetrainSubsystem drivetrain) {
         this.drivetrain = drivetrain;
@@ -354,6 +359,8 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
+        resolveAllianceDependencies();
+
         for (LimelightSubsystem limelight : limelights) {
             limelight.setIMUMode(3);
         }
@@ -378,6 +385,8 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
+        resolveAllianceDependencies();
+
         if (storedAuto != null) {
             storedAuto.cancel();
         }
@@ -397,6 +406,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void testInit() {
+        resolveAllianceDependencies();
         CommandScheduler.getInstance().cancelAll();
     }
 
@@ -406,6 +416,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void simulationInit() {
+        resolveAllianceDependencies();
     }
 
     @Override
