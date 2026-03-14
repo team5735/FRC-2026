@@ -94,6 +94,10 @@ public class LauncherSubsystem extends SubsystemBase {
         return runOnce(() -> krakenLeft.setVoltage(0)).withName("zero launcher voltage");
     }
 
+    public void stop() {
+        krakenLeft.setVoltage(0);
+    }
+
     public void retunePID() {
         bangbang.setSetpoint(setpoint * table.getDouble("!! threshold"));
         bangbang.setTolerance(setpoint * 0.01);
@@ -123,7 +127,6 @@ public class LauncherSubsystem extends SubsystemBase {
         return this.getLaunchFuel(speed).until(bangbang::atSetpoint)
                 .andThen(this.getLaunchFuel(speed).alongWith(spindex.getRun()));
     }
-
 
     private SysIdRoutine routine = new SysIdRoutine(
             new Config(Volts.of(0.5).per(Second), Volts.of(4), null, null),
