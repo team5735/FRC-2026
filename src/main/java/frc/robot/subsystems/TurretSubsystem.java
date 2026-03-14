@@ -47,7 +47,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -362,7 +361,7 @@ public class TurretSubsystem extends SubsystemBase {
         return hardRunForward().until(limitTrigger::getAsBoolean)
                 .andThen(softRunReverse().until(() -> !limitTrigger.getAsBoolean()))
                 .andThen(softRunForward().until(limitTrigger::getAsBoolean))
-                .andThen(zeroCommand());
+                .andThen(zeroCommand()).withName("zero sequence");
     }
 
     /**
