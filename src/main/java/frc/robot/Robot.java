@@ -203,6 +203,8 @@ public class Robot extends TimedRobot {
         driveController.setRumble(RumbleType.kBothRumble, 0);
     }
 
+    boolean lastDroveToArc = true;
+
     private void setupDriverBindings() {
         driveController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
@@ -213,6 +215,7 @@ public class Robot extends TimedRobot {
         driveController.a()
             .whileTrue(
                 new SequentialCommandGroup(
+                    Commands.runOnce(() -> this.lastDroveToArc = true),
                     // drive to the arc, this ends when we're at the arc
                     new PIDToPose(drivetrain,
                         () -> targetArc.getShootingPose(
@@ -227,11 +230,45 @@ public class Robot extends TimedRobot {
                 )
             );
 
+        // drive to the nearest ferry shoot position
+        driveController.a()
+            .whileTrue(
+                new SequentialCommandGroup(
+                    Commands.runOnce(() -> this.lastDroveToArc = false),
+                    // drive to the nearest shooting start position
+                    new PIDToPose(drivetrain,
+                        () -> {
+                            Pose2d estimate = drivetrain.getEstimatedPosition();
+                            Translation2d res = FieldConstants.closestFerryShootPos(estimate.getTranslation());
+                            Rotation2d offset = estimate.getRotation();
+                            if (!turret.canTurnTo(res)) {
+                                offset = offset.plus(Rotation2d.kCW_90deg);
+                            }
+                            return new Pose2d(res, offset);
+                        },
+                        "drive to shooting pos")
+                )
+            );
+
+
         // set the hood angle
-        driveController.b().onTrue(hood.runOnce(() -> hood.setHoodAngle(NTable.root("hood").getDouble("angle"))));
+        driveController.b().onTrue(
+            Commands.either(
+                // get the angle from NT if we're at the arc
+                hood.runOnce(() -> hood.setHoodAngle(NTable.root("hood").getDouble("angle"))),
+                // otherwise, shoot at the max angle
+                hood.runOnce(() -> hood.setHoodAngle(HoodConstants.HIGHEST_ANGLE_DEGREES)),
+                () -> lastDroveToArc
+            ));
         driveController.b().whileTrue(
-            // track the hub
-            turret.trackFieldPos(hub).alongWith(
+            // track the shooting target
+            Commands.either(
+                turret.trackFieldPos(hub),
+                turret.trackFieldPosDynamic(
+                    () -> FieldConstants.closestFerryTarget(drivetrain.getEstimatedPosition().getTranslation())
+                ),
+                () -> lastDroveToArc
+            ).alongWith(
                 new SequentialCommandGroup(
                     Commands.either(
                         Commands.none(),
