@@ -24,7 +24,7 @@ public class Constants {
 
     public static final int INTAKE_SLAPDOWN_TALONFX_ID = 23;
     public static final int INTAKE_ROLLER_TALONFX_ID = 25;
-    public static final int INTAKE_LIMIT_PIN = 3;  //DIO
+    public static final int INTAKE_LIMIT_PIN = 3; // DIO
 
     public static final double START_REVOLUTION_POSITION = 0.4;
     public static final double END_REVOLUTION_POSITION = 0.6;
@@ -45,7 +45,7 @@ public class Constants {
 
     public static final int CLIMB_TALON_ID = 24;
     public static final int CLIMB_UPPER_LIMIT_PIN = 0; // DIO
-    public static final int CLIMB_LOWER_LIMIT_PIN = 1; // DIO 
+    public static final int CLIMB_LOWER_LIMIT_PIN = 1; // DIO
 
     public static final int HOOD_SERVO_PIN = 0; // PWM
     public static final int HOOD_FEEDBACK_PIN = 0; // Analogue

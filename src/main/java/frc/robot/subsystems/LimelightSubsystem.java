@@ -72,7 +72,7 @@ public class LimelightSubsystem extends SubsystemBase {
             double[] array = lltable.get("botpose_wpiblue", new double[0]);
             double timestamp = lltable.getEntry("botpose_wpiblue").getLastChange();
 
-            if (array.length == 0) {
+            if (array.length == 0 || stddevs.length == 0) {
                 return;
             }
             int nFiducials = (int) array[7];

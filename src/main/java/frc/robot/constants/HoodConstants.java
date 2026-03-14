@@ -5,8 +5,8 @@ public class HoodConstants {
     // and highest positions. The servo can physically be set
     // between 0 and 1. But these limit that by the physical reality
     // of the hood
-    public static final double LOWEST_SERVO_POSITION = 0.3;
-    public static final double HIGHEST_SERVO_POSITION = 0.75;
+    public static final double LOWEST_SERVO_POSITION = 0.12555;
+    public static final double HIGHEST_SERVO_POSITION = 0.65;
 
     // The range of angles (in degrees) that the physcial shooter hood can
     // move to. While tuning the hood servo, these don't change
@@ -22,6 +22,6 @@ public class HoodConstants {
     public static final double SERVO_VOLTAGE_AT_REF0 = 1.75; // todo
     public static final double SERVO_VOLTAGE_REF1 = 0.775; // setpoint
     public static final double SERVO_VOLTAGE_AT_REF1 = 1.00; // todo
-    
+
     public static final double DYNAMIC_TOLERANCE_DEGREES = 5;
 }
