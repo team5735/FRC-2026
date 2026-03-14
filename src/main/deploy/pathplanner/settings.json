@@ -61,6 +61,6 @@
     "{\"name\":\"Shooter\",\"type\":\"line\",\"data\":{\"start\":{\"x\":0.35,\"y\":0.25},\"end\":{\"x\":1.0,\"y\":0.25},\"strokeWidth\":0.02}}",
     "{\"name\":\"ARC\",\"type\":\"circle\",\"data\":{\"center\":{\"x\":3.63,\"y\":-1.0},\"radius\":3.0,\"strokeWidth\":0.02,\"filled\":false}}",
     "{\"name\":\"Limelight 1\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":0.3,\"y\":0.25},\"size\":{\"width\":0.12,\"length\":0.12},\"borderRadius\":0.005,\"strokeWidth\":0.02,\"filled\":true}}",
-    "{\"name\":\"Limelight 2\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":0.3,\"y\":-0.25},\"size\":{\"width\":0.12,\"length\":0.12},\"borderRadius\":0.01,\"strokeWidth\":0.02,\"filled\":true}}"
+    "{\"name\":\"Limelight 2\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":-0.3,\"y\":0.25},\"size\":{\"width\":0.12,\"length\":0.12},\"borderRadius\":0.01,\"strokeWidth\":0.02,\"filled\":true}}"
   ]
 }
