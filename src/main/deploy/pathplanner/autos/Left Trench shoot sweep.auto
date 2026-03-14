@@ -54,12 +54,6 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "Hood at20"
-          }
-        },
-        {
           "type": "parallel",
           "data": {
             "commands": [
@@ -88,6 +82,12 @@
           "type": "path",
           "data": {
             "pathName": "Making sure the intake doesn't cross white line"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Hood at20"
           }
         },
         {
