@@ -227,11 +227,7 @@ public class Robot extends TimedRobot {
                         drivetrain.getEstimatedPosition().getTranslation(),
                         Rotation2d.kCW_90deg
                     ),
-                    "drive to arc"),
-                // if we haven't been cancelled by now, let the driver drive along the arc
-                new DriveOnArc(drivetrain, targetArc,
-                    () -> MathUtil.applyDeadband(driveController.getLeftX(), 0.1),
-                    Rotation2d.kCW_90deg)
+                    "drive to arc")
             ).withName("drive to and on arc")
         );
 
@@ -422,6 +418,8 @@ public class Robot extends TimedRobot {
         if (!turret.getZeroStatus()) {
             CommandScheduler.getInstance().schedule(turret.zeroSequence());
         }
+
+        launcher.stop();
     }
 
     @Override
