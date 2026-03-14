@@ -64,7 +64,7 @@
   "folder": "Comp Sweep",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 39.213999140493
+    "rotation": -44.4091742451035
   },
   "useDefaultConstraints": true
 }

@@ -42,18 +42,6 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "Stop spindex"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Stop laucnher"
-          }
-        },
-        {
           "type": "path",
           "data": {
             "pathName": "Left Arc - top sweep"
