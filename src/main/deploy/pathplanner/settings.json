@@ -18,17 +18,7 @@
     "Test auto for limelight"
   ],
   "autoFolders": [
-    "-Ball - Intake - Climber",
-    "-Intake - Ball - Climber",
-    "Bottom Sweep",
-    "Comp",
-    "Fun",
-    "Intake",
-    "Calibration",
-    "Test",
-    "Test Auto For limelight",
-    "Top Sweep",
-    "ball"
+    "Comp"
   ],
   "defaultMaxVel": 1.0,
   "defaultMaxAccel": 1.0,
