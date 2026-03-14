@@ -139,6 +139,6 @@ public class TurretConstants {
     }
 
     public static boolean isInDeadZone(Angle input){
-        return robotRelToTurretRel(input).isNear(formatInputPosRobotRel(input), Degrees.of(0.2));
+        return !robotRelToTurretRel(input).isNear(formatInputPosRobotRel(input), Degrees.of(0.2));
     }
 }

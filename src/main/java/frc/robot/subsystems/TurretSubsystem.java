@@ -378,7 +378,8 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     public boolean canTurnTo(Translation2d target) {
-        return !isInDeadZone(target.minus(getMechanismPose().getTranslation()).getAngle().getMeasure());
+        return !isInDeadZone(target.minus(getMechanismPose().getTranslation()).getAngle().getMeasure()
+                .minus(robotPoseSupplier.get().getRotation().getMeasure()));
     }
 
     public static class Tester extends PartialRobot {
