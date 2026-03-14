@@ -54,12 +54,6 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "Hood at20"
-          }
-        },
-        {
           "type": "parallel",
           "data": {
             "commands": [
@@ -82,6 +76,12 @@
           "type": "path",
           "data": {
             "pathName": "Half of bottom to right trench "
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Hood at20"
           }
         },
         {
