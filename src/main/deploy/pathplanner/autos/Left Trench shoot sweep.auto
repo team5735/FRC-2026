@@ -11,7 +11,13 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "named",
+          "data": {
+            "name": "drop intake"
+          }
+        },
+        {
+          "type": "deadline",
           "data": {
             "commands": [
               {
@@ -29,7 +35,7 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "launch at 3000 rpm"
+                  "name": "run intake"
                 }
               }
             ]
@@ -39,12 +45,6 @@
           "type": "path",
           "data": {
             "pathName": "Left Arc - top sweep"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "drop intake"
           }
         },
         {
