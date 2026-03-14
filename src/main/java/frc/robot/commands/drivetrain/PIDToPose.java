@@ -57,6 +57,8 @@ public class PIDToPose extends Command {
         if (!skipRequirement) {
             addRequirements(drivetrain);
         }
+
+        setName("PIDToPose: " + name);
     }
 
     @Override
