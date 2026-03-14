@@ -165,19 +165,6 @@ public class Robot extends TimedRobot {
     private void configureBindings() {
         drivetrain.registerTelemetry(logger::telemeterize);
 
-        hood.exclusionZoneTrigger.onTrue(Commands.runOnce(() -> {
-            SmartDashboard.putBoolean("in_exclusion_zone", true);
-            // todo: add telemetry / debug / logging
-            hood.exzSaveServoPosition();
-            hood.setHoodPosition(0);
-        }).withName("enter exclusion zone"));
-        hood.exclusionZoneTrigger.onFalse(Commands.runOnce(() -> {
-            SmartDashboard.putBoolean("in_exclusion_zone", false);
-            // todo: add telemetry / debug / logging
-            double pos = hood.exzGetSavedServoPosition();
-            hood.setServoPosition(pos);
-        }).withName("leave exclusion zone"));
-
         setDefaultCommands();
         setupMiscTriggers();
         setupDriverBindings();
@@ -200,6 +187,19 @@ public class Robot extends TimedRobot {
 
     // any trigger that isn't a button goes here
     private void setupMiscTriggers() {
+        hood.exclusionZoneTrigger.onTrue(Commands.runOnce(() -> {
+            SmartDashboard.putBoolean("in_exclusion_zone", true);
+            // todo: add telemetry / debug / logging
+            hood.exzSaveServoPosition();
+            hood.setHoodPosition(0);
+        }).withName("enter exclusion zone"));
+        hood.exclusionZoneTrigger.onFalse(Commands.runOnce(() -> {
+            SmartDashboard.putBoolean("in_exclusion_zone", false);
+            // todo: add telemetry / debug / logging
+            double pos = hood.exzGetSavedServoPosition();
+            hood.setServoPosition(pos);
+        }).withName("leave exclusion zone"));
+
         // resets the turrets position when it engages the Hall-Effect sensor
         turret.limitTrigger.onTrue(turret.zeroCommand());
         // MatchState.hubActiveTrigger.onTrue(Commands.runOnce(() ->
