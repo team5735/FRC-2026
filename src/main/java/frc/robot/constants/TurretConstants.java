@@ -37,8 +37,10 @@ public class TurretConstants {
                                                                            // CCW
     public static final Angle ZERO_OFFSET = Rotations
             .of((REVERSE_LIMIT_BOT_REL.in(Rotations) + FORWARD_LIMIT_BOT_REL.in(Rotations)) / 2);
+            
     public static final Angle REVERSE_LIMIT_TUR_REL = REVERSE_LIMIT_BOT_REL.minus(ZERO_OFFSET);
     public static final Angle FORWARD_LIMIT_TUR_REL = Rotations.of(1).minus(REVERSE_LIMIT_TUR_REL);
+
     public static final Angle SOFT_PADDING = Rotations.of(0.05);
     public static final Angle MAX_DECEL_PADDING = Rotations.of(MAX_VEL.in(RotationsPerSecond)
             * MAX_VEL.in(RotationsPerSecond) / (MAX_ACC.in(RotationsPerSecondPerSecond) * 2));
@@ -47,6 +49,7 @@ public class TurretConstants {
     // Ideal robot-relative starting angle
     public static final Angle START_POS_BOT_REL = Rotations.of(0.25);
 
+    public static final Angle CLIMB_POS_BOT_REL = Rotations.of(0.30); 
     /**
      * Clamps a goal angle and to the functional range of this subsystem, converting
      * it to the turret-relative space

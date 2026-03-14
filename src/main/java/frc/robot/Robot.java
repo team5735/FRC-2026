@@ -139,7 +139,7 @@ public class Robot extends TimedRobot {
         }, "stay in place !", true));
         commandsForAuto.put("extend climber", climber.getFullyExtendCommand());
         commandsForAuto.put("detract climber",
-                climber.getFullyDetractCommand().alongWith(turret.holdRobotRel(Rotations.of(0.75))));
+                climber.getFullyDetractCommand().alongWith(turret.holdRobotRel(TurretConstants.CLIMB_POS_BOT_REL)));
         commandsForAuto.put("drop intake", intake.getSlapdownCommand());
         commandsForAuto.put("run intake", intake.getIntakeForwardRollCommand());
         commandsForAuto.put("run spindex", spindex.getRun());
@@ -189,7 +189,7 @@ public class Robot extends TimedRobot {
                         () -> driveController.getRightTriggerAxis(),
                         () -> driveController.getHID().getYButton()));
 
-        turret.setDefaultCommand(turret.holdRobotRel(TurretConstants.START_POS_BOT_REL));
+        turret.setDefaultCommand(turret.holdRobotRel(TurretConstants.CLIMB_POS_BOT_REL));
     }
 
     // any trigger that isn't a button goes here
@@ -282,7 +282,7 @@ public class Robot extends TimedRobot {
         subsystemController.a().whileTrue(spindex.getBackwards());
         subsystemController.rightTrigger().whileTrue(climber.getExtendCommand());
         subsystemController.leftTrigger().whileTrue(climber.getRetractCommand().alongWith(
-                turret.holdRobotRel(Rotations.of(0.75))));
+                turret.holdRobotRel(TurretConstants.CLIMB_POS_BOT_REL)));
     }
 
     double current = HoodConstants.ANGLE_AT_ARC;
