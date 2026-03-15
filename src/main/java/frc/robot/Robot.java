@@ -190,11 +190,11 @@ public class Robot extends TimedRobot {
 
     // any trigger that isn't a button goes here
     private void setupMiscTriggers() {
+        hood.exclusionZoneTrigger.whileTrue(Commands.run(() -> hood.setHoodPosition(0)));
         hood.exclusionZoneTrigger.onTrue(Commands.runOnce(() -> {
             SmartDashboard.putBoolean("in_exclusion_zone", true);
             // todo: add telemetry / debug / logging
             hood.exzSaveServoPosition();
-            hood.setHoodPosition(0);
         }).withName("enter exclusion zone"));
         hood.exclusionZoneTrigger.onFalse(Commands.runOnce(() -> {
             SmartDashboard.putBoolean("in_exclusion_zone", false);
