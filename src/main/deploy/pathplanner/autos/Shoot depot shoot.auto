@@ -11,16 +11,9 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Left Trench to Arc"
-                }
-              }
-            ]
+            "pathName": "Left Trench to Arc"
           }
         },
         {
