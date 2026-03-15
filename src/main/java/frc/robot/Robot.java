@@ -106,8 +106,6 @@ public class Robot extends TimedRobot {
         });
         NTable.root().set("scheduler", CommandScheduler.getInstance());
 
-        NTable.root("hood").set("angle", 20.0);
-
         configureBindings();
         setupAutoChooser();
 
@@ -268,7 +266,7 @@ public class Robot extends TimedRobot {
         driveController.b().onTrue(
             Commands.either(
                 // get the angle from NT if we're at the arc
-                hood.runOnce(() -> hood.setHoodAngle(NTable.root("hood").getDouble("angle"))),
+                hood.runOnce(() -> hood.setHoodAngle(HoodConstants.ANGLE_AT_ARC)),
                 // otherwise, shoot at the max angle
                 hood.runOnce(() -> hood.setHoodAngle(HoodConstants.HIGHEST_ANGLE_DEGREES)),
                 () -> lastDroveToArc
