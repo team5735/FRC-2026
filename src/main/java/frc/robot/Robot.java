@@ -148,6 +148,7 @@ public class Robot extends TimedRobot {
                 climber.getFullyDetractCommand().alongWith(turret.holdRobotRel(TurretConstants.CLIMB_POS_BOT_REL)));
         commandsForAuto.put("drop intake", intake.getSlapdownCommand());
         commandsForAuto.put("run intake", intake.getIntakeForwardRollCommand());
+         commandsForAuto.put("Put up Intake", intake.getLiftCommand());
         commandsForAuto.put("run spindex", spindex.getRun());
         commandsForAuto.put("dynamic launch",
                 LaunchCalculator.dynamicLaunchCommand(LaunchGoal.SCORE, () -> false, hood, turret, drivetrain, launcher,
@@ -157,6 +158,7 @@ public class Robot extends TimedRobot {
                 turret.trackFieldPos(FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER)));
         commandsForAuto.put("Hood atZero", hood.runOnce(() -> hood.setHoodAngle(0)));
         commandsForAuto.put("Hood at20", hood.runOnce(() -> hood.setHoodAngle(20)));
+       
         NamedCommands.registerCommands(commandsForAuto);
 
         autoChooser = AutoBuilder.buildAutoChooser();

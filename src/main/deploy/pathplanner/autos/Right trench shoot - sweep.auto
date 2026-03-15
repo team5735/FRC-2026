@@ -11,12 +11,6 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "drop intake"
-          }
-        },
-        {
           "type": "deadline",
           "data": {
             "commands": [
@@ -50,7 +44,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Right Trench to half sweeep"
+            "pathName": "Right side arc to right trench"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Right trench too sweep"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "drop intake"
           }
         },
         {
@@ -75,13 +81,38 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Half of bottom to right trench "
+            "pathName": "Rotate 180"
+          }
+        },
+        {
+          "type": "sequential",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Half To bottom"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Put up Intake"
+                }
+              }
+            ]
           }
         },
         {
           "type": "named",
           "data": {
             "name": "Hood at20"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "RIght Trench To Arc"
           }
         },
         {

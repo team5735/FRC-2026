@@ -48,9 +48,27 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "Put up Intake"
+          }
+        },
+        {
           "type": "path",
           "data": {
-            "pathName": "Left Arc - top sweep"
+            "pathName": "Left arc to trench"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left trench to start top sweep"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "drop intake"
           }
         },
         {
@@ -73,15 +91,21 @@
           }
         },
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "Stop intake"
+            "pathName": "Spin 180"
           }
         },
         {
           "type": "path",
           "data": {
             "pathName": "Making sure the intake doesn't cross white line"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Stop intake"
           }
         },
         {
