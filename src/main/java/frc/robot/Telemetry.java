@@ -63,8 +63,8 @@ public class Telemetry {
         field.getRobotObject().setPose(new Pose2d());
         field.getObject("ferry target 1").setPose(new Pose2d(FieldConstants.FERRY_TARGET_1, Rotation2d.kZero));
         field.getObject("ferry target 2").setPose(new Pose2d(FieldConstants.FERRY_TARGET_2, Rotation2d.kZero));
-        field.getObject("ferry src 1").setPose(new Pose2d(FieldConstants.FERRY_SHOOT_POS_1, Rotation2d.kZero));
-        field.getObject("ferry src 2").setPose(new Pose2d(FieldConstants.FERRY_SHOOT_POS_2, Rotation2d.kZero));
+        field.getObject("ferry source 1").setPose(FieldConstants.FERRY_SHOOT_POS_1);
+        field.getObject("ferry source 2").setPose(FieldConstants.FERRY_SHOOT_POS_2);
         table.set("field", field);
 
         double cx = FieldConstants.HOOD_DOWN_EXCLUSION_BLUE_TRENCH_LEFT.getCenter().getX();

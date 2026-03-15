@@ -25,7 +25,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -146,7 +145,7 @@ public class Robot extends TimedRobot {
                 climber.getFullyDetractCommand().alongWith(turret.holdRobotRel(TurretConstants.CLIMB_POS_BOT_REL)));
         commandsForAuto.put("drop intake", intake.getSlapdownCommand());
         commandsForAuto.put("run intake", intake.getIntakeForwardRollCommand());
-         commandsForAuto.put("Put up Intake", intake.getLiftCommand());
+        commandsForAuto.put("Put up Intake", intake.getLiftCommand());
         commandsForAuto.put("run spindex", spindex.getRun());
         commandsForAuto.put("dynamic launch",
                 LaunchCalculator.dynamicLaunchCommand(LaunchGoal.SCORE, () -> false, hood, turret, drivetrain, launcher,
@@ -156,7 +155,7 @@ public class Robot extends TimedRobot {
                 turret.trackFieldPos(FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER)));
         commandsForAuto.put("Hood atZero", hood.runOnce(() -> hood.setHoodAngle(0)));
         commandsForAuto.put("Hood at20", hood.runOnce(() -> hood.setHoodAngle(20)));
-       
+
         NamedCommands.registerCommands(commandsForAuto);
 
         autoChooser = AutoBuilder.buildAutoChooser();
@@ -245,16 +244,9 @@ public class Robot extends TimedRobot {
                 Commands.runOnce(() -> this.lastDroveToArc = false),
                 hood.runOnce(() -> hood.setHoodAngle(HoodConstants.HIGHEST_ANGLE_DEGREES)),
                 // drive to the nearest shooting start position
-                new PIDToPose(drivetrain,
-                    () -> {
-                        Pose2d estimate = drivetrain.getEstimatedPosition();
-                        Translation2d res = FieldConstants.closestFerryShootPos(estimate.getTranslation());
-                        Rotation2d offset = estimate.getRotation();
-                        if (!turret.canTurnTo(res)) {
-                            offset = offset.plus(Rotation2d.kCW_90deg);
-                        }
-                        return new Pose2d(res, offset);
-                    },
+                new PIDToPose(drivetrain, () ->
+                    FieldConstants.closestFerryShootPos(drivetrain.getEstimatedPosition().getTranslation()
+                ),
                 "drive to shooting pos")
             ).withName("drive to shooting pos")
         );
