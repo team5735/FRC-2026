@@ -16,7 +16,7 @@ public class TurretConstants {
     public static final double GEAR_REDUCTION = 200 / 20; // initial gear 20T, secondary gear 200T
 
     // PID gains (with motion profiling)
-    public static final double KP = 10;
+    public static final double KP = 12.5;
     public static final double KI = 0;
     public static final double KD = 0.65;
 
@@ -33,8 +33,8 @@ public class TurretConstants {
     // Imaginary, robot-relative hard stops for the turret; all setpoints are to be
     // within a set padding of these
     public static final Angle REVERSE_LIMIT_BOT_REL = Rotations.of(0.56); // limit the turret would hit whild driving CW
-    public static final Angle FORWARD_LIMIT_BOT_REL = Rotations.of(0.320); // limit the turret would hit while driving
-                                                                           // CCW
+    public static final Angle FORWARD_LIMIT_BOT_REL = Rotations.of(0.3179); // limit the turret would hit while driving
+                                                                            // CCW
     public static final Angle ZERO_OFFSET = Rotations
             .of((REVERSE_LIMIT_BOT_REL.in(Rotations) + FORWARD_LIMIT_BOT_REL.in(Rotations)) / 2);
 
