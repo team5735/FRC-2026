@@ -25,7 +25,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -238,7 +237,7 @@ public class Robot extends TimedRobot {
             ).withName("drive to and on arc")
         );
         driveController.a().whileTrue(launcher.getLaunchFuel(RPM.of(3000)));
-
+                
         // drive to the nearest ferry shoot position
         driveController.x().whileTrue(
             new SequentialCommandGroup(
@@ -284,9 +283,7 @@ public class Robot extends TimedRobot {
                 // spin up the shooter
                 launcher.getLaunchFuel(RPM.of(3000)).until(() ->
                     // are we ready?
-                    launcher.atSetpoint() ||
-                    // override with back button
-                    driveController.getHID().getBackButton()
+                    launcher.atSetpoint()
                 ).withTimeout(Seconds.of(2)),
                 new ParallelCommandGroup(
                     // spin the spindex (and the feeder)
