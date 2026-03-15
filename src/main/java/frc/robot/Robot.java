@@ -215,7 +215,7 @@ public class Robot extends TimedRobot {
     boolean lastDroveToArc = true;
 
     private void setupDriverBindings() {
-        driveController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+        driveController.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
         Translation2d hub = FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER);
 
