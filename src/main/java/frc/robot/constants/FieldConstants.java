@@ -217,7 +217,7 @@ public class FieldConstants {
     public static final Translation2d FERRY_TARGET_2 = new Translation2d(
             FERRY_TARGET_1.getX(), FIELD_LENGTH_Y.minus(FERRY_TARGET_1.getMeasureY()).in(Meters));
 
-    public static final Translation2d FERRY_SHOOT_POS_1 = new Translation2d(5.837, 0.732);
+    public static final Translation2d FERRY_SHOOT_POS_1 = new Translation2d(5.9, 0.732);
     public static final Translation2d FERRY_SHOOT_POS_2 = new Translation2d(
             FERRY_SHOOT_POS_1.getX(), FIELD_LENGTH_Y.minus(FERRY_SHOOT_POS_1.getMeasureY()).in(Meters));
 
