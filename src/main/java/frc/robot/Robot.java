@@ -256,7 +256,7 @@ public class Robot extends TimedRobot {
         driveController.b().onTrue(
             Commands.either(
                 // get the angle from NT if we're at the arc
-                hood.runOnce(() -> hood.setHoodAngle(HoodConstants.LOWEST_ANGLE_DEGREES)),
+                hood.runOnce(() -> hood.setHoodAngle(HoodConstants.ANGLE_AT_ARC)),
                 // otherwise, shoot at the max angle
                 hood.runOnce(() -> hood.setHoodAngle(HoodConstants.HIGHEST_ANGLE_DEGREES)),
                 () -> lastDroveToArc
