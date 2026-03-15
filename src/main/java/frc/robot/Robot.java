@@ -237,8 +237,7 @@ public class Robot extends TimedRobot {
                     Rotation2d.kCW_90deg)
             ).withName("drive to and on arc")
         );
-        driveController.a().whileTrue(launcher.getLaunchFuelNT());
-        driveController.a().onFalse(Commands.waitTime(Seconds.of(0.1)).andThen(launcher.getResting()).withName("stop shooter"));
+        driveController.a().whileTrue(launcher.getLaunchFuel(RPM.of(3000)));
 
         // drive to the nearest ferry shoot position
         driveController.x().whileTrue(
@@ -259,15 +258,13 @@ public class Robot extends TimedRobot {
                 "drive to shooting pos")
             ).withName("drive to shooting pos")
         );
-        driveController.x().whileTrue(launcher.getLaunchFuelNT());
-        driveController.x().onFalse(Commands.waitTime(Seconds.of(0.1)).andThen(launcher.getResting()).withName("stop shooter"));
-
+        driveController.x().whileTrue(launcher.getLaunchFuel(RPM.of(3000)));
 
         // set the hood angle
         driveController.b().onTrue(
             Commands.either(
                 // get the angle from NT if we're at the arc
-                hood.runOnce(() -> hood.setHoodAngle(NTable.root("hood").getDouble("angle"))),
+                hood.runOnce(() -> hood.setHoodAngle(HoodConstants.LOWEST_ANGLE_DEGREES)),
                 // otherwise, shoot at the max angle
                 hood.runOnce(() -> hood.setHoodAngle(HoodConstants.HIGHEST_ANGLE_DEGREES)),
                 () -> lastDroveToArc
@@ -285,7 +282,7 @@ public class Robot extends TimedRobot {
         driveController.b().whileTrue(
             new SequentialCommandGroup(
                 // spin up the shooter
-                launcher.getLaunchFuelNT().until(() ->
+                launcher.getLaunchFuel(RPM.of(3000)).until(() ->
                     // are we ready?
                     launcher.atSetpoint() ||
                     // override with back button
@@ -312,7 +309,7 @@ public class Robot extends TimedRobot {
         driveController.povRight().whileTrue(intake.getLiftCommand());
     }
 
-    double angle = 8;
+    double angle = 20;
 
     private void setupSubsystemBindings() {
         subsystemController.b().whileTrue(hood.runOnce(() -> {
@@ -340,8 +337,8 @@ public class Robot extends TimedRobot {
 
         testController.povUp().onTrue(Commands.runOnce(() -> hood.setHoodAngle(HoodConstants.HIGHEST_ANGLE_DEGREES)));
         testController.povDown().onTrue(Commands.runOnce(() -> hood.setHoodAngle(HoodConstants.LOWEST_ANGLE_DEGREES)));
-        testController.povLeft().onTrue(Commands.runOnce(() -> hood.setServoPosition(current -= .025)));
-        testController.povRight().onTrue(Commands.runOnce(() -> hood.setServoPosition(current += .025)));
+        testController.povLeft().onTrue(Commands.runOnce(() -> hood.setHoodAngle(current -= 5)));
+        testController.povRight().onTrue(Commands.runOnce(() -> hood.setHoodAngle(current += 5)));
 
         testController.start().whileTrue(spindex.getRun());
     }
