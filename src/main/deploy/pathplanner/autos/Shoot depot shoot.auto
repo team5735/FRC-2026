@@ -5,21 +5,28 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "RIght Trench To Arc"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Left Trench to Arc"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "drop intake"
+                }
+              }
+            ]
           }
         },
         {
           "type": "deadline",
           "data": {
             "commands": [
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 3.0
-                }
-              },
               {
                 "type": "named",
                 "data": {
@@ -31,32 +38,20 @@
                 "data": {
                   "name": "launch at 3000 rpm"
                 }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 6.0
+                }
               }
             ]
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "Hood atZero"
-          }
-        },
-        {
           "type": "path",
           "data": {
-            "pathName": "Right side arc to right trench"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Right trench too sweep"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "drop intake"
+            "pathName": "Arc to depot"
           }
         },
         {
@@ -64,16 +59,16 @@
           "data": {
             "commands": [
               {
+                "type": "wait",
+                "data": {
+                  "waitTime": 2.0
+                }
+              },
+              {
                 "type": "named",
                 "data": {
                   "name": "run intake"
                 }
-              },
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Half Sweep Bottom top and back"
-                }
               }
             ]
           }
@@ -81,38 +76,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Rotate 180"
-          }
-        },
-        {
-          "type": "sequential",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Half To bottom"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Put up Intake"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Hood at20"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "RIght Trench To Arc"
+            "pathName": "Depot to left arc"
           }
         },
         {
