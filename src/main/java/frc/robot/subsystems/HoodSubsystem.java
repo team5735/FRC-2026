@@ -73,13 +73,13 @@ public class HoodSubsystem extends SubsystemBase {
     public double getHoodPosition() {
         return interp1(
                 HoodConstants.LOWEST_SERVO_POSITION, HoodConstants.HIGHEST_SERVO_POSITION,
-                0.0,                                 1.0,
+                0.0, 1.0,
                 this.getServoSetpoint());
     }
 
     public void setHoodPosition(double hoodPosition) {
         double servoPosition = interp1(
-                0,                                   1,
+                0, 1,
                 HoodConstants.LOWEST_SERVO_POSITION, HoodConstants.HIGHEST_SERVO_POSITION,
                 hoodPosition);
         this.setServoPosition(servoPosition);
@@ -88,25 +88,30 @@ public class HoodSubsystem extends SubsystemBase {
     public double getHoodAngle() {
         return interp1(
                 HoodConstants.LOWEST_SERVO_POSITION, HoodConstants.HIGHEST_SERVO_POSITION,
-                HoodConstants.LOWEST_ANGLE_DEGREES,  HoodConstants.HIGHEST_ANGLE_DEGREES,
+                HoodConstants.LOWEST_ANGLE_DEGREES, HoodConstants.HIGHEST_ANGLE_DEGREES,
                 this.getServoSetpoint());
     }
 
     public void setHoodAngle(double hoodAngleDegrees) {
         double servoPosition = interp1(
-                HoodConstants.LOWEST_ANGLE_DEGREES,  HoodConstants.HIGHEST_ANGLE_DEGREES,
+                HoodConstants.LOWEST_ANGLE_DEGREES, HoodConstants.HIGHEST_ANGLE_DEGREES,
                 HoodConstants.LOWEST_SERVO_POSITION, HoodConstants.HIGHEST_SERVO_POSITION,
                 hoodAngleDegrees);
 
         this.setServoPosition(servoPosition);
     }
 
-    public void exzSaveServoPosition() {
+    public void exclusionZoneEnter() {
         this.exclusionZoneSavedServoPosition = this.servo.get();
+        this.setHoodPosition(0);
     }
 
-    public double exzGetSavedServoPosition() {
-        return exclusionZoneSavedServoPosition;
+    public void exclusionZoneLeave() {
+        this.setHoodPosition(this.exclusionZoneSavedServoPosition);
+    }
+
+    public Command getExclusionZoneCommand() {
+        return startEnd(this::exclusionZoneEnter, this::exclusionZoneLeave).withName("exclusion zone");
     }
 
     // Returns raw voltage from analog feedback wire
@@ -118,8 +123,8 @@ public class HoodSubsystem extends SubsystemBase {
     public double getNormalizedPosition() {
         double v = this.getVoltage();
         return interp1(
-                HoodConstants.SERVO_VOLTAGE_AT_REF0,HoodConstants.SERVO_VOLTAGE_AT_REF1,
-                HoodConstants.SERVO_VOLTAGE_REF0,   HoodConstants.SERVO_VOLTAGE_REF1,
+                HoodConstants.SERVO_VOLTAGE_AT_REF0, HoodConstants.SERVO_VOLTAGE_AT_REF1,
+                HoodConstants.SERVO_VOLTAGE_REF0, HoodConstants.SERVO_VOLTAGE_REF1,
                 v);
     }
 

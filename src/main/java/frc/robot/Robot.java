@@ -174,7 +174,6 @@ public class Robot extends TimedRobot {
         setupOtherBindings();
     }
 
-    // all default commands go here
     private void setDefaultCommands() {
         drivetrain.setDefaultCommand(
                 drivetrain.joystickDriveCommand(
@@ -187,20 +186,8 @@ public class Robot extends TimedRobot {
         turret.setDefaultCommand(turret.holdRobotRel(TurretConstants.START_POS_BOT_REL));
     }
 
-    // any trigger that isn't a button goes here
     private void setupMiscTriggers() {
-        hood.exclusionZoneTrigger.onTrue(Commands.runOnce(() -> {
-            SmartDashboard.putBoolean("in_exclusion_zone", true);
-            // todo: add telemetry / debug / logging
-            hood.exzSaveServoPosition();
-            hood.setHoodPosition(0);
-        }).withName("enter exclusion zone"));
-        hood.exclusionZoneTrigger.onFalse(Commands.runOnce(() -> {
-            SmartDashboard.putBoolean("in_exclusion_zone", false);
-            // todo: add telemetry / debug / logging
-            double pos = hood.exzGetSavedServoPosition();
-            hood.setServoPosition(pos);
-        }).withName("leave exclusion zone"));
+        hood.exclusionZoneTrigger.whileTrue(hood.getExclusionZoneCommand());
 
         // resets the turrets position when it engages the Hall-Effect sensor
         turret.limitTrigger.onTrue(turret.zeroCommand());
