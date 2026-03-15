@@ -217,10 +217,10 @@ public class FieldConstants {
     public static final Translation2d FERRY_TARGET_2 = new Translation2d(
             FERRY_TARGET_1.getX(), FIELD_LENGTH_Y.minus(FERRY_TARGET_1.getMeasureY()).in(Meters));
 
-    public static final Pose2d FERRY_SHOOT_POS_1 = new Pose2d(new Translation2d(5.837, 0.732), Rotation2d.kCW_90deg);
+    public static final Pose2d FERRY_SHOOT_POS_1 = new Pose2d(new Translation2d(5.837, 0.732), Rotation2d.kCCW_90deg);
     public static final Pose2d FERRY_SHOOT_POS_2 = new Pose2d(new Translation2d(
             FERRY_SHOOT_POS_1.getX(), FIELD_LENGTH_Y.minus(FERRY_SHOOT_POS_1.getMeasureY()).in(Meters)),
-            Rotation2d.kCCW_90deg);
+            Rotation2d.kCW_90deg);
 
     public static Pose2d closestFerryShootPos(Translation2d drivetrainPosition) {
         Translation2d one = FERRY_SHOOT_POS_1.getTranslation();
