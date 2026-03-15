@@ -248,6 +248,7 @@ public class LaunchCalculator {
                         () -> controller.getLeftY() * DRIVETRAIN_VELOCITY_SCALING,
                         () -> controller.getLeftTriggerAxis() * DRIVETRAIN_VELOCITY_SCALING,
                         () -> controller.getRightTriggerAxis() * DRIVETRAIN_VELOCITY_SCALING,
-                        () -> controller.getHID().getBButton()));
+                        () -> controller.getHID().getBButton(),
+                        () -> controller.getHID().getStartButton()));
     }
 }

@@ -306,13 +306,16 @@ public class DrivetrainSubsystem extends SwerveDrivetrain<TalonFX, TalonFX, CANc
             Supplier<Double> stickY,
             Supplier<Double> leftTrigger,
             Supplier<Double> rightTrigger,
-            Supplier<Boolean> isSlowMode) {
+            Supplier<Boolean> isSlowMode,
+            Supplier<Boolean> isTurboMode) {
         return applyRequest(() -> {
             double speedMPS = (isSlowMode.get().booleanValue()) ? constants.getSlowSpeed().in(MetersPerSecond)
-                    : constants.getDefaultSpeed().in(MetersPerSecond);
+                    : (isTurboMode.get().booleanValue()) ? constants.getTurboSpeed().in(MetersPerSecond)
+                            : constants.getDefaultSpeed().in(MetersPerSecond);
             double rotationMPS = (isSlowMode.get().booleanValue())
                     ? constants.getSlowRotationalRate().in(RadiansPerSecond)
-                    : constants.getDefaultRotationalRate().in(RadiansPerSecond);
+                    : (isTurboMode.get().booleanValue()) ? constants.getTurboRotationalRate().in(RadiansPerSecond)
+                            : constants.getDefaultRotationalRate().in(RadiansPerSecond);
             return fieldCentricRequest
                     .withVelocityX(-deadband(stickY.get()) * speedMPS)
                     .withVelocityY(-deadband(stickX.get()) * speedMPS)
