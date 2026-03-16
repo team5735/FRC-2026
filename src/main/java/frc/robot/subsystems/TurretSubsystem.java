@@ -211,8 +211,7 @@ public class TurretSubsystem extends SubsystemBase {
                 () -> {
                     double newVel = pid.getController().getSetpoint().velocity;
                     double voltsToSet = pid.calculate(getAngleTurretRel().in(Rotations))
-                            + ff.calculateWithVelocities(newVel, newVel
-                                    + 0.02 * MAX_ACC.in(RotationsPerSecondPerSecond) * Math.signum(newVel - prevVel));
+                            + ff.calculateWithVelocities(prevVel, newVel);
                     kraken.setVoltage(voltsToSet);
                     prevVel = newVel;
                 }).withName("hold robot relative");
