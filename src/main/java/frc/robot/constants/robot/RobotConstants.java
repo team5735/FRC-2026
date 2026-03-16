@@ -37,9 +37,13 @@ public interface RobotConstants {
 
     public LinearVelocity getSlowSpeed();
 
+    public LinearVelocity getTurboSpeed();
+
     public AngularVelocity getDefaultRotationalRate();
 
     public AngularVelocity getSlowRotationalRate();
+
+    public AngularVelocity getTurboRotationalRate();
 
     public Mass getRobotMass();
 

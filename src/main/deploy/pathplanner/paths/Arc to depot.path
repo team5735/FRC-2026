@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.748384021577381,
-        "y": 3.9651589239211313
+        "x": 2.7092229352678574,
+        "y": 5.714142601376489
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.698540596898447,
-        "y": 3.720178040960286
+        "x": 1.8993723260788689,
+        "y": 5.864530319940477
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 7.748384021577381,
-        "y": 3.9651589239211313
+        "x": 0.7885933430989585,
+        "y": 5.9649587286086305
       },
       "prevControl": {
-        "x": 7.753340784329891,
-        "y": 4.215109780096931
+        "x": 2.0893706403459804,
+        "y": 5.939928094773065
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "depot"
     }
   ],
   "rotationTargets": [],
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -90.0
+    "rotation": 180.0
   },
   "reversed": false,
-  "folder": "Comp Sweep",
+  "folder": "Comp Depot",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 90.0
+    "rotation": -136.77489750172754
   },
   "useDefaultConstraints": true
 }

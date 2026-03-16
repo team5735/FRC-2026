@@ -8,24 +8,40 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 8.70561273484003,
-        "y": 1.1227290852864584
+        "x": 5.9284377325148805,
+        "y": 0.42559279668898853
       },
       "isLocked": false,
-      "linkedName": "start Sweep Bottom"
+      "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.640709170386905,
-        "y": 0.42100469680059516
+        "x": 4.555984119233631,
+        "y": 0.5424364071800596
       },
       "prevControl": {
-        "x": 2.640709170386905,
-        "y": 0.42100469680059505
+        "x": 6.299971865699403,
+        "y": 0.5148568289620539
+      },
+      "nextControl": {
+        "x": 2.791507667965928,
+        "y": 0.5703399956084674
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 2.676851341610863,
+        "y": 1.7731177339099702
+      },
+      "prevControl": {
+        "x": 3.3142913527715776,
+        "y": 0.7691395205543154
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Right Trench"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -42,13 +58,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 90.0
+    "rotation": -44.4091742451035
   },
   "reversed": false,
   "folder": "Comp Sweep",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 90.0
   },
   "useDefaultConstraints": true
 }

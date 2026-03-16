@@ -54,6 +54,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import frc.robot.PartialRobot;
+import frc.robot.Telemetry;
 import frc.robot.constants.Constants;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.robot.CompbotConstants;
@@ -107,6 +108,7 @@ public class TurretSubsystem extends SubsystemBase {
                         .getDistance(this.getMechanismPose().getTranslation()));
         SmartDashboard.putBoolean("turret/canTurnTo",
                 canTurnTo(FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER)));
+        Telemetry.field.getObject("turret_pose").setPose(getMechanismPose());
     }
 
     public Command hardRunForward() {
@@ -114,7 +116,7 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     public Command softRunForward() {
-        return startEnd(() -> kraken.setVoltage(0.35), () -> kraken.setVoltage(0));
+        return startEnd(() -> kraken.setVoltage(0.75), () -> kraken.setVoltage(0));
     }
 
     public Command softRunReverse() {
@@ -357,9 +359,9 @@ public class TurretSubsystem extends SubsystemBase {
      */
     public Command zeroSequence() {
         return hardRunForward().until(limitTrigger::getAsBoolean)
-                .andThen(softRunReverse().withTimeout(0.35))
+                .andThen(softRunReverse().withTimeout(0.25))
                 .andThen(softRunForward().until(limitTrigger::getAsBoolean))
-                .andThen(zeroCommand()).withName("zero sequence");
+                .andThen(zeroCommand()).andThen(holdRobotRel(Rotations.of(0.25))).withName("zero sequence");
     }
 
     /**

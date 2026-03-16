@@ -16,14 +16,14 @@ public class TurretConstants {
     public static final double GEAR_REDUCTION = 200 / 20; // initial gear 20T, secondary gear 200T
 
     // PID gains (with motion profiling)
-    public static final double KP = 10;
+    public static final double KP = 15;
     public static final double KI = 0;
     public static final double KD = 0.65;
 
     // Simple Feedforward gains, all roughly tuned due to SysID misbehavior
-    public static final double KS = 0.21;
-    public static final double KV = 0.61;
-    public static final double KA = 0.12;
+    public static final double KS = 0.25;
+    public static final double KV = 0.65;
+    public static final double KA = 0.135;
 
     public static final AngularVelocity MAX_VEL = RotationsPerSecond.of(2);
     public static final AngularAcceleration MAX_ACC = RotationsPerSecondPerSecond.of(3.5);
@@ -32,9 +32,10 @@ public class TurretConstants {
 
     // Imaginary, robot-relative hard stops for the turret; all setpoints are to be
     // within a set padding of these
-    public static final Angle REVERSE_LIMIT_BOT_REL = Rotations.of(0.56); // limit the turret would hit whild driving CW
-    public static final Angle FORWARD_LIMIT_BOT_REL = Rotations.of(0.320); // limit the turret would hit while driving
-                                                                           // CCW
+    public static final Angle REVERSE_LIMIT_BOT_REL = Rotations.of(0.55); // limit the turret would hit whild driving
+                                                                          // CW
+    public static final Angle FORWARD_LIMIT_BOT_REL = Rotations.of(0.3179); // limit the turret would hit while driving
+                                                                            // CCW
     public static final Angle ZERO_OFFSET = Rotations
             .of((REVERSE_LIMIT_BOT_REL.in(Rotations) + FORWARD_LIMIT_BOT_REL.in(Rotations)) / 2);
 

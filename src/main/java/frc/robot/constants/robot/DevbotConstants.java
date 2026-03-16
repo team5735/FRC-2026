@@ -91,6 +91,11 @@ public class DevbotConstants implements RobotConstants {
     }
 
     @Override
+    public LinearVelocity getTurboSpeed() {
+        return MetersPerSecond.of(3);
+    }
+
+    @Override
     public AngularVelocity getDefaultRotationalRate() {
         return RotationsPerSecond.of(0.25);
     }
@@ -98,6 +103,11 @@ public class DevbotConstants implements RobotConstants {
     @Override
     public AngularVelocity getSlowRotationalRate() {
         return RotationsPerSecond.of(0.0625);
+    }
+
+    @Override
+    public AngularVelocity getTurboRotationalRate() {
+        return RotationsPerSecond.of(0.5);
     }
 
     @Override
