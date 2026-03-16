@@ -185,6 +185,7 @@ public class Robot extends TimedRobot {
                         () -> driveController.getHID().getStartButton()));
 
         turret.setDefaultCommand(turret.holdRobotRel(TurretConstants.START_POS_BOT_REL));
+        hood.setDefaultCommand(hood.run(() -> hood.setHoodAngle(HoodConstants.LOWEST_ANGLE_DEGREES)));
     }
 
     // any trigger that isn't a button goes here
@@ -254,14 +255,6 @@ public class Robot extends TimedRobot {
         driveController.x().whileTrue(launcher.getLaunchFuel(RPM.of(3000)));
 
         // set the hood angle
-        driveController.b().onTrue(
-            Commands.either(
-                // get the angle from NT if we're at the arc
-                hood.runOnce(() -> hood.setHoodAngle(HoodConstants.ANGLE_AT_ARC)),
-                // otherwise, shoot at the max angle
-                hood.runOnce(() -> hood.setHoodAngle(HoodConstants.HIGHEST_ANGLE_DEGREES)),
-                () -> lastDroveToArc
-            ));
         driveController.b().whileTrue(
             // track the shooting target
             Commands.either(
@@ -269,8 +262,14 @@ public class Robot extends TimedRobot {
                 turret.trackFieldPosDynamic(
                     () -> FieldConstants.closestFerryTarget(drivetrain.getEstimatedPosition().getTranslation())
                 ),
+                () -> lastDroveToArc).alongWith(
+            Commands.either(
+                // get the angle from NT if we're at the arc
+                hood.run(() -> hood.setHoodAngle(HoodConstants.ANGLE_AT_ARC)),
+                // otherwise, shoot at the max angle
+                hood.run(() -> hood.setHoodAngle(HoodConstants.HIGHEST_ANGLE_DEGREES)),
                 () -> lastDroveToArc
-            )
+            ))
         );
         driveController.b().whileTrue(
             new SequentialCommandGroup(
