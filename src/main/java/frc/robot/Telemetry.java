@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.util.Color8Bit;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.robot.CompbotTunerConstants;
 import frc.robot.util.NTable;
+import frc.robot.util.Timer;
 
 public class Telemetry {
     // Mechanisms to represent the swerve module states
@@ -81,6 +82,8 @@ public class Telemetry {
 
     // Accept the swerve drive state and telemeterize it to SmartDashboard.
     public void telemeterize(SwerveDriveState state) {
+        var _Timer = new Timer("telemeterize");
+
         // Telemeterize the swerve drive state
         stateTable.set("pose", state.Pose);
         stateTable.set("speeds", state.Speeds);
@@ -133,5 +136,6 @@ public class Telemetry {
 
             table.set("mechanism", moduleMechanisms[i]);
         }
+        _Timer.toc();
     }
 }

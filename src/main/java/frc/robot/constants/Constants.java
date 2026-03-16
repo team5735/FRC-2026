@@ -18,6 +18,10 @@ public class Constants {
 
     public static final BotConfiguration CURRENT_ROBOT = BotConfiguration.FULL_COMPBOT;
 
+    // set this to true to enable Timer()'s to publish their profiling times to network tables
+    // this should be false during competition
+    public static final Boolean enableNTableTimerBasedProfiling = true;
+
     public static final int DRIVE_CONTROLLER_PORT = 0;
     public static final int SUBSYSTEM_CONTROLLER_PORT = 1;
     public static final int TEST_CONTROLLER_PORT = 2;
