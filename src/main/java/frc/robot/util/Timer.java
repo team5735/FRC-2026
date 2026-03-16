@@ -14,6 +14,11 @@ import frc.robot.constants.Constants;
  * var T = new Timer("MyField");
  * ... slow code chunk ...
  * T.toc();
+ *
+ * Publish to network tables with field name = calling function:
+ * var T = new Timer("");
+ * ... slow code chunk ...
+ * T.toc();
  * 
  * To disable all profiling telemetry publishing to network tables, set
  * Constants.enableNTableTimerBasedProfiling to false
@@ -31,10 +36,15 @@ public class Timer {
 
     /* create Timer with publishing to default network tables table 
      * and custom field
+     * if field is "" (empty string) it will default to the class+function name
+     * that the Timer is being instantiated from
     */
     public Timer(String name){
         table = NTable.root().sub("Timer");
         fieldName = name;
+        if (fieldName==""){
+            fieldName = getInstantiationFunction();
+        }
         startTime = RobotController.getFPGATime();
     }
 
@@ -85,4 +95,17 @@ public class Timer {
     public double msToc(){
         return usToc()/1000.0;
     }
+
+    /* called in Timer's constructor to get the class+function name of the one
+     * who is instantiating the Timer. Used to get a default field name for network tables
+     * Groks the stack trace:
+     *   new Timer(...) <-- [3]
+     *      Timer(...) <-- [2]
+     *         getInstantiationFunction() <-- [1]
+     *            getStackTrace() <-- [0]
+     */
+    private static String getInstantiationFunction() {
+        StackTraceElement e = Thread.currentThread().getStackTrace()[3];
+        return e.getClassName() + "." + e.getMethodName();
+    }    
 }

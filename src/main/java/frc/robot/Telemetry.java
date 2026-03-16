@@ -82,7 +82,7 @@ public class Telemetry {
 
     // Accept the swerve drive state and telemeterize it to SmartDashboard.
     public void telemeterize(SwerveDriveState state) {
-        var _Timer = new Timer("telemeterize");
+        var _Timer = new Timer("");
 
         // Telemeterize the swerve drive state
         stateTable.set("pose", state.Pose);
