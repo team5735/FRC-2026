@@ -5,9 +5,41 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "Hub To ARC"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Hub To ARC"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "drop intake"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "run spindex"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "launch at 3000 rpm"
+                }
+              }
+            ]
           }
         }
       ]

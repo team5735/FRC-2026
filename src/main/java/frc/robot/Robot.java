@@ -209,6 +209,7 @@ public class Robot extends TimedRobot {
         MatchState.hubActiveTrigger
                 .onFalse(Commands.runOnce(() -> driveController.setRumble(RumbleType.kBothRumble, 0)));
         driveController.setRumble(RumbleType.kBothRumble, 0);
+        intake.limitEngaged.onTrue(intake.zeroSlapdownPosition());
     }
 
     boolean lastDroveToArc = true;
