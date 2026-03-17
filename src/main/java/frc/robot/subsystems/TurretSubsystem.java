@@ -60,6 +60,7 @@ import frc.robot.constants.FieldConstants;
 import frc.robot.constants.robot.CompbotConstants;
 import frc.robot.constants.robot.RobotConstants;
 import frc.robot.util.TunableProfiledPIDController;
+import frc.robot.util.Timer;
 
 public class TurretSubsystem extends SubsystemBase {
     private final TalonFX kraken = new TalonFX(Constants.TURRET_MOTOR_ID);
@@ -211,11 +212,13 @@ public class TurretSubsystem extends SubsystemBase {
                     pid.setGoal(new State(formatInputPosRobotRel(goal).in(Rotations), 0));
                 },
                 () -> {
+                    var _T = new Timer("");
                     double newVel = pid.getController().getSetpoint().velocity;
                     double voltsToSet = pid.calculate(getAngleTurretRel().in(Rotations))
                             + ff.calculateWithVelocities(prevVel, newVel);
                     kraken.setVoltage(voltsToSet);
                     prevVel = newVel;
+                    _T.toc();
                 }).withName("hold robot relative");
     }
 

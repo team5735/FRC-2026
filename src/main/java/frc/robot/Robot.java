@@ -51,6 +51,7 @@ import frc.robot.subsystems.SpinDexSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.util.MatchState;
 import frc.robot.util.NTable;
+import frc.robot.util.Timer;
 import frc.robot.util.geometry.Arc;
 
 public class Robot extends TimedRobot {
@@ -335,10 +336,12 @@ public class Robot extends TimedRobot {
 
     @Override
     public void robotPeriodic() {
+        var _T = new Timer("");
         CommandScheduler.getInstance().run();
         NTable.updateAllSendables();
 
         NTable.root("telemetry").set("last drove to arc", lastDroveToArc);
+        _T.toc();
     }
 
     @Override

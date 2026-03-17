@@ -39,6 +39,8 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.constants.Constants;
 import frc.robot.constants.robot.RobotConstants;
 import frc.robot.util.NTable;
+import frc.robot.util.Timer;
+
 
 /**
  * Class that extends the Phoenix 6 SwerveDrivetrain class and implements
@@ -309,6 +311,7 @@ public class DrivetrainSubsystem extends SwerveDrivetrain<TalonFX, TalonFX, CANc
             Supplier<Boolean> isSlowMode,
             Supplier<Boolean> isTurboMode) {
         return applyRequest(() -> {
+            var _T = new Timer("");
             double speedMPS = (isSlowMode.get().booleanValue()) ? constants.getSlowSpeed().in(MetersPerSecond)
                     : (isTurboMode.get().booleanValue()) ? constants.getTurboSpeed().in(MetersPerSecond)
                             : constants.getDefaultSpeed().in(MetersPerSecond);
@@ -316,11 +319,13 @@ public class DrivetrainSubsystem extends SwerveDrivetrain<TalonFX, TalonFX, CANc
                     ? constants.getSlowRotationalRate().in(RadiansPerSecond)
                     : (isTurboMode.get().booleanValue()) ? constants.getTurboRotationalRate().in(RadiansPerSecond)
                             : constants.getDefaultRotationalRate().in(RadiansPerSecond);
-            return fieldCentricRequest
-                    .withVelocityX(-deadband(stickY.get()) * speedMPS)
-                    .withVelocityY(-deadband(stickX.get()) * speedMPS)
-                    .withRotationalRate(
-                            deadband(leftTrigger.get() - rightTrigger.get()) * rotationMPS);
+            var ret =  fieldCentricRequest
+                        .withVelocityX(-deadband(stickY.get()) * speedMPS)
+                        .withVelocityY(-deadband(stickX.get()) * speedMPS)
+                        .withRotationalRate(
+                                deadband(leftTrigger.get() - rightTrigger.get()) * rotationMPS);
+            _T.toc();
+            return ret;
         }).withName("Joystick Drive");
     }
 
