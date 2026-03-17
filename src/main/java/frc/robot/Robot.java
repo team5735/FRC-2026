@@ -187,6 +187,7 @@ public class Robot extends TimedRobot {
 
         turret.setDefaultCommand(turret.holdRobotRel(TurretConstants.START_POS_BOT_REL));
         hood.setDefaultCommand(hood.run(() -> hood.setHoodAngle(HoodConstants.LOWEST_ANGLE_DEGREES)));
+        launcher.setDefaultCommand(launcher.getResting());
     }
 
     // any trigger that isn't a button goes here
@@ -338,7 +339,9 @@ public class Robot extends TimedRobot {
     public void robotPeriodic() {
         var _T = new Timer("");
         CommandScheduler.getInstance().run();
+        var _TT = new Timer("Robot.robotPeriodic.updateAllSendables");
         NTable.updateAllSendables();
+        _TT.toc();
 
         NTable.root("telemetry").set("last drove to arc", lastDroveToArc);
         _T.toc();
