@@ -93,12 +93,6 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Spin 180"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
             "pathName": "Making sure the intake doesn't cross white line"
           }
         },

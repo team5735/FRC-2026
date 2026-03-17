@@ -79,12 +79,6 @@
           }
         },
         {
-          "type": "path",
-          "data": {
-            "pathName": "Rotate 180"
-          }
-        },
-        {
           "type": "sequential",
           "data": {
             "commands": [
