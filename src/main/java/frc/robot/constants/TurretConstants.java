@@ -82,34 +82,36 @@ public class TurretConstants {
      *         the bounds.
      */
     public static Angle formatInputPosTurretRel(Angle input) {
-        double softLowerLimit = REVERSE_LIMIT_TUR_REL.plus(SOFT_PADDING).in(Rotations);
-        double softUpperLimit = FORWARD_LIMIT_TUR_REL.minus(SOFT_PADDING).in(Rotations);
+        double softReverseLimit = REVERSE_LIMIT_TUR_REL.plus(SOFT_PADDING).in(Rotations);
+        double softForwardLimit = FORWARD_LIMIT_TUR_REL.minus(SOFT_PADDING).in(Rotations);
         double moddedInput = MathUtil.inputModulus(input.in(Rotations), 0, 1);
-        return Rotations.of(MathUtil.clamp(moddedInput, softLowerLimit, softUpperLimit));
+        return Rotations.of(MathUtil.clamp(moddedInput, softReverseLimit, softForwardLimit));
     }
 
     public static State formatInputStateTurretRel(State input) {
-        double softLowerLimit = REVERSE_LIMIT_TUR_REL.plus(SOFT_PADDING).in(Rotations);
-        double softUpperLimit = FORWARD_LIMIT_TUR_REL.minus(SOFT_PADDING).in(Rotations);
+        double softReverseLimit = REVERSE_LIMIT_TUR_REL.plus(SOFT_PADDING).in(Rotations);
+        double softForwardLimit = FORWARD_LIMIT_TUR_REL.minus(SOFT_PADDING).in(Rotations);
         double moddedInput = MathUtil.inputModulus(input.position, 0, 1);
-        double newPos = MathUtil.clamp(moddedInput, softLowerLimit, softUpperLimit);
+        double newPos = MathUtil.clamp(moddedInput, softReverseLimit, softForwardLimit);
 
         double newVel = input.velocity;
+        double maxVelRPS = MAX_VEL.in(RotationsPerSecond);
+        newVel = MathUtil.clamp(newVel, -maxVelRPS, maxVelRPS);
 
         if (newVel > 0) {
-            if (MathUtil.isNear(FORWARD_LIMIT_TUR_REL.in(Rotations), newPos, MAX_DECEL_PADDING.in(Rotations))) {
+            if (MathUtil.isNear(softForwardLimit, newPos, MAX_DECEL_PADDING.in(Rotations))) {
                 newVel = MathUtil.clamp(newVel, 0, Math.sqrt(
-                        MAX_VEL.in(RotationsPerSecond) * MAX_VEL.in(RotationsPerSecond)
+                        maxVelRPS * maxVelRPS
                                 - 2 * MAX_ACC.in(RotationsPerSecondPerSecond)
-                                        * (newPos - FORWARD_LIMIT_TUR_REL.minus(SOFT_PADDING).in(Rotations)
+                                        * (newPos - softForwardLimit
                                                 + MAX_DECEL_PADDING.in(Rotations))));
             }
         } else if (newVel < 0) {
-            if (MathUtil.isNear(REVERSE_LIMIT_TUR_REL.in(Rotations), newPos, MAX_DECEL_PADDING.in(Rotations))) {
-                newVel = -MathUtil.clamp(newVel, Math.sqrt(
-                        MAX_VEL.in(RotationsPerSecond) * MAX_VEL.in(RotationsPerSecond)
+            if (MathUtil.isNear(softReverseLimit, newPos, MAX_DECEL_PADDING.in(Rotations))) {
+                newVel = -MathUtil.clamp(newVel, -Math.sqrt(
+                        maxVelRPS * maxVelRPS
                                 + 2 * MAX_ACC.in(RotationsPerSecondPerSecond)
-                                        * (newPos - REVERSE_LIMIT_TUR_REL.plus(SOFT_PADDING).in(Rotations)
+                                        * (newPos - softReverseLimit
                                                 - MAX_DECEL_PADDING.in(Rotations))),
                         0);
             }
