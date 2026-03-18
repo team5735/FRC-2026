@@ -28,10 +28,31 @@ import frc.robot.constants.FieldConstants;
 import frc.robot.util.NTable;
 
 public class LimelightSubsystem extends SubsystemBase {
-    // In the Limelight web ui, under configuration, april tag
-    // Area (% of image) min/max sliders
-    public static final LL_WEBUI_MIN_TAG_AREA = 0.0010;
-    public static final LL_WEBUI_MAX_TAG_AREA = 1.0;
+    /*
+     * In the Limelight web ui, under configuration, april tag
+     * Area (% of image) min/max sliders:
+     *  0.1073 -- 1.0
+     * 
+     * MegaTag Field-Space Localization Setup
+     * fone:
+     *  forward: -0.263525
+     *    right: -0.37465
+     *       up: 0.42545
+     *     roll: 180
+     *    pitch: 0
+     *      yaw: 90
+     * ftwo:
+     *  forward: -0.263525
+     *    right: 0.37465
+     *       up: 0.2445
+     *     roll: 0
+     *    pitch: 0
+     *      yaw: -90
+     * 
+     * 
+     * 
+     * 
+     */
 
     private final DrivetrainSubsystem drivetrain;
     private final String limelightName;
