@@ -200,7 +200,7 @@ public class LaunchCalculator {
         cachedParams = new LaunchParams(
                 true, // TODO - set exclusion zones
                 turretAngle,
-                RotationsPerSecond.of(0),
+                turretVel,
                 hoodAngle,
                 flywheelVel);
     }
