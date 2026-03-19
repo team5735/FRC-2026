@@ -45,9 +45,11 @@ public class CANdleSubsystem extends SubsystemBase {
         public Tester() {
             super();
 
-        controller.x().onTrue(CANdle.setColor(new Color(1.0, 0.5, 0.0))); // This is the custom color for orange
+        controller.x().onTrue(CANdle.setColor(new Color(0.0, 1.0, 0.0))); // This is the custom color for orange
         controller.a().onTrue(CANdle.setColor(Color.kRed));              
-        controller.b().onTrue(CANdle.setColor(Color.kBlue));             
+        controller.b().onTrue(CANdle.setColor(Color.kBlue)); 
+        controller.y().onTrue(CANdle.setColor(new Color(0.0, 0.0, 0.0))); // This is the custom color for off
+
         }
 
         @Override

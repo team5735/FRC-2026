@@ -55,5 +55,5 @@ public class Constants {
     public static final int HOOD_SERVO_PIN = 0; // PWM
     public static final int HOOD_FEEDBACK_PIN = 0; // Analogue
 
-    public static final int CANDLE_ID = 1;
+    public static final int CANDLE_ID = 33;
 }
