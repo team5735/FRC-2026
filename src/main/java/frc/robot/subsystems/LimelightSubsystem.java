@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Telemetry;
 import frc.robot.constants.FieldConstants;
 import frc.robot.util.NTable;
+import frc.robot.util.Timer;
 
 public class LimelightSubsystem extends SubsystemBase {
     /*
@@ -167,7 +168,9 @@ public class LimelightSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
+        var _T = new Timer("LimelightSubsystem."+limelightName);
         handleVisionMeasurement();
+        _T.toc();
     }
 
     public void handleVisionMeasurement() {
