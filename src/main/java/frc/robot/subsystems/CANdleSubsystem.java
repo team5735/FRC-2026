@@ -11,6 +11,8 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+import frc.robot.PartialRobot;
+
 import frc.robot.constants.Constants;
 
 public class CANdleSubsystem extends SubsystemBase {
@@ -34,4 +36,24 @@ public class CANdleSubsystem extends SubsystemBase {
             )
         );
     }
+
+        // This is a full robot config for testing the hood subsystem
+    public static class Tester extends PartialRobot {
+        
+    public CANdleSubsystem CANdle = new CANdleSubsystem();
+
+        public Tester() {
+            super();
+
+        controller.x().onTrue(CANdle.setColor(new Color(1.0, 0.5, 0.0))); // This is the custom color for orange
+        controller.a().onTrue(CANdle.setColor(Color.kRed));              
+        controller.b().onTrue(CANdle.setColor(Color.kBlue));             
+        }
+
+        @Override
+        public void robotPeriodic() {
+            super.robotPeriodic();
+        }
+
+    };
 }

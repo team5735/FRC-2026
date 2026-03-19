@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.RobotBase;
 import frc.robot.constants.Constants;
 import frc.robot.constants.robot.CompbotTunerConstants;
 import frc.robot.constants.robot.DevbotTunerConstants;
+import frc.robot.subsystems.CANdleSubsystem;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.LauncherSubsystem;
 import frc.robot.subsystems.HoodSubsystem;
@@ -36,6 +37,7 @@ public final class Main {
             case TURRET -> new TurretSubsystem.Tester();
             case SPINDEX -> new SpinDexSubsystem.Tester();
             case LAUNCHER -> new LauncherSubsystem.Tester();
+            case CANDLE -> new CANdleSubsystem.Tester();
         });
     }
 }
