@@ -58,9 +58,10 @@ import frc.robot.Telemetry;
 import frc.robot.constants.Constants;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.robot.CompbotConstants;
+import frc.robot.constants.robot.CompbotTunerConstants;
 import frc.robot.constants.robot.RobotConstants;
-import frc.robot.util.TunableProfiledPIDController;
 import frc.robot.util.Timer;
+import frc.robot.util.TunableProfiledPIDController;
 
 public class TurretSubsystem extends SubsystemBase {
     private final TalonFX kraken = new TalonFX(Constants.TURRET_MOTOR_ID);
@@ -364,7 +365,7 @@ public class TurretSubsystem extends SubsystemBase {
         return hardRunForward().until(limitTrigger::getAsBoolean)
                 .andThen(softRunReverse().withTimeout(0.25))
                 .andThen(softRunForward().until(limitTrigger::getAsBoolean))
-                .andThen(zeroCommand()).andThen(holdRobotRel(Rotations.of(0.25))).withName("zero sequence");
+                .andThen(zeroCommand()).andThen(holdRobotRel(START_POS_BOT_REL)).withName("zero sequence");
     }
 
     /**
@@ -404,7 +405,7 @@ public class TurretSubsystem extends SubsystemBase {
                                                               // sensor
             // turret.setDefaultCommand(turret.holdRobotRel(Rotations.of(0)));
 
-            controller.a().onTrue(turret.holdRobotRel(Rotations.of(0.25)));
+            controller.a().onTrue(turret.holdRobotRel(Rotations.of(0.00)));
             controller.b().onTrue(turret.holdRobotRel(Rotations.of(0.75)));
             controller.rightBumper().whileTrue(turret.trackRobotRel(() -> {
                 double x = controller.getRightX();
@@ -431,4 +432,64 @@ public class TurretSubsystem extends SubsystemBase {
             }
         }
     }
+
+    public static class AimingTest extends PartialRobot {
+        private final DrivetrainSubsystem drivetrain = CompbotTunerConstants.createDrivetrain();
+        private final TurretSubsystem turret = new TurretSubsystem(drivetrain::getEstimatedPosition,
+                drivetrain.constants);
+        private final LimelightSubsystem[] limelights = { new LimelightSubsystem(drivetrain, "limelight-fone"),
+                new LimelightSubsystem(drivetrain, "limelight-ftwo") };
+
+        public AimingTest() {
+            super();
+
+            // turret.setDefaultCommand(turret.holdRobotRel(Rotations.of(0)));
+            turret.limitTrigger.onTrue(turret.zeroCommand()); // resets the turrets position when it engages the
+                                                              // Hall-Effect
+                                                              // sensor
+            // turret.setDefaultCommand(turret.holdRobotRel(Rotations.of(0)));
+
+            controller.a().onTrue(turret.holdRobotRel(Rotations.of(0.00)));
+            controller.b().onTrue(turret.holdRobotRel(Rotations.of(0.75)));
+            controller.rightBumper().whileTrue(turret.trackRobotRel(() -> {
+                double x = controller.getRightX();
+                double y = controller.getRightY();
+                return new Rotation2d(-y, -x).getMeasure();
+            }));
+            controller.leftBumper()
+                    .whileTrue(turret.trackFieldPos(FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER)));
+
+            controller.x().whileTrue(turret.zeroSequence());
+            controller.povUp().whileTrue(turret.sysId());
+            controller.povDown().onTrue(Commands.runOnce(turret::remakePID, turret));
+
+            for (LimelightSubsystem limelight : limelights) {
+                limelight.setIMUToPigeon();
+            }
+        }
+
+        @Override
+        public void teleopInit() {
+            if (!turret.getZeroStatus()) {
+                CommandScheduler.getInstance().schedule(turret.zeroSequence());
+            }
+
+            for (LimelightSubsystem limelight : limelights) {
+                limelight.setIMUMode(3);
+            }
+
+        }
+
+        @Override
+        public void autonomousInit() {
+            if (!turret.getZeroStatus()) {
+                CommandScheduler.getInstance().schedule(turret.zeroSequence());
+            }
+
+            for (LimelightSubsystem limelight : limelights) {
+                limelight.setIMUMode(3);
+            }
+        }
+    }
+
 }
