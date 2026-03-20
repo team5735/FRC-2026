@@ -32,7 +32,10 @@ public class LimelightSubsystem extends SubsystemBase {
     /*
      * In the Limelight web ui, under configuration, april tag
      * Area (% of image) min/max sliders:
-     *  0.1073 -- 1.0
+     *  0.1506 -- 1.0
+     * 
+     * exposure: 240 (2.40ms)
+     * gain: 3
      * 
      * MegaTag Field-Space Localization Setup
      * fone:
@@ -61,6 +64,15 @@ public class LimelightSubsystem extends SubsystemBase {
 
     private final NTable lltable;
 
+    private final NTable lltLimits;
+    private final NTable lltChecks;
+    private final NTable lltMeasurements;
+    private final NTable lltEstimate;
+    private final NTable lltEstimateMeasurements;
+    private final NTable lltEstimatePenalties;
+    private final NTable lltEstimateCoefficients;
+
+
     public LimelightSubsystem(
             DrivetrainSubsystem drivetrain,
             String limelightName) {
@@ -69,16 +81,22 @@ public class LimelightSubsystem extends SubsystemBase {
         this.limelightName = limelightName;
         this.drivetrain = drivetrain;
         this.table = NTable.root("vision").sub(limelightName);
+        this.lltLimits = table.sub("limits");
+        this.lltChecks = table.sub("checks");
+        this.lltMeasurements = table.sub("measurements");
+        this.lltEstimate = table.sub("estimate");
+        this.lltEstimateMeasurements = table.sub("estimate").sub("measurements");
+        this.lltEstimatePenalties = table.sub("estimate").sub("penalties");
+        this.lltEstimateCoefficients = table.sub("estimate").sub("coefficients");
 
         NTable.root("vision").ensure("enabled", true);
 
-        NTable limits = this.table.sub("limits");
-        limits.ensure("distance from ground", Centimeters.of(25).in(Meters));
-        limits.ensure("angular velocity", DegreesPerSecond.of(10).in(RadiansPerSecond));
-        limits.ensure("single tag ambiguity", 0.2);
-        limits.ensure("multi tag ambiguity", 0.5);
-        limits.ensure("(stddevs) angular velocity", DegreesPerSecond.of(1).in(RadiansPerSecond));
-        limits.ensure("drivetrain distance from estimate", 1);
+        lltLimits.ensure("distance from ground", Centimeters.of(25).in(Meters));
+        lltLimits.ensure("angular velocity", DegreesPerSecond.of(10).in(RadiansPerSecond));
+        lltLimits.ensure("single tag ambiguity", 0.2);
+        lltLimits.ensure("multi tag ambiguity", 0.5);
+        lltLimits.ensure("(stddevs) angular velocity", DegreesPerSecond.of(1).in(RadiansPerSecond));
+        lltLimits.ensure("drivetrain distance from estimate", 1);
 
         lltable = NTable.root(limelightName);
     }
@@ -156,9 +174,9 @@ public class LimelightSubsystem extends SubsystemBase {
     }
 
     private boolean check(double measurement, String name) {
-        this.table.sub("measurements").set(name, measurement);
-        boolean ok = measurement <= this.table.sub("limits").get(name, 0.0);
-        this.table.sub("checks").set(name, ok);
+        this.lltMeasurements.set(name, measurement);
+        boolean ok = measurement <= this.lltLimits.get(name, 0.0);
+        this.lltChecks.set(name, ok);
         return ok;
     }
 
@@ -175,17 +193,17 @@ public class LimelightSubsystem extends SubsystemBase {
 
     public void handleVisionMeasurement() {
         if (!NTable.root("vision").get("enabled", true)) {
-            this.table.sub("checks").set("enabled in network tables", false);
+            this.lltChecks.set("enabled in network tables", false);
             return;
         }
-        this.table.sub("checks").set("enabled in network tables", true);
+        this.lltChecks.set("enabled in network tables", true);
 
         PoseEstimate estimate = new PoseEstimate();
         if (estimate.pose2d == null) {
-            this.table.sub("checks").set("could retrieve pose estimate", false);
+            this.lltChecks.set("could retrieve pose estimate", false);
             return;
         }
-        this.table.sub("checks").set("could retrieve pose estimate", true);
+        this.lltChecks.set("could retrieve pose estimate", true);
 
         Telemetry.field.getObject(limelightName).setPose(estimate.pose2d);
 
@@ -207,10 +225,10 @@ public class LimelightSubsystem extends SubsystemBase {
                         .getX() > (FieldConstants.FIELD_LENGTH_X.in(Meters) - conservativeRobotRadius)
                 || estimate.pose2d.getTranslation().getY() < conservativeRobotRadius || estimate.pose2d.getTranslation()
                         .getY() > (FieldConstants.FIELD_LENGTH_Y.in(Meters) - conservativeRobotRadius)) {
-            this.table.sub("checks").set("in field", false);
+            this.lltChecks.set("in field", false);
             accepted = false;
         }
-        this.table.sub("checks").set("in field", true);
+        this.lltChecks.set("in field", true);
 
         double[] ambiguities = Arrays.stream(estimate.fiducials)
                 .mapToDouble(tag -> tag.ambiguity)
@@ -245,9 +263,9 @@ public class LimelightSubsystem extends SubsystemBase {
     }
 
     private double penalize(double measurement, String penaltyName) {
-        table.sub("estimate").sub("measurements").set(penaltyName, measurement);
-        double penalty = 1 + measurement * table.sub("estimate").sub("coefficients").get(penaltyName, 1.0);
-        table.sub("estimate").sub("penalties").set(penaltyName, penalty);
+        lltEstimateMeasurements.set(penaltyName, measurement);
+        double penalty = 1 + measurement * this.lltEstimateCoefficients.get(penaltyName, 1.0);
+        this.lltEstimatePenalties.set(penaltyName, penalty);
         return penalty;
     }
 
@@ -259,14 +277,11 @@ public class LimelightSubsystem extends SubsystemBase {
             drivetrain.resetPose(estimate.pose2d);
         }
 
-        NTable estimateTable = table.sub("estimate");
-        NTable coefficients = estimateTable.sub("coefficients");
-
-        coefficients.ensure("distance", 3);
-        coefficients.ensure("speed", 5);
-        coefficients.ensure("omega", 10);
-        coefficients.ensure("ambiguity", 1);
-        coefficients.ensure("one tag", 3);
+        lltEstimateCoefficients.ensure("distance", 3);
+        lltEstimateCoefficients.ensure("speed", 5);
+        lltEstimateCoefficients.ensure("omega", 10);
+        lltEstimateCoefficients.ensure("ambiguity", 1);
+        lltEstimateCoefficients.ensure("one tag", 3);
 
         Vector<N3> stddevs = VecBuilder.fill(
                 estimate.stddevs.getX(),
@@ -312,7 +327,7 @@ public class LimelightSubsystem extends SubsystemBase {
                 omegaPenalty *
                 ambiguityPenalty *
                 singleTagPenalty;
-        estimateTable.sub("penalties").set("total", totalPenalty);
+        this.lltEstimatePenalties.set("total", totalPenalty);
 
         stddevs = stddevs.times(totalPenalty);
         if (!check(
@@ -324,15 +339,15 @@ public class LimelightSubsystem extends SubsystemBase {
             stddevs.getData()[2] = 99999;
         }
 
-        estimateTable.set(
+        this.lltEstimate.set(
                 "stddevs",
                 new Pose2d(
                         stddevs.getData()[0],
                         stddevs.getData()[1],
                         Rotation2d.fromRadians(stddevs.getData()[2])));
-        estimateTable.set("pose", estimate.pose2d);
+        this.lltEstimate.set("pose", estimate.pose2d);
 
-        estimateTable.set("timestamp", estimate.timestamp);
+        this.lltEstimate.set("timestamp", estimate.timestamp);
 
         drivetrain.addVisionMeasurement(
                 estimate.pose2d,
