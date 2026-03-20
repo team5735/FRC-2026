@@ -281,7 +281,7 @@ public class LimelightSubsystem extends SubsystemBase {
         lltEstimateCoefficients.ensure("speed", 5);
         lltEstimateCoefficients.ensure("omega", 10);
         lltEstimateCoefficients.ensure("ambiguity", 1);
-        lltEstimateCoefficients.ensure("one tag", 3);
+        lltEstimateCoefficients.ensure("single tag", 3);
 
         Vector<N3> stddevs = VecBuilder.fill(
                 estimate.stddevs.getX(),
@@ -319,7 +319,7 @@ public class LimelightSubsystem extends SubsystemBase {
         ambiguityPenalty *= ambiguityPenalty;
 
         double singleTagPenalty = penalize(
-                estimate.fiducials.length == 1 ? 10 : 0,
+                estimate.fiducials.length == 1 ? 3.33 : 0,
                 "single tag");
 
         double totalPenalty = distPenalty *
