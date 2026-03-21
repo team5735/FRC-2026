@@ -78,8 +78,6 @@ public class Robot extends TimedRobot {
 
     public final HoodSubsystem hood;
 
-    public final Telemetry logger;
-
     private void resolveAllianceDependencies() {
         this.targetArc = new Arc(
                 FieldConstants.BLUE_HUB_CENTER,
@@ -91,7 +89,7 @@ public class Robot extends TimedRobot {
 
     public Robot(DrivetrainSubsystem drivetrain) {
         this.drivetrain = drivetrain;
-        this.logger = new Telemetry(this);
+        this.drivetrain.registerTelemetry(new Telemetry(this)::telemeterize);
         turret = new TurretSubsystem(drivetrain::getEstimatedPosition, drivetrain.constants);
         limelights = new LimelightSubsystem[] {
                 new LimelightSubsystem(drivetrain, "limelight-fone"),
@@ -99,14 +97,14 @@ public class Robot extends TimedRobot {
         };
         hood = new HoodSubsystem(turret::getMechanismPose, FieldConstants.HOOD_EXCLUSION_ZONES);
 
-        NTable.root().set("current robot", switch (Constants.CURRENT_ROBOT) {
-            case FULL_COMPBOT -> "compbot";
-            case FULL_DEVBOT -> "devbot";
-            default -> "???";
-        });
+        NTable.root().set("current robot", Constants.CURRENT_ROBOT.name());
         NTable.root().set("scheduler", CommandScheduler.getInstance());
 
-        configureBindings();
+        setDefaultCommands();
+        setupMiscTriggers();
+        setupDriverBindings();
+        setupSubsystemBindings();
+        setupOtherBindings();
         setupAutoChooser();
 
         CommandScheduler.getInstance().schedule(
@@ -164,16 +162,6 @@ public class Robot extends TimedRobot {
         SmartDashboard.putData("Choose an Auto", autoChooser);
     }
 
-    private void configureBindings() {
-        drivetrain.registerTelemetry(logger::telemeterize);
-
-        setDefaultCommands();
-        setupMiscTriggers();
-        setupDriverBindings();
-        setupSubsystemBindings();
-        setupOtherBindings();
-    }
-
     private void setDefaultCommands() {
         drivetrain.setDefaultCommand(
                 drivetrain.joystickDriveCommand(
@@ -192,7 +180,7 @@ public class Robot extends TimedRobot {
     private void setupMiscTriggers() {
         hood.exclusionZoneTrigger.whileTrue(hood.getExclusionZoneCommand());
 
-        // resets the turrets position when it engages the Hall-Effect sensor
+        // resets the turret's position when it engages the Hall-Effect sensor
         turret.limitTrigger.onTrue(turret.zeroCommand());
         MatchState.hubActiveTrigger
                 .onTrue(Commands.runOnce(() -> driveController.setRumble(RumbleType.kBothRumble, 0.5)));
@@ -291,10 +279,6 @@ public class Robot extends TimedRobot {
     double angle = 20;
 
     private void setupSubsystemBindings() {
-        subsystemController.b().whileTrue(hood.runOnce(() -> {
-            hood.exzSaveServoPosition();
-            hood.setHoodPosition(0);
-        }));
         subsystemController.povUp().onTrue(hood.runOnce(() -> hood.setHoodAngle(angle += 5)));
         subsystemController.povDown().onTrue(hood.runOnce(() -> hood.setHoodAngle(angle -= 5)));
         subsystemController.a().whileTrue(spindex.getBackwards());

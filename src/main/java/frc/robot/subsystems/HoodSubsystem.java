@@ -204,16 +204,7 @@ public class HoodSubsystem extends SubsystemBase {
 
             hood.setHoodPosition(0.4);
 
-            hood.exclusionZoneTrigger.onTrue(Commands.runOnce(() -> {
-                SmartDashboard.putBoolean("hood/in_exclusion_zone", true);
-                hood.exzSaveServoPosition();
-                hood.setHoodPosition(0);
-            }));
-            hood.exclusionZoneTrigger.onFalse(Commands.runOnce(() -> {
-                SmartDashboard.putBoolean("hood/in_exclusion_zone", false);
-                double pos = hood.exzGetSavedServoPosition();
-                hood.setServoPosition(pos);
-            }));
+            hood.exclusionZoneTrigger.whileTrue(hood.getExclusionZoneCommand());
         }
 
         @Override
