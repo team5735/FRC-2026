@@ -3,7 +3,6 @@
 package frc.robot.commands;
 
 import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
@@ -21,9 +20,6 @@ import edu.wpi.first.math.interpolation.InverseInterpolator;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -77,11 +73,6 @@ public class LaunchCalculator {
     private static final LinearFilter turretVelFiler = LinearFilter.movingAverage(50);
     private static final Timer timer = new Timer();
 
-    private static final Distance MIN_SCORE_DIST_M = Meters.of(0.91); // TODO update
-    private static final Distance MAX_SCORE_DIST_M = Meters.of(4.295); // TODO update
-
-    private static boolean allianceKnown = false;
-    private static boolean isBlue = true;
     private static Angle oldTurretAngle;
     private static LaunchParams cachedParams = new LaunchParams(
             false,
@@ -104,22 +95,16 @@ public class LaunchCalculator {
 
     public enum LaunchGoal {
         SCORE,
-        PASS
+        PASS_1,
+        PASS_2,
     }
 
     public static void calculate(LaunchGoal goal, DrivetrainSubsystem drivetrain, ChassisSpeeds robotVel,
             Pose2d turretPose) {
-        if (!allianceKnown) {
-            if (DriverStation.getAlliance().isPresent()) {
-                allianceKnown = true;
-                isBlue = DriverStation.getAlliance().get().equals(Alliance.Blue);
-            }
-        }
-
         Translation2d launchTarget = switch (goal) {
-            case SCORE -> isBlue ? FieldConstants.BLUE_HUB_CENTER
-                    : FieldConstants.redElement(FieldConstants.BLUE_HUB_CENTER);
-            case PASS -> new Translation2d(); // TODO set pass targets
+            case SCORE -> FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER);
+            case PASS_1 -> FieldConstants.alliance(FieldConstants.FERRY_TARGET_1);
+            case PASS_2 -> FieldConstants.alliance(FieldConstants.FERRY_TARGET_2);
         };
 
         Translation2d launchOrigin = turretPose.getTranslation();
@@ -223,18 +208,22 @@ public class LaunchCalculator {
                 turret.trackRobotRelWithVelocity(() -> getCachedParams().turretAngle,
                         () -> getCachedParams().turretVelocity),
                 launcher.getDynamicLaunch(() -> getCachedParams().flywheelVelocity),
+
                 spindex.getInformedRun(() -> {
                     LaunchParams params = getCachedParams();
-                    return (params.isValid
-                            && MathUtil.isNear(params.hoodAngle.in(Degrees),
-                                    hood.getHoodAngle(),
-                                    HoodConstants.DYNAMIC_TOLERANCE_DEGREES)
-                            && turret.getAngle().isNear(params.turretAngle,
-                                    TurretConstants.TOLERANCE)
-                            && MathUtil.isNear(params.flywheelVelocity.in(RPM),
-                                    launcher.getRPM(),
-                                    LauncherConstants.RPM_TOLERANCE))
-                            || override.getAsBoolean();
+                    return override.getAsBoolean() ||
+                            (params.isValid
+                                    && MathUtil.isNear(
+                                            params.hoodAngle.in(Degrees),
+                                            hood.getHoodAngle(),
+                                            HoodConstants.DYNAMIC_TOLERANCE_DEGREES)
+                                    && turret.getAngle().isNear(
+                                            params.turretAngle,
+                                            TurretConstants.TOLERANCE)
+                                    && MathUtil.isNear(
+                                            params.flywheelVelocity.in(RPM),
+                                            launcher.getRPM(),
+                                            LauncherConstants.RPM_TOLERANCE));
                 })));
     }
 

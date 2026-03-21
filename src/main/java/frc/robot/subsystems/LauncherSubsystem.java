@@ -58,7 +58,7 @@ public class LauncherSubsystem extends SubsystemBase {
 
         table.ensure("!! threshold", LauncherConstants.BANGBANG_THRESHOLD);
         table.ensure("!! mult", 5);
-        table.set("rpm", 3000.0);
+        table.set("rpm", LauncherConstants.DEFAULT_SETPOINT.in(RPM));
     }
 
     public double getRPM() {

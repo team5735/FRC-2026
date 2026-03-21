@@ -6,7 +6,6 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Seconds;
 
 import java.util.HashMap;
@@ -40,6 +39,7 @@ import frc.robot.commands.drivetrain.PIDToPose;
 import frc.robot.constants.Constants;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.HoodConstants;
+import frc.robot.constants.LauncherConstants;
 import frc.robot.constants.TurretConstants;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.DrivetrainSubsystem;
@@ -149,7 +149,7 @@ public class Robot extends TimedRobot {
         commandsForAuto.put("dynamic launch",
                 LaunchCalculator.dynamicLaunchCommand(LaunchGoal.SCORE, () -> false, hood, turret, drivetrain, launcher,
                         spindex));
-        commandsForAuto.put("launch at 3000 rpm", launcher.getLaunchFuel(RPM.of(3000)));
+        commandsForAuto.put("launch at 3000 rpm", launcher.getLaunchFuel(LauncherConstants.DEFAULT_SETPOINT));
         commandsForAuto.put("Turret track Blue Hub",
                 turret.trackFieldPos(FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER)));
         commandsForAuto.put("Hood atZero", hood.runOnce(() -> hood.setHoodAngle(0)));
@@ -215,7 +215,7 @@ public class Robot extends TimedRobot {
                     Rotation2d.kCW_90deg)
             ).withName("drive to and on arc")
         );
-        driveController.a().whileTrue(launcher.getLaunchFuel(RPM.of(3000)));
+        driveController.a().whileTrue(launcher.getLaunchFuel(LauncherConstants.DEFAULT_SETPOINT));
                 
         // drive to the nearest ferry shoot position
         driveController.x().whileTrue(
@@ -229,7 +229,7 @@ public class Robot extends TimedRobot {
                 "drive to shooting pos")
             ).withName("drive to shooting pos")
         );
-        driveController.x().whileTrue(launcher.getLaunchFuel(RPM.of(3000)));
+        driveController.x().whileTrue(launcher.getLaunchFuel(LauncherConstants.DEFAULT_SETPOINT));
 
         // set the hood angle
         driveController.b().whileTrue(
@@ -251,7 +251,7 @@ public class Robot extends TimedRobot {
         driveController.b().whileTrue(
             new SequentialCommandGroup(
                 // spin up the shooter
-                launcher.getLaunchFuel(RPM.of(3000)).until(() ->
+                launcher.getLaunchFuel(LauncherConstants.DEFAULT_SETPOINT).until(() ->
                     // are we ready?
                     launcher.atSetpoint()
                 ).withTimeout(Seconds.of(2)),
@@ -291,7 +291,7 @@ public class Robot extends TimedRobot {
 
     private void setupOtherBindings() {
         hood.setHoodAngle(20.0); // set hood to an initial value (make it similar to other values in this file)
-        testController.b().onTrue(launcher.getLaunchFuel(RPM.of(3000))
+        testController.b().onTrue(launcher.getLaunchFuel(LauncherConstants.DEFAULT_SETPOINT)
                 .until(() -> driveController.getHID().getBackButton() || launcher.atSetpoint())
                 .withTimeout(Seconds.of(2)));
         testController.x().onTrue(hood.runOnce(() -> hood.setHoodAngle(HoodConstants.ANGLE_AT_ARC)));
