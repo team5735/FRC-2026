@@ -4,13 +4,17 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RPM;
+import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Seconds;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.DoubleUnaryOperator;
 
 import com.ctre.phoenix6.SignalLogger;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -21,7 +25,6 @@ import com.revrobotics.util.StatusLogger;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -52,6 +55,7 @@ import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.util.MatchState;
 import frc.robot.util.NTable;
 import frc.robot.util.Timer;
+import frc.robot.util.TunablePIDController;
 import frc.robot.util.geometry.Arc;
 
 public class Robot extends TimedRobot {
@@ -216,11 +220,10 @@ public class Robot extends TimedRobot {
     }
 
     boolean lastDroveToArc = true;
+    TunablePIDController pidThetaFaceHub = new TunablePIDController("joystick theta");
 
     private void setupDriverBindings() {
         driveController.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
-
-        Translation2d hub = FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER);
 
         // @formatter:off
         // drive to and along the arc
@@ -256,22 +259,32 @@ public class Robot extends TimedRobot {
         );
         driveController.x().whileTrue(launcher.getLaunchFuel(RPM.of(3000)));
 
+        this.pidThetaFaceHub.ensureP(1);
+        this.pidThetaFaceHub.ensureTolerance(Degrees.of(2).in(Radians));
         // set the hood angle
         driveController.b().whileTrue(
-            // track the shooting target
-            Commands.either(
-                turret.trackFieldPos(hub),
-                turret.trackFieldPosDynamic(
-                    () -> FieldConstants.closestFerryTarget(drivetrain.getEstimatedPosition().getTranslation())
-                ),
-                () -> lastDroveToArc).alongWith(
+            drivetrain.run(() -> {
+                double speed = drivetrain.constants.getDefaultSpeed().in(MetersPerSecond);
+                Rotation2d angleToHub = FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER).minus(drivetrain.getEstimatedPosition().getTranslation()).getAngle();
+                double angleToFace = 180 - angleToHub.getDegrees();
+                DoubleUnaryOperator dead = in -> -DrivetrainSubsystem.deadband(in);
+                drivetrain.setControl(drivetrain.fieldCentricRequest
+                    .withVelocityX(dead.applyAsDouble(driveController.getLeftX() * speed))
+                    .withVelocityY(dead.applyAsDouble(driveController.getLeftY() * speed))
+                    .withRotationalRate(dead.applyAsDouble(
+                        this.pidThetaFaceHub.calculate(drivetrain.getEstimatedPosition().getRotation().getDegrees(), angleToFace)
+                    ))
+                );
+            })
+        );
+        driveController.b().whileTrue(
             Commands.either(
                 // get the angle from NT if we're at the arc
                 hood.run(() -> hood.setHoodAngle(HoodConstants.ANGLE_AT_ARC)),
                 // otherwise, shoot at the max angle
                 hood.run(() -> hood.setHoodAngle(HoodConstants.HIGHEST_ANGLE_DEGREES)),
                 () -> lastDroveToArc
-            ))
+            )
         );
         driveController.b().whileTrue(
             new SequentialCommandGroup(
