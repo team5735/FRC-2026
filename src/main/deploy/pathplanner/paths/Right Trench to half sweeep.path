@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.676851341610863,
-        "y": 1.7731177339099702
+        "x": 2.7430729166666663,
+        "y": 2.033161039806548
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.4484677850632437,
-        "y": 1.2073540387834827
+        "x": 3.514689360119047,
+        "y": 1.4673973446800606
       },
       "isLocked": false,
       "linkedName": "ZXcZ"
@@ -61,10 +61,10 @@
     "rotation": 90.0
   },
   "reversed": false,
-  "folder": "Comp Sweep",
+  "folder": "Comp half Sweep",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -44.4091742451035
+    "rotation": -48.303141809703675
   },
   "useDefaultConstraints": true
 }

@@ -4,20 +4,10 @@
   "holonomicMode": true,
   "pathFolders": [
     "ARC",
-    "Ball",
-    "Calibration",
-    "Comp Sweep",
-    "Comp climb auto",
-    "Hub",
-    "Intake ",
-    "Left Bump",
-    "Left Trench",
     "Comp Depot",
-    "Right Bump",
-    "Right Trench",
-    "Sweep",
-    "Test Sweep",
-    "Test auto for limelight"
+    "Comp climb auto",
+    "Comp half Sweep",
+    "Sweep"
   ],
   "autoFolders": [
     "Comp"
