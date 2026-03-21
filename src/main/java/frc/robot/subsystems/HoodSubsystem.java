@@ -14,15 +14,14 @@ import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.util.Timer;
 import frc.robot.PartialRobot;
 import frc.robot.constants.Constants;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.HoodConstants;
 import frc.robot.util.NTable;
+import frc.robot.util.Timer;
 
 public class HoodSubsystem extends SubsystemBase {
     public final Trigger exclusionZoneTrigger = new Trigger(this::isInExclusionZone);
@@ -46,7 +45,7 @@ public class HoodSubsystem extends SubsystemBase {
 
     public static double interp1(double x0, double x1, double y0, double y1, double xq) {
         if (x0 == x1) {
-            throw new IllegalArgumentException("x1 and x2 cannot be equal for interpolation");
+            throw new IllegalArgumentException("x0 and x1 cannot be equal for interpolation");
         }
         return y0 + (xq - x0) * (y1 - y0) / (x1 - x0);
     }

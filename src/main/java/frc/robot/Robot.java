@@ -83,7 +83,8 @@ public class Robot extends TimedRobot {
                 FieldConstants.BLUE_HUB_CENTER,
                 Feet.of(9).in(Meters),
                 Rotation2d.fromDegrees(90),
-                Rotation2d.fromDegrees(180)).alliance();
+                Rotation2d.fromDegrees(180))
+        .alliance();
         Telemetry.field.getObject("arc").setPoses(this.targetArc.getAsPoses());
     }
 
