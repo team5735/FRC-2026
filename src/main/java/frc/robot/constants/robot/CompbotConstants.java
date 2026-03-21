@@ -59,7 +59,7 @@ public class CompbotConstants implements RobotConstants {
 
     @Override
     public Distance getRobotTotalWidth() {
-        return Inches.of(25).plus(getBumperWidth().times(2)); 
+        return Inches.of(25).plus(getBumperWidth().times(2));
     }
 
     @Override
@@ -92,6 +92,11 @@ public class CompbotConstants implements RobotConstants {
     }
 
     @Override
+    public LinearVelocity getTurboSpeed() {
+        return MetersPerSecond.of(4);
+    }
+
+    @Override
     public AngularVelocity getDefaultRotationalRate() {
         return DegreesPerSecond.of(180);
     }
@@ -99,6 +104,11 @@ public class CompbotConstants implements RobotConstants {
     @Override
     public AngularVelocity getSlowRotationalRate() {
         return DegreesPerSecond.of(27);
+    }
+
+    @Override
+    public AngularVelocity getTurboRotationalRate() {
+        return DegreesPerSecond.of(270);
     }
 
     @Override
@@ -147,7 +157,7 @@ public class CompbotConstants implements RobotConstants {
     }
 
     public Translation2d getRobotToTurretCenter() {
-        return new Translation2d(Inches.of(-4.25), Inches.of(6.5));
+        return new Translation2d(Inches.of(-4.245), Inches.of(6.5));
     }
 
     public Distance getBumperWidth() {

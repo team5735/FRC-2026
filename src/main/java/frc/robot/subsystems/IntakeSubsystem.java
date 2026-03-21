@@ -89,12 +89,12 @@ public class IntakeSubsystem extends SubsystemBase {
 
     public Command getLiftCommand() {
         return runEnd(() -> runSlapdown(IntakeConstants.LIFT_VEL), () -> intakeSlapdown.setVoltage(0))
-                .until(() -> isAtPosition(IntakeConstants.UPPER_RELEASE_POS));
+                .until(() -> getSlapdownPosition().gte(IntakeConstants.UPPER_RELEASE_POS));
     }
 
     public Command getSlapdownCommand() {
         return runEnd(() -> runSlapdown(IntakeConstants.SLAPDOWN_VEL), () -> intakeSlapdown.setVoltage(0))
-                .until(() -> isAtPosition(IntakeConstants.LOWER_RELEASE_POS));
+                .until(() -> getSlapdownPosition().lte(IntakeConstants.LOWER_RELEASE_POS));
     }
 
     public Command zeroSlapdownPosition() {

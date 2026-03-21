@@ -54,10 +54,13 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import frc.robot.PartialRobot;
+import frc.robot.Telemetry;
 import frc.robot.constants.Constants;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.robot.CompbotConstants;
+import frc.robot.constants.robot.CompbotTunerConstants;
 import frc.robot.constants.robot.RobotConstants;
+import frc.robot.util.Timer;
 import frc.robot.util.TunableProfiledPIDController;
 
 public class TurretSubsystem extends SubsystemBase {
@@ -107,6 +110,7 @@ public class TurretSubsystem extends SubsystemBase {
                         .getDistance(this.getMechanismPose().getTranslation()));
         SmartDashboard.putBoolean("turret/canTurnTo",
                 canTurnTo(FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER)));
+        Telemetry.field.getObject("turret_pose").setPose(getMechanismPose());
     }
 
     public Command hardRunForward() {
@@ -114,7 +118,7 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     public Command softRunForward() {
-        return startEnd(() -> kraken.setVoltage(0.35), () -> kraken.setVoltage(0));
+        return startEnd(() -> kraken.setVoltage(0.75), () -> kraken.setVoltage(0));
     }
 
     public Command softRunReverse() {
@@ -186,8 +190,7 @@ public class TurretSubsystem extends SubsystemBase {
                 () -> {
                     double newVel = pid.getController().getSetpoint().velocity;
                     double voltsToSet = pid.calculate(getAngleTurretRel().in(Rotations), goalSupplier.get())
-                            + ff.calculateWithVelocities(newVel, newVel
-                                    + 0.02 * MAX_ACC.in(RotationsPerSecondPerSecond) * Math.signum(newVel - prevVel));
+                            + ff.calculateWithVelocities(prevVel, newVel);
                     kraken.setVoltage(voltsToSet);
                     prevVel = newVel;
                 });
@@ -210,12 +213,13 @@ public class TurretSubsystem extends SubsystemBase {
                     pid.setGoal(new State(formatInputPosRobotRel(goal).in(Rotations), 0));
                 },
                 () -> {
+                    var _T = new Timer("");
                     double newVel = pid.getController().getSetpoint().velocity;
                     double voltsToSet = pid.calculate(getAngleTurretRel().in(Rotations))
-                            + ff.calculateWithVelocities(newVel, newVel
-                                    + 0.02 * MAX_ACC.in(RotationsPerSecondPerSecond) * Math.signum(newVel - prevVel));
+                            + ff.calculateWithVelocities(prevVel, newVel);
                     kraken.setVoltage(voltsToSet);
                     prevVel = newVel;
+                    _T.toc();
                 }).withName("hold robot relative");
     }
 
@@ -359,9 +363,9 @@ public class TurretSubsystem extends SubsystemBase {
      */
     public Command zeroSequence() {
         return hardRunForward().until(limitTrigger::getAsBoolean)
-                .andThen(softRunReverse().withTimeout(0.35))
+                .andThen(softRunReverse().withTimeout(0.25))
                 .andThen(softRunForward().until(limitTrigger::getAsBoolean))
-                .andThen(zeroCommand()).withName("zero sequence");
+                .andThen(zeroCommand()).andThen(holdRobotRel(START_POS_BOT_REL)).withName("zero sequence");
     }
 
     /**
@@ -401,7 +405,7 @@ public class TurretSubsystem extends SubsystemBase {
                                                               // sensor
             // turret.setDefaultCommand(turret.holdRobotRel(Rotations.of(0)));
 
-            controller.a().onTrue(turret.holdRobotRel(Rotations.of(0.25)));
+            controller.a().onTrue(turret.holdRobotRel(Rotations.of(0.00)));
             controller.b().onTrue(turret.holdRobotRel(Rotations.of(0.75)));
             controller.rightBumper().whileTrue(turret.trackRobotRel(() -> {
                 double x = controller.getRightX();
@@ -428,4 +432,64 @@ public class TurretSubsystem extends SubsystemBase {
             }
         }
     }
+
+    public static class AimingTest extends PartialRobot {
+        private final DrivetrainSubsystem drivetrain = CompbotTunerConstants.createDrivetrain();
+        private final TurretSubsystem turret = new TurretSubsystem(drivetrain::getEstimatedPosition,
+                drivetrain.constants);
+        private final LimelightSubsystem[] limelights = { new LimelightSubsystem(drivetrain, "limelight-fone"),
+                new LimelightSubsystem(drivetrain, "limelight-ftwo") };
+
+        public AimingTest() {
+            super();
+
+            // turret.setDefaultCommand(turret.holdRobotRel(Rotations.of(0)));
+            turret.limitTrigger.onTrue(turret.zeroCommand()); // resets the turrets position when it engages the
+                                                              // Hall-Effect
+                                                              // sensor
+            // turret.setDefaultCommand(turret.holdRobotRel(Rotations.of(0)));
+
+            controller.a().onTrue(turret.holdRobotRel(Rotations.of(0.00)));
+            controller.b().onTrue(turret.holdRobotRel(Rotations.of(0.75)));
+            controller.rightBumper().whileTrue(turret.trackRobotRel(() -> {
+                double x = controller.getRightX();
+                double y = controller.getRightY();
+                return new Rotation2d(-y, -x).getMeasure();
+            }));
+            controller.leftBumper()
+                    .whileTrue(turret.trackFieldPos(FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER)));
+
+            controller.x().whileTrue(turret.zeroSequence());
+            controller.povUp().whileTrue(turret.sysId());
+            controller.povDown().onTrue(Commands.runOnce(turret::remakePID, turret));
+
+            for (LimelightSubsystem limelight : limelights) {
+                limelight.setIMUToPigeon();
+            }
+        }
+
+        @Override
+        public void teleopInit() {
+            if (!turret.getZeroStatus()) {
+                CommandScheduler.getInstance().schedule(turret.zeroSequence());
+            }
+
+            for (LimelightSubsystem limelight : limelights) {
+                limelight.setIMUMode(3);
+            }
+
+        }
+
+        @Override
+        public void autonomousInit() {
+            if (!turret.getZeroStatus()) {
+                CommandScheduler.getInstance().schedule(turret.zeroSequence());
+            }
+
+            for (LimelightSubsystem limelight : limelights) {
+                limelight.setIMUMode(3);
+            }
+        }
+    }
+
 }

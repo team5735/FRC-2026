@@ -25,7 +25,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -52,6 +51,7 @@ import frc.robot.subsystems.SpinDexSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.util.MatchState;
 import frc.robot.util.NTable;
+import frc.robot.util.Timer;
 import frc.robot.util.geometry.Arc;
 
 public class Robot extends TimedRobot {
@@ -106,8 +106,6 @@ public class Robot extends TimedRobot {
         });
         NTable.root().set("scheduler", CommandScheduler.getInstance());
 
-        NTable.root("hood").set("angle", 20.0);
-
         configureBindings();
         setupAutoChooser();
 
@@ -148,6 +146,7 @@ public class Robot extends TimedRobot {
                 climber.getFullyDetractCommand().alongWith(turret.holdRobotRel(TurretConstants.CLIMB_POS_BOT_REL)));
         commandsForAuto.put("drop intake", intake.getSlapdownCommand());
         commandsForAuto.put("run intake", intake.getIntakeForwardRollCommand());
+        commandsForAuto.put("Put up Intake", intake.getLiftCommand());
         commandsForAuto.put("run spindex", spindex.getRun());
         commandsForAuto.put("dynamic launch",
                 LaunchCalculator.dynamicLaunchCommand(LaunchGoal.SCORE, () -> false, hood, turret, drivetrain, launcher,
@@ -157,6 +156,7 @@ public class Robot extends TimedRobot {
                 turret.trackFieldPos(FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER)));
         commandsForAuto.put("Hood atZero", hood.runOnce(() -> hood.setHoodAngle(0)));
         commandsForAuto.put("Hood at20", hood.runOnce(() -> hood.setHoodAngle(20)));
+
         NamedCommands.registerCommands(commandsForAuto);
 
         autoChooser = AutoBuilder.buildAutoChooser();
@@ -181,9 +181,12 @@ public class Robot extends TimedRobot {
                         () -> driveController.getLeftY(),
                         () -> driveController.getLeftTriggerAxis(),
                         () -> driveController.getRightTriggerAxis(),
-                        () -> driveController.getHID().getYButton()));
+                        () -> driveController.getHID().getYButton(),
+                        () -> driveController.getHID().getStartButton()));
 
         turret.setDefaultCommand(turret.holdRobotRel(TurretConstants.START_POS_BOT_REL));
+        hood.setDefaultCommand(hood.run(() -> hood.setHoodAngle(HoodConstants.LOWEST_ANGLE_DEGREES)));
+        launcher.setDefaultCommand(launcher.getResting());
     }
 
     private void setupMiscTriggers() {
@@ -196,12 +199,13 @@ public class Robot extends TimedRobot {
         MatchState.hubActiveTrigger
                 .onFalse(Commands.runOnce(() -> driveController.setRumble(RumbleType.kBothRumble, 0)));
         driveController.setRumble(RumbleType.kBothRumble, 0);
+        intake.limitEngaged.onTrue(intake.zeroSlapdownPosition());
     }
 
     boolean lastDroveToArc = true;
 
     private void setupDriverBindings() {
-        driveController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+        driveController.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
         Translation2d hub = FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER);
 
@@ -223,41 +227,23 @@ public class Robot extends TimedRobot {
                     Rotation2d.kCW_90deg)
             ).withName("drive to and on arc")
         );
-        driveController.a().whileTrue(launcher.getLaunchFuelNT());
-        driveController.a().onFalse(Commands.waitTime(Seconds.of(0.1)).andThen(launcher.getResting()).withName("stop shooter"));
-
+        driveController.a().whileTrue(launcher.getLaunchFuel(RPM.of(3000)));
+                
         // drive to the nearest ferry shoot position
         driveController.x().whileTrue(
             new SequentialCommandGroup(
                 Commands.runOnce(() -> this.lastDroveToArc = false),
                 hood.runOnce(() -> hood.setHoodAngle(HoodConstants.HIGHEST_ANGLE_DEGREES)),
                 // drive to the nearest shooting start position
-                new PIDToPose(drivetrain,
-                    () -> {
-                        Pose2d estimate = drivetrain.getEstimatedPosition();
-                        Translation2d res = FieldConstants.closestFerryShootPos(estimate.getTranslation());
-                        Rotation2d offset = estimate.getRotation();
-                        if (!turret.canTurnTo(res)) {
-                            offset = offset.plus(Rotation2d.kCW_90deg);
-                        }
-                        return new Pose2d(res, offset);
-                    },
+                new PIDToPose(drivetrain, () ->
+                    FieldConstants.closestFerryShootPos(drivetrain.getEstimatedPosition().getTranslation()
+                ),
                 "drive to shooting pos")
             ).withName("drive to shooting pos")
         );
-        driveController.x().whileTrue(launcher.getLaunchFuelNT());
-        driveController.x().onFalse(Commands.waitTime(Seconds.of(0.1)).andThen(launcher.getResting()).withName("stop shooter"));
-
+        driveController.x().whileTrue(launcher.getLaunchFuel(RPM.of(3000)));
 
         // set the hood angle
-        driveController.b().onTrue(
-            Commands.either(
-                // get the angle from NT if we're at the arc
-                hood.runOnce(() -> hood.setHoodAngle(NTable.root("hood").getDouble("angle"))),
-                // otherwise, shoot at the max angle
-                hood.runOnce(() -> hood.setHoodAngle(HoodConstants.HIGHEST_ANGLE_DEGREES)),
-                () -> lastDroveToArc
-            ));
         driveController.b().whileTrue(
             // track the shooting target
             Commands.either(
@@ -265,17 +251,21 @@ public class Robot extends TimedRobot {
                 turret.trackFieldPosDynamic(
                     () -> FieldConstants.closestFerryTarget(drivetrain.getEstimatedPosition().getTranslation())
                 ),
+                () -> lastDroveToArc).alongWith(
+            Commands.either(
+                // get the angle from NT if we're at the arc
+                hood.run(() -> hood.setHoodAngle(HoodConstants.ANGLE_AT_ARC)),
+                // otherwise, shoot at the max angle
+                hood.run(() -> hood.setHoodAngle(HoodConstants.HIGHEST_ANGLE_DEGREES)),
                 () -> lastDroveToArc
-            )
+            ))
         );
         driveController.b().whileTrue(
             new SequentialCommandGroup(
                 // spin up the shooter
-                launcher.getLaunchFuelNT().until(() ->
+                launcher.getLaunchFuel(RPM.of(3000)).until(() ->
                     // are we ready?
-                    launcher.atSetpoint() ||
-                    // override with back button
-                    driveController.getHID().getBackButton()
+                    launcher.atSetpoint()
                 ).withTimeout(Seconds.of(2)),
                 new ParallelCommandGroup(
                     // spin the spindex (and the feeder)
@@ -298,7 +288,7 @@ public class Robot extends TimedRobot {
         driveController.povRight().whileTrue(intake.getLiftCommand());
     }
 
-    double angle = 8;
+    double angle = 20;
 
     private void setupSubsystemBindings() {
         subsystemController.b().whileTrue(hood.runOnce(() -> {
@@ -326,18 +316,22 @@ public class Robot extends TimedRobot {
 
         testController.povUp().onTrue(Commands.runOnce(() -> hood.setHoodAngle(HoodConstants.HIGHEST_ANGLE_DEGREES)));
         testController.povDown().onTrue(Commands.runOnce(() -> hood.setHoodAngle(HoodConstants.LOWEST_ANGLE_DEGREES)));
-        testController.povLeft().onTrue(Commands.runOnce(() -> hood.setServoPosition(current -= .025)));
-        testController.povRight().onTrue(Commands.runOnce(() -> hood.setServoPosition(current += .025)));
+        testController.povLeft().onTrue(Commands.runOnce(() -> hood.setHoodAngle(current -= 5)));
+        testController.povRight().onTrue(Commands.runOnce(() -> hood.setHoodAngle(current += 5)));
 
         testController.start().whileTrue(spindex.getRun());
     }
 
     @Override
     public void robotPeriodic() {
+        var _T = new Timer("");
         CommandScheduler.getInstance().run();
+        var _TT = new Timer("Robot.robotPeriodic.updateAllSendables");
         NTable.updateAllSendables();
+        _TT.toc();
 
         NTable.root("telemetry").set("last drove to arc", lastDroveToArc);
+        _T.toc();
     }
 
     @Override

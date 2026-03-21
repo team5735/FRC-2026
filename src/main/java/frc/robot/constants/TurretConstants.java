@@ -16,25 +16,26 @@ public class TurretConstants {
     public static final double GEAR_REDUCTION = 200 / 20; // initial gear 20T, secondary gear 200T
 
     // PID gains (with motion profiling)
-    public static final double KP = 10;
+    public static final double KP = 0;
     public static final double KI = 0;
-    public static final double KD = 0.65;
+    public static final double KD = 0;
 
     // Simple Feedforward gains, all roughly tuned due to SysID misbehavior
-    public static final double KS = 0.21;
-    public static final double KV = 0.61;
-    public static final double KA = 0.12;
+    public static final double KS = 0.25;
+    public static final double KV = 0.81;
+    public static final double KA = 0.135;
 
     public static final AngularVelocity MAX_VEL = RotationsPerSecond.of(2);
-    public static final AngularAcceleration MAX_ACC = RotationsPerSecondPerSecond.of(3.5);
+    public static final AngularAcceleration MAX_ACC = RotationsPerSecondPerSecond.of(7.5);
     public static final TrapezoidProfile.Constraints CONSTRAINTS = new TrapezoidProfile.Constraints(
             MAX_VEL.in(RotationsPerSecond), MAX_ACC.in(RotationsPerSecondPerSecond));
 
     // Imaginary, robot-relative hard stops for the turret; all setpoints are to be
     // within a set padding of these
-    public static final Angle REVERSE_LIMIT_BOT_REL = Rotations.of(0.56); // limit the turret would hit whild driving CW
-    public static final Angle FORWARD_LIMIT_BOT_REL = Rotations.of(0.320); // limit the turret would hit while driving
-                                                                           // CCW
+    public static final Angle REVERSE_LIMIT_BOT_REL = Rotations.of(0.5); // limit the turret would hit whild driving
+                                                                          // CW
+    public static final Angle FORWARD_LIMIT_BOT_REL = Rotations.of(0.2516); // limit the turret would hit while driving
+                                                                            // CCW
     public static final Angle ZERO_OFFSET = Rotations
             .of((REVERSE_LIMIT_BOT_REL.in(Rotations) + FORWARD_LIMIT_BOT_REL.in(Rotations)) / 2);
 
@@ -44,10 +45,10 @@ public class TurretConstants {
     public static final Angle SOFT_PADDING = Rotations.of(0.05);
     public static final Angle MAX_DECEL_PADDING = Rotations.of(MAX_VEL.in(RotationsPerSecond)
             * MAX_VEL.in(RotationsPerSecond) / (MAX_ACC.in(RotationsPerSecondPerSecond) * 2));
-    public static final Angle TOLERANCE = Degrees.of(1);
+    public static final Angle TOLERANCE = Degrees.of(1); // Maximum tolerance of +-2º (based on field geometry)
 
     // Ideal robot-relative starting angle
-    public static final Angle START_POS_BOT_REL = Rotations.of(0.25);
+    public static final Angle START_POS_BOT_REL = Rotations.of(0);
 
     public static final Angle CLIMB_POS_BOT_REL = Rotations.of(0.30);
 
@@ -81,34 +82,36 @@ public class TurretConstants {
      *         the bounds.
      */
     public static Angle formatInputPosTurretRel(Angle input) {
-        double softLowerLimit = REVERSE_LIMIT_TUR_REL.plus(SOFT_PADDING).in(Rotations);
-        double softUpperLimit = FORWARD_LIMIT_TUR_REL.minus(SOFT_PADDING).in(Rotations);
+        double softReverseLimit = REVERSE_LIMIT_TUR_REL.plus(SOFT_PADDING).in(Rotations);
+        double softForwardLimit = FORWARD_LIMIT_TUR_REL.minus(SOFT_PADDING).in(Rotations);
         double moddedInput = MathUtil.inputModulus(input.in(Rotations), 0, 1);
-        return Rotations.of(MathUtil.clamp(moddedInput, softLowerLimit, softUpperLimit));
+        return Rotations.of(MathUtil.clamp(moddedInput, softReverseLimit, softForwardLimit));
     }
 
     public static State formatInputStateTurretRel(State input) {
-        double softLowerLimit = REVERSE_LIMIT_TUR_REL.plus(SOFT_PADDING).in(Rotations);
-        double softUpperLimit = FORWARD_LIMIT_TUR_REL.minus(SOFT_PADDING).in(Rotations);
+        double softReverseLimit = REVERSE_LIMIT_TUR_REL.plus(SOFT_PADDING).in(Rotations);
+        double softForwardLimit = FORWARD_LIMIT_TUR_REL.minus(SOFT_PADDING).in(Rotations);
         double moddedInput = MathUtil.inputModulus(input.position, 0, 1);
-        double newPos = MathUtil.clamp(moddedInput, softLowerLimit, softUpperLimit);
+        double newPos = MathUtil.clamp(moddedInput, softReverseLimit, softForwardLimit);
 
         double newVel = input.velocity;
+        double maxVelRPS = MAX_VEL.in(RotationsPerSecond);
+        newVel = MathUtil.clamp(newVel, -maxVelRPS, maxVelRPS);
 
         if (newVel > 0) {
-            if (MathUtil.isNear(FORWARD_LIMIT_TUR_REL.in(Rotations), newPos, MAX_DECEL_PADDING.in(Rotations))) {
+            if (MathUtil.isNear(softForwardLimit, newPos, MAX_DECEL_PADDING.in(Rotations))) {
                 newVel = MathUtil.clamp(newVel, 0, Math.sqrt(
-                        MAX_VEL.in(RotationsPerSecond) * MAX_VEL.in(RotationsPerSecond)
+                        maxVelRPS * maxVelRPS
                                 - 2 * MAX_ACC.in(RotationsPerSecondPerSecond)
-                                        * (newPos - FORWARD_LIMIT_TUR_REL.minus(SOFT_PADDING).in(Rotations)
+                                        * (newPos - softForwardLimit
                                                 + MAX_DECEL_PADDING.in(Rotations))));
             }
         } else if (newVel < 0) {
-            if (MathUtil.isNear(REVERSE_LIMIT_TUR_REL.in(Rotations), newPos, MAX_DECEL_PADDING.in(Rotations))) {
-                newVel = -MathUtil.clamp(newVel, Math.sqrt(
-                        MAX_VEL.in(RotationsPerSecond) * MAX_VEL.in(RotationsPerSecond)
+            if (MathUtil.isNear(softReverseLimit, newPos, MAX_DECEL_PADDING.in(Rotations))) {
+                newVel = -MathUtil.clamp(newVel, -Math.sqrt(
+                        maxVelRPS * maxVelRPS
                                 + 2 * MAX_ACC.in(RotationsPerSecondPerSecond)
-                                        * (newPos - REVERSE_LIMIT_TUR_REL.plus(SOFT_PADDING).in(Rotations)
+                                        * (newPos - softReverseLimit
                                                 - MAX_DECEL_PADDING.in(Rotations))),
                         0);
             }

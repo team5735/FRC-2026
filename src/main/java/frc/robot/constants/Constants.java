@@ -13,10 +13,15 @@ public class Constants {
         CLIMBER,
         TURRET,
         SPINDEX,
-        LAUNCHER
+        LAUNCHER,
+        CANDLE
     }
 
-    public static final BotConfiguration CURRENT_ROBOT = BotConfiguration.FULL_COMPBOT;
+    public static final BotConfiguration CURRENT_ROBOT = BotConfiguration.CANDLE;
+
+    // set this to true to enable Timer()'s to publish their profiling times to network tables
+    // this should be false during competition
+    public static final Boolean enableNTableTimerBasedProfiling = true;
 
     public static final int DRIVE_CONTROLLER_PORT = 0;
     public static final int SUBSYSTEM_CONTROLLER_PORT = 1;
@@ -50,5 +55,5 @@ public class Constants {
     public static final int HOOD_SERVO_PIN = 0; // PWM
     public static final int HOOD_FEEDBACK_PIN = 0; // Analogue
 
-    public static final int CANDLE_ID = 1;
+    public static final int CANDLE_ID = 33;
 }

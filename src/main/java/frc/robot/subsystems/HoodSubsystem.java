@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.util.Timer;
 import frc.robot.PartialRobot;
 import frc.robot.constants.Constants;
 import frc.robot.constants.FieldConstants;
@@ -93,12 +94,14 @@ public class HoodSubsystem extends SubsystemBase {
     }
 
     public void setHoodAngle(double hoodAngleDegrees) {
+        var _T = new Timer("hood::setHoodAngle");
         double servoPosition = interp1(
                 HoodConstants.LOWEST_ANGLE_DEGREES, HoodConstants.HIGHEST_ANGLE_DEGREES,
                 HoodConstants.LOWEST_SERVO_POSITION, HoodConstants.HIGHEST_SERVO_POSITION,
                 hoodAngleDegrees);
 
         this.setServoPosition(servoPosition);
+        _T.toc();
     }
 
     public void exclusionZoneEnter() {
