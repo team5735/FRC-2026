@@ -16,17 +16,17 @@ public class TurretConstants {
     public static final double GEAR_REDUCTION = 200 / 20; // initial gear 20T, secondary gear 200T
 
     // PID gains (with motion profiling)
-    public static final double KP = 0;
+    public static final double KP = 0.15;
     public static final double KI = 0;
     public static final double KD = 0;
 
     // Simple Feedforward gains, all roughly tuned due to SysID misbehavior
-    public static final double KS = 0.25;
-    public static final double KV = 0.81;
-    public static final double KA = 0.135;
+    public static final double KS = 0.45;
+    public static final double KV = 1.0;
+    public static final double KA = 0.2;
 
-    public static final AngularVelocity MAX_VEL = RotationsPerSecond.of(2);
-    public static final AngularAcceleration MAX_ACC = RotationsPerSecondPerSecond.of(7.5);
+    public static final AngularVelocity MAX_VEL = RotationsPerSecond.of(0.75);
+    public static final AngularAcceleration MAX_ACC = RotationsPerSecondPerSecond.of(5);
     public static final TrapezoidProfile.Constraints CONSTRAINTS = new TrapezoidProfile.Constraints(
             MAX_VEL.in(RotationsPerSecond), MAX_ACC.in(RotationsPerSecondPerSecond));
 
@@ -34,8 +34,9 @@ public class TurretConstants {
     // within a set padding of these
     public static final Angle REVERSE_LIMIT_BOT_REL = Rotations.of(0.5); // limit the turret would hit whild driving
                                                                           // CW
-    public static final Angle FORWARD_LIMIT_BOT_REL = Rotations.of(0.2516); // limit the turret would hit while driving
-                                                                            // CCW
+    public static final Angle FORWARD_LIMIT_BOT_REL = Rotations.of(0.290); // limit the turret would hit while driving
+                                                                            // CCW //TODOs
+    public static final Angle HALL_LIMIT_POS_BOT_REL = Rotations.of(0.283);
     public static final Angle ZERO_OFFSET = Rotations
             .of((REVERSE_LIMIT_BOT_REL.in(Rotations) + FORWARD_LIMIT_BOT_REL.in(Rotations)) / 2);
 
