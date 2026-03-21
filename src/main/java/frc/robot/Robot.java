@@ -206,7 +206,7 @@ public class Robot extends TimedRobot {
         }).withName("leave exclusion zone"));
 
         // resets the turrets position when it engages the Hall-Effect sensor
-        turret.limitTrigger.onTrue(turret.zeroCommand());
+        // turret.limitTrigger.onTrue(turret.zeroCommand());
         MatchState.hubActiveTrigger
                 .onTrue(Commands.runOnce(() -> driveController.setRumble(RumbleType.kBothRumble, 0.5)));
         MatchState.hubActiveTrigger

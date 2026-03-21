@@ -26,12 +26,16 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Telemetry;
 import frc.robot.constants.FieldConstants;
 import frc.robot.util.NTable;
+import frc.robot.util.Timer;
 
 public class LimelightSubsystem extends SubsystemBase {
     /*
      * In the Limelight web ui, under configuration, april tag
      * Area (% of image) min/max sliders:
-     *  0.1073 -- 1.0
+     *  0.1506 -- 1.0
+     * 
+     * exposure: 240 (2.40ms)
+     * gain: 3
      * 
      * MegaTag Field-Space Localization Setup
      * fone:
@@ -167,7 +171,9 @@ public class LimelightSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
+        var _T = new Timer("LimelightSubsystem."+limelightName);
         handleVisionMeasurement();
+        _T.toc();
     }
 
     public void handleVisionMeasurement() {
@@ -301,7 +307,7 @@ public class LimelightSubsystem extends SubsystemBase {
         ambiguityPenalty *= ambiguityPenalty;
 
         double singleTagPenalty = penalize(
-                estimate.fiducials.length == 1 ? 10 : 0,
+                estimate.fiducials.length == 1 ? 3.33 : 0,
                 "single tag");
 
         double totalPenalty = distPenalty *

@@ -16,26 +16,27 @@ public class TurretConstants {
     public static final double GEAR_REDUCTION = 200 / 20; // initial gear 20T, secondary gear 200T
 
     // PID gains (with motion profiling)
-    public static final double KP = 15;
+    public static final double KP = 0.15;
     public static final double KI = 0;
-    public static final double KD = 0.65;
+    public static final double KD = 0;
 
     // Simple Feedforward gains, all roughly tuned due to SysID misbehavior
-    public static final double KS = 0.25;
-    public static final double KV = 0.65;
-    public static final double KA = 0.135;
+    public static final double KS = 0.45;
+    public static final double KV = 1.0;
+    public static final double KA = 0.2;
 
-    public static final AngularVelocity MAX_VEL = RotationsPerSecond.of(2);
-    public static final AngularAcceleration MAX_ACC = RotationsPerSecondPerSecond.of(3.5);
+    public static final AngularVelocity MAX_VEL = RotationsPerSecond.of(0.75);
+    public static final AngularAcceleration MAX_ACC = RotationsPerSecondPerSecond.of(5);
     public static final TrapezoidProfile.Constraints CONSTRAINTS = new TrapezoidProfile.Constraints(
             MAX_VEL.in(RotationsPerSecond), MAX_ACC.in(RotationsPerSecondPerSecond));
 
     // Imaginary, robot-relative hard stops for the turret; all setpoints are to be
     // within a set padding of these
-    public static final Angle REVERSE_LIMIT_BOT_REL = Rotations.of(0.55); // limit the turret would hit whild driving
+    public static final Angle REVERSE_LIMIT_BOT_REL = Rotations.of(0.5); // limit the turret would hit whild driving
                                                                           // CW
-    public static final Angle FORWARD_LIMIT_BOT_REL = Rotations.of(0.3179); // limit the turret would hit while driving
-                                                                            // CCW
+    public static final Angle FORWARD_LIMIT_BOT_REL = Rotations.of(0.290); // limit the turret would hit while driving
+                                                                            // CCW //TODOs
+    public static final Angle HALL_LIMIT_POS_BOT_REL = Rotations.of(0.283);
     public static final Angle ZERO_OFFSET = Rotations
             .of((REVERSE_LIMIT_BOT_REL.in(Rotations) + FORWARD_LIMIT_BOT_REL.in(Rotations)) / 2);
 
@@ -48,7 +49,7 @@ public class TurretConstants {
     public static final Angle TOLERANCE = Degrees.of(1); // Maximum tolerance of +-2º (based on field geometry)
 
     // Ideal robot-relative starting angle
-    public static final Angle START_POS_BOT_REL = Rotations.of(0.25);
+    public static final Angle START_POS_BOT_REL = Rotations.of(0);
 
     public static final Angle CLIMB_POS_BOT_REL = Rotations.of(0.30);
 
