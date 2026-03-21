@@ -25,8 +25,8 @@ public class CANdleSubsystem extends SubsystemBase {
         candle.getConfigurator().apply(
             new CANdleConfiguration().withLED(
                 new LEDConfigs().withStripType(StripTypeValue.GRB)
-            )
-        );
+                .withBrightnessScalar(0.5))
+            );
     }
 
     public Command setColor(Color color) {
@@ -37,7 +37,7 @@ public class CANdleSubsystem extends SubsystemBase {
         );
     }
 
-        // This is a full robot config for testing the hood subsystem
+    // This is a full robot config for testing the CANdle subsystem and the LEDs
     public static class Tester extends PartialRobot {
         
     public CANdleSubsystem CANdle = new CANdleSubsystem();
@@ -45,11 +45,12 @@ public class CANdleSubsystem extends SubsystemBase {
         public Tester() {
             super();
 
-        controller.x().onTrue(CANdle.setColor(new Color(0.0, 1.0, 0.0))); // This is the custom color for orange
-        controller.a().onTrue(CANdle.setColor(Color.kRed));              
-        controller.b().onTrue(CANdle.setColor(Color.kBlue)); 
-        controller.y().onTrue(CANdle.setColor(new Color(0.0, 0.0, 0.0))); // This is the custom color for off
+            controller.x().onTrue(CANdle.setColor(new Color(0.0, 1.0, 0.0))); // This is the custom color for green
+            controller.a().onTrue(CANdle.setColor(Color.kRed));              
+            controller.b().onTrue(CANdle.setColor(Color.kBlue)); 
+            controller.y().onTrue(CANdle.setColor(new Color(0.0, 0.0, 0.0))); // This is the custom color for off
 
+            
         }
 
         @Override
@@ -58,4 +59,6 @@ public class CANdleSubsystem extends SubsystemBase {
         }
 
     };
+
+
 }
