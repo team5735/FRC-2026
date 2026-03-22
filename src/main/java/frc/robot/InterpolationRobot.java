@@ -4,9 +4,13 @@ import static edu.wpi.first.units.Units.RPM;
 
 import java.util.ArrayList;
 
+import com.ctre.phoenix6.SignalLogger;
+import com.revrobotics.util.StatusLogger;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -116,6 +120,10 @@ public class InterpolationRobot extends TimedRobot {
         for (LimelightSubsystem limelight : limelights) {
             limelight.setIMUToPigeon();
         }
+
+        DriverStation.silenceJoystickConnectionWarning(true);
+        SignalLogger.enableAutoLogging(false);
+        StatusLogger.disableAutoLogging();
 
         configureBindings();
     }
