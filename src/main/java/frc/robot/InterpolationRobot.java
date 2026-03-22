@@ -4,6 +4,8 @@ import static edu.wpi.first.units.Units.RPM;
 
 import java.util.ArrayList;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -11,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.commands.drivetrain.PIDToPose;
 import frc.robot.constants.Constants;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.HoodConstants;
@@ -120,8 +123,6 @@ public class InterpolationRobot extends TimedRobot {
     CommandXboxController driveController = new CommandXboxController(
             Constants.DRIVE_CONTROLLER_PORT);
 
-    // driveController.a() should orient
-
     double getDistance() {
         return Math.round(turret.getMechanismPose().getTranslation().getDistance(target) * 10.0) / 10.0;
     }
@@ -161,7 +162,12 @@ public class InterpolationRobot extends TimedRobot {
         }));
 
         // @formatter:off
-        driveController.a();
+        driveController.a().whileTrue(
+            new PIDToPose(drivetrain, () -> new Pose2d(
+                drivetrain.getEstimatedPosition().getTranslation(),
+                this.target.minus(drivetrain.getEstimatedPosition().getTranslation()).getAngle().plus(Rotation2d.kCW_90deg)
+            ), "face 90° off of hub")
+        );
         driveController.b().onTrue(new SequentialCommandGroup(
             Commands.runOnce(() -> currentConfig = getOrInterpolateParams(getDistance())),
             launcher.getLaunchFuelSupplier(() -> currentConfig.launcherRPM).withTimeout(2),
