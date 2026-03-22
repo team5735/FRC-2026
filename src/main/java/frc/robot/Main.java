@@ -13,9 +13,9 @@ import frc.robot.constants.robot.CompbotTunerConstants;
 import frc.robot.constants.robot.DevbotTunerConstants;
 import frc.robot.subsystems.CANdleSubsystem;
 import frc.robot.subsystems.ClimberSubsystem;
-import frc.robot.subsystems.LauncherSubsystem;
 import frc.robot.subsystems.HoodSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.LauncherSubsystem;
 import frc.robot.subsystems.SpinDexSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
 
@@ -38,6 +38,7 @@ public final class Main {
             case SPINDEX -> new SpinDexSubsystem.Tester();
             case LAUNCHER -> new LauncherSubsystem.Tester();
             case CANDLE -> new CANdleSubsystem.Tester();
+            case INTERPOLATION -> new InterpolationRobot();
         });
     }
 }
