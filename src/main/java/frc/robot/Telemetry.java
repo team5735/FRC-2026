@@ -18,8 +18,11 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.robot.CompbotTunerConstants;
+import frc.robot.subsystems.DrivetrainSubsystem;
+import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.util.NTable;
 import frc.robot.util.Timer;
+import frc.robot.util.geometry.Arc;
 
 public class Telemetry {
     // Mechanisms to represent the swerve module states
@@ -53,14 +56,17 @@ public class Telemetry {
     private final double[] moduleTargetsArray = new double[8];
 
     public static final Field2d field = new Field2d();
-    public Robot robot;
+
+    private DrivetrainSubsystem drivetrain;
+    private TurretSubsystem turret;
 
     private final NTable table = NTable.root().sub("telemetry");
     private final NTable stateTable = table.sub("drive state");
     private final NTable moduleTable = table.sub("modules");
 
-    Telemetry(Robot robot) {
-        this.robot = robot;
+    Telemetry(DrivetrainSubsystem drivetrain, TurretSubsystem turret) {
+        this.drivetrain = drivetrain;
+        this.turret = turret;
         field.getRobotObject().setPose(new Pose2d());
         field.getObject("ferry target 1").setPose(new Pose2d(FieldConstants.FERRY_TARGET_1, Rotation2d.kZero));
         field.getObject("ferry target 2").setPose(new Pose2d(FieldConstants.FERRY_TARGET_2, Rotation2d.kZero));
@@ -105,16 +111,10 @@ public class Telemetry {
             moduleTargetsArray[i * 2 + 1] = state.ModuleTargets[i].speedMetersPerSecond;
         }
 
-        field.setRobotPose(this.robot.drivetrain.getEstimatedPosition());
-        field.getObject("turret_pose").setPose(this.robot.turret.getMechanismPose());
+        field.setRobotPose(this.drivetrain.getEstimatedPosition());
+        field.getObject("turret_pose").setPose(this.turret.getMechanismPose());
 
-        if (this.robot.targetArc != null) {
-            field.getObject("nearest point on arc")
-                    .setPose(this.robot.targetArc.getPoseFacingCenter(this.robot.targetArc
-                            .nearestPointOnArc(this.robot.drivetrain.getEstimatedPosition().getTranslation())));
-        }
-
-        var modules = this.robot.drivetrain.getModules();
+        var modules = this.drivetrain.getModules();
         NTable[] tables = Arrays.stream(new String[] { "FL", "FR", "BL", "BR" })
                 .map(s -> moduleTable.sub(s))
                 .toArray(NTable[]::new);

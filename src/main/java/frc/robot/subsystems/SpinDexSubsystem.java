@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
 
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -55,6 +56,16 @@ public class SpinDexSubsystem extends SubsystemBase {
         return startEnd(() -> {
             runWheel();
             runFeeder();
+        }, () -> {
+            stopWheel();
+            stopFeeder();
+        });
+    }
+
+    public Command getRunSupplier(Supplier<Double> wheel, Supplier<Double> feeder) {
+        return startEnd(() -> {
+            wheelVortex.setVoltage(wheel.get());
+            feedVortex.setVoltage(feeder.get());
         }, () -> {
             stopWheel();
             stopFeeder();

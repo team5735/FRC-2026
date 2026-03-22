@@ -7,14 +7,12 @@ package frc.robot;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Seconds;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.DoubleUnaryOperator;
 
 import com.ctre.phoenix6.SignalLogger;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -95,8 +93,8 @@ public class Robot extends TimedRobot {
 
     public Robot(DrivetrainSubsystem drivetrain) {
         this.drivetrain = drivetrain;
-        this.logger = new Telemetry(this);
         turret = new TurretSubsystem(drivetrain::getEstimatedPosition, drivetrain.constants);
+        this.logger = new Telemetry(drivetrain, turret);
         limelights = new LimelightSubsystem[] {
                 new LimelightSubsystem(drivetrain, "limelight-fone"),
                 new LimelightSubsystem(drivetrain, "limelight-ftwo"),
@@ -189,7 +187,7 @@ public class Robot extends TimedRobot {
                         () -> driveController.getHID().getYButton(),
                         () -> driveController.getHID().getStartButton()));
 
-        //turret.setDefaultCommand(turret.holdRobotRel(TurretConstants.START_POS_BOT_REL));
+        // turret.setDefaultCommand(turret.holdRobotRel(TurretConstants.START_POS_BOT_REL));
         hood.setDefaultCommand(hood.run(() -> hood.setHoodAngle(HoodConstants.LOWEST_ANGLE_DEGREES)));
         launcher.setDefaultCommand(launcher.getResting());
     }
@@ -212,7 +210,8 @@ public class Robot extends TimedRobot {
         // resets the turrets position when it engages the Hall-Effect sensor
         // turret.limitTrigger.onTrue(turret.zeroCommand());
         // MatchState.hubActiveTrigger
-                // .onTrue(Commands.runOnce(() -> driveController.setRumble(RumbleType.kBothRumble, 0.5)));
+        // .onTrue(Commands.runOnce(() ->
+        // driveController.setRumble(RumbleType.kBothRumble, 0.5)));
         MatchState.hubActiveTrigger
                 .onFalse(Commands.runOnce(() -> driveController.setRumble(RumbleType.kBothRumble, 0)));
         driveController.setRumble(RumbleType.kBothRumble, 0);
@@ -377,6 +376,12 @@ public class Robot extends TimedRobot {
         _TT.toc();
 
         NTable.root("telemetry").set("last drove to arc", lastDroveToArc);
+        if (this.targetArc != null) {
+            Telemetry.field.getObject("nearest point on arc")
+                    .setPose(this.targetArc.getPoseFacingCenter(this.targetArc
+                            .nearestPointOnArc(this.drivetrain.getEstimatedPosition().getTranslation())));
+        }
+
         _T.toc();
     }
 
@@ -430,9 +435,9 @@ public class Robot extends TimedRobot {
             limelight.setIMUMode(3);
         }
 
-        //if (!turret.getZeroStatus()) {
-        //    CommandScheduler.getInstance().schedule(turret.zeroSequence());
-        //}
+        // if (!turret.getZeroStatus()) {
+        // CommandScheduler.getInstance().schedule(turret.zeroSequence());
+        // }
 
         launcher.stop();
     }
