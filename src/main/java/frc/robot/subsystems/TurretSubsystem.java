@@ -18,6 +18,7 @@ import static frc.robot.constants.TurretConstants.MAX_VEL;
 import static frc.robot.constants.TurretConstants.REVERSE_LIMIT_TUR_REL;
 import static frc.robot.constants.TurretConstants.SOFT_PADDING;
 import static frc.robot.constants.TurretConstants.START_POS_BOT_REL;
+import static frc.robot.constants.TurretConstants.TOLERANCE;
 import static frc.robot.constants.TurretConstants.formatInputPosRobotRel;
 import static frc.robot.constants.TurretConstants.formatInputStateRobotRel;
 import static frc.robot.constants.TurretConstants.isInDeadZone;
@@ -35,12 +36,14 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -94,7 +97,7 @@ public class TurretSubsystem extends SubsystemBase {
                 .withReverseSoftLimitThreshold(REVERSE_LIMIT_TUR_REL));
         pid.setup(robotRelToTurretRel(START_POS_BOT_REL).in(Rotations));
         pid.reset(robotRelToTurretRel(START_POS_BOT_REL).in(Rotations));
-
+        pid.setTolerance(Units.degreesToRotations(1));
         this.robotPoseSupplier = robotPoseSupplier;
     }
 
@@ -120,11 +123,11 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     public Command hardRunForward() {
-        return startEnd(() -> kraken.setVoltage(1), () -> kraken.setVoltage(0));
+        return startEnd(() -> kraken.setVoltage(0.5), () -> kraken.setVoltage(0));
     }
 
     public Command softRunForward() {
-        return startEnd(() -> kraken.setVoltage(0.75), () -> kraken.setVoltage(0));
+        return startEnd(() -> kraken.setVoltage(0.5), () -> kraken.setVoltage(0));
     }
 
     public Command softRunReverse() {
@@ -192,16 +195,22 @@ public class TurretSubsystem extends SubsystemBase {
     private Command trackStateTurretRel(Supplier<State> goalSupplier) {
         return startRun(
                 () -> {
-                        pid.reset(new State(getAngleTurretRel().in(Rotations),
+                    pid.reset(new State(getAngleTurretRel().in(Rotations),
                             kraken.getVelocity().getValue().in(RotationsPerSecond)));
-                        pid.setGoal(goalSupplier.get());
-                    },
-
+                    pid.setGoal(goalSupplier.get());
+                    prevVel = kraken.getVelocity().getValue().in(RotationsPerSecond);
+                },
                 () -> {
                     double pidOut = pid.calculate(getAngleTurretRel().in(Rotations), goalSupplier.get());
-                    double newVel = pid.getController().getSetpoint().velocity;
-                    double voltsToSet = pidOut
-                            + ff.calculateWithVelocities(prevVel, newVel);
+                    SmartDashboard.putNumber("turret/pidOut", pidOut);
+                    double newVel = pid.getController().getSetpoint().velocity; // TODO find appropriate deaband and
+                                                                                // constantize
+                    double ffOut = (!MathUtil.isNear(newVel, 0, 0.075)) ? ff.calculate(newVel,
+                            Math.copySign(MAX_ACC.in(RotationsPerSecondPerSecond), newVel - prevVel)) : 0;
+                    SmartDashboard.putNumber("turret/ffOut", ffOut);
+                    double voltsToSet = (isAtGoalPos()) ? 0
+                            : pidOut
+                                    + ffOut;
                     kraken.setVoltage(voltsToSet);
                     prevVel = newVel;
                 }).finallyDo(() -> kraken.setVoltage(0));
@@ -227,7 +236,9 @@ public class TurretSubsystem extends SubsystemBase {
                     var _T = new Timer("");
                     double newVel = pid.getController().getSetpoint().velocity;
                     double voltsToSet = pid.calculate(getAngleTurretRel().in(Rotations))
-                            + ff.calculateWithVelocities(prevVel, newVel);
+                            + ff.calculate(newVel,
+                                    Math.copySign(MAX_ACC.in(RotationsPerSecondPerSecond), newVel - prevVel));
+                    ;
                     kraken.setVoltage(voltsToSet);
                     prevVel = newVel;
                     _T.toc();
@@ -364,6 +375,11 @@ public class TurretSubsystem extends SubsystemBase {
                 .plus(robotPoseInField.getTranslation()), getRotation().plus(robotPoseInField.getRotation()));
     }
 
+    public boolean isAtGoalPos() {
+        return MathUtil.isNear(pid.getController().getGoal().position, getAngleTurretRel().in(Rotations),
+                TOLERANCE.in(Rotations));
+    }
+
     /**
      * {@link Command} to zero (find the definite position of) this subsystem. WIll
      * run the motor until the turret reaches its limit switch, then will reset its
@@ -374,7 +390,7 @@ public class TurretSubsystem extends SubsystemBase {
      */
     public Command zeroSequence() {
         return hardRunForward().until(limitTrigger::getAsBoolean)
-                .andThen(softRunReverse().withTimeout(0.25))
+                .andThen(softRunReverse().withTimeout(0.5))
                 .andThen(softRunForward().until(limitTrigger::getAsBoolean))
                 .andThen(zeroCommand()).withName("zero sequence")
                 .beforeStarting(() -> kraken.getConfigurator().apply(new SoftwareLimitSwitchConfigs()
