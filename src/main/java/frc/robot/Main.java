@@ -35,6 +35,7 @@ public final class Main {
             case INTAKE -> new IntakeSubsystem.Tester();
             case CLIMBER -> new ClimberSubsystem.Tester();
             case TURRET -> new TurretSubsystem.Tester();
+            case TURRET_AIMING -> new TurretSubsystem.AimingTest();
             case SPINDEX -> new SpinDexSubsystem.Tester();
             case LAUNCHER -> new LauncherSubsystem.Tester();
             case CANDLE -> new CANdleSubsystem.Tester();

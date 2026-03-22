@@ -424,7 +424,6 @@ public class TurretSubsystem extends SubsystemBase {
             turret.limitTrigger.onTrue(turret.zeroCommand()); // resets the turrets position when it engages the
                                                               // Hall-Effect
                                                               // sensor
-            // turret.setDefaultCommand(turret.holdRobotRel(Rotations.of(0)));
 
             controller.a().onTrue(turret.holdRobotRel(Rotations.of(0.00)));
             controller.b().onTrue(turret.holdRobotRel(Rotations.of(0.75)));
@@ -441,16 +440,16 @@ public class TurretSubsystem extends SubsystemBase {
 
         @Override
         public void teleopInit() {
-            // if (!turret.getZeroStatus()) {
-                // CommandScheduler.getInstance().schedule(turret.zeroSequence());
-            // }
+            if (!turret.getZeroStatus()) {
+                CommandScheduler.getInstance().schedule(turret.zeroSequence());
+            }
         }
 
         @Override
         public void autonomousInit() {
-            // if (!turret.getZeroStatus()) {
-                // CommandScheduler.getInstance().schedule(turret.zeroSequence());
-            // }
+            if (!turret.getZeroStatus()) {
+                CommandScheduler.getInstance().schedule(turret.zeroSequence());
+            }
         }
     }
 
@@ -458,11 +457,16 @@ public class TurretSubsystem extends SubsystemBase {
         private final DrivetrainSubsystem drivetrain = CompbotTunerConstants.createDrivetrain();
         private final TurretSubsystem turret = new TurretSubsystem(drivetrain::getEstimatedPosition,
                 drivetrain.constants);
+
+        public final Telemetry logger = new Telemetry(drivetrain, turret);
+
         private final LimelightSubsystem[] limelights = { new LimelightSubsystem(drivetrain, "limelight-fone"),
                 new LimelightSubsystem(drivetrain, "limelight-ftwo") };
 
         public AimingTest() {
             super();
+
+            drivetrain.registerTelemetry(logger::telemeterize);
 
             // turret.setDefaultCommand(turret.holdRobotRel(Rotations.of(0)));
             // turret.limitTrigger.onTrue(turret.zeroCommand()); // resets the turrets
@@ -470,6 +474,15 @@ public class TurretSubsystem extends SubsystemBase {
             // // Hall-Effect
             // // sensor
             // turret.setDefaultCommand(turret.holdRobotRel(Rotations.of(0)));
+
+            drivetrain.setDefaultCommand(
+                    drivetrain.joystickDriveCommand(
+                            () -> controller.getLeftX(),
+                            () -> controller.getLeftY(),
+                            () -> controller.getLeftTriggerAxis(),
+                            () -> controller.getRightTriggerAxis(),
+                            () -> controller.getHID().getYButton(),
+                            () -> controller.getHID().getStartButton()));
 
             controller.a().onTrue(turret.holdRobotRel(Rotations.of(0.00)));
             controller.b().onTrue(turret.holdRobotRel(Rotations.of(0.75)));
@@ -499,7 +512,6 @@ public class TurretSubsystem extends SubsystemBase {
             for (LimelightSubsystem limelight : limelights) {
                 limelight.setIMUMode(3);
             }
-
         }
 
         @Override
