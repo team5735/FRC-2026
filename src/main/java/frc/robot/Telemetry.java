@@ -22,7 +22,6 @@ import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.util.NTable;
 import frc.robot.util.Timer;
-import frc.robot.util.geometry.Arc;
 
 public class Telemetry {
     // Mechanisms to represent the swerve module states
