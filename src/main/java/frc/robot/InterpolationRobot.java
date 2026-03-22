@@ -50,6 +50,9 @@ public class InterpolationRobot extends TimedRobot {
             this.feederVolts = feederVolts;
             this.distance = distance;
             this.table = NTable.root("interpolation").sub(String.valueOf(distance));
+            if (this.table.exists("deleted")) {
+                this.table.set("deleted", false);
+            }
             publishToNT();
         }
 
@@ -175,6 +178,23 @@ public class InterpolationRobot extends TimedRobot {
             } else {
                 System.out.println("added new config via interpolating");
                 this.configs.add(getOrInterpolateParams(dist));
+            }
+        }));
+
+        // delete the current location, if it exists
+        driveController.y().onTrue(Commands.runOnce(() -> {
+            int index = 0;
+            for (; index < this.configs.size(); index++) {
+                if (this.configs.get(index).distance == getDistance()) {
+                    break;
+                }
+            }
+            if (index == this.configs.size()) {
+                System.out.println("no matching config");
+            } else {
+                this.configs.get(index).table.set("deleted", true);
+                this.configs.remove(index);
+                System.out.println("deleted config with index " + index);
             }
         }));
 
