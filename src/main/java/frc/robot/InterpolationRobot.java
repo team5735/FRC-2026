@@ -120,8 +120,7 @@ public class InterpolationRobot extends TimedRobot {
         configureBindings();
     }
 
-    CommandXboxController driveController = new CommandXboxController(
-            Constants.DRIVE_CONTROLLER_PORT);
+    CommandXboxController driveController = new CommandXboxController(Constants.DRIVE_CONTROLLER_PORT);
 
     double getDistance() {
         return Math.round(turret.getMechanismPose().getTranslation().getDistance(target) * 10.0) / 10.0;
@@ -150,6 +149,15 @@ public class InterpolationRobot extends TimedRobot {
     DistanceDependentParams currentConfig;
 
     void configureBindings() {
+        drivetrain.setDefaultCommand(
+                drivetrain.joystickDriveCommand(
+                        () -> driveController.getLeftX(),
+                        () -> driveController.getLeftY(),
+                        () -> driveController.getLeftTriggerAxis(),
+                        () -> driveController.getRightTriggerAxis(),
+                        () -> driveController.getHID().getYButton(),
+                        () -> driveController.getHID().getStartButton()));
+
         driveController.x().onTrue(Commands.runOnce(() -> {
             if (this.configs.stream().anyMatch(params -> params.distance == getDistance())) {
                 System.out.println("config already exists");
