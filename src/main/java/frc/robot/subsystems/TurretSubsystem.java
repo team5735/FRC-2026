@@ -198,12 +198,13 @@ public class TurretSubsystem extends SubsystemBase {
                     },
 
                 () -> {
+                    double pidOut = pid.calculate(getAngleTurretRel().in(Rotations), goalSupplier.get());
                     double newVel = pid.getController().getSetpoint().velocity;
-                    double voltsToSet = pid.calculate(getAngleTurretRel().in(Rotations), goalSupplier.get())
+                    double voltsToSet = pidOut
                             + ff.calculateWithVelocities(prevVel, newVel);
                     kraken.setVoltage(voltsToSet);
                     prevVel = newVel;
-                });
+                }).finallyDo(() -> kraken.setVoltage(0));
     }
 
     /**
@@ -230,7 +231,7 @@ public class TurretSubsystem extends SubsystemBase {
                     kraken.setVoltage(voltsToSet);
                     prevVel = newVel;
                     _T.toc();
-                }).withName("hold robot relative");
+                }).finallyDo(() -> kraken.setVoltage(0)).withName("hold robot relative");
     }
 
     /**

@@ -113,6 +113,13 @@ public class LauncherSubsystem extends SubsystemBase {
                 .withName("Launch Fuel at " + speed);
     }
 
+    public Command getLaunchFuelSupplier(Supplier<Double> supplier) {
+        return runOnce(this::retunePID)
+                .andThen(startRun(() -> setTargetRPM(supplier.get()),
+                        this::usePID))
+                .withName("Launch Fuel /tuning/rpm");
+    }
+
     public Command getLaunchFuelNT() {
         return runOnce(this::retunePID)
                 .andThen(startRun(() -> setTargetRPM(table.getDouble("rpm")),
