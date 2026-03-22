@@ -5,8 +5,8 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
-import static frc.robot.constants.TurretConstants.FORWARD_LIMIT_BOT_REL;
 import static frc.robot.constants.TurretConstants.FORWARD_LIMIT_TUR_REL;
+import static frc.robot.constants.TurretConstants.HALL_LIMIT_POS_BOT_REL;
 import static frc.robot.constants.TurretConstants.KA;
 import static frc.robot.constants.TurretConstants.KD;
 import static frc.robot.constants.TurretConstants.KI;
@@ -29,6 +29,7 @@ import java.util.function.Supplier;
 
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
+import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -86,6 +87,11 @@ public class TurretSubsystem extends SubsystemBase {
                 .withInverted(InvertedValue.Clockwise_Positive));
         kraken.getConfigurator().apply(new FeedbackConfigs().withSensorToMechanismRatio(10));
         resetAngle(START_POS_BOT_REL);
+        kraken.getConfigurator().apply(new SoftwareLimitSwitchConfigs()
+                .withForwardSoftLimitEnable(true)
+                .withForwardSoftLimitThreshold(FORWARD_LIMIT_TUR_REL)
+                .withReverseSoftLimitEnable(true)
+                .withReverseSoftLimitThreshold(REVERSE_LIMIT_TUR_REL));
         pid.setup(robotRelToTurretRel(START_POS_BOT_REL).in(Rotations));
         pid.reset(robotRelToTurretRel(START_POS_BOT_REL).in(Rotations));
 
@@ -122,7 +128,7 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     public Command softRunReverse() {
-        return startEnd(() -> kraken.setVoltage(-0.25), () -> kraken.setVoltage(0));
+        return startEnd(() -> kraken.setVoltage(-0.75), () -> kraken.setVoltage(0));
     }
 
     public Command hardRunReverse() {
@@ -185,8 +191,12 @@ public class TurretSubsystem extends SubsystemBase {
      */
     private Command trackStateTurretRel(Supplier<State> goalSupplier) {
         return startRun(
-                () -> pid.reset(new State(getAngleTurretRel().in(Rotations),
-                        kraken.getVelocity().getValue().in(RotationsPerSecond))),
+                () -> {
+                        pid.reset(new State(getAngleTurretRel().in(Rotations),
+                            kraken.getVelocity().getValue().in(RotationsPerSecond)));
+                        pid.setGoal(goalSupplier.get());
+                    },
+
                 () -> {
                     double newVel = pid.getController().getSetpoint().velocity;
                     double voltsToSet = pid.calculate(getAngleTurretRel().in(Rotations), goalSupplier.get())
@@ -365,7 +375,17 @@ public class TurretSubsystem extends SubsystemBase {
         return hardRunForward().until(limitTrigger::getAsBoolean)
                 .andThen(softRunReverse().withTimeout(0.25))
                 .andThen(softRunForward().until(limitTrigger::getAsBoolean))
-                .andThen(zeroCommand()).andThen(holdRobotRel(START_POS_BOT_REL)).withName("zero sequence");
+                .andThen(zeroCommand()).withName("zero sequence")
+                .beforeStarting(() -> kraken.getConfigurator().apply(new SoftwareLimitSwitchConfigs()
+                        .withForwardSoftLimitEnable(false)
+                        .withForwardSoftLimitThreshold(FORWARD_LIMIT_TUR_REL)
+                        .withReverseSoftLimitEnable(true)
+                        .withReverseSoftLimitThreshold(REVERSE_LIMIT_TUR_REL)))
+                .finallyDo(() -> kraken.getConfigurator().apply(new SoftwareLimitSwitchConfigs()
+                        .withForwardSoftLimitEnable(true)
+                        .withForwardSoftLimitThreshold(FORWARD_LIMIT_TUR_REL)
+                        .withReverseSoftLimitEnable(true)
+                        .withReverseSoftLimitThreshold(REVERSE_LIMIT_TUR_REL)));
     }
 
     /**
@@ -380,7 +400,7 @@ public class TurretSubsystem extends SubsystemBase {
      */
     public Command zeroCommand() {
         return Commands.runOnce(() -> {
-            resetAngle(FORWARD_LIMIT_BOT_REL);
+            resetAngle(HALL_LIMIT_POS_BOT_REL);
             isZeroed = true;
         }).ignoringDisable(true);
     }
@@ -420,16 +440,16 @@ public class TurretSubsystem extends SubsystemBase {
 
         @Override
         public void teleopInit() {
-            if (!turret.getZeroStatus()) {
-                CommandScheduler.getInstance().schedule(turret.zeroSequence());
-            }
+            // if (!turret.getZeroStatus()) {
+                // CommandScheduler.getInstance().schedule(turret.zeroSequence());
+            // }
         }
 
         @Override
         public void autonomousInit() {
-            if (!turret.getZeroStatus()) {
-                CommandScheduler.getInstance().schedule(turret.zeroSequence());
-            }
+            // if (!turret.getZeroStatus()) {
+                // CommandScheduler.getInstance().schedule(turret.zeroSequence());
+            // }
         }
     }
 
@@ -444,9 +464,10 @@ public class TurretSubsystem extends SubsystemBase {
             super();
 
             // turret.setDefaultCommand(turret.holdRobotRel(Rotations.of(0)));
-            turret.limitTrigger.onTrue(turret.zeroCommand()); // resets the turrets position when it engages the
-                                                              // Hall-Effect
-                                                              // sensor
+            // turret.limitTrigger.onTrue(turret.zeroCommand()); // resets the turrets
+            // position when it engages the
+            // // Hall-Effect
+            // // sensor
             // turret.setDefaultCommand(turret.holdRobotRel(Rotations.of(0)));
 
             controller.a().onTrue(turret.holdRobotRel(Rotations.of(0.00)));

@@ -9,7 +9,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rectangle2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.AnalogInput;
-import edu.wpi.first.wpilibj.AnalogPotentiometer;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -28,7 +27,6 @@ public class HoodSubsystem extends SubsystemBase {
 
     private final Servo servo = new Servo(Constants.HOOD_SERVO_PIN);
     private final AnalogInput feedback = new AnalogInput(Constants.HOOD_FEEDBACK_PIN);
-    private final AnalogPotentiometer pot = new AnalogPotentiometer(feedback, 100, 30);
 
     private Supplier<Pose2d> turretPoseSupplier;
     private Rectangle2d[] exclusionZones;

@@ -350,7 +350,7 @@ public class DrivetrainSubsystem extends SwerveDrivetrain<TalonFX, TalonFX, CANc
         simNotifier.startPeriodic(simLoopPeriod);
     }
 
-    private static double deadband(double input) {
+    public static double deadband(double input) {
         if (Math.abs(input) <= Constants.DEADBAND) {
             return 0;
         }

@@ -18,7 +18,7 @@ public class LauncherConstants {
 
     public static final int LAUNCHER_VOLTS = 4;
 
-    public static final AngularVelocity DEFAULT_SETPOINT = RPM.of(3000);
+    public static final AngularVelocity DEFAULT_SETPOINT = RPM.of(3500);
 
     public static final double BANGBANG_THRESHOLD = 0.99;
 }

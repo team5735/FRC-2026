@@ -9,7 +9,7 @@ public class HoodConstants {
     // look at servo_feedback_position. This is the servo setpoint as
     // estimated via the feedback wire
     // plug that value into SERVO_SETPOINT_AT_HOOD_0
-    public static final double SERVO_SETPOINT_AT_HOOD_0 = 0.224;
+    public static final double SERVO_SETPOINT_AT_HOOD_0 = 0.27;
 
 
     // This is the range of setpoints that correspond to the range of hood positions
@@ -33,7 +33,8 @@ public class HoodConstants {
     public static final double HIGHEST_ANGLE_DEGREES = 45.0;
 
     // TODO: test
-    public static final double ANGLE_AT_ARC = 20.0;
+    // public static final double ANGLE_AT_ARC = 15.0; // degrees, this is current angle to shoot from arc
+    public static final double ANGLE_AT_ARC = 25.0; // degrees
 
     // 0.45 = 1.75v
     // do this twice and you get a linear interpolation between feedback
