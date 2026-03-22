@@ -279,10 +279,14 @@ public class Robot extends TimedRobot {
                 // );
             // })
         // );
+        double spindexVoltage = -4;
+        double launcherRPM = 3400;
+        double hoodAngle = 20;
+
         driveController.b().whileTrue(
             Commands.either(
                 // get the angle from NT if we're at the arc
-                hood.run(() -> hood.setHoodAngle(HoodConstants.ANGLE_AT_ARC)),
+                hood.run(() -> hood.setHoodAngle(hoodAngle)),
                 // otherwise, shoot at the max angle
                 hood.run(() -> hood.setHoodAngle(HoodConstants.HIGHEST_ANGLE_DEGREES)),
                 () -> lastDroveToArc||true
@@ -303,10 +307,11 @@ public class Robot extends TimedRobot {
         // create records of distance, hood angle, launcher speed, spindexer speed
         // a list of those will be our calibration
         // interp on distances in between
+        NTable.root("tuning").sub("spindex").set("wheel: fwd", spindexVoltage);
         driveController.b().whileTrue(
             new SequentialCommandGroup(
                 // spin up the shooter
-                launcher.getLaunchFuel(RPM.of(3500)).until(() ->
+                launcher.getLaunchFuel(RPM.of(launcherRPM)).until(() ->
                     // are we ready?
                     launcher.atSetpoint()
                 ).withTimeout(Seconds.of(2)),
@@ -381,6 +386,18 @@ public class Robot extends TimedRobot {
                     .setPose(this.targetArc.getPoseFacingCenter(this.targetArc
                             .nearestPointOnArc(this.drivetrain.getEstimatedPosition().getTranslation())));
         }
+
+
+        // update shooter distance tracking vars
+        NTable.root("shooter_tuning").set("hood angle (deg)", hood.getHoodAngle());
+        NTable.root("shooter_tuning").set("spindexer (v)", spindex.getForwardVoltage());
+        NTable.root("shooter_tuning").set("shooter rpm", launcher.getTargetRPM());
+
+        var dr = turret.getMechanismPose().getTranslation().getDistance(FieldConstants.redElement(FieldConstants.BLUE_HUB_CENTER));
+        var db = turret.getMechanismPose().getTranslation().getDistance(FieldConstants.BLUE_HUB_CENTER);
+        // NTable.root("shooter_tuning").set("blue hub dist (in)", db*100/2.54);
+        NTable.root("shooter_tuning").set("red hub dist (in)", dr*100/2.54);
+        
 
         _T.toc();
     }
