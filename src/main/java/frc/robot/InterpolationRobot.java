@@ -200,7 +200,9 @@ public class InterpolationRobot extends TimedRobot {
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
         NTable.updateAllSendables();
-        NTable.root("interpolation").set("turret distance to hub", getDistance());
+        NTable.root("interpolation").set("turret distance to hub",
+                turret.getMechanismPose().getTranslation().getDistance(target));
+        NTable.root("interpolation").set("turret distance to hub (rounded)", getDistance());
     }
 
     @Override
