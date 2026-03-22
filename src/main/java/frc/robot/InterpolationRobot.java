@@ -164,6 +164,7 @@ public class InterpolationRobot extends TimedRobot {
                         () -> driveController.getHID().getYButton(),
                         () -> driveController.getHID().getStartButton()));
 
+        // add the current location to the configs, interpolating if possible
         driveController.x().onTrue(Commands.runOnce(() -> {
             double dist = getDistance();
             if (this.configs.stream().anyMatch(params -> params.distance == dist)) {
@@ -178,12 +179,15 @@ public class InterpolationRobot extends TimedRobot {
         }));
 
         // @formatter:off
+        // face the hub
         driveController.a().whileTrue(
             new PIDToPose(drivetrain, () -> new Pose2d(
                 drivetrain.getEstimatedPosition().getTranslation(),
                 this.target.minus(drivetrain.getEstimatedPosition().getTranslation()).getAngle().plus(Rotation2d.kCW_90deg)
             ), "face 90° off of hub")
         );
+
+        // use either the current or an interpolated config to launch
         driveController.b().onTrue(new SequentialCommandGroup(
             Commands.runOnce(() -> currentConfig = getOrInterpolateParams(getDistance())),
             launcher.getLaunchFuelSupplier(() -> currentConfig.launcherRPM).withTimeout(2),
