@@ -49,7 +49,7 @@ public class TurretConstants {
     public static final Angle TOLERANCE = Degrees.of(1); // Maximum tolerance of +-2º (based on field geometry)
 
     // Ideal robot-relative starting angle
-    public static final Angle START_POS_BOT_REL = Rotations.of(0);
+    public static final Angle START_POS_BOT_REL = Rotations.of(0.25);
 
     public static final Angle CLIMB_POS_BOT_REL = Rotations.of(0.30);
 

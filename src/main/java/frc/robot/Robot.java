@@ -189,7 +189,7 @@ public class Robot extends TimedRobot {
                         () -> driveController.getHID().getYButton(),
                         () -> driveController.getHID().getStartButton()));
 
-        turret.setDefaultCommand(turret.holdRobotRel(TurretConstants.START_POS_BOT_REL));
+        //turret.setDefaultCommand(turret.holdRobotRel(TurretConstants.START_POS_BOT_REL));
         hood.setDefaultCommand(hood.run(() -> hood.setHoodAngle(HoodConstants.LOWEST_ANGLE_DEGREES)));
         launcher.setDefaultCommand(launcher.getResting());
     }
@@ -211,8 +211,8 @@ public class Robot extends TimedRobot {
 
         // resets the turrets position when it engages the Hall-Effect sensor
         // turret.limitTrigger.onTrue(turret.zeroCommand());
-        MatchState.hubActiveTrigger
-                .onTrue(Commands.runOnce(() -> driveController.setRumble(RumbleType.kBothRumble, 0.5)));
+        // MatchState.hubActiveTrigger
+                // .onTrue(Commands.runOnce(() -> driveController.setRumble(RumbleType.kBothRumble, 0.5)));
         MatchState.hubActiveTrigger
                 .onFalse(Commands.runOnce(() -> driveController.setRumble(RumbleType.kBothRumble, 0)));
         driveController.setRumble(RumbleType.kBothRumble, 0);
@@ -246,50 +246,68 @@ public class Robot extends TimedRobot {
         driveController.a().whileTrue(launcher.getLaunchFuel(RPM.of(3000)));
                 
         // drive to the nearest ferry shoot position
-        driveController.x().whileTrue(
-            new SequentialCommandGroup(
-                Commands.runOnce(() -> this.lastDroveToArc = false),
-                hood.runOnce(() -> hood.setHoodAngle(HoodConstants.HIGHEST_ANGLE_DEGREES)),
-                // drive to the nearest shooting start position
-                new PIDToPose(drivetrain, () ->
-                    FieldConstants.closestFerryShootPos(drivetrain.getEstimatedPosition().getTranslation()
-                ),
-                "drive to shooting pos")
-            ).withName("drive to shooting pos")
-        );
+        driveController.x().onTrue(Commands.runOnce(()->{drivetrain.resetPose(new Pose2d(0,0,Rotation2d.kZero));}));
+        // driveController.x().whileTrue(
+        //     new SequentialCommandGroup(
+        //         Commands.runOnce(() -> this.lastDroveToArc = false),
+        //         hood.runOnce(() -> hood.setHoodAngle(HoodConstants.HIGHEST_ANGLE_DEGREES)),
+        //         // drive to the nearest shooting start position
+        //         new PIDToPose(drivetrain, () ->
+        //             FieldConstants.closestFerryShootPos(drivetrain.getEstimatedPosition().getTranslation()
+        //         ),
+        //         "drive to shooting pos")
+        //     ).withName("drive to shooting pos")
+        // );
         driveController.x().whileTrue(launcher.getLaunchFuel(RPM.of(3000)));
 
         this.pidThetaFaceHub.ensureP(1);
         this.pidThetaFaceHub.ensureTolerance(Degrees.of(2).in(Radians));
+        this.pidThetaFaceHub.setup(0);
         // set the hood angle
-        driveController.b().whileTrue(
-            drivetrain.run(() -> {
-                double speed = drivetrain.constants.getDefaultSpeed().in(MetersPerSecond);
-                Rotation2d angleToHub = FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER).minus(drivetrain.getEstimatedPosition().getTranslation()).getAngle();
-                double angleToFace = 180 - angleToHub.getDegrees();
-                DoubleUnaryOperator dead = in -> -DrivetrainSubsystem.deadband(in);
-                drivetrain.setControl(drivetrain.fieldCentricRequest
-                    .withVelocityX(dead.applyAsDouble(driveController.getLeftX() * speed))
-                    .withVelocityY(dead.applyAsDouble(driveController.getLeftY() * speed))
-                    .withRotationalRate(dead.applyAsDouble(
-                        this.pidThetaFaceHub.calculate(drivetrain.getEstimatedPosition().getRotation().getDegrees(), angleToFace)
-                    ))
-                );
-            })
-        );
+        // driveController.b().whileTrue(
+            // drivetrain.run(() -> {
+                // double speed = drivetrain.constants.getDefaultSpeed().in(MetersPerSecond);
+                // Rotation2d angleToHub = FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER).minus(drivetrain.getEstimatedPosition().getTranslation()).getAngle();
+                // double angleToFace = 180 - angleToHub.getDegrees(); // for red alliance (which our test hub is set to for now)
+                // angleToFace -= 90; // want the turret to face left, not forward
+                // DoubleUnaryOperator dead = in -> -DrivetrainSubsystem.deadband(in);
+                // drivetrain.setControl(drivetrain.fieldCentricRequest
+                    // .withVelocityX(dead.applyAsDouble(driveController.getLeftX() * speed))
+                    // .withVelocityY(dead.applyAsDouble(driveController.getLeftY() * speed))
+                    // .withRotationalRate(dead.applyAsDouble(
+                        // this.pidThetaFaceHub.calculate(drivetrain.getEstimatedPosition().getRotation().getDegrees(), angleToFace)
+                    // ))
+                // );
+            // })
+        // );
         driveController.b().whileTrue(
             Commands.either(
                 // get the angle from NT if we're at the arc
                 hood.run(() -> hood.setHoodAngle(HoodConstants.ANGLE_AT_ARC)),
                 // otherwise, shoot at the max angle
                 hood.run(() -> hood.setHoodAngle(HoodConstants.HIGHEST_ANGLE_DEGREES)),
-                () -> lastDroveToArc
+                () -> lastDroveToArc||true
             )
         );
+        // shoot from distance center of turret to center of hub:
+        //    launcher rpm: 3500
+        //    hood angle: 25 degrees
+        //    spindexer speed: -4V
+
+
+        // vary spindex speed with distance
+        // measure distance to center of turret to center of hub and publish to NT
+        // change hood angle on NT
+        // change launcher rpm on NT
+        // change spindexer speed (voltage) on NT
+        // orient bot automatically to hub
+        // create records of distance, hood angle, launcher speed, spindexer speed
+        // a list of those will be our calibration
+        // interp on distances in between
         driveController.b().whileTrue(
             new SequentialCommandGroup(
                 // spin up the shooter
-                launcher.getLaunchFuel(RPM.of(3000)).until(() ->
+                launcher.getLaunchFuel(RPM.of(3500)).until(() ->
                     // are we ready?
                     launcher.atSetpoint()
                 ).withTimeout(Seconds.of(2)),
@@ -297,7 +315,9 @@ public class Robot extends TimedRobot {
                     // spin the spindex (and the feeder)
                     spindex.getRun(),
                     // continue spinning the shooter
-                    launcher.run(launcher::usePID)
+                    launcher.run(launcher::usePID),
+                    // turn intake on
+                    intake.getIntakeForwardRollCommand()
                 )
             ).withName("shoot")
         );
@@ -410,9 +430,9 @@ public class Robot extends TimedRobot {
             limelight.setIMUMode(3);
         }
 
-        if (!turret.getZeroStatus()) {
-            CommandScheduler.getInstance().schedule(turret.zeroSequence());
-        }
+        //if (!turret.getZeroStatus()) {
+        //    CommandScheduler.getInstance().schedule(turret.zeroSequence());
+        //}
 
         launcher.stop();
     }
