@@ -39,6 +39,10 @@ public class SpinDexSubsystem extends SubsystemBase {
         feedVortex.setVoltage(0);
     }
 
+    public double getForwardVoltage(){
+        return table.getDouble("wheel: fwd");
+    }
+
     public void runWheel() {
         wheelVortex.setVoltage(table.getDouble("wheel: fwd"));
     }
