@@ -87,7 +87,7 @@ public class InterpolationRobot extends TimedRobot {
 
     // add configs to here when we're confident with them
     void insertSavedConfigs() {
-        configs.add(new DistanceDependentParams(getDistance()));
+        configs.add(new DistanceDependentParams(0));
     }
 
     DrivetrainSubsystem drivetrain = CompbotTunerConstants.createDrivetrain();
@@ -140,7 +140,6 @@ public class InterpolationRobot extends TimedRobot {
         while (i < this.configs.size() && this.configs.get(i).distance < distance) {
             i++;
         }
-        System.out.println(i);
         DistanceDependentParams prev = null;
         if (i > 0) {
             prev = this.configs.get(i - 1);
@@ -166,14 +165,15 @@ public class InterpolationRobot extends TimedRobot {
                         () -> driveController.getHID().getStartButton()));
 
         driveController.x().onTrue(Commands.runOnce(() -> {
-            if (this.configs.stream().anyMatch(params -> params.distance == getDistance())) {
+            double dist = getDistance();
+            if (this.configs.stream().anyMatch(params -> params.distance == dist)) {
                 System.out.println("config already exists");
             } else if (this.configs.size() == 1) {
                 System.out.println("added new config (defaults)");
-                this.configs.add(new DistanceDependentParams(getDistance()));
+                this.configs.add(new DistanceDependentParams(dist));
             } else {
                 System.out.println("added new config via interpolating");
-                this.configs.add(getOrInterpolateParams(getDistance()));
+                this.configs.add(getOrInterpolateParams(dist));
             }
         }));
 
