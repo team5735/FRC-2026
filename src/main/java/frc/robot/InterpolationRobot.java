@@ -50,27 +50,25 @@ public class InterpolationRobot extends TimedRobot {
             this.feederVolts = feederVolts;
             this.distance = distance;
             this.table = NTable.root("interpolation").sub(String.valueOf(distance));
+            publishToNT();
         }
 
-        public DistanceDependentParams() {
-            this.hoodAngle = HoodConstants.ANGLE_AT_ARC;
-            this.launcherRPM = LauncherConstants.DEFAULT_SETPOINT.in(RPM);
-            this.spindexVolts = -3;
-            this.feederVolts = -6;
-            this.distance = 0;
-            this.table = NTable.root("interpolation").sub("0 (defaults)");
+        public DistanceDependentParams(double distance) {
+            this(HoodConstants.ANGLE_AT_ARC, LauncherConstants.DEFAULT_SETPOINT.in(RPM), -3, -6, distance);
         }
 
         void publishToNT() {
             table.set("hood angle", hoodAngle);
             table.set("launcher rpm", launcherRPM);
             table.set("spindexer voltage", spindexVolts);
+            table.set("feeder voltage", feederVolts);
         }
 
         void updateFromNT() {
             hoodAngle = table.getDouble("hood angle");
             launcherRPM = table.getDouble("launcher rpm");
             spindexVolts = table.getDouble("spindexer voltage");
+            feederVolts = table.getDouble("feeder voltage");
         }
 
         // fraction goes from 0 to 1
@@ -89,7 +87,7 @@ public class InterpolationRobot extends TimedRobot {
 
     // add configs to here when we're confident with them
     void insertSavedConfigs() {
-        configs.add(new DistanceDependentParams());
+        configs.add(new DistanceDependentParams(getDistance()));
     }
 
     DrivetrainSubsystem drivetrain = CompbotTunerConstants.createDrivetrain();
@@ -142,6 +140,7 @@ public class InterpolationRobot extends TimedRobot {
         while (i < this.configs.size() && this.configs.get(i).distance < distance) {
             i++;
         }
+        System.out.println(i);
         DistanceDependentParams prev = null;
         if (i > 0) {
             prev = this.configs.get(i - 1);
@@ -170,7 +169,8 @@ public class InterpolationRobot extends TimedRobot {
             if (this.configs.stream().anyMatch(params -> params.distance == getDistance())) {
                 System.out.println("config already exists");
             } else if (this.configs.size() == 1) {
-                this.configs.add(new DistanceDependentParams());
+                System.out.println("added new config (defaults)");
+                this.configs.add(new DistanceDependentParams(getDistance()));
             } else {
                 System.out.println("added new config via interpolating");
                 this.configs.add(getOrInterpolateParams(getDistance()));
