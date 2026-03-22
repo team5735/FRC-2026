@@ -12,13 +12,14 @@ public class Constants {
         INTAKE,
         CLIMBER,
         TURRET,
+        TURRET_AIMING,
         SPINDEX,
         LAUNCHER,
         CANDLE,
         INTERPOLATION,
     }
 
-    public static final BotConfiguration CURRENT_ROBOT = BotConfiguration.INTERPOLATION;
+    public static final BotConfiguration CURRENT_ROBOT = BotConfiguration.FULL_COMPBOT;
 
     // set this to true to enable Timer()'s to publish their profiling times to network tables
     // this should be false during competition
