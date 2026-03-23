@@ -278,7 +278,14 @@ public class DrivetrainSubsystem extends SwerveDrivetrain<TalonFX, TalonFX, CANc
          * This ensures driving behavior doesn't change until an explicit disable event
          * occurs during testing.
          */
-        table.set("led_location_accuracy_blocks", this.getVisionPoseAgreementQuality());
+        int _q = this.getVisionPoseAgreementQuality();
+        String _s=""+_q;
+        if (_q==0) _s="whack";
+        if (_q==1) _s="poor";
+        if (_q==2) _s="fair";
+        if (_q==3) _s="great";
+        table.set("led_location_accuracy_blocks", _q);
+        table.set("led_location_quality", _s);
 
         if (!hasAppliedOperatorPerspective || DriverStation.isDisabled()) {
             DriverStation.getAlliance().ifPresent(allianceColor -> {
