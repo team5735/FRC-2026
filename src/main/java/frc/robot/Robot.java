@@ -275,20 +275,17 @@ public class Robot extends TimedRobot {
         driveController.a().whileTrue(launcher.getLaunchFuel(RPM.of(3000)));
                 
         // drive to the nearest ferry shoot position
-        driveController.x().onTrue(Commands.runOnce(() -> {
-            drivetrain.resetPose(new Pose2d(0,0,Rotation2d.kZero));
-        }));
-        // driveController.x().whileTrue(
-        //     new SequentialCommandGroup(
-        //         Commands.runOnce(() -> this.lastDroveToArc = false),
-        //         hood.runOnce(() -> hood.setHoodAngle(HoodConstants.HIGHEST_ANGLE_DEGREES)),
-        //         // drive to the nearest shooting start position
-        //         new PIDToPose(drivetrain, () ->
-        //             FieldConstants.closestFerryShootPos(drivetrain.getEstimatedPosition().getTranslation()
-        //         ),
-        //         "drive to shooting pos")
-        //     ).withName("drive to shooting pos")
-        // );
+        driveController.x().whileTrue(
+            new SequentialCommandGroup(
+                Commands.runOnce(() -> this.lastDroveToArc = false),
+                hood.runOnce(() -> hood.setHoodAngle(HoodConstants.HIGHEST_ANGLE_DEGREES)),
+                // drive to the nearest shooting start position
+                new PIDToPose(drivetrain, () ->
+                    FieldConstants.closestFerryShootPos(drivetrain.getEstimatedPosition().getTranslation()
+                ),
+                "drive to shooting pos")
+            ).withName("drive to shooting pos")
+        );
         driveController.x().whileTrue(launcher.getLaunchFuel(RPM.of(3000)));
 
         driveController.b().whileTrue(
@@ -306,7 +303,6 @@ public class Robot extends TimedRobot {
         //    launcher rpm: 3500
         //    hood angle: 25 degrees
         //    spindexer speed: -4V
-
 
         NTable.root("tuning").sub("spindex").set("wheel: fwd", -4);
         driveController.b().whileTrue(
