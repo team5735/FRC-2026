@@ -168,13 +168,13 @@ public class Robot extends TimedRobot {
 
     private void configureBindings() {
         drivetrain.registerTelemetry(logger::telemeterize);
+        fillMaps();
 
         setDefaultCommands();
         setupMiscTriggers();
         setupDriverBindings();
         setupSubsystemBindings();
         setupOtherBindings();
-        fillMaps();
     }
 
     // all default commands go here

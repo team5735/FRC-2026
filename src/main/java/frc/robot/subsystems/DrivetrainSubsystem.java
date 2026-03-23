@@ -66,6 +66,9 @@ public class DrivetrainSubsystem extends SwerveDrivetrain<TalonFX, TalonFX, CANc
     public final SwerveRequest.ApplyRobotSpeeds autoRequest = new SwerveRequest.ApplyRobotSpeeds()
             .withDriveRequestType(DriveRequestType.Velocity);
 
+    private Pose2d lastVisionUpdatePose = new Pose2d();
+    private long   lastVisionUpdateTime = -100000000;
+
     @SuppressWarnings("unused")
     private final Consumer<SysIdRoutineLog> openTranslationLogConsumer = (log) -> {
         log.motor("FL_drive")
@@ -275,6 +278,8 @@ public class DrivetrainSubsystem extends SwerveDrivetrain<TalonFX, TalonFX, CANc
          * This ensures driving behavior doesn't change until an explicit disable event
          * occurs during testing.
          */
+        table.set("led_location_accuracy_blocks", this.getVisionPoseAgreementQuality());
+
         if (!hasAppliedOperatorPerspective || DriverStation.isDisabled()) {
             DriverStation.getAlliance().ifPresent(allianceColor -> {
                 setOperatorPerspectiveForward(
@@ -421,6 +426,9 @@ public class DrivetrainSubsystem extends SwerveDrivetrain<TalonFX, TalonFX, CANc
         table.set("timestampIn", timestampSeconds);
         table.set("timestampOut", Utils.fpgaToCurrentTime(timestampSeconds));
         super.addVisionMeasurement(visionRobotPoseMeters, Utils.fpgaToCurrentTime(timestampSeconds));
+
+        lastVisionUpdatePose = visionRobotPoseMeters;
+        lastVisionUpdateTime = RobotController.getFPGATime();
     }
 
     /**
@@ -464,5 +472,31 @@ public class DrivetrainSubsystem extends SwerveDrivetrain<TalonFX, TalonFX, CANc
         table.set("timestampDiff", Utils.fpgaToCurrentTime(timestampSeconds) - Utils.getCurrentTimeSeconds());
         super.addVisionMeasurement(visionRobotPoseMeters, Utils.fpgaToCurrentTime(timestampSeconds),
                 visionMeasurementStdDevs);
+
+        lastVisionUpdatePose = visionRobotPoseMeters;
+        lastVisionUpdateTime = RobotController.getFPGATime();
+    }
+
+    public double getLastVisionUpdateTimeMS(){
+        return (double)(RobotController.getFPGATime()-lastVisionUpdateTime)/1000.0;
+    }
+
+    public double getVisionPoseAgreementDistance(){
+        return this.getEstimatedPosition().getTranslation().getDistance(this.lastVisionUpdatePose.getTranslation());
+    }
+
+    public int getVisionPoseAgreementQuality(){
+        double cm = 100*this.getVisionPoseAgreementDistance();
+        double ms = this.getLastVisionUpdateTimeMS();
+        
+        int blocks = 0;
+        if      (cm <= 3)   blocks = 3;
+        else if (cm <= 100) blocks = 2;
+        else if (cm <= 200) blocks = 1;
+        else                blocks = 0;
+
+        blocks -= (int)(ms/5000);
+        if (blocks < 0) blocks = 0;
+        return blocks;
     }
 }
