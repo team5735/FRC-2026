@@ -18,6 +18,7 @@ import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
 import edu.wpi.first.math.interpolation.InverseInterpolator;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.Timer;
@@ -56,21 +57,30 @@ public class LaunchCalculator {
         // TODO populate tree maps here with REAL POSITIONS
 
         // ALL THESE VALUES ARE TEMP FOR TESTING !!
-        scoreHoodMap.put(0.91, 8.);
-        scoreHoodMap.put(2.56, 13.);
-        scoreHoodMap.put(3.94, 38.);
-        scoreHoodMap.put(4.295, 38.);
+        scoreHoodMap.put(Units.inchesToMeters(56), 8.);
+        scoreHoodMap.put(Units.inchesToMeters(71.75), 15.);
+        scoreHoodMap.put(Units.inchesToMeters(87.8), 15.);
+        scoreHoodMap.put(Units.inchesToMeters(102.2), 20.);
+        scoreHoodMap.put(Units.inchesToMeters(216), 20.);
 
-        scoreHoodMap.put(0.91, 3000.);
-        scoreHoodMap.put(2.56, 3000.);
-        scoreHoodMap.put(3.94, 3500.);
-        scoreHoodMap.put(4.295, 3750.);
+        scoreSpeedMap.put(Units.inchesToMeters(56), 2600.);
+        scoreSpeedMap.put(Units.inchesToMeters(71.75), 2650.);
+        scoreSpeedMap.put(Units.inchesToMeters(87.8), 2675.);
+        scoreSpeedMap.put(Units.inchesToMeters(102.2), 2800.);
+        scoreSpeedMap.put(Units.inchesToMeters(117), 2900.);
+        scoreSpeedMap.put(Units.inchesToMeters(132), 3050.);
+        scoreSpeedMap.put(Units.inchesToMeters(147), 3200.);
+        scoreSpeedMap.put(Units.inchesToMeters(163), 3350.);
+        scoreSpeedMap.put(Units.inchesToMeters(177), 3450.);
+        scoreSpeedMap.put(Units.inchesToMeters(192), 3650.);
+        scoreSpeedMap.put(Units.inchesToMeters(207), 3850.);
+        scoreSpeedMap.put(Units.inchesToMeters(216), 4000.);
 
         scoreTOFMap.put(0., 0.);
         scoreTOFMap.put(50., 0.);
     }
 
-    private static final LinearFilter turretVelFiler = LinearFilter.movingAverage(50);
+    private static final LinearFilter turretVelFiler = LinearFilter.movingAverage(5);
     private static final Timer timer = new Timer();
 
     private static Angle oldTurretAngle;

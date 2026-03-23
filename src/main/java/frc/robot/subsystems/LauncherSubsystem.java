@@ -66,6 +66,10 @@ public class LauncherSubsystem extends SubsystemBase {
         return krakenLeft.getVelocity().getValue().in(RPM) * LauncherConstants.GEARING;
     }
 
+    public double getTargetRPM(){
+        return this.setpoint;
+    }
+    
     private void setTargetRPM(double rpm) {
         this.setpoint = rpm;
         bangbang.setSetpoint(rpm * LauncherConstants.BANGBANG_THRESHOLD);

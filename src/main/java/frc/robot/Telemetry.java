@@ -63,7 +63,7 @@ public class Telemetry {
     private final NTable stateTable = table.sub("drive state");
     private final NTable moduleTable = table.sub("modules");
 
-    Telemetry(DrivetrainSubsystem drivetrain, TurretSubsystem turret) {
+    public Telemetry(DrivetrainSubsystem drivetrain, TurretSubsystem turret) {
         this.drivetrain = drivetrain;
         this.turret = turret;
         field.getRobotObject().setPose(new Pose2d());

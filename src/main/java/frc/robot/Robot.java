@@ -4,11 +4,10 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Feet;
+import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RPM;
-import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Seconds;
 
 import java.util.HashMap;
@@ -23,6 +22,7 @@ import com.revrobotics.util.StatusLogger;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -193,6 +193,39 @@ public class Robot extends TimedRobot {
     boolean lastDroveToArc = true;
     TunablePIDController pidThetaFaceHub = new TunablePIDController("joystick theta");
 
+    InterpolatingDoubleTreeMap distanceToRpm = new InterpolatingDoubleTreeMap();
+    InterpolatingDoubleTreeMap distanceToAngle = new InterpolatingDoubleTreeMap();
+
+    private void fillMaps() {
+        // @formatter:off
+        distanceToRpm  .put(Inches.of( 56.00).in(Meters), 2600.0);
+        distanceToRpm  .put(Inches.of( 71.75).in(Meters), 2650.0);
+        distanceToRpm  .put(Inches.of( 87.80).in(Meters), 2675.0);
+        distanceToRpm  .put(Inches.of(102.20).in(Meters), 2800.0);
+        distanceToRpm  .put(Inches.of(117.00).in(Meters), 2900.0);
+        distanceToRpm  .put(Inches.of(132.00).in(Meters), 3050.0);
+        distanceToRpm  .put(Inches.of(147.00).in(Meters), 3200.0);
+        distanceToRpm  .put(Inches.of(163.00).in(Meters), 3350.0);
+        distanceToRpm  .put(Inches.of(177.00).in(Meters), 3450.0);
+        distanceToRpm  .put(Inches.of(192.00).in(Meters), 3650.0);
+        distanceToRpm  .put(Inches.of(207.00).in(Meters), 3850.0);
+        distanceToRpm  .put(Inches.of(216.00).in(Meters), 4000.0);
+
+        distanceToAngle.put(Inches.of( 56.00).in(Meters),    8.0);
+        distanceToAngle.put(Inches.of( 71.75).in(Meters),   15.0);
+        distanceToAngle.put(Inches.of( 87.80).in(Meters),   15.0);
+        distanceToAngle.put(Inches.of(102.20).in(Meters),   20.0);
+        distanceToAngle.put(Inches.of(117.00).in(Meters),   20.0);
+        distanceToAngle.put(Inches.of(132.00).in(Meters),   20.0);
+        distanceToAngle.put(Inches.of(147.00).in(Meters),   20.0);
+        distanceToAngle.put(Inches.of(163.00).in(Meters),   20.0);
+        distanceToAngle.put(Inches.of(177.00).in(Meters),   20.0);
+        distanceToAngle.put(Inches.of(192.00).in(Meters),   20.0);
+        distanceToAngle.put(Inches.of(207.00).in(Meters),   20.0);
+        distanceToAngle.put(Inches.of(216.00).in(Meters),   20.0);
+        // @formatter:on
+    }
+
     private void setupDriverBindings() {
         driveController.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
@@ -216,19 +249,32 @@ public class Robot extends TimedRobot {
         );
         driveController.a().whileTrue(launcher.getLaunchFuel(LauncherConstants.DEFAULT_SETPOINT));
                 
-        driveController.x().onTrue(Commands.runOnce(()->{drivetrain.resetPose(new Pose2d(0,0,Rotation2d.kZero));}));
+        // drive to the nearest ferry shoot position
+        driveController.x().onTrue(Commands.runOnce(() -> {
+            drivetrain.resetPose(new Pose2d(0,0,Rotation2d.kZero));
+        }));
+        // driveController.x().whileTrue(
+        //     new SequentialCommandGroup(
+        //         Commands.runOnce(() -> this.lastDroveToArc = false),
+        //         hood.runOnce(() -> hood.setHoodAngle(HoodConstants.HIGHEST_ANGLE_DEGREES)),
+        //         // drive to the nearest shooting start position
+        //         new PIDToPose(drivetrain, () ->
+        //             FieldConstants.closestFerryShootPos(drivetrain.getEstimatedPosition().getTranslation()
+        //         ),
+        //         "drive to shooting pos")
+        //     ).withName("drive to shooting pos")
+        // );
         driveController.x().whileTrue(launcher.getLaunchFuel(RPM.of(3000)));
 
-        this.pidThetaFaceHub.ensureP(1);
-        this.pidThetaFaceHub.ensureTolerance(Degrees.of(2).in(Radians));
-        this.pidThetaFaceHub.setup(0);
         driveController.b().whileTrue(
             Commands.either(
                 // get the angle from NT if we're at the arc
-                hood.run(() -> hood.setHoodAngle(HoodConstants.ANGLE_AT_ARC)),
+                hood.run(() -> hood.setHoodAngle(distanceToAngle.get(
+                        turret.getMechanismPose().getTranslation().getDistance(FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER))
+                ))),
                 // otherwise, shoot at the max angle
                 hood.run(() -> hood.setHoodAngle(HoodConstants.HIGHEST_ANGLE_DEGREES)),
-                () -> lastDroveToArc||true
+                () -> lastDroveToArc || true
             )
         );
         // shoot from distance center of turret to center of hub:
@@ -237,19 +283,13 @@ public class Robot extends TimedRobot {
         //    spindexer speed: -4V
 
 
-        // vary spindex speed with distance
-        // measure distance to center of turret to center of hub and publish to NT
-        // change hood angle on NT
-        // change launcher rpm on NT
-        // change spindexer speed (voltage) on NT
-        // orient bot automatically to hub
-        // create records of distance, hood angle, launcher speed, spindexer speed
-        // a list of those will be our calibration
-        // interp on distances in between
+        NTable.root("tuning").sub("spindex").set("wheel: fwd", -4);
         driveController.b().whileTrue(
             new SequentialCommandGroup(
                 // spin up the shooter
-                launcher.getLaunchFuel(LauncherConstants.DEFAULT_SETPOINT).until(() ->
+                launcher.getLaunchFuel(RPM.of(distanceToRpm.get(
+                    turret.getMechanismPose().getTranslation().getDistance(FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER))
+                ))).until(() ->
                     // are we ready?
                     launcher.atSetpoint()
                 ).withTimeout(Seconds.of(2)),
@@ -321,6 +361,10 @@ public class Robot extends TimedRobot {
                             .nearestPointOnArc(this.drivetrain.getEstimatedPosition().getTranslation())));
         }
 
+        // update shooter distance tracking vars
+        NTable.root("shooter_tuning").set("hood angle (deg)", hood.getHoodAngle());
+        NTable.root("shooter_tuning").set("spindexer (v)", spindex.getForwardVoltage());
+        NTable.root("shooter_tuning").set("shooter rpm", launcher.getTargetRPM());
         _T.toc();
     }
 
