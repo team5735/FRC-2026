@@ -149,14 +149,15 @@ public class LaunchCalculator {
 
         SmartDashboard.putNumber("launchCalc/naive_dist", launchDist);
         double timeOfFlight;
+        Translation2d lookaheadOrigin = launchOrigin;
         double oldTOF = 100000; // arbitrarily large; be glad I didn't make this 67676767
         for (int i = 0; i < 20; i++) {
             timeOfFlight = scoreTOFMap.get(launchDist);
             double deltaX = turretVelX * timeOfFlight;
             double deltaY = turretVelY * timeOfFlight;
 
-            launchOrigin = launchOrigin.plus(new Translation2d(deltaX, deltaY));
-            launchDist = launchTarget.getDistance(launchOrigin);
+            lookaheadOrigin = launchOrigin.plus(new Translation2d(deltaX, deltaY));
+            launchDist = launchTarget.getDistance(lookaheadOrigin);
 
             if (MathUtil.isNear(oldTOF, timeOfFlight, TOF_TOLERANCE)) {
                 break;
@@ -165,9 +166,11 @@ public class LaunchCalculator {
             oldTOF = timeOfFlight;
         }
 
+        launchOrigin = lookaheadOrigin;
+
         SmartDashboard.putNumber("launchCalc/wise_dist", launchDist);
 
-        Rotation2d turretRot = launchTarget.minus(turretPose.getTranslation()).getAngle()
+        Rotation2d turretRot = launchTarget.minus(launchOrigin).getAngle()
                 .minus(drivetrain.getEstimatedPosition().getRotation());
 
         Angle turretAngle = turretRot.getMeasure();
