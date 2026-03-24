@@ -261,7 +261,7 @@ public class Robot extends TimedRobot {
             hood.runOnce(() -> hood.setHoodAngle(hoodAngleSupplier.get())),
             new ParallelCommandGroup( 
                 turret.trackFieldPosDynamic(shootingTarget).until(() -> turret.atGoal()),
-                launcher.getLaunchFuelSupplier(rpmSupplier)
+                launcher.getLaunchFuelSupplier(rpmSupplier).until(() -> launcher.atSetpoint()).withTimeout(3)
             ),
             new ParallelCommandGroup(
                 turret.trackFieldPosDynamic(shootingTarget),
