@@ -271,7 +271,7 @@ public class Robot extends TimedRobot {
             () -> HoodConstants.FERRY_ANGLE,
             () -> 3000.0
         ));
-        driveController.b().onFalse(unclogSpindex);
+        driveController.x().onFalse(unclogSpindex);
 
         Supplier<Double> dist = () -> turret.getMechanismPose().getTranslation()
                 .getDistance(FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER));
