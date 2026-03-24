@@ -70,9 +70,8 @@ public class Robot extends TimedRobot {
     public final LauncherSubsystem launcher = new LauncherSubsystem();
     public final ClimberSubsystem climber = new ClimberSubsystem();
     public final SpinDexSubsystem spindex = new SpinDexSubsystem();
-    public final TurretSubsystem turret;
     public final IntakeSubsystem intake = new IntakeSubsystem();
-
+    public final TurretSubsystem turret;
     public final HoodSubsystem hood;
 
     public final Telemetry logger;
