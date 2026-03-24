@@ -67,7 +67,7 @@ public class DrivetrainSubsystem extends SwerveDrivetrain<TalonFX, TalonFX, CANc
             .withDriveRequestType(DriveRequestType.Velocity);
 
     private Pose2d lastVisionUpdatePose = new Pose2d();
-    private long   lastVisionUpdateTime = -1000000;
+    private long   lastVisionUpdateTime = -100000000;
 
     @SuppressWarnings("unused")
     private final Consumer<SysIdRoutineLog> openTranslationLogConsumer = (log) -> {
