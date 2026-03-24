@@ -155,8 +155,8 @@ public class LaunchCalculator {
             double deltaX = turretVelX * timeOfFlight;
             double deltaY = turretVelY * timeOfFlight;
 
-            launchOrigin = launchOrigin.plus(new Translation2d(deltaX, deltaY));
-            launchDist = launchTarget.getDistance(launchOrigin);
+            lookaheadOrigin = launchOrigin.plus(new Translation2d(deltaX, deltaY));
+            launchDist = launchTarget.getDistance(lookaheadOrigin);
 
             if (MathUtil.isNear(oldTOF, timeOfFlight, TOF_TOLERANCE)) {
                 break;
@@ -165,9 +165,11 @@ public class LaunchCalculator {
             oldTOF = timeOfFlight;
         }
 
+        launchOrigin = lookaheadOrigin;
+
         SmartDashboard.putNumber("launchCalc/wise_dist", launchDist);
 
-        Rotation2d turretRot = launchTarget.minus(turretPose.getTranslation()).getAngle()
+        Rotation2d turretRot = launchTarget.minus(launchOrigin).getAngle()
                 .minus(drivetrain.getEstimatedPosition().getRotation());
 
         Angle turretAngle = turretRot.getMeasure();
