@@ -306,8 +306,6 @@ public class Robot extends TimedRobot {
                 turret.holdRobotRel(TurretConstants.CLIMB_POS_BOT_REL)));
     }
 
-    double current = HoodConstants.ANGLE_AT_ARC;
-
     private void setupOtherBindings() {
         testController.b().onTrue(launcher.getLaunchFuel(RPM.of(3000))
                 .until(() -> driveController.getHID().getBackButton() || launcher.atSetpoint())
@@ -318,9 +316,6 @@ public class Robot extends TimedRobot {
 
         testController.povUp().onTrue(Commands.runOnce(() -> hood.setHoodAngle(HoodConstants.HIGHEST_ANGLE_DEGREES)));
         testController.povDown().onTrue(Commands.runOnce(() -> hood.setHoodAngle(HoodConstants.LOWEST_ANGLE_DEGREES)));
-        testController.povLeft().onTrue(Commands.runOnce(() -> hood.setHoodAngle(current -= 5)));
-        testController.povRight().onTrue(Commands.runOnce(() -> hood.setHoodAngle(current += 5)));
-
         testController.start().whileTrue(spindex.getRun());
     }
 
@@ -331,13 +326,6 @@ public class Robot extends TimedRobot {
         var _TT = new Timer("Robot.robotPeriodic.updateAllSendables");
         NTable.updateAllSendables();
         _TT.toc();
-
-        NTable.root("telemetry").set("last drove to arc", lastDroveToArc);
-
-        // update shooter distance tracking vars
-        NTable.root("shooter_tuning").set("hood angle (deg)", hood.getHoodAngle());
-        NTable.root("shooter_tuning").set("spindexer (v)", spindex.getForwardVoltage());
-        NTable.root("shooter_tuning").set("shooter rpm", launcher.getTargetRPM());
         _T.toc();
     }
 
