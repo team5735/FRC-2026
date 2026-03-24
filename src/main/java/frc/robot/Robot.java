@@ -12,6 +12,7 @@ import static edu.wpi.first.units.Units.Seconds;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import com.ctre.phoenix6.SignalLogger;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -19,9 +20,9 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathfindingCommand;
 import com.revrobotics.util.StatusLogger;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
@@ -34,7 +35,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.commands.DriveOnArc;
 import frc.robot.commands.LaunchCalculator;
 import frc.robot.commands.LaunchCalculator.LaunchGoal;
 import frc.robot.commands.drivetrain.PIDToPose;
@@ -236,6 +236,7 @@ public class Robot extends TimedRobot {
         distanceToRpm  .put(Inches.of(207.00).in(Meters), 3850.0);
         distanceToRpm  .put(Inches.of(216.00).in(Meters), 4000.0);
 
+        //                                                degrees
         distanceToAngle.put(Inches.of( 56.00).in(Meters),    8.0);
         distanceToAngle.put(Inches.of( 71.75).in(Meters),   15.0);
         distanceToAngle.put(Inches.of( 87.80).in(Meters),   15.0);
@@ -251,84 +252,52 @@ public class Robot extends TimedRobot {
         // @formatter:on
     }
 
+    Command makeShootCommand(
+            Supplier<Translation2d> shootingTarget,
+            Supplier<Double> hoodAngleSupplier,
+            Supplier<Double> rpmSupplier) {
+        // @formatter:off
+        return new SequentialCommandGroup(
+            hood.runOnce(() -> hood.setHoodAngle(hoodAngleSupplier.get())),
+            new ParallelCommandGroup( 
+                turret.trackFieldPosDynamic(shootingTarget).until(() -> turret.atGoal()),
+                launcher.getLaunchFuelSupplier(rpmSupplier)
+            ),
+            new ParallelCommandGroup(
+                turret.trackFieldPosDynamic(shootingTarget),
+                launcher.getLaunchFuelSupplier(rpmSupplier),
+                spindex.getRun()
+            )
+        ).finallyDo(() -> {
+            hood.setHoodAngle(HoodConstants.LOWEST_ANGLE_DEGREES);
+        });
+        // @formatter:on
+    }
+
     private void setupDriverBindings() {
-        driveController.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+        driveController.y().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+
+        Command unclogSpindex = spindex.getBackwards().withTimeout(0.5);
 
         // @formatter:off
-        // drive to and along the arc
-        driveController.a().whileTrue(
-            new SequentialCommandGroup(
-                Commands.runOnce(() -> this.lastDroveToArc = true),
-                // drive to the arc, this ends when we're at the arc
-                new PIDToPose(drivetrain,
-                    () -> targetArc.getShootingPose(
-                        drivetrain.getEstimatedPosition().getTranslation(),
-                        Rotation2d.kCW_90deg
-                    ),
-                    "drive to arc"),
-                // if we haven't been cancelled by now, let the driver drive along the arc
-                new DriveOnArc(drivetrain, () -> targetArc,
-                    () -> MathUtil.applyDeadband(driveController.getLeftX(), 0.1),
-                    Rotation2d.kCW_90deg)
-            ).withName("drive to and on arc")
-        );
-        driveController.a().whileTrue(launcher.getLaunchFuel(RPM.of(3000)));
-                
-        // drive to the nearest ferry shoot position
-        driveController.x().whileTrue(
-            new SequentialCommandGroup(
-                Commands.runOnce(() -> this.lastDroveToArc = false),
-                hood.runOnce(() -> hood.setHoodAngle(HoodConstants.HIGHEST_ANGLE_DEGREES)),
-                // drive to the nearest shooting start position
-                new PIDToPose(drivetrain, () ->
-                    FieldConstants.closestFerryShootPos(drivetrain.getEstimatedPosition().getTranslation()
-                ),
-                "drive to shooting pos")
-            ).withName("drive to shooting pos")
-        );
-        driveController.x().whileTrue(launcher.getLaunchFuel(RPM.of(3000)));
+        // ferry
+        driveController.x().whileTrue(makeShootCommand(
+            () -> FieldConstants.closestFerryTarget(drivetrain.getEstimatedPosition().getTranslation()),
+            () -> HoodConstants.FERRY_ANGLE,
+            () -> 3000.0
+        ));
+        driveController.b().onFalse(unclogSpindex);
 
-        driveController.b().whileTrue(
-            Commands.either(
-                // get the angle from NT if we're at the arc
-                hood.run(() -> hood.setHoodAngle(distanceToAngle.get(
-                        turret.getMechanismPose().getTranslation().getDistance(FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER))
-                ))),
-                // otherwise, shoot at the max angle
-                hood.run(() -> hood.setHoodAngle(HoodConstants.HIGHEST_ANGLE_DEGREES)),
-                () -> lastDroveToArc || true
-            )
-        );
-        // shoot from distance center of turret to center of hub:
-        //    launcher rpm: 3500
-        //    hood angle: 25 degrees
-        //    spindexer speed: -4V
+        Supplier<Double> dist = () -> turret.getMechanismPose().getTranslation()
+                .getDistance(FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER));
 
-        NTable.root("tuning").sub("spindex").set("wheel: fwd", -4);
-        driveController.b().whileTrue(
-            new SequentialCommandGroup(
-                // spin up the shooter
-                launcher.getLaunchFuel(RPM.of(distanceToRpm.get(
-                    turret.getMechanismPose().getTranslation().getDistance(FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER))
-                ))).until(() ->
-                    // are we ready?
-                    launcher.atSetpoint()
-                ).withTimeout(Seconds.of(3)),
-                new ParallelCommandGroup(
-                    // spin the spindex (and the feeder)
-                    spindex.getRun(),
-                    // continue spinning the shooter
-                    launcher.run(launcher::usePID),
-                    // turn intake on
-                    intake.getIntakeForwardRollCommand()
-                )
-            ).withName("shoot")
-        );
-
-        // spin the spindex backwards to unclog
-        driveController.b().onFalse(spindex.getBackwards().withTimeout(Seconds.of(0.5)).withName("spindex backwards"));
-        // stop spinning the shooter (with delay to fix unknown bug)
-        driveController.b().onFalse(Commands.waitTime(Seconds.of(0.1)).andThen(launcher.getResting()).withName("stop shooter"));
+        // shoot
+        driveController.b().whileTrue(makeShootCommand(
+            () -> FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER),
+            () -> distanceToAngle.get(dist.get()),
+            () -> distanceToRpm.get(dist.get())
+        ));
+        driveController.b().onFalse(unclogSpindex);
         // @formatter:on
 
         driveController.rightBumper().whileTrue(intake.getIntakeForwardRollCommand());
