@@ -149,6 +149,7 @@ public class LaunchCalculator {
 
         SmartDashboard.putNumber("launchCalc/naive_dist", launchDist);
         double timeOfFlight;
+        Translation2d lookaheadOrigin = launchOrigin;
         double oldTOF = 100000; // arbitrarily large; be glad I didn't make this 67676767
         for (int i = 0; i < 20; i++) {
             timeOfFlight = scoreTOFMap.get(launchDist);
