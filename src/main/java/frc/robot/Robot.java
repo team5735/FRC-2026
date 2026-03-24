@@ -317,7 +317,7 @@ public class Robot extends TimedRobot {
                 ))).until(() ->
                     // are we ready?
                     launcher.atSetpoint()
-                ).withTimeout(Seconds.of(2)),
+                ).withTimeout(Seconds.of(3)),
                 new ParallelCommandGroup(
                     // spin the spindex (and the feeder)
                     spindex.getRun(),
