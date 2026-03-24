@@ -24,8 +24,6 @@ import frc.robot.constants.HoodConstants;
 import frc.robot.util.NTable;
 
 public class HoodSubsystem extends SubsystemBase {
-    public final Trigger exclusionZoneTrigger = new Trigger(this::isInExclusionZone);
-
     private final Servo servo = new Servo(Constants.HOOD_SERVO_PIN);
     private final AnalogInput feedback = new AnalogInput(Constants.HOOD_FEEDBACK_PIN);
 
@@ -171,41 +169,6 @@ public class HoodSubsystem extends SubsystemBase {
                 lastPos -= 0.025;
                 lastPos = MathUtil.clamp(lastPos, 0.0, 1.0);
                 hood.setServoPosition(lastPos);
-            }));
-        }
-
-        @Override
-        public void robotPeriodic() {
-            this.hood.sendTelemetry();
-            super.robotPeriodic();
-        }
-
-    };
-
-    // test hood up/down in exclusion zones
-    // move trench april tag closer / further from unmoving bot
-    // to trigger response
-    public static class PeekABooBot extends PartialRobot {
-        private Field2d field2d = new Field2d();
-        private final HoodSubsystem hood = new HoodSubsystem(() -> field2d.getRobotPose(),
-                FieldConstants.HOOD_EXCLUSION_ZONES);
-
-        public PeekABooBot() {
-            super();
-
-            NTable.root("SmartDashboard").sub("hood").set("draggable robot for peek-a-bot", field2d);
-
-            hood.setHoodPosition(0.4);
-
-            hood.exclusionZoneTrigger.onTrue(Commands.runOnce(() -> {
-                SmartDashboard.putBoolean("hood/in_exclusion_zone", true);
-                hood.exzSaveServoPosition();
-                hood.setHoodPosition(0);
-            }));
-            hood.exclusionZoneTrigger.onFalse(Commands.runOnce(() -> {
-                SmartDashboard.putBoolean("hood/in_exclusion_zone", false);
-                double pos = hood.exzGetSavedServoPosition();
-                hood.setServoPosition(pos);
             }));
         }
 

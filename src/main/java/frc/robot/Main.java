@@ -31,7 +31,6 @@ public final class Main {
             case FULL_DEVBOT -> new Robot(DevbotTunerConstants.createDrivetrain());
             case FULL_COMPBOT -> new Robot(CompbotTunerConstants.createDrivetrain());
             case HOOD -> new HoodSubsystem.Tester();
-            case HOOD_PEEK_A_BOO -> new HoodSubsystem.PeekABooBot();
             case INTAKE -> new IntakeSubsystem.Tester();
             case CLIMBER -> new ClimberSubsystem.Tester();
             case TURRET -> new TurretSubsystem.Tester();

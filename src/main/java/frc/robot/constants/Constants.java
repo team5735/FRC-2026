@@ -8,7 +8,6 @@ public class Constants {
         FULL_DEVBOT,
         FULL_COMPBOT,
         HOOD,
-        HOOD_PEEK_A_BOO,
         INTAKE,
         CLIMBER,
         TURRET,

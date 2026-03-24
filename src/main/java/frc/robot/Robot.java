@@ -181,18 +181,18 @@ public class Robot extends TimedRobot {
 
     // any trigger that isn't a button goes here
     private void setupMiscTriggers() {
-        hood.exclusionZoneTrigger.whileTrue(Commands.run(() -> hood.setHoodPosition(0)));
-        hood.exclusionZoneTrigger.onTrue(Commands.runOnce(() -> {
-            SmartDashboard.putBoolean("in_exclusion_zone", true);
-            // todo: add telemetry / debug / logging
-            hood.exzSaveServoPosition();
-        }).withName("enter exclusion zone"));
-        hood.exclusionZoneTrigger.onFalse(Commands.runOnce(() -> {
-            SmartDashboard.putBoolean("in_exclusion_zone", false);
-            // todo: add telemetry / debug / logging
-            double pos = hood.exzGetSavedServoPosition();
-            hood.setServoPosition(pos);
-        }).withName("leave exclusion zone"));
+        // hood.exclusionZoneTrigger.whileTrue(Commands.run(() -> hood.setHoodPosition(0)));
+        // hood.exclusionZoneTrigger.onTrue(Commands.runOnce(() -> {
+        //     SmartDashboard.putBoolean("in_exclusion_zone", true);
+        //     // todo: add telemetry / debug / logging
+        //     hood.exzSaveServoPosition();
+        // }).withName("enter exclusion zone"));
+        // hood.exclusionZoneTrigger.onFalse(Commands.runOnce(() -> {
+        //     SmartDashboard.putBoolean("in_exclusion_zone", false);
+        //     // todo: add telemetry / debug / logging
+        //     double pos = hood.exzGetSavedServoPosition();
+        //     hood.setServoPosition(pos);
+        // }).withName("leave exclusion zone"));
 
         // turret.limitTrigger.onTrue(turret.zeroCommand());
         MatchState.hubActiveTrigger
@@ -201,7 +201,6 @@ public class Robot extends TimedRobot {
         intake.limitEngaged.onTrue(intake.zeroSlapdownPosition());
     }
 
-    boolean lastDroveToArc = true;
     TunablePIDController pidThetaFaceHub = new TunablePIDController("joystick theta");
 
     InterpolatingDoubleTreeMap distanceToRpm = new InterpolatingDoubleTreeMap();
