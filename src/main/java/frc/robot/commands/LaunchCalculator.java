@@ -15,8 +15,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
-import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
-import edu.wpi.first.math.interpolation.InverseInterpolator;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
@@ -47,14 +45,6 @@ public class LaunchCalculator {
     // key: distance(m) value: Time of Flight (s)
     private static final InterpolatingDoubleTreeMap scoreTOFMap = new InterpolatingDoubleTreeMap();
 
-    // key: distance (m) value: angle(deg)
-    private static final InterpolatingTreeMap<Double, Rotation2d> ferryHoodMap = new InterpolatingTreeMap<>(
-            InverseInterpolator.forDouble(), Rotation2d::interpolate);
-    // key: distance (m) value: velocity(RPM)
-    private static final InterpolatingDoubleTreeMap ferrySpeedMap = new InterpolatingDoubleTreeMap();
-    // key: distance (m) value: Time of Flight (s)
-    private static final InterpolatingDoubleTreeMap ferryTOFMap = new InterpolatingDoubleTreeMap();
-
     static {
         // TODO populate tree maps here with REAL POSITIONS
 
@@ -84,9 +74,6 @@ public class LaunchCalculator {
 
     private static final LinearFilter turretVelFiler = LinearFilter.movingAverage(50);
     private static final Timer timer = new Timer();
-
-    private static final double MIN_SCORE_DIST_M = Units.inchesToMeters(56);
-    private static final double MAX_SCORE_DIST_M = Units.inchesToMeters(216); // TODO update
 
     private static boolean allianceKnown = false;
     private static boolean isBlue = true;

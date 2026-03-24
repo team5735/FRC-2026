@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RPM;
@@ -21,7 +20,6 @@ import com.pathplanner.lib.commands.PathfindingCommand;
 import com.revrobotics.util.StatusLogger;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -54,7 +52,6 @@ import frc.robot.util.MatchState;
 import frc.robot.util.NTable;
 import frc.robot.util.Timer;
 import frc.robot.util.TunablePIDController;
-import frc.robot.util.geometry.Arc;
 
 public class Robot extends TimedRobot {
     public final CommandXboxController driveController = new CommandXboxController(
@@ -65,8 +62,6 @@ public class Robot extends TimedRobot {
 
     public final CommandXboxController testController = new CommandXboxController(
             Constants.TEST_CONTROLLER_PORT);
-
-    public Arc targetArc;
 
     public final DrivetrainSubsystem drivetrain;
 
@@ -81,15 +76,6 @@ public class Robot extends TimedRobot {
     public final HoodSubsystem hood;
 
     public final Telemetry logger;
-
-    private void resolveAllianceDependencies() {
-        this.targetArc = new Arc(
-                FieldConstants.BLUE_HUB_CENTER,
-                Feet.of(9).in(Meters),
-                Rotation2d.fromDegrees(90),
-                Rotation2d.fromDegrees(180)).alliance();
-        Telemetry.field.getObject("arc").setPoses(this.targetArc.getAsPoses());
-    }
 
     public Robot(DrivetrainSubsystem drivetrain) {
         this.drivetrain = drivetrain;
@@ -349,11 +335,6 @@ public class Robot extends TimedRobot {
         _TT.toc();
 
         NTable.root("telemetry").set("last drove to arc", lastDroveToArc);
-        if (this.targetArc != null) {
-            Telemetry.field.getObject("nearest point on arc")
-                    .setPose(this.targetArc.getPoseFacingCenter(this.targetArc
-                            .nearestPointOnArc(this.drivetrain.getEstimatedPosition().getTranslation())));
-        }
 
         // update shooter distance tracking vars
         NTable.root("shooter_tuning").set("hood angle (deg)", hood.getHoodAngle());
@@ -376,8 +357,6 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
-        resolveAllianceDependencies();
-
         for (LimelightSubsystem limelight : limelights) {
             limelight.setIMUMode(3);
         }
@@ -402,8 +381,6 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
-        resolveAllianceDependencies();
-
         if (storedAuto != null) {
             storedAuto.cancel();
         }
@@ -425,7 +402,6 @@ public class Robot extends TimedRobot {
 
     @Override
     public void testInit() {
-        resolveAllianceDependencies();
         CommandScheduler.getInstance().cancelAll();
     }
 
