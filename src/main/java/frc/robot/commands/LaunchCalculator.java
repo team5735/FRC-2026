@@ -75,6 +75,9 @@ public class LaunchCalculator {
     private static final LinearFilter turretVelFiler = LinearFilter.movingAverage(50);
     private static final Timer timer = new Timer();
 
+    private static final double MIN_SCORE_DIST_M = Units.inchesToMeters(56);
+    private static final double MAX_SCORE_DIST_M = Units.inchesToMeters(216); // TODO update
+
     private static boolean allianceKnown = false;
     private static boolean isBlue = true;
     private static Angle oldTurretAngle;
