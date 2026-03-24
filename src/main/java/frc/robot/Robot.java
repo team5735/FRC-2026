@@ -174,6 +174,7 @@ public class Robot extends TimedRobot {
                         () -> driveController.getHID().getStartButton()));
 
         // turret.setDefaultCommand(turret.holdRobotRel(TurretConstants.START_POS_BOT_REL));
+        hood.setHoodPosition(0); // on init, lower hood and set servo position in code
         hood.setDefaultCommand(hood.run(() -> hood.setHoodAngle(HoodConstants.LOWEST_ANGLE_DEGREES)));
         launcher.setDefaultCommand(launcher.getResting());
     }
