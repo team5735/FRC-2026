@@ -265,16 +265,16 @@ public class Robot extends TimedRobot {
         Command unclogSpindex = spindex.getBackwards().withTimeout(0.5);
 
         // @formatter:off
+        Supplier<Double> dist = () -> turret.getMechanismPose().getTranslation()
+                .getDistance(FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER));
+
         // ferry
         driveController.x().whileTrue(makeShootCommand(
             () -> FieldConstants.closestFerryTarget(drivetrain.getEstimatedPosition().getTranslation()),
             () -> HoodConstants.FERRY_ANGLE,
-            () -> 3000.0
+            () -> Math.max(3000.0, distanceToRpm.get(dist.get()))
         ));
         driveController.x().onFalse(unclogSpindex);
-
-        Supplier<Double> dist = () -> turret.getMechanismPose().getTranslation()
-                .getDistance(FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER));
 
         // shoot
         driveController.b().whileTrue(makeShootCommand(
