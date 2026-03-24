@@ -82,7 +82,7 @@ public class LaunchCalculator {
         scoreTOFMap.put(50., 0.);
     }
 
-    private static final LinearFilter turretVelFiler = LinearFilter.movingAverage(5);
+    private static final LinearFilter turretVelFiler = LinearFilter.movingAverage(50);
     private static final Timer timer = new Timer();
 
     private static final double MIN_SCORE_DIST_M = Units.inchesToMeters(56);
@@ -192,7 +192,7 @@ public class LaunchCalculator {
 
         AngularVelocity turretVel = RotationsPerSecond
                 .of(turretVelFiler.calculate(
-                        turretAngle.minus(oldTurretAngle).in(Rotations) / timer.get()));
+                        turretAngle.minus(oldTurretAngle).in(Rotations) / 0.02));
 
         timer.reset();
 
@@ -206,7 +206,7 @@ public class LaunchCalculator {
         SmartDashboard.putNumber("launchCalc/flywheel_vel_rpm", flywheelVel.in(RPM));
 
         cachedParams = new LaunchParams(
-                true, // TODO - set exclusion zones
+                (launchDist >= MIN_SCORE_DIST_M) && (launchDist <= MAX_SCORE_DIST_M), // TODO - set exclusion zones
                 turretAngle,
                 turretVel,
                 hoodAngle,
@@ -238,11 +238,9 @@ public class LaunchCalculator {
                                     hood.getHoodAngle(),
                                     HoodConstants.DYNAMIC_TOLERANCE_DEGREES)
                             && turret.getAngle().isNear(params.turretAngle,
-                                    TurretConstants.TOLERANCE)
-                            && MathUtil.isNear(params.flywheelVelocity.in(RPM),
-                                    launcher.getRPM(),
-                                    LauncherConstants.RPM_TOLERANCE))
-                            || override.getAsBoolean();
+                                    TurretConstants.TOLERANCE.plus(Degrees.of(0.5)))
+                            && (launcher.getRPM() <  params.flywheelVelocity.in(RPM) + 200) && (launcher.getRPM() > params.flywheelVelocity.in(RPM) - LauncherConstants.RPM_TOLERANCE)
+                            || override.getAsBoolean());
                 })));
     }
 
