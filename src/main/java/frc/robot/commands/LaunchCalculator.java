@@ -36,18 +36,18 @@ import frc.robot.subsystems.TurretSubsystem;
 
 public class LaunchCalculator {
     // key: distance (m) value: angle(deg)
-    private static final InterpolatingDoubleTreeMap scoreHoodMap = new InterpolatingDoubleTreeMap();
+    public static final InterpolatingDoubleTreeMap scoreHoodMap = new InterpolatingDoubleTreeMap();
     // key: distance(m) value: evlocity(RPM)
-    private static final InterpolatingDoubleTreeMap scoreSpeedMap = new InterpolatingDoubleTreeMap();
+    public static final InterpolatingDoubleTreeMap scoreSpeedMap = new InterpolatingDoubleTreeMap();
     // key: distance(m) value: Time of Flight (s)
-    private static final InterpolatingDoubleTreeMap scoreTOFMap = new InterpolatingDoubleTreeMap();
+    public static final InterpolatingDoubleTreeMap scoreTOFMap = new InterpolatingDoubleTreeMap();
 
     // key: distance (m) value: angle(deg)
-    private static final InterpolatingDoubleTreeMap ferryHoodMap = new InterpolatingDoubleTreeMap();
+    public static final InterpolatingDoubleTreeMap ferryHoodMap = new InterpolatingDoubleTreeMap();
     // key: distance (m) value: velocity(RPM)
-    private static final InterpolatingDoubleTreeMap ferrySpeedMap = new InterpolatingDoubleTreeMap();
+    public static final InterpolatingDoubleTreeMap ferrySpeedMap = new InterpolatingDoubleTreeMap();
     // key: distance (m) value: Time of Flight (s)
-    private static final InterpolatingDoubleTreeMap ferryTOFMap = new InterpolatingDoubleTreeMap();
+    public static final InterpolatingDoubleTreeMap ferryTOFMap = new InterpolatingDoubleTreeMap();
 
     static {
         scoreHoodMap.put(Units.inchesToMeters(56), 8.);
