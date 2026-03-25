@@ -3,11 +3,9 @@
   "robotLength": 0.813,
   "holonomicMode": true,
   "pathFolders": [
-    "ARC",
-    "Comp Depot",
-    "Comp climb auto",
-    "Comp half Sweep",
-    "Sweep"
+    "depot",
+    "to neutral",
+    "to shoot"
   ],
   "autoFolders": [
     "Comp"

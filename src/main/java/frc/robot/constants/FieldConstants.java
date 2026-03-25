@@ -1,21 +1,20 @@
 package frc.robot.constants;
 
+import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 
 import java.util.Optional;
 
-import static edu.wpi.first.units.Units.Inches;
-
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rectangle2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.math.geometry.Rectangle2d;
 
 // This file provides positions, orientations, distances, and poses to field elements for
 // the REBUILT 2026 competition playing field.
@@ -213,27 +212,9 @@ public class FieldConstants {
                                                      // inside robot
             CLIMBER_BLUE_LEFT_CLIMB_ALIGN_POSE.getRotation());
 
-    public static final Translation2d FERRY_TARGET_1 = new Translation2d(1, 0.732);
+    public static final Translation2d FERRY_TARGET_1 = new Translation2d(1.25, 0.732);
     public static final Translation2d FERRY_TARGET_2 = new Translation2d(
             FERRY_TARGET_1.getX(), FIELD_LENGTH_Y.minus(FERRY_TARGET_1.getMeasureY()).in(Meters));
-
-    public static final Pose2d FERRY_SHOOT_POS_1 = new Pose2d(new Translation2d(5.95, 0.732), Rotation2d.kCCW_90deg);
-    public static final Pose2d FERRY_SHOOT_POS_2 = new Pose2d(new Translation2d(
-            FERRY_SHOOT_POS_1.getX(), FIELD_LENGTH_Y.minus(FERRY_SHOOT_POS_1.getMeasureY()).in(Meters)),
-            Rotation2d.kCW_90deg);
-
-    public static Pose2d closestFerryShootPos(Translation2d drivetrainPosition) {
-        Translation2d one = FERRY_SHOOT_POS_1.getTranslation();
-        Translation2d two = FERRY_SHOOT_POS_2.getTranslation();
-        if (isRed()) {
-            one = redElement(one);
-            two = redElement(two);
-        }
-        if (drivetrainPosition.getDistance(one) < drivetrainPosition.getDistance(two)) {
-            return FERRY_SHOOT_POS_1;
-        }
-        return FERRY_SHOOT_POS_2;
-    }
 
     public static Translation2d closestFerryTarget(Translation2d drivetrainPos) {
         Translation2d one = FERRY_TARGET_1;

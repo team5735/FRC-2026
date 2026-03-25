@@ -23,9 +23,16 @@ public class SpinDexSubsystem extends SubsystemBase {
         feedVortex.clearFaults();
         wheelVortex.clearFaults();
 
+        // ensure these values are in NT and persistent
+        // they can be changed for tuning purposes, but...
         table.ensure("feed", -6);
         table.ensure("wheel: fwd", -4);
         table.ensure("wheel: bck", 5);
+
+        // they should default to these values on robot start
+        table.set("feed", -6);
+        table.set("wheel: fwd", -4);
+        table.set("wheel: bck", 5);
     }
 
     public void runFeeder() {

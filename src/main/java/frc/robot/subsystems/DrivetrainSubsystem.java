@@ -67,7 +67,7 @@ public class DrivetrainSubsystem extends SwerveDrivetrain<TalonFX, TalonFX, CANc
             .withDriveRequestType(DriveRequestType.Velocity);
 
     private Pose2d lastVisionUpdatePose = new Pose2d();
-    private long   lastVisionUpdateTime = -100000000;
+    private long   lastVisionUpdateTime = Long.MIN_VALUE;
 
     @SuppressWarnings("unused")
     private final Consumer<SysIdRoutineLog> openTranslationLogConsumer = (log) -> {
@@ -286,6 +286,7 @@ public class DrivetrainSubsystem extends SwerveDrivetrain<TalonFX, TalonFX, CANc
         if (_q==3) _s="great";
         table.set("led_location_accuracy_blocks", _q);
         table.set("led_location_quality", _s);
+        table.set("shootAccuracy", _q>=2);
 
         if (!hasAppliedOperatorPerspective || DriverStation.isDisabled()) {
             DriverStation.getAlliance().ifPresent(allianceColor -> {
@@ -369,7 +370,7 @@ public class DrivetrainSubsystem extends SwerveDrivetrain<TalonFX, TalonFX, CANc
         return input;
     }
 
-    public ChassisSpeeds getChassisSpeeds() {
+    public ChassisSpeeds getChassisSpeedsRobotRel() {
         var states = new SwerveModuleState[4];
 
         for (int i = 0; i < 4; i++) {
@@ -377,6 +378,10 @@ public class DrivetrainSubsystem extends SwerveDrivetrain<TalonFX, TalonFX, CANc
         }
 
         return constants.getConfig().toChassisSpeeds(states);
+    }
+
+    public ChassisSpeeds getChassisSpeedsFieldRel(){
+        return ChassisSpeeds.fromRobotRelativeSpeeds(getChassisSpeedsRobotRel(), getEstimatedPosition().getRotation());
     }
 
     public void autoDriveRobotRelative(ChassisSpeeds robotChassisSpeeds) {
@@ -389,7 +394,7 @@ public class DrivetrainSubsystem extends SwerveDrivetrain<TalonFX, TalonFX, CANc
         AutoBuilder.configure(
                 this::getEstimatedPosition,
                 this::resetPose,
-                this::getChassisSpeeds,
+                this::getChassisSpeedsRobotRel,
                 (speeds, ff) -> autoDriveRobotRelative(speeds),
                 new PPHolonomicDriveController(
                         constants.getAutoPosConstants(),

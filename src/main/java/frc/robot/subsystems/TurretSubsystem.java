@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
@@ -28,6 +29,7 @@ import static frc.robot.constants.TurretConstants.turretRelToRobotRel;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
@@ -47,6 +49,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -64,7 +67,6 @@ import frc.robot.constants.FieldConstants;
 import frc.robot.constants.robot.CompbotConstants;
 import frc.robot.constants.robot.CompbotTunerConstants;
 import frc.robot.constants.robot.RobotConstants;
-import frc.robot.util.Timer;
 import frc.robot.util.TunableProfiledPIDController;
 
 public class TurretSubsystem extends SubsystemBase {
@@ -82,6 +84,8 @@ public class TurretSubsystem extends SubsystemBase {
     private double prevVel = 0;
     private RobotConstants driveConstants;
 
+    private SendableChooser<Boolean> turretEnabledDropdown = new SendableChooser<>();
+
     public TurretSubsystem(Supplier<Pose2d> robotPoseSupplier, RobotConstants driveConstants) {
         super();
         this.driveConstants = driveConstants;
@@ -95,10 +99,14 @@ public class TurretSubsystem extends SubsystemBase {
                 .withForwardSoftLimitThreshold(FORWARD_LIMIT_TUR_REL)
                 .withReverseSoftLimitEnable(true)
                 .withReverseSoftLimitThreshold(REVERSE_LIMIT_TUR_REL));
+        kraken.getConfigurator().apply(new CurrentLimitsConfigs().withStatorCurrentLimit(Amps.of(15)));
         pid.setup(robotRelToTurretRel(START_POS_BOT_REL).in(Rotations));
         pid.reset(robotRelToTurretRel(START_POS_BOT_REL).in(Rotations));
         pid.setTolerance(Units.degreesToRotations(1));
         this.robotPoseSupplier = robotPoseSupplier;
+
+        turretEnabledDropdown.addOption("No", Boolean.FALSE);
+        turretEnabledDropdown.addOption("Yes", Boolean.TRUE);
     }
 
     @Override
@@ -114,6 +122,7 @@ public class TurretSubsystem extends SubsystemBase {
         SmartDashboard.putBoolean("turret/isZeroed", isZeroed);
         SmartDashboard.putBoolean("turret/atForwardSoftwareLimit", isAtForwardLim.getAsBoolean());
         SmartDashboard.putBoolean("turret/atReverseSoftwareLimit", isAtReverseLim.getAsBoolean());
+        SmartDashboard.putBoolean("turret/isAtGoalPos", isAtGoalPos());
         SmartDashboard.putNumber("turret/distance to hub",
                 FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER)
                         .getDistance(this.getMechanismPose().getTranslation()));
@@ -201,16 +210,17 @@ public class TurretSubsystem extends SubsystemBase {
                     prevVel = kraken.getVelocity().getValue().in(RotationsPerSecond);
                 },
                 () -> {
+                    if (turretEnabledDropdown.getSelected() == Boolean.FALSE) {
+                        return;
+                    }
                     double pidOut = pid.calculate(getAngleTurretRel().in(Rotations), goalSupplier.get());
                     SmartDashboard.putNumber("turret/pidOut", pidOut);
-                    double newVel = pid.getController().getSetpoint().velocity; // TODO find appropriate deaband and
-                                                                                // constantize
-                    double ffOut = (!MathUtil.isNear(newVel, 0, 0.075)) ? ff.calculate(newVel,
-                            Math.copySign(MAX_ACC.in(RotationsPerSecondPerSecond), newVel - prevVel)) : 0;
+                    double newVel = pid.getController().getSetpoint().velocity;
+                    double ffOut = (!MathUtil.isNear(0, newVel, 0.075))
+                            ? ff.calculate(newVel, (newVel - prevVel) / 0.05)
+                            : Math.copySign(0.5 * KS, pidOut);
                     SmartDashboard.putNumber("turret/ffOut", ffOut);
-                    double voltsToSet = (isAtGoalPos()) ? 0
-                            : pidOut
-                                    + ffOut;
+                    double voltsToSet = (!isAtGoalPos()) ? pidOut + ffOut : 0;
                     kraken.setVoltage(voltsToSet);
                     prevVel = newVel;
                 }).finallyDo(() -> kraken.setVoltage(0));
@@ -233,12 +243,14 @@ public class TurretSubsystem extends SubsystemBase {
                     pid.setGoal(new State(formatInputPosRobotRel(goal).in(Rotations), 0));
                 },
                 () -> {
-                    var _T = new Timer("");
+                    if (turretEnabledDropdown.getSelected() == Boolean.FALSE) {
+                        return;
+                    }
+                    var _T = new frc.robot.util.Timer("");
                     double newVel = pid.getController().getSetpoint().velocity;
                     double voltsToSet = pid.calculate(getAngleTurretRel().in(Rotations))
                             + ff.calculate(newVel,
                                     Math.copySign(MAX_ACC.in(RotationsPerSecondPerSecond), newVel - prevVel));
-                    ;
                     kraken.setVoltage(voltsToSet);
                     prevVel = newVel;
                     _T.toc();
@@ -390,7 +402,7 @@ public class TurretSubsystem extends SubsystemBase {
      */
     public Command zeroSequence() {
         return hardRunForward().until(limitTrigger::getAsBoolean)
-                .andThen(softRunReverse().withTimeout(0.5))
+                .andThen(softRunReverse().until(() -> !limitTrigger.getAsBoolean()))
                 .andThen(softRunForward().until(limitTrigger::getAsBoolean))
                 .andThen(zeroCommand()).withName("zero sequence")
                 .beforeStarting(() -> kraken.getConfigurator().apply(new SoftwareLimitSwitchConfigs()

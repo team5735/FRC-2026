@@ -31,6 +31,7 @@ public class HoodConstants {
     // move to. While tuning the hood servo, these don't change
     public static final double LOWEST_ANGLE_DEGREES = 8.0;
     public static final double HIGHEST_ANGLE_DEGREES = 45.0;
+    public static final double FERRY_ANGLE = HIGHEST_ANGLE_DEGREES;
 
     // TODO: test
     // public static final double ANGLE_AT_ARC = 15.0; // degrees, this is current angle to shoot from arc

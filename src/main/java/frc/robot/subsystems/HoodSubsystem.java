@@ -23,8 +23,6 @@ import frc.robot.util.NTable;
 import frc.robot.util.Timer;
 
 public class HoodSubsystem extends SubsystemBase {
-    public final Trigger exclusionZoneTrigger = new Trigger(this::isInExclusionZone);
-
     private final Servo servo = new Servo(Constants.HOOD_SERVO_PIN);
     private final AnalogInput feedback = new AnalogInput(Constants.HOOD_FEEDBACK_PIN);
 
