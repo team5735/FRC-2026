@@ -37,7 +37,7 @@ public class TurretConstants {
     public static final Angle REVERSE_LIMIT_BOT_REL = Rotations.of(0.75); // limit the turret would hit whild driving
                                                                           // CW
     public static final Angle FORWARD_LIMIT_BOT_REL = Rotations.of(0.305); // limit the turret would hit while driving
-                                                                            // CCW //TODO
+                                                                            // CCW
     public static final Angle HALL_LIMIT_POS_BOT_REL = Rotations.of(0.299);
     public static final Angle ZERO_OFFSET = Rotations
             .of((REVERSE_LIMIT_BOT_REL.in(Rotations) + FORWARD_LIMIT_BOT_REL.in(Rotations)) / 2);

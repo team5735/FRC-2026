@@ -24,12 +24,12 @@ import edu.wpi.first.units.measure.Mass;
 public class CompbotConstants implements RobotConstants {
     @Override
     public PIDConstants getAutoPosConstants() {
-        return new PIDConstants(12.5, 0); // TODO
+        return new PIDConstants(12.5, 0);
     }
 
     @Override
     public PIDConstants getAutoRotConstants() {
-        return new PIDConstants(10, 0); // TODO
+        return new PIDConstants(10, 0);
     }
 
     @Override
@@ -161,6 +161,6 @@ public class CompbotConstants implements RobotConstants {
     }
 
     public Distance getBumperWidth() {
-        return Inches.of(3.5); // TODO
+        return Inches.of(3.5);
     }
 }

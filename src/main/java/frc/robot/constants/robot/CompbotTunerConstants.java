@@ -47,7 +47,7 @@ public class CompbotTunerConstants {
             .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
     // When using closed-loop control, the drive motor uses the control
     // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
-    public static final Slot0Configs DEFAULT_DRIVE_CONSTANTS = new Slot0Configs() // TODO
+    public static final Slot0Configs DEFAULT_DRIVE_CONSTANTS = new Slot0Configs()
             .withKP(0.125).withKI(0).withKD(0)
             .withKS(0.12).withKV(0.11).withKA(0.012);
 

@@ -33,10 +33,6 @@ public class HoodConstants {
     public static final double HIGHEST_ANGLE_DEGREES = 45.0;
     public static final double FERRY_ANGLE = HIGHEST_ANGLE_DEGREES;
 
-    // TODO: test
-    // public static final double ANGLE_AT_ARC = 15.0; // degrees, this is current angle to shoot from arc
-    public static final double ANGLE_AT_ARC = 25.0; // degrees
-
     // 0.45 = 1.75v
     // do this twice and you get a linear interpolation between feedback
     // voltage and servo setpoint

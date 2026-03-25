@@ -90,7 +90,6 @@ public class Robot extends TimedRobot {
         setupMiscTriggers();
         setupDriverBindings();
         setupSubsystemBindings();
-        setupOtherBindings();
         setupAutoChooser();
         fillMaps();
 
@@ -191,7 +190,6 @@ public class Robot extends TimedRobot {
         distanceToRpm  .put(Inches.of(207.00).in(Meters), 3850.0);
         distanceToRpm  .put(Inches.of(216.00).in(Meters), 4000.0);
 
-        //                                                degrees
         distanceToAngle.put(Inches.of( 56.00).in(Meters),    8.0);
         distanceToAngle.put(Inches.of( 71.75).in(Meters),   15.0);
         distanceToAngle.put(Inches.of( 87.80).in(Meters),   15.0);
@@ -207,7 +205,7 @@ public class Robot extends TimedRobot {
         // @formatter:on
     }
 
-    Command makeShootCommand(
+    private Command makeShootCommand(
             Supplier<Translation2d> shootingTarget,
             Supplier<Double> hoodAngleSupplier,
             Supplier<Double> rpmSupplier) {
@@ -270,20 +268,6 @@ public class Robot extends TimedRobot {
         subsystemController.rightTrigger().whileTrue(climber.getExtendCommand());
         subsystemController.leftTrigger().whileTrue(climber.getRetractCommand().alongWith(
                 turret.holdRobotRel(TurretConstants.CLIMB_POS_BOT_REL)));
-    }
-
-    private void setupOtherBindings() {
-        hood.setHoodAngle(20.0); // set hood to an initial value (make it similar to other values in this file)
-        testController.b().onTrue(launcher.getLaunchFuel(LauncherConstants.DEFAULT_SETPOINT)
-                .until(() -> driveController.getHID().getBackButton() || launcher.atSetpoint())
-                .withTimeout(Seconds.of(2)));
-        testController.x().onTrue(hood.runOnce(() -> hood.setHoodAngle(HoodConstants.ANGLE_AT_ARC)));
-        testController.y()
-                .onTrue(drivetrain.runOnce(() -> drivetrain.resetPose(limelights[0].getPoseEstimate())));
-
-        testController.povUp().onTrue(Commands.runOnce(() -> hood.setHoodAngle(HoodConstants.HIGHEST_ANGLE_DEGREES)));
-        testController.povDown().onTrue(Commands.runOnce(() -> hood.setHoodAngle(HoodConstants.LOWEST_ANGLE_DEGREES)));
-        testController.start().whileTrue(spindex.getRun());
     }
 
     @Override
