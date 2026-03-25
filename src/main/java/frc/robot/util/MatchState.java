@@ -41,14 +41,14 @@ public class MatchState {
     }
 
     /**
-     * Whether or not the
+     * Whether or not the specified alliance won auto.
+     *
+     * If an alliance could not be retrieved, true is returned.
      * 
      * @param allianceToCheck an {@link Alliance}
-     * @return
      */
     public static boolean didWinAuto(Alliance allianceToCheck) {
-        var victor = getAutoVictor();
-        return (victor.isEmpty()) ? false : allianceToCheck.equals(victor);
+        return getAutoVictor().orElse(allianceToCheck).equals(allianceToCheck);
     }
 
     public static boolean didWeWinAuto() {
@@ -108,8 +108,7 @@ public class MatchState {
     }
 
     public static boolean ourHubActive() {
-        var alliance = DriverStation.getAlliance();
-        return (DriverStation.getAlliance().isPresent()) ? isHubActive(alliance) : false;
+        return (DriverStation.getAlliance().isPresent()) ? isHubActive(DriverStation.getAlliance()) : false;
     }
 
     public static Trigger hubActiveTrigger = new Trigger(MatchState::ourHubActive);
