@@ -38,7 +38,6 @@ public final class Main {
             case SPINDEX -> new SpinDexSubsystem.Tester();
             case LAUNCHER -> new LauncherSubsystem.Tester();
             case CANDLE -> new CANdleSubsystem.Tester();
-            case INTERPOLATION -> new InterpolationRobot();
         });
     }
 }

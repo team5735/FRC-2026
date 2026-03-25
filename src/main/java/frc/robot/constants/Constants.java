@@ -15,7 +15,6 @@ public class Constants {
         SPINDEX,
         LAUNCHER,
         CANDLE,
-        INTERPOLATION,
     }
 
     public static final BotConfiguration CURRENT_ROBOT = BotConfiguration.FULL_COMPBOT;
