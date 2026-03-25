@@ -177,7 +177,7 @@ public class Robot extends TimedRobot {
     }
 
     private void setupMiscTriggers() {
-        hood.exclusionZoneTrigger.whileTrue(hood.getExclusionZoneCommand());
+        new Trigger(() -> hood.isInExclusionZone()).whileTrue(hood.getExclusionZoneCommand());
 
         MatchState.hubActiveTrigger
                 .onFalse(Commands.runOnce(() -> driveController.setRumble(RumbleType.kBothRumble, 0)));

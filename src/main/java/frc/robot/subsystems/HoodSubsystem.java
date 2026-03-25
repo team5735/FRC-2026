@@ -199,7 +199,7 @@ public class HoodSubsystem extends SubsystemBase {
 
             hood.setHoodPosition(0.4);
 
-            hood.exclusionZoneTrigger.whileTrue(hood.getExclusionZoneCommand());
+            new Trigger(() -> hood.isInExclusionZone()).whileTrue(hood.getExclusionZoneCommand());
         }
 
         @Override
