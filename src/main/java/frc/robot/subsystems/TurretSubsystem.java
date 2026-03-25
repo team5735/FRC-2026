@@ -217,7 +217,7 @@ public class TurretSubsystem extends SubsystemBase {
                     SmartDashboard.putNumber("turret/pidOut", pidOut);
                     double newVel = pid.getController().getSetpoint().velocity;
                     double ffOut = (!MathUtil.isNear(0, newVel, 0.075))
-                            ? ff.calculate(newVel, (newVel - prevVel) / 0.05)
+                            ? ff.calculateWithVelocities(prevVel, newVel)
                             : Math.copySign(0.5 * KS, pidOut);
                     SmartDashboard.putNumber("turret/ffOut", ffOut);
                     double voltsToSet = (!isAtGoalPos()) ? pidOut + ffOut : 0;
@@ -249,8 +249,7 @@ public class TurretSubsystem extends SubsystemBase {
                     var _T = new frc.robot.util.Timer("");
                     double newVel = pid.getController().getSetpoint().velocity;
                     double voltsToSet = pid.calculate(getAngleTurretRel().in(Rotations))
-                            + ff.calculate(newVel,
-                                    Math.copySign(MAX_ACC.in(RotationsPerSecondPerSecond), newVel - prevVel));
+                            + ff.calculateWithVelocities(prevVel, newVel);
                     kraken.setVoltage(voltsToSet);
                     prevVel = newVel;
                     _T.toc();
