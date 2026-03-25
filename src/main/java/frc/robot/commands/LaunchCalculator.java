@@ -19,9 +19,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -53,9 +50,6 @@ public class LaunchCalculator {
     private static final InterpolatingDoubleTreeMap ferryTOFMap = new InterpolatingDoubleTreeMap();
 
     static {
-        // TODO populate tree maps here with REAL POSITIONS
-
-        // ALL THESE VALUES ARE TEMP FOR TESTING !!
         scoreHoodMap.put(Units.inchesToMeters(56), 8.);
         scoreHoodMap.put(Units.inchesToMeters(71.75), 15.);
         scoreHoodMap.put(Units.inchesToMeters(87.8), 15.);
@@ -75,18 +69,16 @@ public class LaunchCalculator {
         scoreSpeedMap.put(Units.inchesToMeters(207), 3850.);
         scoreSpeedMap.put(Units.inchesToMeters(216), 4000.);
 
+        //TODO - determine real TOFs
         scoreTOFMap.put(0., 0.);
-        scoreTOFMap.put(50., 5.);
+        scoreTOFMap.put(50., 0.);
     }
 
     private static final LinearFilter turretVelFiler = LinearFilter.movingAverage(50);
-    private static final Timer timer = new Timer();
 
     private static final double MIN_SCORE_DIST_M = Units.inchesToMeters(56);
-    private static final double MAX_SCORE_DIST_M = Units.inchesToMeters(216); // TODO update
+    private static final double MAX_SCORE_DIST_M = Units.inchesToMeters(216);
 
-    private static boolean allianceKnown = false;
-    private static boolean isBlue = true;
     private static Angle oldTurretAngle;
     private static LaunchParams cachedParams = new LaunchParams(
             false,
@@ -109,23 +101,38 @@ public class LaunchCalculator {
 
     public enum LaunchGoal {
         SCORE,
-        PASS
+        FERRY,
+        LOOP // for fun/in-pit testing
     }
 
     public static void calculate(LaunchGoal goal, DrivetrainSubsystem drivetrain, ChassisSpeeds robotVel,
             Pose2d turretPose) {
-        if (!allianceKnown) {
-            if (DriverStation.getAlliance().isPresent()) {
-                allianceKnown = true;
-                isBlue = DriverStation.getAlliance().get().equals(Alliance.Blue);
-            }
-        }
 
-        Translation2d launchTarget = switch (goal) {
-            case SCORE -> isBlue ? FieldConstants.BLUE_HUB_CENTER
-                    : FieldConstants.redElement(FieldConstants.BLUE_HUB_CENTER);
-            case PASS -> new Translation2d(); // TODO set pass targets
-        };
+        Translation2d launchTarget;
+        var hoodMap = scoreHoodMap;
+        var speedMap = scoreSpeedMap;
+        var TOFMap = scoreTOFMap;
+
+        switch (goal) {
+            case SCORE:
+                launchTarget = FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER);
+                break;
+            case FERRY:
+                launchTarget = FieldConstants.closestFerryTarget(turretPose.getTranslation());
+                hoodMap = ferryHoodMap;
+                speedMap = ferrySpeedMap;
+                TOFMap = ferryTOFMap;
+                break;
+            case LOOP:
+            default:
+                cachedParams = new LaunchParams(
+                        true,
+                        Rotations.of(0.875), // Roughly face the robot's center
+                        RotationsPerSecond.of(0), // Hold the pose
+                        Degrees.of(HoodConstants.LOWEST_ANGLE_DEGREES), // Minimum horizontal velocity component
+                        RPM.of(1000)); // TODO find appropriate speed
+                return;
+        }
 
         double robotAngle = drivetrain.getEstimatedPosition().getRotation().getRadians();
 
@@ -150,7 +157,7 @@ public class LaunchCalculator {
         Translation2d lookaheadOrigin = launchOrigin;
         double oldTOF = 100000; // arbitrarily large; be glad I didn't make this 67676767
         for (int i = 0; i < 20; i++) {
-            timeOfFlight = scoreTOFMap.get(launchDist);
+            timeOfFlight = TOFMap.get(launchDist);
             double deltaX = turretVelX * timeOfFlight;
             double deltaY = turretVelY * timeOfFlight;
 
@@ -185,12 +192,10 @@ public class LaunchCalculator {
                 .of(turretVelFiler.calculate(
                         turretAngle.minus(oldTurretAngle).in(Rotations) / 0.02));
 
-        timer.reset();
-
         oldTurretAngle = turretAngle;
-        Angle hoodAngle = Degrees.of(scoreHoodMap.get(launchDist));
+        Angle hoodAngle = Degrees.of(hoodMap.get(launchDist));
 
-        AngularVelocity flywheelVel = RPM.of(scoreSpeedMap.get(launchDist));
+        AngularVelocity flywheelVel = RPM.of(speedMap.get(launchDist));
         SmartDashboard.putNumber("launchCalc/turret_angle_rot", turretAngle.in(Rotations));
         SmartDashboard.putNumber("launchCalc/turret_vel_rps", turretVel.in(RotationsPerSecond));
         SmartDashboard.putNumber("launchCalc/hood_angle_deg", hoodAngle.in(Degrees));
@@ -216,7 +221,7 @@ public class LaunchCalculator {
     public static Command dynamicLaunchCommand(LaunchGoal goal, BooleanSupplier override,
             HoodSubsystem hood, TurretSubsystem turret, DrivetrainSubsystem drivetrain,
             LauncherSubsystem launcher, SpinDexSubsystem spindex) {
-        return Commands.runOnce(() -> timer.reset()).andThen(Commands.parallel(
+        return Commands.parallel(
                 reCalcParams(goal, turret, drivetrain),
                 hood.getDynamicTracking(() -> getCachedParams().hoodAngle),
                 turret.trackRobotRelWithVelocity(() -> getCachedParams().turretAngle,
@@ -230,13 +235,15 @@ public class LaunchCalculator {
                                     HoodConstants.DYNAMIC_TOLERANCE_DEGREES)
                             && turret.getAngle().isNear(params.turretAngle,
                                     TurretConstants.TOLERANCE.plus(Degrees.of(0.5)))
-                            && MathUtil.isNear(params.flywheelVelocity.in(RPM), launcher.getRPM(), LauncherConstants.RPM_TOLERANCE)
+                            && MathUtil.isNear(params.flywheelVelocity.in(RPM), launcher.getRPM(),
+                                    LauncherConstants.RPM_TOLERANCE)
                             || override.getAsBoolean());
-                }).andThen(spindex.getInformedRun(() -> !TurretConstants.isInDeadZone(getCachedParams().turretAngle) || override.getAsBoolean()))));
+                }).andThen(spindex.getInformedRun(() -> !TurretConstants.isInDeadZone(getCachedParams().turretAngle)
+                        || override.getAsBoolean())));
     }
 
-    public static Command dynamicLaunchTeleop(CommandXboxController controller, BooleanSupplier override,
-            LaunchGoal goal,
+    public static Command dynamicLaunchTeleop(CommandXboxController controller, LaunchGoal goal,
+            BooleanSupplier override,
             HoodSubsystem hood, TurretSubsystem turret, DrivetrainSubsystem drivetrain,
             LauncherSubsystem launcher, SpinDexSubsystem spindex) {
         return dynamicLaunchCommand(goal, override, hood, turret, drivetrain, launcher, spindex)
@@ -247,5 +254,12 @@ public class LaunchCalculator {
                         () -> controller.getRightTriggerAxis() * DRIVETRAIN_VELOCITY_SCALING,
                         () -> controller.getHID().getBButton(),
                         () -> controller.getHID().getStartButton()));
+    }
+
+    public static Command dryAimTurret(LaunchGoal goal, TurretSubsystem turret, DrivetrainSubsystem drivetrain) {
+        return Commands.parallel(
+                reCalcParams(goal, turret, drivetrain),
+                turret.trackRobotRelWithVelocity(() -> getCachedParams().turretAngle,
+                        () -> getCachedParams().turretVelocity));
     }
 }
