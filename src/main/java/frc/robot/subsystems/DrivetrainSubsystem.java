@@ -1,12 +1,8 @@
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.Second;
-import static edu.wpi.first.units.Units.Volts;
 
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.Utils;
@@ -32,10 +28,8 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.constants.Constants;
 import frc.robot.constants.robot.RobotConstants;
 import frc.robot.util.NTable;
@@ -55,11 +49,6 @@ public class DrivetrainSubsystem extends SwerveDrivetrain<TalonFX, TalonFX, CANc
 
     private NTable table = NTable.root("drivetrain");
 
-    /* Swerve requests to apply during SysId characterization */
-    public final SwerveRequest.SysIdSwerveTranslation translationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
-    public final SwerveRequest.SysIdSwerveSteerGains steerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
-    public final SwerveRequest.SysIdSwerveRotation rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
-
     public final SwerveRequest.FieldCentric fieldCentricRequest;
     public final SwerveRequest.FieldCentric pidRequest;
     public final SwerveRequest.SwerveDriveBrake brakeRequest = new SwerveRequest.SwerveDriveBrake();
@@ -68,132 +57,6 @@ public class DrivetrainSubsystem extends SwerveDrivetrain<TalonFX, TalonFX, CANc
 
     private Pose2d lastVisionUpdatePose = new Pose2d();
     private long   lastVisionUpdateTime = Long.MIN_VALUE;
-
-    @SuppressWarnings("unused")
-    private final Consumer<SysIdRoutineLog> openTranslationLogConsumer = (log) -> {
-        log.motor("FL_drive")
-                .linearPosition(Meters.of(getState().Pose.getY()))
-                .linearVelocity(MetersPerSecond.of(getState().ModuleStates[0].speedMetersPerSecond))
-                .voltage(getModule(0).getDriveMotor().getMotorVoltage().getValue());
-        log.motor("FR_drive")
-                .linearPosition(Meters.of(getState().Pose.getY()))
-                .linearVelocity(MetersPerSecond.of(getState().ModuleStates[1].speedMetersPerSecond))
-                .voltage(getModule(1).getDriveMotor().getMotorVoltage().getValue());
-        log.motor("BL_drive")
-                .linearPosition(Meters.of(getState().Pose.getY()))
-                .linearVelocity(MetersPerSecond.of(getState().ModuleStates[2].speedMetersPerSecond))
-                .voltage(getModule(2).getDriveMotor().getMotorVoltage().getValue());
-        log.motor("BR_drive")
-                .linearPosition(Meters.of(getState().Pose.getY()))
-                .linearVelocity(MetersPerSecond.of(getState().ModuleStates[3].speedMetersPerSecond))
-                .voltage(getModule(3).getDriveMotor().getMotorVoltage().getValue());
-    };
-
-    private final Consumer<SysIdRoutineLog> closedTranslationLogConsumer = (log) -> {
-        log.motor("FL_drive")
-                .angularPosition(getModule(0).getDriveMotor().getPosition().getValue())
-                .angularVelocity(getModule(0).getDriveMotor().getVelocity().getValue())
-                .voltage(getModule(0).getDriveMotor().getMotorVoltage().getValue());
-        log.motor("FR_drive")
-                .angularPosition(getModule(1).getDriveMotor().getPosition().getValue())
-                .angularVelocity(getModule(1).getDriveMotor().getVelocity().getValue())
-                .voltage(getModule(1).getDriveMotor().getMotorVoltage().getValue());
-        log.motor("BL_drive")
-                .angularPosition(getModule(2).getDriveMotor().getPosition().getValue())
-                .angularVelocity(getModule(2).getDriveMotor().getVelocity().getValue())
-                .voltage(getModule(2).getDriveMotor().getMotorVoltage().getValue());
-        log.motor("BR_drive")
-                .angularPosition(getModule(3).getDriveMotor().getPosition().getValue())
-                .angularVelocity(getModule(3).getDriveMotor().getVelocity().getValue())
-                .voltage(getModule(3).getDriveMotor().getMotorVoltage().getValue());
-    };
-
-    /*
-     * SysId routine for characterizing translation. This is used to find PID gains
-     * for the drive motors.
-     */
-    @SuppressWarnings("unused")
-    private final SysIdRoutine sysIdRoutineTranslation = new SysIdRoutine(
-            new SysIdRoutine.Config(
-                    Volts.of(0.5).per(Second),
-                    Volts.of(2.5),
-                    null, // Use default timeout (10 s)
-                    // Log state by default
-                    null),
-            new SysIdRoutine.Mechanism(
-                    output -> setControl(translationCharacterization.withVolts(output)),
-                    closedTranslationLogConsumer,
-                    this));
-
-    private final Consumer<SysIdRoutineLog> steerLogConsumer = (log) -> {
-        log.motor("FL_steer")
-                .angularPosition(getModule(0).getSteerMotor().getPosition().getValue())
-                .angularVelocity(getModule(0).getSteerMotor().getVelocity().getValue())
-                .voltage(getModule(0).getSteerMotor().getMotorVoltage().getValue());
-        log.motor("FR_steer")
-                .angularPosition(getModule(1).getSteerMotor().getPosition().getValue())
-                .angularVelocity(getModule(1).getSteerMotor().getVelocity().getValue())
-                .voltage(getModule(1).getSteerMotor().getMotorVoltage().getValue());
-        log.motor("BL_steer")
-                .angularPosition(getModule(2).getSteerMotor().getPosition().getValue())
-                .angularVelocity(getModule(2).getSteerMotor().getVelocity().getValue())
-                .voltage(getModule(2).getSteerMotor().getMotorVoltage().getValue());
-        log.motor("BR_steer")
-                .angularPosition(getModule(3).getSteerMotor().getPosition().getValue())
-                .angularVelocity(getModule(3).getSteerMotor().getVelocity().getValue())
-                .voltage(getModule(3).getSteerMotor().getMotorVoltage().getValue());
-    };
-
-    /*
-     * SysId routine for characterizing steer. This is used to find PID gains for
-     * the steer motors.
-     */
-    @SuppressWarnings("unused")
-    private final SysIdRoutine sysIdRoutineSteer = new SysIdRoutine(
-            new SysIdRoutine.Config(
-                    null, // Use default ramp rate (1 V/s)
-                    Volts.of(7), // Use dynamic voltage of 7 V
-                    null, // Use default timeout (10 s)
-                    // Log state by default
-                    null),
-            new SysIdRoutine.Mechanism(
-                    volts -> setControl(steerCharacterization.withVolts(volts)),
-                    steerLogConsumer,
-                    this));
-
-    private final Consumer<SysIdRoutineLog> rotationLogConsumer = (log) -> {
-        log.motor("robot_rot")
-                .angularPosition(getPigeon2().getYaw().getValue())
-                .angularVelocity(getPigeon2().getAngularVelocityZWorld().getValue())
-                .voltage(getModule(0).getDriveMotor().getMotorVoltage().getValue());
-    };
-    /*
-     * SysId routine for characterizing rotation.
-     * This is used to find PID gains for the FieldCentricFacingAngle
-     * HeadingController.
-     * See the documentation of SwerveRequest.SysIdSwerveRotation for info on
-     * importing the log to SysId.
-     */
-    @SuppressWarnings("unused")
-    private final SysIdRoutine sysIdRoutineRotation = new SysIdRoutine(
-            new SysIdRoutine.Config(
-                    /* This is in radians per second², but SysId only supports "volts per second" */
-                    Volts.of(Math.PI / 6).per(Second),
-                    /* This is in radians per second, but SysId only supports "volts" */
-                    Volts.of(Math.PI),
-                    null, // Use default timeout (10 s)
-                    // Log state by default
-                    null),
-            new SysIdRoutine.Mechanism(
-                    output -> {
-                        /* output is actually radians per second, but SysId only supports "volts" */
-                        setControl(rotationCharacterization.withRotationalRate(output.in(Volts)));
-                    },
-                    rotationLogConsumer,
-                    this));
-
-    /* The SysId routine to test */
-    private SysIdRoutine sysIdRoutineToApply = sysIdRoutineRotation;
 
     /**
      * Constructs a CTRE SwerveDrivetrain using the specified constants.
@@ -239,28 +102,6 @@ public class DrivetrainSubsystem extends SwerveDrivetrain<TalonFX, TalonFX, CANc
      */
     public Command applyRequest(Supplier<SwerveRequest> requestSupplier) {
         return run(() -> this.setControl(requestSupplier.get()));
-    }
-
-    /**
-     * Runs the SysId Quasistatic test in the given direction for the routine
-     * specified by {@link #sysIdRoutineToApply}.
-     *
-     * @param direction Direction of the SysId Quasistatic test
-     * @return Command to run
-     */
-    public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-        return sysIdRoutineToApply.quasistatic(direction);
-    }
-
-    /**
-     * Runs the SysId Dynamic test in the given direction for the routine
-     * specified by {@link #sysIdRoutineToApply}.
-     *
-     * @param direction Direction of the SysId Dynamic test
-     * @return Command to run
-     */
-    public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-        return sysIdRoutineToApply.dynamic(direction);
     }
 
     private boolean hasAppliedOperatorPerspective = false;
