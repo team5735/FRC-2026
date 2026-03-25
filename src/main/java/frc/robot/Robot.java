@@ -75,16 +75,6 @@ public class Robot extends TimedRobot {
     public final TurretSubsystem turret;
     public final HoodSubsystem hood;
 
-    private void resolveAllianceDependencies() {
-        this.targetArc = new Arc(
-                FieldConstants.BLUE_HUB_CENTER,
-                Feet.of(9).in(Meters),
-                Rotation2d.fromDegrees(90),
-                Rotation2d.fromDegrees(180))
-        .alliance();
-        Telemetry.field.getObject("arc").setPoses(this.targetArc.getAsPoses());
-    }
-
     public Robot(DrivetrainSubsystem drivetrain) {
         this.drivetrain = drivetrain;
         turret = new TurretSubsystem(drivetrain::getEstimatedPosition, drivetrain.constants);
@@ -104,6 +94,7 @@ public class Robot extends TimedRobot {
         setupSubsystemBindings();
         setupOtherBindings();
         setupAutoChooser();
+        fillMaps();
 
         CommandScheduler.getInstance().schedule(
                 PathfindingCommand.warmupCommand().withName("Warmup Pathfinding"));
