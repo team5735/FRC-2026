@@ -370,7 +370,7 @@ public class DrivetrainSubsystem extends SwerveDrivetrain<TalonFX, TalonFX, CANc
         return input;
     }
 
-    public ChassisSpeeds getChassisSpeeds() {
+    public ChassisSpeeds getChassisSpeedsRobotRel() {
         var states = new SwerveModuleState[4];
 
         for (int i = 0; i < 4; i++) {
@@ -378,6 +378,10 @@ public class DrivetrainSubsystem extends SwerveDrivetrain<TalonFX, TalonFX, CANc
         }
 
         return constants.getConfig().toChassisSpeeds(states);
+    }
+
+    public ChassisSpeeds getChassisSpeedsFieldRel(){
+        return ChassisSpeeds.fromRobotRelativeSpeeds(getChassisSpeedsRobotRel(), getEstimatedPosition().getRotation());
     }
 
     public void autoDriveRobotRelative(ChassisSpeeds robotChassisSpeeds) {
@@ -390,7 +394,7 @@ public class DrivetrainSubsystem extends SwerveDrivetrain<TalonFX, TalonFX, CANc
         AutoBuilder.configure(
                 this::getEstimatedPosition,
                 this::resetPose,
-                this::getChassisSpeeds,
+                this::getChassisSpeedsRobotRel,
                 (speeds, ff) -> autoDriveRobotRelative(speeds),
                 new PPHolonomicDriveController(
                         constants.getAutoPosConstants(),

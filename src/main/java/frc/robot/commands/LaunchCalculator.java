@@ -45,6 +45,13 @@ public class LaunchCalculator {
     // key: distance(m) value: Time of Flight (s)
     private static final InterpolatingDoubleTreeMap scoreTOFMap = new InterpolatingDoubleTreeMap();
 
+    // key: distance (m) value: angle(deg)
+    private static final InterpolatingDoubleTreeMap ferryHoodMap = new InterpolatingDoubleTreeMap();
+    // key: distance (m) value: velocity(RPM)
+    private static final InterpolatingDoubleTreeMap ferrySpeedMap = new InterpolatingDoubleTreeMap();
+    // key: distance (m) value: Time of Flight (s)
+    private static final InterpolatingDoubleTreeMap ferryTOFMap = new InterpolatingDoubleTreeMap();
+
     static {
         // TODO populate tree maps here with REAL POSITIONS
 
@@ -120,29 +127,20 @@ public class LaunchCalculator {
             case PASS -> new Translation2d(); // TODO set pass targets
         };
 
+        double robotAngle = drivetrain.getEstimatedPosition().getRotation().getRadians();
+
         Translation2d launchOrigin = turretPose.getTranslation();
-        double turretVelX = robotVel.vxMetersPerSecond
-                + robotVel.omegaRadiansPerSecond
-                        * (drivetrain.constants.getRobotToTurretCenter().getY()
-                                * Math.cos(drivetrain.getEstimatedPosition()
-                                        .getRotation().getRadians())
-                                - drivetrain.constants.getRobotToTurretCenter().getX()
-                                        * Math.sin(drivetrain
-                                                .getEstimatedPosition()
-                                                .getRotation()
-                                                .getRadians()));
+
+        double turretVelX = robotVel.vxMetersPerSecond + robotVel.omegaRadiansPerSecond
+                * (drivetrain.constants.getRobotToTurretCenter().getY() * Math.cos(robotAngle)
+                        - drivetrain.constants.getRobotToTurretCenter().getX() * Math.sin(robotAngle));
 
         SmartDashboard.putNumber("launchCalc/turret_vx", turretVelX);
-        double turretVelY = robotVel.vyMetersPerSecond
-                + robotVel.omegaRadiansPerSecond
-                        * (drivetrain.constants.getRobotToTurretCenter().getX()
-                                * Math.cos(drivetrain.getEstimatedPosition()
-                                        .getRotation().getRadians())
-                                - drivetrain.constants.getRobotToTurretCenter().getY()
-                                        * Math.sin(drivetrain
-                                                .getEstimatedPosition()
-                                                .getRotation()
-                                                .getRadians()));
+
+        double turretVelY = robotVel.vyMetersPerSecond + robotVel.omegaRadiansPerSecond
+                * (drivetrain.constants.getRobotToTurretCenter().getX() * Math.cos(robotAngle)
+                        - drivetrain.constants.getRobotToTurretCenter().getY() * Math.sin(robotAngle));
+
         SmartDashboard.putNumber("launchCalc/turret_vy", turretVelX);
 
         double launchDist = launchTarget.getDistance(launchOrigin); // naive initial estimate
@@ -211,7 +209,7 @@ public class LaunchCalculator {
     }
 
     private static Command reCalcParams(LaunchGoal goal, TurretSubsystem turret, DrivetrainSubsystem drivetrain) {
-        return Commands.run(() -> calculate(goal, drivetrain, drivetrain.getChassisSpeeds(),
+        return Commands.run(() -> calculate(goal, drivetrain, drivetrain.getChassisSpeedsFieldRel(),
                 turret.getMechanismPose()));
     }
 
@@ -232,7 +230,8 @@ public class LaunchCalculator {
                                     HoodConstants.DYNAMIC_TOLERANCE_DEGREES)
                             && turret.getAngle().isNear(params.turretAngle,
                                     TurretConstants.TOLERANCE.plus(Degrees.of(0.5)))
-                            && (launcher.getRPM() <  params.flywheelVelocity.in(RPM) + 200) && (launcher.getRPM() > params.flywheelVelocity.in(RPM) - LauncherConstants.RPM_TOLERANCE)
+                            && (launcher.getRPM() < params.flywheelVelocity.in(RPM) + 200)
+                            && (launcher.getRPM() > params.flywheelVelocity.in(RPM) - LauncherConstants.RPM_TOLERANCE)
                             || override.getAsBoolean());
                 })));
     }
