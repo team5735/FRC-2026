@@ -49,6 +49,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -83,6 +84,8 @@ public class TurretSubsystem extends SubsystemBase {
     private double prevVel = 0;
     private RobotConstants driveConstants;
 
+    private SendableChooser<Boolean> turretEnabledDropdown = new SendableChooser<>();
+
     public TurretSubsystem(Supplier<Pose2d> robotPoseSupplier, RobotConstants driveConstants) {
         super();
         this.driveConstants = driveConstants;
@@ -101,6 +104,9 @@ public class TurretSubsystem extends SubsystemBase {
         pid.reset(robotRelToTurretRel(START_POS_BOT_REL).in(Rotations));
         pid.setTolerance(Units.degreesToRotations(1));
         this.robotPoseSupplier = robotPoseSupplier;
+
+        turretEnabledDropdown.addOption("No", Boolean.FALSE);
+        turretEnabledDropdown.addOption("Yes", Boolean.TRUE);
     }
 
     @Override
@@ -204,10 +210,15 @@ public class TurretSubsystem extends SubsystemBase {
                     prevVel = kraken.getVelocity().getValue().in(RotationsPerSecond);
                 },
                 () -> {
+                    if (turretEnabledDropdown.getSelected() == Boolean.FALSE) {
+                        return;
+                    }
                     double pidOut = pid.calculate(getAngleTurretRel().in(Rotations), goalSupplier.get());
                     SmartDashboard.putNumber("turret/pidOut", pidOut);
                     double newVel = pid.getController().getSetpoint().velocity;
-                    double ffOut = (!MathUtil.isNear(0, newVel, 0.075)) ? ff.calculate(newVel, (newVel - prevVel) / 0.05) : Math.copySign(0.5*KS, pidOut);
+                    double ffOut = (!MathUtil.isNear(0, newVel, 0.075))
+                            ? ff.calculate(newVel, (newVel - prevVel) / 0.05)
+                            : Math.copySign(0.5 * KS, pidOut);
                     SmartDashboard.putNumber("turret/ffOut", ffOut);
                     double voltsToSet = (!isAtGoalPos()) ? pidOut + ffOut : 0;
                     kraken.setVoltage(voltsToSet);
@@ -232,6 +243,9 @@ public class TurretSubsystem extends SubsystemBase {
                     pid.setGoal(new State(formatInputPosRobotRel(goal).in(Rotations), 0));
                 },
                 () -> {
+                    if (turretEnabledDropdown.getSelected() == Boolean.FALSE) {
+                        return;
+                    }
                     var _T = new frc.robot.util.Timer("");
                     double newVel = pid.getController().getSetpoint().velocity;
                     double voltsToSet = pid.calculate(getAngleTurretRel().in(Rotations))
