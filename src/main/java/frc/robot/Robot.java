@@ -271,7 +271,7 @@ public class Robot extends TimedRobot {
             Rotation2d drivetrainToHub = FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER).minus(drivetrainPos).getAngle();
             return new Pose2d(drivetrainPos, drivetrainToHub.plus(Rotation2d.kCCW_90deg));
         }, "face hub (backup)"));
-         driveController.b().onFalse(unclogSpindex);
+        driveController.b().onFalse(unclogSpindex);
         driveController.b().whileTrue(LaunchCalculator.dynamicLaunchTeleop(driveController, LaunchGoal.SCORE, () -> false, hood, turret, drivetrain, launcher, spindex));
 
         driveController.rightBumper().whileTrue(intake.getIntakeForwardRollCommand());
