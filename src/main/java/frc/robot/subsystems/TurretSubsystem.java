@@ -49,6 +49,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -74,6 +75,7 @@ public class TurretSubsystem extends SubsystemBase {
     private final DigitalInput hallLimit = new DigitalInput(Constants.TURRET_LIMIT_PIN);
 
     public final Trigger limitTrigger = new Trigger(() -> !hallLimit.get());
+    public final Trigger zeroTrigger = limitTrigger.and(() -> DriverStation.isDisabled());
     public boolean isZeroed = false;
 
     private final TunableProfiledPIDController pid = new TunableProfiledPIDController("turret", KP, KI, KD,
@@ -99,14 +101,14 @@ public class TurretSubsystem extends SubsystemBase {
                 .withForwardSoftLimitThreshold(FORWARD_LIMIT_TUR_REL)
                 .withReverseSoftLimitEnable(true)
                 .withReverseSoftLimitThreshold(REVERSE_LIMIT_TUR_REL));
-        kraken.getConfigurator().apply(new CurrentLimitsConfigs().withStatorCurrentLimit(Amps.of(15)));
+        kraken.getConfigurator().apply(new CurrentLimitsConfigs().withStatorCurrentLimit(Amps.of(30)));
         pid.setup(robotRelToTurretRel(START_POS_BOT_REL).in(Rotations));
         pid.reset(robotRelToTurretRel(START_POS_BOT_REL).in(Rotations));
         pid.setTolerance(Units.degreesToRotations(1));
         this.robotPoseSupplier = robotPoseSupplier;
 
         turretEnabledDropdown.addOption("No", Boolean.FALSE);
-        turretEnabledDropdown.addOption("Yes", Boolean.TRUE);
+        turretEnabledDropdown.setDefaultOption("Yes", Boolean.TRUE);
     }
 
     @Override
@@ -129,10 +131,11 @@ public class TurretSubsystem extends SubsystemBase {
         SmartDashboard.putBoolean("turret/canTurnTo",
                 canTurnTo(FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER)));
         Telemetry.field.getObject("turret_pose").setPose(getMechanismPose());
+        SmartDashboard.putNumber("turret/statorCurrent", kraken.getStatorCurrent().getValueAsDouble());
     }
 
     public Command hardRunForward() {
-        return startEnd(() -> kraken.setVoltage(0.5), () -> kraken.setVoltage(0));
+        return startEnd(() -> kraken.setVoltage(0.75), () -> kraken.setVoltage(0));
     }
 
     public Command softRunForward() {
@@ -218,7 +221,7 @@ public class TurretSubsystem extends SubsystemBase {
                     double newVel = pid.getController().getSetpoint().velocity;
                     double ffOut = (!MathUtil.isNear(0, newVel, 0.075))
                             ? ff.calculate(newVel, (newVel - prevVel) / 0.05)
-                            : Math.copySign(0.5 * KS, pidOut);
+                            : Math.copySign(0.35 * KS, MathUtil.applyDeadband(pidOut, 0.5*KS));
                     SmartDashboard.putNumber("turret/ffOut", ffOut);
                     double voltsToSet = (!isAtGoalPos()) ? pidOut + ffOut : 0;
                     kraken.setVoltage(voltsToSet);
@@ -241,16 +244,21 @@ public class TurretSubsystem extends SubsystemBase {
                     pid.reset(new State(getAngleTurretRel().in(Rotations),
                             kraken.getVelocity().getValue().in(RotationsPerSecond)));
                     pid.setGoal(new State(formatInputPosRobotRel(goal).in(Rotations), 0));
+                    prevVel = kraken.getVelocity().getValue().in(RotationsPerSecond);
                 },
                 () -> {
                     if (turretEnabledDropdown.getSelected() == Boolean.FALSE) {
                         return;
                     }
                     var _T = new frc.robot.util.Timer("");
+                    double pidOut = pid.calculate(getAngleTurretRel().in(Rotations));
+                    SmartDashboard.putNumber("turret/pidOut", pidOut);
                     double newVel = pid.getController().getSetpoint().velocity;
-                    double voltsToSet = pid.calculate(getAngleTurretRel().in(Rotations))
-                            + ff.calculate(newVel,
-                                    Math.copySign(MAX_ACC.in(RotationsPerSecondPerSecond), newVel - prevVel));
+                    double ffOut = (!MathUtil.isNear(0, newVel, 0.075))
+                            ? ff.calculate(newVel, (newVel - prevVel) / 0.05)
+                            : Math.copySign(0.5 * KS, pidOut);
+                    SmartDashboard.putNumber("turret/ffOut", ffOut);
+                    double voltsToSet = (!isAtGoalPos()) ? pidOut + ffOut : 0;
                     kraken.setVoltage(voltsToSet);
                     prevVel = newVel;
                     _T.toc();
@@ -449,9 +457,9 @@ public class TurretSubsystem extends SubsystemBase {
         public Tester() {
             super();
             // turret.setDefaultCommand(turret.holdRobotRel(Rotations.of(0)));
-            turret.limitTrigger.onTrue(turret.zeroCommand()); // resets the turrets position when it engages the
-                                                              // Hall-Effect
-                                                              // sensor
+            turret.zeroTrigger.onTrue(turret.zeroCommand()); // resets the turrets position when it engages the
+                                                             // Hall-Effect
+                                                             // sensor and the robot is Disabled
 
             controller.a().onTrue(turret.holdRobotRel(Rotations.of(0.00)));
             controller.b().onTrue(turret.holdRobotRel(Rotations.of(0.75)));
@@ -465,6 +473,7 @@ public class TurretSubsystem extends SubsystemBase {
             controller.povUp().whileTrue(turret.sysId());
             controller.povDown().onTrue(Commands.runOnce(turret::remakePID, turret));
         }
+
 
         @Override
         public void teleopInit() {
