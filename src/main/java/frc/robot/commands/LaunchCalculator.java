@@ -27,7 +27,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Telemetry;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.HoodConstants;
-import frc.robot.constants.LauncherConstants;
 import frc.robot.constants.TurretConstants;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.HoodSubsystem;
@@ -244,7 +243,7 @@ public class LaunchCalculator {
                             && turretCheck
                             && launcherCheck
                             || override.getAsBoolean());
-            }).andThen(spindex.getInformedRun(() -> !TurretConstants.isInDeadZone(getCachedParams().turretAngle)
+                }).withTimeout(3).andThen(spindex.getInformedRun(() -> !TurretConstants.isInDeadZone(getCachedParams().turretAngle)
                         || override.getAsBoolean())));
     }
 
