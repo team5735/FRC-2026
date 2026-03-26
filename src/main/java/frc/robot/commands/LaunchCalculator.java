@@ -51,11 +51,12 @@ public class LaunchCalculator {
     public static final InterpolatingDoubleTreeMap ferryTOFMap = new InterpolatingDoubleTreeMap();
 
     static {
-        scoreHoodMap.put(Units.inchesToMeters(56), 8.);
-        scoreHoodMap.put(Units.inchesToMeters(71.75), 15.);
-        scoreHoodMap.put(Units.inchesToMeters(87.8), 15.);
-        scoreHoodMap.put(Units.inchesToMeters(102.2), 20.);
-        scoreHoodMap.put(Units.inchesToMeters(216), 20.);
+        double hoodTweakOffset = 1.0;
+        scoreHoodMap.put(Units.inchesToMeters(56),     8.0+hoodTweakOffset);
+        scoreHoodMap.put(Units.inchesToMeters(71.75), 15.0+hoodTweakOffset);
+        scoreHoodMap.put(Units.inchesToMeters(87.8),  15.0+hoodTweakOffset);
+        scoreHoodMap.put(Units.inchesToMeters(102.2), 20.0+hoodTweakOffset);
+        scoreHoodMap.put(Units.inchesToMeters(216),   20.0+hoodTweakOffset);
 
         scoreSpeedMap.put(Units.inchesToMeters(56), 2600.);
         scoreSpeedMap.put(Units.inchesToMeters(71.75), 2650.);
