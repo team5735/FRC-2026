@@ -63,7 +63,7 @@ public class LaunchCalculator {
         scoreHoodMap.put(Units.inchesToMeters(102.2), 20.0+hoodTweakOffset);
         scoreHoodMap.put(Units.inchesToMeters(216),   20.0+hoodTweakOffset);
 
-        double rpmMult = 1.05;
+        double rpmMult = 1.01;
         scoreSpeedMap.put(Units.inchesToMeters(56),    2600.0*rpmMult);
         scoreSpeedMap.put(Units.inchesToMeters(71.75), 2650.0*rpmMult);
         scoreSpeedMap.put(Units.inchesToMeters(87.8),  2675.0*rpmMult);
