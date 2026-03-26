@@ -232,7 +232,7 @@ public class LaunchCalculator {
         return Commands.parallel(
                 reCalcParams(goal, turret, drivetrain),
                 hood.getDynamicTracking(() -> getCachedParams().hoodAngle),
-                turret.trackRobotRelWithVelocity(() -> getCachedParams().turretAngle,
+                turret.trackRobotRelWithVelocity(() -> getCachedParams().turretAngle.plus(Degrees.of(2)),
                         () -> getCachedParams().turretVelocity),
                 launcher.getDynamicLaunch(() -> getCachedParams().flywheelVelocity),
                 spindex.idle().until(() -> {
