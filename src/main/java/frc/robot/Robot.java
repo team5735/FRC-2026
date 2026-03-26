@@ -6,7 +6,6 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.Seconds;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,6 +18,7 @@ import com.pathplanner.lib.commands.PathfindingCommand;
 import com.revrobotics.util.StatusLogger;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -252,6 +252,12 @@ public class Robot extends TimedRobot {
         ));
         driveController.b().onFalse(unclogSpindex);
         // @formatter:on
+
+        driveController.a().whileTrue(new PIDToPose(drivetrain, () -> {
+            Translation2d drivetrainPos = drivetrain.getEstimatedPosition().getTranslation();
+            Rotation2d drivetrainToHub = FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER).minus(drivetrainPos).getAngle();
+            return new Pose2d(drivetrainPos, drivetrainToHub.plus(Rotation2d.kCCW_90deg));
+        }, "face hub (backup)"));
 
         driveController.rightBumper().whileTrue(intake.getIntakeForwardRollCommand());
         driveController.leftBumper().whileTrue(intake.getIntakeReverseRollCommand());
