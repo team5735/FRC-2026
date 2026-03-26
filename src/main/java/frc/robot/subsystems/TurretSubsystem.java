@@ -6,6 +6,7 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
+import static frc.robot.constants.TurretConstants.DYNAMIC_TOLERANCE;
 import static frc.robot.constants.TurretConstants.FORWARD_LIMIT_TUR_REL;
 import static frc.robot.constants.TurretConstants.HALL_LIMIT_POS_BOT_REL;
 import static frc.robot.constants.TurretConstants.KA;
@@ -402,6 +403,11 @@ public class TurretSubsystem extends SubsystemBase {
     public boolean isAtGoalPos() {
         return MathUtil.isNear(pid.getController().getGoal().position, getAngleTurretRel().in(Rotations),
                 TOLERANCE.in(Rotations));
+    }
+
+    public boolean isDynamicAimed(){
+        return MathUtil.isNear(pid.getController().getGoal().position, getAngleTurretRel().in(Rotations),
+                DYNAMIC_TOLERANCE.in(Rotations));
     }
 
     /**
