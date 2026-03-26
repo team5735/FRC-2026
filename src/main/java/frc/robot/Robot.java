@@ -6,6 +6,8 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.RPM;
+import static edu.wpi.first.units.Units.Seconds;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -180,10 +182,11 @@ public class Robot extends TimedRobot {
 
     // any trigger that isn't a button goes here
     private void setupMiscTriggers() {
-        // hood.exclusionZoneTrigger.whileTrue(Commands.run(() -> hood.setHoodPosition(0)));
+        turret.zeroTrigger.onTrue(turret.zeroCommand());
+        // hood.exclusionZoneTri/aagger.whileTrue(Commands.run(() -> hood.setHoodPosition(0)));
         // hood.exclusionZoneTrigger.onTrue(Commands.runOnce(() -> {
         //     SmartDashboard.putBoolean("in_exclusion_zone", true);
-        //     // todo: add telemetry / debug / logging
+        //     // todo: add telemetry / debuglogging
         //     hood.exzSaveServoPosition();
         // }).withName("enter exclusion zone"));
         // hood.exclusionZoneTrigger.onFalse(Commands.runOnce(() -> {
@@ -263,32 +266,15 @@ public class Robot extends TimedRobot {
 
         Command unclogSpindex = spindex.getBackwards().withTimeout(0.5);
 
-        // @formatter:off
-        Supplier<Double> dist = () -> turret.getMechanismPose().getTranslation()
-                .getDistance(FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER));
-
-        // ferry
-        driveController.x().whileTrue(makeShootCommand(
-            () -> FieldConstants.closestFerryTarget(drivetrain.getEstimatedPosition().getTranslation()),
-            () -> HoodConstants.FERRY_ANGLE,
-            () -> Math.max(3000.0, distanceToRpm.get(dist.get()))
-        ));
-        driveController.x().onFalse(unclogSpindex);
-
-        // shoot
-        driveController.b().whileTrue(makeShootCommand(
-            () -> FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER),
-            () -> distanceToAngle.get(dist.get()),
-            () -> distanceToRpm.get(dist.get())
-        ));
-        driveController.b().onFalse(unclogSpindex);
-        // @formatter:on
-
         driveController.a().whileTrue(new PIDToPose(drivetrain, () -> {
             Translation2d drivetrainPos = drivetrain.getEstimatedPosition().getTranslation();
             Rotation2d drivetrainToHub = FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER).minus(drivetrainPos).getAngle();
             return new Pose2d(drivetrainPos, drivetrainToHub.plus(Rotation2d.kCCW_90deg));
         }, "face hub (backup)"));
+
+        driveController.b().whileTrue(LaunchCalculator.dynamicLaunchTeleop(
+            driveController, LaunchGoal.SCORE, () -> false, hood, turret, drivetrain, launcher, spindex));
+        driveController.b().onFalse(unclogSpindex);
 
         driveController.rightBumper().whileTrue(intake.getIntakeForwardRollCommand());
         driveController.leftBumper().whileTrue(intake.getIntakeReverseRollCommand());
