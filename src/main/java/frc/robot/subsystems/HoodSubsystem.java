@@ -9,26 +9,19 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rectangle2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.AnalogInput;
-import edu.wpi.first.wpilibj.AnalogPotentiometer;
 import edu.wpi.first.wpilibj.Servo;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.PartialRobot;
 import frc.robot.constants.Constants;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.HoodConstants;
-import frc.robot.util.NTable;
+import frc.robot.util.Timer;
 
 public class HoodSubsystem extends SubsystemBase {
-    public final Trigger exclusionZoneTrigger = new Trigger(this::isInExclusionZone);
-
     private final Servo servo = new Servo(Constants.HOOD_SERVO_PIN);
     private final AnalogInput feedback = new AnalogInput(Constants.HOOD_FEEDBACK_PIN);
-    private final AnalogPotentiometer pot = new AnalogPotentiometer(feedback, 100, 30);
 
     private Supplier<Pose2d> turretPoseSupplier;
     private Rectangle2d[] exclusionZones;
@@ -93,12 +86,14 @@ public class HoodSubsystem extends SubsystemBase {
     }
 
     public void setHoodAngle(double hoodAngleDegrees) {
+        var _T = new Timer("hood::setHoodAngle");
         double servoPosition = interp1(
                 HoodConstants.LOWEST_ANGLE_DEGREES,  HoodConstants.HIGHEST_ANGLE_DEGREES,
                 HoodConstants.LOWEST_SERVO_POSITION, HoodConstants.HIGHEST_SERVO_POSITION,
                 hoodAngleDegrees);
 
         this.setServoPosition(servoPosition);
+        _T.toc();
     }
 
     public void exzSaveServoPosition() {
@@ -170,41 +165,6 @@ public class HoodSubsystem extends SubsystemBase {
                 lastPos -= 0.025;
                 lastPos = MathUtil.clamp(lastPos, 0.0, 1.0);
                 hood.setServoPosition(lastPos);
-            }));
-        }
-
-        @Override
-        public void robotPeriodic() {
-            this.hood.sendTelemetry();
-            super.robotPeriodic();
-        }
-
-    };
-
-    // test hood up/down in exclusion zones
-    // move trench april tag closer / further from unmoving bot
-    // to trigger response
-    public static class PeekABooBot extends PartialRobot {
-        private Field2d field2d = new Field2d();
-        private final HoodSubsystem hood = new HoodSubsystem(() -> field2d.getRobotPose(),
-                FieldConstants.HOOD_EXCLUSION_ZONES);
-
-        public PeekABooBot() {
-            super();
-
-            NTable.root("SmartDashboard").sub("hood").set("draggable robot for peek-a-bot", field2d);
-
-            hood.setHoodPosition(0.4);
-
-            hood.exclusionZoneTrigger.onTrue(Commands.runOnce(() -> {
-                SmartDashboard.putBoolean("hood/in_exclusion_zone", true);
-                hood.exzSaveServoPosition();
-                hood.setHoodPosition(0);
-            }));
-            hood.exclusionZoneTrigger.onFalse(Commands.runOnce(() -> {
-                SmartDashboard.putBoolean("hood/in_exclusion_zone", false);
-                double pos = hood.exzGetSavedServoPosition();
-                hood.setServoPosition(pos);
             }));
         }
 

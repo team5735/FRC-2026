@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
 
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -22,9 +23,16 @@ public class SpinDexSubsystem extends SubsystemBase {
         feedVortex.clearFaults();
         wheelVortex.clearFaults();
 
+        // ensure these values are in NT and persistent
+        // they can be changed for tuning purposes, but...
         table.ensure("feed", -6);
-        table.ensure("wheel: fwd", -3);
+        table.ensure("wheel: fwd", -4);
         table.ensure("wheel: bck", 5);
+
+        // they should default to these values on robot start
+        table.set("feed", -6);
+        table.set("wheel: fwd", -4);
+        table.set("wheel: bck", 5);
     }
 
     public void runFeeder() {
@@ -37,6 +45,10 @@ public class SpinDexSubsystem extends SubsystemBase {
 
     public void stopFeeder() {
         feedVortex.setVoltage(0);
+    }
+
+    public double getForwardVoltage(){
+        return table.getDouble("wheel: fwd");
     }
 
     public void runWheel() {
@@ -55,6 +67,16 @@ public class SpinDexSubsystem extends SubsystemBase {
         return startEnd(() -> {
             runWheel();
             runFeeder();
+        }, () -> {
+            stopWheel();
+            stopFeeder();
+        });
+    }
+
+    public Command getRunSupplier(Supplier<Double> wheel, Supplier<Double> feeder) {
+        return startEnd(() -> {
+            wheelVortex.setVoltage(wheel.get());
+            feedVortex.setVoltage(feeder.get());
         }, () -> {
             stopWheel();
             stopFeeder();

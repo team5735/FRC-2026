@@ -26,8 +26,38 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Telemetry;
 import frc.robot.constants.FieldConstants;
 import frc.robot.util.NTable;
+import frc.robot.util.Timer;
 
 public class LimelightSubsystem extends SubsystemBase {
+    /*
+     * In the Limelight web ui, under configuration, april tag
+     * Area (% of image) min/max sliders:
+     *  0.1506 -- 1.0
+     * 
+     * exposure: 240 (2.40ms)
+     * gain: 3
+     * 
+     * MegaTag Field-Space Localization Setup
+     * fone:
+     *  forward: -0.263525
+     *    right: -0.37465
+     *       up: 0.42545
+     *     roll: 180
+     *    pitch: 0
+     *      yaw: 90
+     * ftwo:
+     *  forward: -0.263525
+     *    right: 0.37465
+     *       up: 0.2445
+     *     roll: 0
+     *    pitch: 0
+     *      yaw: -90
+     * 
+     * 
+     * 
+     * 
+     */
+
     private final DrivetrainSubsystem drivetrain;
     private final String limelightName;
     private final NTable table;
@@ -141,7 +171,9 @@ public class LimelightSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
+        var _T = new Timer("LimelightSubsystem."+limelightName);
         handleVisionMeasurement();
+        _T.toc();
     }
 
     public void handleVisionMeasurement() {
@@ -237,7 +269,7 @@ public class LimelightSubsystem extends SubsystemBase {
         coefficients.ensure("speed", 5);
         coefficients.ensure("omega", 10);
         coefficients.ensure("ambiguity", 1);
-        coefficients.ensure("one tag", 3);
+        coefficients.ensure("single tag", 3.33);
 
         Vector<N3> stddevs = VecBuilder.fill(
                 estimate.stddevs.getX(),
@@ -275,7 +307,7 @@ public class LimelightSubsystem extends SubsystemBase {
         ambiguityPenalty *= ambiguityPenalty;
 
         double singleTagPenalty = penalize(
-                estimate.fiducials.length == 1 ? 10 : 0,
+                estimate.fiducials.length == 1 ? 1 : 0,
                 "single tag");
 
         double totalPenalty = distPenalty *

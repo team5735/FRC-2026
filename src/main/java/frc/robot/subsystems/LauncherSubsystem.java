@@ -66,6 +66,10 @@ public class LauncherSubsystem extends SubsystemBase {
         return krakenLeft.getVelocity().getValue().in(RPM) * LauncherConstants.GEARING;
     }
 
+    public double getTargetRPM(){
+        return this.setpoint;
+    }
+    
     private void setTargetRPM(double rpm) {
         this.setpoint = rpm;
         bangbang.setSetpoint(rpm * LauncherConstants.BANGBANG_THRESHOLD);
@@ -107,6 +111,13 @@ public class LauncherSubsystem extends SubsystemBase {
         return runOnce(this::retunePID)
                 .andThen(startRun(() -> setTargetRPM(speed.in(RPM)), this::usePID))
                 .withName("Launch Fuel at " + speed);
+    }
+
+    public Command getLaunchFuelSupplier(Supplier<Double> supplier) {
+        return runOnce(this::retunePID)
+                .andThen(startRun(() -> setTargetRPM(supplier.get()),
+                        this::usePID))
+                .withName("Launch Fuel /tuning/rpm");
     }
 
     public Command getLaunchFuelNT() {

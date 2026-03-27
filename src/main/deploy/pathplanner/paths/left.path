@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.617,
-        "y": 2.0
+        "x": 3.6195338522644604,
+        "y": 7.32982274578958
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.8451870814732145,
-        "y": 6.2751652599516365
+        "x": 3.321284762087687,
+        "y": 6.0502243012883845
       },
       "isLocked": false,
-      "linkedName": "Right Bump Start"
+      "linkedName": "left start"
     },
     {
       "anchor": {
-        "x": 1.077935606060606,
-        "y": 4.52499053030303
+        "x": 2.4546786849285667,
+        "y": 5.438554454428245
       },
       "prevControl": {
-        "x": 1.8497796577575873,
-        "y": 4.52499053030303
+        "x": 2.78971434881697,
+        "y": 5.6685128667388405
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Left Climb"
+      "linkedName": "left shoot pos"
     }
   ],
   "rotationTargets": [],
@@ -33,13 +33,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-<<<<<<< HEAD:src/main/deploy/pathplanner/paths/Right Bump to Left Climb.path
-    "maxVelocity": 2.0,
-    "maxAcceleration": 3.5,
-=======
-    "maxVelocity": 0.2,
-    "maxAcceleration": 0.2,
->>>>>>> 6648849 (update speed):src/main/deploy/pathplanner/paths/Right Bump 90.path
+    "maxVelocity": 4.0,
+    "maxAcceleration": 3.0,
     "maxAngularVelocity": 180.0,
     "maxAngularAcceleration": 360.0,
     "nominalVoltage": 12.0,
@@ -47,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 90.0
+    "rotation": -125.77431556291904
   },
   "reversed": false,
-  "folder": "Right Bump",
+  "folder": "to shoot",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }

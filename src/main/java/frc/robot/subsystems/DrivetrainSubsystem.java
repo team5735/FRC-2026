@@ -39,6 +39,8 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.constants.Constants;
 import frc.robot.constants.robot.RobotConstants;
 import frc.robot.util.NTable;
+import frc.robot.util.Timer;
+
 
 /**
  * Class that extends the Phoenix 6 SwerveDrivetrain class and implements
@@ -63,6 +65,9 @@ public class DrivetrainSubsystem extends SwerveDrivetrain<TalonFX, TalonFX, CANc
     public final SwerveRequest.SwerveDriveBrake brakeRequest = new SwerveRequest.SwerveDriveBrake();
     public final SwerveRequest.ApplyRobotSpeeds autoRequest = new SwerveRequest.ApplyRobotSpeeds()
             .withDriveRequestType(DriveRequestType.Velocity);
+
+    private Pose2d lastVisionUpdatePose = new Pose2d();
+    private long   lastVisionUpdateTime = Long.MIN_VALUE;
 
     @SuppressWarnings("unused")
     private final Consumer<SysIdRoutineLog> openTranslationLogConsumer = (log) -> {
@@ -273,6 +278,16 @@ public class DrivetrainSubsystem extends SwerveDrivetrain<TalonFX, TalonFX, CANc
          * This ensures driving behavior doesn't change until an explicit disable event
          * occurs during testing.
          */
+        int _q = this.getVisionPoseAgreementQuality();
+        String _s=""+_q;
+        if (_q==0) _s="whack";
+        if (_q==1) _s="poor";
+        if (_q==2) _s="fair";
+        if (_q==3) _s="great";
+        table.set("led_location_accuracy_blocks", _q);
+        table.set("led_location_quality", _s);
+        table.set("shootAccuracy", _q>=2);
+
         if (!hasAppliedOperatorPerspective || DriverStation.isDisabled()) {
             DriverStation.getAlliance().ifPresent(allianceColor -> {
                 setOperatorPerspectiveForward(
@@ -309,6 +324,7 @@ public class DrivetrainSubsystem extends SwerveDrivetrain<TalonFX, TalonFX, CANc
             Supplier<Boolean> isSlowMode,
             Supplier<Boolean> isTurboMode) {
         return applyRequest(() -> {
+            var _T = new Timer("");
             double speedMPS = (isSlowMode.get().booleanValue()) ? constants.getSlowSpeed().in(MetersPerSecond)
                     : (isTurboMode.get().booleanValue()) ? constants.getTurboSpeed().in(MetersPerSecond)
                             : constants.getDefaultSpeed().in(MetersPerSecond);
@@ -316,11 +332,13 @@ public class DrivetrainSubsystem extends SwerveDrivetrain<TalonFX, TalonFX, CANc
                     ? constants.getSlowRotationalRate().in(RadiansPerSecond)
                     : (isTurboMode.get().booleanValue()) ? constants.getTurboRotationalRate().in(RadiansPerSecond)
                             : constants.getDefaultRotationalRate().in(RadiansPerSecond);
-            return fieldCentricRequest
-                    .withVelocityX(-deadband(stickY.get()) * speedMPS)
-                    .withVelocityY(-deadband(stickX.get()) * speedMPS)
-                    .withRotationalRate(
-                            deadband(leftTrigger.get() - rightTrigger.get()) * rotationMPS);
+            var ret =  fieldCentricRequest
+                        .withVelocityX(-deadband(stickY.get()) * speedMPS)
+                        .withVelocityY(-deadband(stickX.get()) * speedMPS)
+                        .withRotationalRate(
+                                deadband(leftTrigger.get() - rightTrigger.get()) * rotationMPS);
+            _T.toc();
+            return ret;
         }).withName("Joystick Drive");
     }
 
@@ -345,14 +363,14 @@ public class DrivetrainSubsystem extends SwerveDrivetrain<TalonFX, TalonFX, CANc
         simNotifier.startPeriodic(simLoopPeriod);
     }
 
-    private static double deadband(double input) {
+    public static double deadband(double input) {
         if (Math.abs(input) <= Constants.DEADBAND) {
             return 0;
         }
         return input;
     }
 
-    public ChassisSpeeds getChassisSpeeds() {
+    public ChassisSpeeds getChassisSpeedsRobotRel() {
         var states = new SwerveModuleState[4];
 
         for (int i = 0; i < 4; i++) {
@@ -360,6 +378,10 @@ public class DrivetrainSubsystem extends SwerveDrivetrain<TalonFX, TalonFX, CANc
         }
 
         return constants.getConfig().toChassisSpeeds(states);
+    }
+
+    public ChassisSpeeds getChassisSpeedsFieldRel(){
+        return ChassisSpeeds.fromRobotRelativeSpeeds(getChassisSpeedsRobotRel(), getEstimatedPosition().getRotation());
     }
 
     public void autoDriveRobotRelative(ChassisSpeeds robotChassisSpeeds) {
@@ -372,7 +394,7 @@ public class DrivetrainSubsystem extends SwerveDrivetrain<TalonFX, TalonFX, CANc
         AutoBuilder.configure(
                 this::getEstimatedPosition,
                 this::resetPose,
-                this::getChassisSpeeds,
+                this::getChassisSpeedsRobotRel,
                 (speeds, ff) -> autoDriveRobotRelative(speeds),
                 new PPHolonomicDriveController(
                         constants.getAutoPosConstants(),
@@ -416,6 +438,9 @@ public class DrivetrainSubsystem extends SwerveDrivetrain<TalonFX, TalonFX, CANc
         table.set("timestampIn", timestampSeconds);
         table.set("timestampOut", Utils.fpgaToCurrentTime(timestampSeconds));
         super.addVisionMeasurement(visionRobotPoseMeters, Utils.fpgaToCurrentTime(timestampSeconds));
+
+        lastVisionUpdatePose = visionRobotPoseMeters;
+        lastVisionUpdateTime = RobotController.getFPGATime();
     }
 
     /**
@@ -459,5 +484,31 @@ public class DrivetrainSubsystem extends SwerveDrivetrain<TalonFX, TalonFX, CANc
         table.set("timestampDiff", Utils.fpgaToCurrentTime(timestampSeconds) - Utils.getCurrentTimeSeconds());
         super.addVisionMeasurement(visionRobotPoseMeters, Utils.fpgaToCurrentTime(timestampSeconds),
                 visionMeasurementStdDevs);
+
+        lastVisionUpdatePose = visionRobotPoseMeters;
+        lastVisionUpdateTime = RobotController.getFPGATime();
+    }
+
+    public double getLastVisionUpdateTimeMS(){
+        return (double)(RobotController.getFPGATime()-lastVisionUpdateTime)/1000.0;
+    }
+
+    public double getVisionPoseAgreementDistance(){
+        return this.getEstimatedPosition().getTranslation().getDistance(this.lastVisionUpdatePose.getTranslation());
+    }
+
+    public int getVisionPoseAgreementQuality(){
+        double cm = 100*this.getVisionPoseAgreementDistance();
+        double ms = this.getLastVisionUpdateTimeMS();
+        
+        int blocks = 0;
+        if      (cm <= 3)   blocks = 3;
+        else if (cm <= 100) blocks = 2;
+        else if (cm <= 200) blocks = 1;
+        else                blocks = 0;
+
+        blocks -= (int)(ms/5000);
+        if (blocks < 0) blocks = 0;
+        return blocks;
     }
 }

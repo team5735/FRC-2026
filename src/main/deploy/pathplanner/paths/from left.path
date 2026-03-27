@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.6268938918340776,
-        "y": 7.667092808314733
+        "x": 3.6195338522644604,
+        "y": 7.32982274578958
       },
       "prevControl": null,
       "nextControl": {
-        "x": 0.6853610956101193,
-        "y": 6.953184465680804
+        "x": 4.629599609375,
+        "y": 7.529613787615741
       },
       "isLocked": false,
-      "linkedName": "Left Trench"
+      "linkedName": "left start"
     },
     {
       "anchor": {
-        "x": 2.0534676649305563,
-        "y": 4.289043981481481
+        "x": 7.6481433738425935,
+        "y": 7.480537109375
       },
       "prevControl": {
-        "x": 1.956111828031994,
-        "y": 4.739120396205358
+        "x": 6.6481433738425935,
+        "y": 7.480537109375
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "asdfasdfc"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -33,22 +33,22 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.5,
-    "maxAcceleration": 2.0,
+    "maxVelocity": 4.0,
+    "maxAcceleration": 3.0,
     "maxAngularVelocity": 180.0,
-    "maxAngularAcceleration": 180.0,
+    "maxAngularAcceleration": 360.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 90.0
+    "rotation": -90.0
   },
   "reversed": false,
-  "folder": "Comp climb auto",
+  "folder": "to neutral",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -90.0
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }

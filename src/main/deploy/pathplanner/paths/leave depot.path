@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.617,
-        "y": 7.421017717633929
+        "x": 0.5,
+        "y": 5.982638802086319
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.371230767721251,
-        "y": 7.421017717633929
+        "x": 1.5,
+        "y": 5.982638802086319
       },
       "isLocked": false,
-      "linkedName": "Left Trench Start"
+      "linkedName": "in depot"
     },
     {
       "anchor": {
-        "x": 1.025,
-        "y": 5.957617768787202
+        "x": 2.4546786849285667,
+        "y": 5.438554454428245
       },
       "prevControl": {
-        "x": 2.0249999999999995,
-        "y": 5.957617768787202
+        "x": 1.4546786849285667,
+        "y": 5.438554454428245
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Depot"
+      "linkedName": "left shoot pos"
     }
   ],
   "rotationTargets": [],
@@ -33,13 +33,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-<<<<<<< HEAD:src/main/deploy/pathplanner/paths/Left Trench To Depot.path
-    "maxVelocity": 2.0,
-    "maxAcceleration": 3.5,
-=======
-    "maxVelocity": 0.2,
-    "maxAcceleration": 0.2,
->>>>>>> 6648849 (update speed):src/main/deploy/pathplanner/paths/Left Trench To Ball Intake.path
+    "maxVelocity": 4.0,
+    "maxAcceleration": 3.0,
     "maxAngularVelocity": 180.0,
     "maxAngularAcceleration": 360.0,
     "nominalVoltage": 12.0,
@@ -47,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": -125.77431556291904
   },
   "reversed": false,
-  "folder": "Intake ",
+  "folder": "depot",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }

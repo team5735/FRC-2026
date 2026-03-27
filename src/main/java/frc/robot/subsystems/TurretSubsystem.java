@@ -1,12 +1,14 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
-import static frc.robot.constants.TurretConstants.FORWARD_LIMIT_BOT_REL;
+import static frc.robot.constants.TurretConstants.DYNAMIC_TOLERANCE;
 import static frc.robot.constants.TurretConstants.FORWARD_LIMIT_TUR_REL;
+import static frc.robot.constants.TurretConstants.HALL_LIMIT_POS_BOT_REL;
 import static frc.robot.constants.TurretConstants.KA;
 import static frc.robot.constants.TurretConstants.KD;
 import static frc.robot.constants.TurretConstants.KI;
@@ -18,6 +20,7 @@ import static frc.robot.constants.TurretConstants.MAX_VEL;
 import static frc.robot.constants.TurretConstants.REVERSE_LIMIT_TUR_REL;
 import static frc.robot.constants.TurretConstants.SOFT_PADDING;
 import static frc.robot.constants.TurretConstants.START_POS_BOT_REL;
+import static frc.robot.constants.TurretConstants.TOLERANCE;
 import static frc.robot.constants.TurretConstants.formatInputPosRobotRel;
 import static frc.robot.constants.TurretConstants.formatInputStateRobotRel;
 import static frc.robot.constants.TurretConstants.isInDeadZone;
@@ -27,22 +30,28 @@ import static frc.robot.constants.TurretConstants.turretRelToRobotRel;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
+import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -55,9 +64,12 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import frc.robot.PartialRobot;
 import frc.robot.Telemetry;
+import frc.robot.commands.LaunchCalculator;
+import frc.robot.commands.LaunchCalculator.LaunchGoal;
 import frc.robot.constants.Constants;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.robot.CompbotConstants;
+import frc.robot.constants.robot.CompbotTunerConstants;
 import frc.robot.constants.robot.RobotConstants;
 import frc.robot.util.TunableProfiledPIDController;
 
@@ -66,6 +78,7 @@ public class TurretSubsystem extends SubsystemBase {
     private final DigitalInput hallLimit = new DigitalInput(Constants.TURRET_LIMIT_PIN);
 
     public final Trigger limitTrigger = new Trigger(() -> !hallLimit.get());
+    public final Trigger zeroTrigger = limitTrigger.and(() -> DriverStation.isDisabled());
     public boolean isZeroed = false;
 
     private final TunableProfiledPIDController pid = new TunableProfiledPIDController("turret", KP, KI, KD,
@@ -76,6 +89,8 @@ public class TurretSubsystem extends SubsystemBase {
     private double prevVel = 0;
     private RobotConstants driveConstants;
 
+    private SendableChooser<Boolean> turretEnabledDropdown = new SendableChooser<>();
+
     public TurretSubsystem(Supplier<Pose2d> robotPoseSupplier, RobotConstants driveConstants) {
         super();
         this.driveConstants = driveConstants;
@@ -84,10 +99,19 @@ public class TurretSubsystem extends SubsystemBase {
                 .withInverted(InvertedValue.Clockwise_Positive));
         kraken.getConfigurator().apply(new FeedbackConfigs().withSensorToMechanismRatio(10));
         resetAngle(START_POS_BOT_REL);
+        kraken.getConfigurator().apply(new SoftwareLimitSwitchConfigs()
+                .withForwardSoftLimitEnable(true)
+                .withForwardSoftLimitThreshold(FORWARD_LIMIT_TUR_REL)
+                .withReverseSoftLimitEnable(true)
+                .withReverseSoftLimitThreshold(REVERSE_LIMIT_TUR_REL));
+        kraken.getConfigurator().apply(new CurrentLimitsConfigs().withStatorCurrentLimit(Amps.of(35)));
         pid.setup(robotRelToTurretRel(START_POS_BOT_REL).in(Rotations));
         pid.reset(robotRelToTurretRel(START_POS_BOT_REL).in(Rotations));
-
+        pid.setTolerance(Units.degreesToRotations(1));
         this.robotPoseSupplier = robotPoseSupplier;
+
+        turretEnabledDropdown.addOption("No", Boolean.FALSE);
+        turretEnabledDropdown.setDefaultOption("Yes", Boolean.TRUE);
     }
 
     @Override
@@ -103,24 +127,26 @@ public class TurretSubsystem extends SubsystemBase {
         SmartDashboard.putBoolean("turret/isZeroed", isZeroed);
         SmartDashboard.putBoolean("turret/atForwardSoftwareLimit", isAtForwardLim.getAsBoolean());
         SmartDashboard.putBoolean("turret/atReverseSoftwareLimit", isAtReverseLim.getAsBoolean());
+        SmartDashboard.putBoolean("turret/isAtGoalPos", isAtGoalPos());
         SmartDashboard.putNumber("turret/distance to hub",
                 FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER)
                         .getDistance(this.getMechanismPose().getTranslation()));
         SmartDashboard.putBoolean("turret/canTurnTo",
                 canTurnTo(FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER)));
         Telemetry.field.getObject("turret_pose").setPose(getMechanismPose());
+        SmartDashboard.putNumber("turret/statorCurrent", kraken.getStatorCurrent().getValueAsDouble());
     }
 
     public Command hardRunForward() {
-        return startEnd(() -> kraken.setVoltage(1), () -> kraken.setVoltage(0));
-    }
-
-    public Command softRunForward() {
         return startEnd(() -> kraken.setVoltage(0.75), () -> kraken.setVoltage(0));
     }
 
+    public Command softRunForward() {
+        return startEnd(() -> kraken.setVoltage(0.5), () -> kraken.setVoltage(0));
+    }
+
     public Command softRunReverse() {
-        return startEnd(() -> kraken.setVoltage(-0.25), () -> kraken.setVoltage(0));
+        return startEnd(() -> kraken.setVoltage(-0.75), () -> kraken.setVoltage(0));
     }
 
     public Command hardRunReverse() {
@@ -183,16 +209,27 @@ public class TurretSubsystem extends SubsystemBase {
      */
     private Command trackStateTurretRel(Supplier<State> goalSupplier) {
         return startRun(
-                () -> pid.reset(new State(getAngleTurretRel().in(Rotations),
-                        kraken.getVelocity().getValue().in(RotationsPerSecond))),
                 () -> {
+                    pid.reset(new State(getAngleTurretRel().in(Rotations),
+                            kraken.getVelocity().getValue().in(RotationsPerSecond)));
+                    pid.setGoal(goalSupplier.get());
+                    prevVel = kraken.getVelocity().getValue().in(RotationsPerSecond);
+                },
+                () -> {
+                    if (turretEnabledDropdown.getSelected() == Boolean.FALSE) {
+                        return;
+                    }
+                    double pidOut = pid.calculate(getAngleTurretRel().in(Rotations), goalSupplier.get());
+                    SmartDashboard.putNumber("turret/pidOut", pidOut);
                     double newVel = pid.getController().getSetpoint().velocity;
-                    double voltsToSet = pid.calculate(getAngleTurretRel().in(Rotations), goalSupplier.get())
-                            + ff.calculateWithVelocities(newVel, newVel
-                                    + 0.02 * MAX_ACC.in(RotationsPerSecondPerSecond) * Math.signum(newVel - prevVel));
+                    double ffOut = (!MathUtil.isNear(0, newVel, 0.075))
+                            ? ff.calculate(newVel, (newVel - prevVel) / 0.05)
+                            : Math.copySign(0.35 * KS, MathUtil.applyDeadband(pidOut, 0.5 * KS));
+                    SmartDashboard.putNumber("turret/ffOut", ffOut);
+                    double voltsToSet = (!isAtGoalPos()) ? pidOut + ffOut : 0;
                     kraken.setVoltage(voltsToSet);
                     prevVel = newVel;
-                });
+                }).finallyDo(() -> kraken.setVoltage(0));
     }
 
     /**
@@ -210,15 +247,27 @@ public class TurretSubsystem extends SubsystemBase {
                     pid.reset(new State(getAngleTurretRel().in(Rotations),
                             kraken.getVelocity().getValue().in(RotationsPerSecond)));
                     pid.setGoal(new State(formatInputPosRobotRel(goal).in(Rotations), 0));
+                    prevVel = kraken.getVelocity().getValue().in(RotationsPerSecond);
                 },
                 () -> {
+                    if (turretEnabledDropdown.getSelected() == Boolean.FALSE) {
+                        return;
+                    }
+                    var _T = new frc.robot.util.Timer("");
+                    double pidOut = pid.calculate(getAngleTurretRel().in(Rotations));
+                    SmartDashboard.putNumber("turret/pidOut", pidOut);
                     double newVel = pid.getController().getSetpoint().velocity;
-                    double voltsToSet = pid.calculate(getAngleTurretRel().in(Rotations))
-                            + ff.calculateWithVelocities(newVel, newVel
-                                    + 0.02 * MAX_ACC.in(RotationsPerSecondPerSecond) * Math.signum(newVel - prevVel));
+                    double ffOut = (!MathUtil.isNear(0, newVel, 0.075))
+                            ? ff.calculate(newVel, (newVel - prevVel) / 0.05)
+                            : (MathUtil.isNear(0, pidOut, 0.75 * KS))
+                                    ? 0
+                                    : Math.copySign(0.5 * KS, pidOut);
+                    SmartDashboard.putNumber("turret/ffOut", ffOut);
+                    double voltsToSet = (!isAtGoalPos()) ? pidOut + ffOut : 0;
                     kraken.setVoltage(voltsToSet);
                     prevVel = newVel;
-                }).withName("hold robot relative");
+                    _T.toc();
+                }).finallyDo(() -> kraken.setVoltage(0)).withName("hold robot relative");
     }
 
     /**
@@ -351,6 +400,21 @@ public class TurretSubsystem extends SubsystemBase {
                 .plus(robotPoseInField.getTranslation()), getRotation().plus(robotPoseInField.getRotation()));
     }
 
+    public boolean isAtGoalPos() {
+        return MathUtil.isNear(pid.getController().getGoal().position, getAngleTurretRel().in(Rotations),
+                TOLERANCE.in(Rotations));
+    }
+
+    public boolean isDynamicAimed() {
+        return MathUtil.isNear(pid.getController().getGoal().position, getAngleTurretRel().in(Rotations),
+                DYNAMIC_TOLERANCE.in(Rotations));
+    }
+
+    public boolean isDynamicAimedAt(Angle robotRelTarget) {
+        return MathUtil.isNear(formatInputPosRobotRel(robotRelTarget).in(Rotations), getAngleTurretRel().in(Rotations),
+                DYNAMIC_TOLERANCE.in(Rotations));
+    }
+
     /**
      * {@link Command} to zero (find the definite position of) this subsystem. WIll
      * run the motor until the turret reaches its limit switch, then will reset its
@@ -361,9 +425,19 @@ public class TurretSubsystem extends SubsystemBase {
      */
     public Command zeroSequence() {
         return hardRunForward().until(limitTrigger::getAsBoolean)
-                .andThen(softRunReverse().withTimeout(0.25))
+                .andThen(softRunReverse().until(() -> !limitTrigger.getAsBoolean()))
                 .andThen(softRunForward().until(limitTrigger::getAsBoolean))
-                .andThen(zeroCommand()).andThen(holdRobotRel(Rotations.of(0.25))).withName("zero sequence");
+                .andThen(zeroCommand()).withName("zero sequence")
+                .beforeStarting(() -> kraken.getConfigurator().apply(new SoftwareLimitSwitchConfigs()
+                        .withForwardSoftLimitEnable(false)
+                        .withForwardSoftLimitThreshold(FORWARD_LIMIT_TUR_REL)
+                        .withReverseSoftLimitEnable(true)
+                        .withReverseSoftLimitThreshold(REVERSE_LIMIT_TUR_REL)))
+                .finallyDo(() -> kraken.getConfigurator().apply(new SoftwareLimitSwitchConfigs()
+                        .withForwardSoftLimitEnable(true)
+                        .withForwardSoftLimitThreshold(FORWARD_LIMIT_TUR_REL)
+                        .withReverseSoftLimitEnable(true)
+                        .withReverseSoftLimitThreshold(REVERSE_LIMIT_TUR_REL)));
     }
 
     /**
@@ -378,7 +452,7 @@ public class TurretSubsystem extends SubsystemBase {
      */
     public Command zeroCommand() {
         return Commands.runOnce(() -> {
-            resetAngle(FORWARD_LIMIT_BOT_REL);
+            resetAngle(HALL_LIMIT_POS_BOT_REL);
             isZeroed = true;
         }).ignoringDisable(true);
     }
@@ -398,12 +472,11 @@ public class TurretSubsystem extends SubsystemBase {
         public Tester() {
             super();
             // turret.setDefaultCommand(turret.holdRobotRel(Rotations.of(0)));
-            turret.limitTrigger.onTrue(turret.zeroCommand()); // resets the turrets position when it engages the
-                                                              // Hall-Effect
-                                                              // sensor
-            // turret.setDefaultCommand(turret.holdRobotRel(Rotations.of(0)));
+            turret.zeroTrigger.onTrue(turret.zeroCommand()); // resets the turrets position when it engages the
+                                                             // Hall-Effect
+                                                             // sensor and the robot is Disabled
 
-            controller.a().onTrue(turret.holdRobotRel(Rotations.of(0.25)));
+            controller.a().onTrue(turret.holdRobotRel(Rotations.of(0.00)));
             controller.b().onTrue(turret.holdRobotRel(Rotations.of(0.75)));
             controller.rightBumper().whileTrue(turret.trackRobotRel(() -> {
                 double x = controller.getRightX();
@@ -430,4 +503,73 @@ public class TurretSubsystem extends SubsystemBase {
             }
         }
     }
+
+    public static class AimingTest extends PartialRobot {
+        private final DrivetrainSubsystem drivetrain = CompbotTunerConstants.createDrivetrain();
+        private final TurretSubsystem turret = new TurretSubsystem(drivetrain::getEstimatedPosition,
+                drivetrain.constants);
+
+        public final Telemetry logger = new Telemetry(drivetrain, turret);
+
+        private final LimelightSubsystem[] limelights = { new LimelightSubsystem(drivetrain, "limelight-fone"),
+                new LimelightSubsystem(drivetrain, "limelight-ftwo") };
+
+        public AimingTest() {
+            super();
+
+            drivetrain.registerTelemetry(logger::telemeterize);
+
+            turret.zeroTrigger.onTrue(turret.zeroCommand());
+
+            drivetrain.setDefaultCommand(
+                    drivetrain.joystickDriveCommand(
+                            () -> controller.getLeftX(),
+                            () -> controller.getLeftY(),
+                            () -> controller.getLeftTriggerAxis(),
+                            () -> controller.getRightTriggerAxis(),
+                            () -> controller.getHID().getYButton(),
+                            () -> controller.getHID().getStartButton()));
+
+            controller.a().onTrue(turret.holdRobotRel(Rotations.of(0.00)));
+            controller.b().onTrue(turret.holdRobotRel(Rotations.of(0.75)));
+            controller.rightBumper().whileTrue(turret.trackRobotRel(() -> {
+                double x = controller.getRightX();
+                double y = controller.getRightY();
+                return new Rotation2d(-y, -x).getMeasure();
+            }));
+            controller.leftBumper()
+                    .whileTrue(LaunchCalculator.dryAimTurret(LaunchGoal.SCORE, turret, drivetrain));
+
+            controller.x().whileTrue(turret.zeroSequence());
+            controller.povUp().whileTrue(turret.sysId());
+            controller.povDown().onTrue(Commands.runOnce(turret::remakePID, turret));
+
+            for (LimelightSubsystem limelight : limelights) {
+                limelight.setIMUToPigeon();
+            }
+        }
+
+        @Override
+        public void teleopInit() {
+            if (!turret.getZeroStatus()) {
+                CommandScheduler.getInstance().schedule(turret.zeroSequence());
+            }
+
+            for (LimelightSubsystem limelight : limelights) {
+                limelight.setIMUMode(3);
+            }
+        }
+
+        @Override
+        public void autonomousInit() {
+            if (!turret.getZeroStatus()) {
+                CommandScheduler.getInstance().schedule(turret.zeroSequence());
+            }
+
+            for (LimelightSubsystem limelight : limelights) {
+                limelight.setIMUMode(3);
+            }
+        }
+    }
+
 }
