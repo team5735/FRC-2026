@@ -55,15 +55,15 @@ public class IntakeSubsystem extends SubsystemBase {
         intakeSlapdown.setPosition(IntakeConstants.START_POS);
     }
 
-    private void forwardRoll() {
+    public void forwardRoll() {
         intakeRoller.setVoltage(IntakeConstants.ROLL_IN_VOLTS);
     }
 
-    private void reverseRoll() {
+    public void reverseRoll() {
         intakeRoller.setVoltage(IntakeConstants.ROLL_OUT_VOLTS);
     }
 
-    private void stopRoll() {
+    public void stopRoll() {
         intakeRoller.setVoltage(0);
     }
 

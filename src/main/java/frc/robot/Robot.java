@@ -131,6 +131,8 @@ public class Robot extends TimedRobot {
                 climber.getFullyDetractCommand().alongWith(turret.holdRobotRel(TurretConstants.CLIMB_POS_BOT_REL)));
         commandsForAuto.put("drop intake", intake.getSlapdownCommand());
         commandsForAuto.put("run intake", intake.getIntakeForwardRollCommand());
+        commandsForAuto.put("start intake", intake.runOnce(() -> intake.forwardRoll()));
+        commandsForAuto.put("stop intake", intake.runOnce(() -> intake.stopRoll()));
         commandsForAuto.put("Put up Intake", intake.getLiftCommand());
         commandsForAuto.put("run spindex", spindex.getRun());
         commandsForAuto.put("dynamic launch",
