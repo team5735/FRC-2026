@@ -80,6 +80,17 @@ public class LaunchCalculator {
         // TODO - determine real TOFs
         scoreTOFMap.put(0., 0.);
         scoreTOFMap.put(50., 0.);
+
+        // temp values that cause constant trajectory regardless of distance when
+        // ferrying
+        ferryHoodMap.put(0., HoodConstants.HIGHEST_ANGLE_DEGREES);
+        ferryHoodMap.put(50., HoodConstants.HIGHEST_ANGLE_DEGREES);
+
+        ferrySpeedMap.put(0., 4000.);
+        ferrySpeedMap.put(50., 4000.);
+
+        ferryTOFMap.put(0., 0.);
+        ferryTOFMap.put(0., 0.);
     }
 
     private static final LinearFilter turretVelFiler = LinearFilter.movingAverage(50);
