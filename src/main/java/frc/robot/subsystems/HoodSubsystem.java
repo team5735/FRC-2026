@@ -10,18 +10,14 @@ import edu.wpi.first.math.geometry.Rectangle2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Servo;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.util.Timer;
 import frc.robot.PartialRobot;
 import frc.robot.constants.Constants;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.HoodConstants;
-import frc.robot.util.NTable;
+import frc.robot.util.Timer;
 
 public class HoodSubsystem extends SubsystemBase {
     private final Servo servo = new Servo(Constants.HOOD_SERVO_PIN);
