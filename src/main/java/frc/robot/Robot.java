@@ -11,7 +11,6 @@ import static edu.wpi.first.units.Units.Seconds;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Supplier;
 
 import com.ctre.phoenix6.SignalLogger;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -31,8 +30,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.LaunchCalculator;
 import frc.robot.commands.LaunchCalculator.LaunchGoal;
@@ -239,28 +236,6 @@ public class Robot extends TimedRobot {
         // @formatter:on
     }
 
-    Command makeShootCommand(
-            Supplier<Translation2d> shootingTarget,
-            Supplier<Double> hoodAngleSupplier,
-            Supplier<Double> rpmSupplier) {
-        // @formatter:off
-        return new SequentialCommandGroup(
-            hood.runOnce(() -> hood.setHoodAngle(hoodAngleSupplier.get())),
-            new ParallelCommandGroup( 
-                turret.trackFieldPosDynamic(shootingTarget).until(() -> turret.atGoal()),
-                launcher.getLaunchFuelSupplier(rpmSupplier).until(() -> launcher.atSetpoint()).withTimeout(3)
-            ),
-            new ParallelCommandGroup(
-                turret.trackFieldPosDynamic(shootingTarget),
-                launcher.getLaunchFuelSupplier(rpmSupplier),
-                spindex.getRun()
-            )
-        ).finallyDo(() -> {
-            hood.setHoodAngle(HoodConstants.LOWEST_ANGLE_DEGREES);
-        });
-        // @formatter:on
-    }
-
     private void setupDriverBindings() {
         driveController.y().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
@@ -271,8 +246,12 @@ public class Robot extends TimedRobot {
             Rotation2d drivetrainToHub = FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER).minus(drivetrainPos).getAngle();
             return new Pose2d(drivetrainPos, drivetrainToHub.plus(Rotation2d.kCCW_90deg));
         }, "face hub (backup)"));
-        driveController.b().onFalse(unclogSpindex);
+
         driveController.b().whileTrue(LaunchCalculator.dynamicLaunchTeleop(driveController, LaunchGoal.SCORE, () -> false, hood, turret, drivetrain, launcher, spindex));
+        driveController.b().onFalse(unclogSpindex);
+
+        driveController.x().whileTrue(LaunchCalculator.dynamicLaunchTeleop(driveController, LaunchGoal.FERRY, () -> false, hood, turret, drivetrain, launcher, spindex));
+        driveController.x().onFalse(unclogSpindex);
 
         driveController.rightBumper().whileTrue(intake.getIntakeForwardRollCommand());
         driveController.leftBumper().whileTrue(intake.getIntakeReverseRollCommand());
