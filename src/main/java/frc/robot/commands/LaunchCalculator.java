@@ -6,6 +6,7 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static frc.robot.constants.TurretConstants.isInDeadZone;
 
 import java.util.function.BooleanSupplier;
 
@@ -236,16 +237,20 @@ public class LaunchCalculator {
                 launcher.getDynamicLaunch(() -> getCachedParams().flywheelVelocity),
                 spindex.idle().until(() -> {
                     LaunchParams params = getCachedParams();
-                    return (params.isValid
-                            && MathUtil.isNear(params.hoodAngle.in(Degrees),
+                    boolean hoodCheck = MathUtil.isNear(params.hoodAngle.in(Degrees),
                                     hood.getHoodAngle(),
-                                    HoodConstants.DYNAMIC_TOLERANCE_DEGREES)
-                            && turret.getAngle().isNear(params.turretAngle,
-                                    TurretConstants.DYNAMIC_TOLERANCE))
-                            && MathUtil.isNear(params.flywheelVelocity.in(RPM), launcher.getRPM(),
-                                    LauncherConstants.RPM_TOLERANCE)
-                            || override.getAsBoolean();
-                }).andThen(spindex.getInformedRun(() -> !TurretConstants.isInDeadZone(getCachedParams().turretAngle)
+                                    HoodConstants.DYNAMIC_TOLERANCE_DEGREES);
+                    SmartDashboard.putBoolean("launchCalc/hoodCheck", hoodCheck);
+                    boolean turretCheck = turret.isDynamicAimed() && !isInDeadZone(getCachedParams().turretAngle);
+                    SmartDashboard.putBoolean("launchCalc/turretCheck", turretCheck);
+                    boolean launcherCheck = params.flywheelVelocity.in(RPM) < launcher.getRPM();
+                    SmartDashboard.putBoolean("launchCalc/launcherCheck", launcherCheck);
+                    return (params.isValid
+                            && hoodCheck
+                            && turretCheck
+                            && launcherCheck
+                            || override.getAsBoolean());
+            }).andThen(spindex.getInformedRun(() -> !TurretConstants.isInDeadZone(getCachedParams().turretAngle)
                         || override.getAsBoolean())));
     }
 
