@@ -23,7 +23,19 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "dynamic launch"
+                  "name": "hood 21"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "run spindex"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "launch at 3000 rpm"
                 }
               }
             ]

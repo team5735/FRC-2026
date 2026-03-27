@@ -113,6 +113,7 @@ public class FieldConstants {
     // Red "RIGHT" elements are red alliance right ie viewed from the red alliance
     // side
     // So, when viewed from the blue side, the red element will be on the left
+    // 4.61 ; 4.02
     public static final Translation2d BLUE_HUB_CENTER = new Translation2d(inch(181.56), inch(158.32));
     public static final Translation2d BLUE_OUTPOST_CENTER = new Translation2d(inch(0), inch(25.62));
 

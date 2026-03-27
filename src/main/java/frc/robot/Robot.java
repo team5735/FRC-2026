@@ -142,7 +142,7 @@ public class Robot extends TimedRobot {
         commandsForAuto.put("Turret track Blue Hub",
                 turret.trackFieldPos(FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER)));
         commandsForAuto.put("Hood atZero", hood.runOnce(() -> hood.setHoodAngle(0)));
-        commandsForAuto.put("Hood at20", hood.runOnce(() -> hood.setHoodAngle(20)));
+        commandsForAuto.put("hood 21", hood.runOnce(() -> hood.setHoodAngle(21)));
 
         NamedCommands.registerCommands(commandsForAuto);
 
