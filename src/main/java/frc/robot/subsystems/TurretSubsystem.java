@@ -63,6 +63,8 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Mechanism;
 import frc.robot.PartialRobot;
 import frc.robot.Telemetry;
+import frc.robot.commands.LaunchCalculator;
+import frc.robot.commands.LaunchCalculator.LaunchGoal;
 import frc.robot.constants.Constants;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.robot.CompbotConstants;
@@ -101,7 +103,7 @@ public class TurretSubsystem extends SubsystemBase {
                 .withForwardSoftLimitThreshold(FORWARD_LIMIT_TUR_REL)
                 .withReverseSoftLimitEnable(true)
                 .withReverseSoftLimitThreshold(REVERSE_LIMIT_TUR_REL));
-        kraken.getConfigurator().apply(new CurrentLimitsConfigs().withStatorCurrentLimit(Amps.of(30)));
+        kraken.getConfigurator().apply(new CurrentLimitsConfigs().withStatorCurrentLimit(Amps.of(35)));
         pid.setup(robotRelToTurretRel(START_POS_BOT_REL).in(Rotations));
         pid.reset(robotRelToTurretRel(START_POS_BOT_REL).in(Rotations));
         pid.setTolerance(Units.degreesToRotations(1));
@@ -221,7 +223,7 @@ public class TurretSubsystem extends SubsystemBase {
                     double newVel = pid.getController().getSetpoint().velocity;
                     double ffOut = (!MathUtil.isNear(0, newVel, 0.075))
                             ? ff.calculate(newVel, (newVel - prevVel) / 0.05)
-                            : Math.copySign(0.35 * KS, MathUtil.applyDeadband(pidOut, 0.5*KS));
+                            : Math.copySign(0.35 * KS, MathUtil.applyDeadband(pidOut, 0.5 * KS));
                     SmartDashboard.putNumber("turret/ffOut", ffOut);
                     double voltsToSet = (!isAtGoalPos()) ? pidOut + ffOut : 0;
                     kraken.setVoltage(voltsToSet);
@@ -256,7 +258,9 @@ public class TurretSubsystem extends SubsystemBase {
                     double newVel = pid.getController().getSetpoint().velocity;
                     double ffOut = (!MathUtil.isNear(0, newVel, 0.075))
                             ? ff.calculate(newVel, (newVel - prevVel) / 0.05)
-                            : Math.copySign(0.5 * KS, pidOut);
+                            : (MathUtil.isNear(0, pidOut, 0.75*KS)) 
+                                ? 0 
+                                : Math.copySign(0.5 * KS, pidOut);
                     SmartDashboard.putNumber("turret/ffOut", ffOut);
                     double voltsToSet = (!isAtGoalPos()) ? pidOut + ffOut : 0;
                     kraken.setVoltage(voltsToSet);
@@ -474,7 +478,6 @@ public class TurretSubsystem extends SubsystemBase {
             controller.povDown().onTrue(Commands.runOnce(turret::remakePID, turret));
         }
 
-
         @Override
         public void teleopInit() {
             if (!turret.getZeroStatus()) {
@@ -505,12 +508,7 @@ public class TurretSubsystem extends SubsystemBase {
 
             drivetrain.registerTelemetry(logger::telemeterize);
 
-            // turret.setDefaultCommand(turret.holdRobotRel(Rotations.of(0)));
-            // turret.limitTrigger.onTrue(turret.zeroCommand()); // resets the turrets
-            // position when it engages the
-            // // Hall-Effect
-            // // sensor
-            // turret.setDefaultCommand(turret.holdRobotRel(Rotations.of(0)));
+            turret.zeroTrigger.onTrue(turret.zeroCommand());
 
             drivetrain.setDefaultCommand(
                     drivetrain.joystickDriveCommand(
@@ -529,7 +527,7 @@ public class TurretSubsystem extends SubsystemBase {
                 return new Rotation2d(-y, -x).getMeasure();
             }));
             controller.leftBumper()
-                    .whileTrue(turret.trackFieldPos(FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER)));
+                    .whileTrue(LaunchCalculator.dryAimTurret(LaunchGoal.SCORE, turret, drivetrain));
 
             controller.x().whileTrue(turret.zeroSequence());
             controller.povUp().whileTrue(turret.sysId());

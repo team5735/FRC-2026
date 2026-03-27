@@ -70,7 +70,7 @@ public class LaunchCalculator {
         scoreSpeedMap.put(Units.inchesToMeters(207), 3850.);
         scoreSpeedMap.put(Units.inchesToMeters(216), 4000.);
 
-        //TODO - determine real TOFs
+        // TODO - determine real TOFs
         scoreTOFMap.put(0., 0.);
         scoreTOFMap.put(50., 0.);
     }
@@ -235,10 +235,10 @@ public class LaunchCalculator {
                                     hood.getHoodAngle(),
                                     HoodConstants.DYNAMIC_TOLERANCE_DEGREES)
                             && turret.getAngle().isNear(params.turretAngle,
-                                    TurretConstants.TOLERANCE.plus(Degrees.of(0.5)))
+                                    TurretConstants.DYNAMIC_TOLERANCE))
                             && MathUtil.isNear(params.flywheelVelocity.in(RPM), launcher.getRPM(),
                                     LauncherConstants.RPM_TOLERANCE)
-                            || override.getAsBoolean());
+                            || override.getAsBoolean();
                 }).andThen(spindex.getInformedRun(() -> !TurretConstants.isInDeadZone(getCachedParams().turretAngle)
                         || override.getAsBoolean())));
     }

@@ -9,7 +9,7 @@ public class HoodConstants {
     // look at servo_feedback_position. This is the servo setpoint as
     // estimated via the feedback wire
     // plug that value into SERVO_SETPOINT_AT_HOOD_0
-    public static final double SERVO_SETPOINT_AT_HOOD_0 = 0.27;
+    public static final double SERVO_SETPOINT_AT_HOOD_0 = 0.283;
 
 
     // This is the range of setpoints that correspond to the range of hood positions
