@@ -45,7 +45,7 @@
     "rotation": 0.0
   },
   "reversed": false,
-  "folder": "Comp half Sweep",
+  "folder": null,
   "idealStartingState": {
     "velocity": 0,
     "rotation": -48.303141809703675
