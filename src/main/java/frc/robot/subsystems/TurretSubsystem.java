@@ -411,7 +411,7 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     public boolean isDynamicAimedAt(Angle robotRelTarget) {
-        return MathUtil.isNear(formatInputPosRobotRel(robotRelTarget).in(Rotations), getAngleTurretRel().in(Rotations),
+        return MathUtil.isNear(robotRelToTurretRel(robotRelTarget).in(Rotations), getAngleTurretRel().in(Rotations),
                 DYNAMIC_TOLERANCE.in(Rotations));
     }
 
