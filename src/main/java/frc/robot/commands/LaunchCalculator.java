@@ -50,7 +50,13 @@ public class LaunchCalculator {
     public static final InterpolatingDoubleTreeMap ferryTOFMap = new InterpolatingDoubleTreeMap();
 
     static {
+        // This is to compenate for variabilities in hood angles
+        // that have occured since we calibrated shooting
+        // This is needed if/when the hood is detached and reattached
+        // to its servo, because its position may be slightly different.
+        // this compensates for that
         double hoodTweakOffset = 1.0;
+
         scoreHoodMap.put(Units.inchesToMeters(56),     8.0+hoodTweakOffset);
         scoreHoodMap.put(Units.inchesToMeters(71.75), 15.0+hoodTweakOffset);
         scoreHoodMap.put(Units.inchesToMeters(87.8),  15.0+hoodTweakOffset);
