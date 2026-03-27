@@ -64,18 +64,19 @@ public class LaunchCalculator {
         scoreHoodMap.put(Units.inchesToMeters(102.2), 20.0+hoodTweakOffset);
         scoreHoodMap.put(Units.inchesToMeters(216),   20.0+hoodTweakOffset);
 
-        scoreSpeedMap.put(Units.inchesToMeters(56), 2600.);
-        scoreSpeedMap.put(Units.inchesToMeters(71.75), 2650.);
-        scoreSpeedMap.put(Units.inchesToMeters(87.8), 2675.);
-        scoreSpeedMap.put(Units.inchesToMeters(102.2), 2800.);
-        scoreSpeedMap.put(Units.inchesToMeters(117), 2900.);
-        scoreSpeedMap.put(Units.inchesToMeters(132), 3050.);
-        scoreSpeedMap.put(Units.inchesToMeters(147), 3200.);
-        scoreSpeedMap.put(Units.inchesToMeters(163), 3350.);
-        scoreSpeedMap.put(Units.inchesToMeters(177), 3450.);
-        scoreSpeedMap.put(Units.inchesToMeters(192), 3650.);
-        scoreSpeedMap.put(Units.inchesToMeters(207), 3850.);
-        scoreSpeedMap.put(Units.inchesToMeters(216), 4000.);
+        double rpmMult = 1.05;
+        scoreSpeedMap.put(Units.inchesToMeters(56),    2600.0*rpmMult);
+        scoreSpeedMap.put(Units.inchesToMeters(71.75), 2650.0*rpmMult);
+        scoreSpeedMap.put(Units.inchesToMeters(87.8),  2675.0*rpmMult);
+        scoreSpeedMap.put(Units.inchesToMeters(102.2), 2800.0*rpmMult);
+        scoreSpeedMap.put(Units.inchesToMeters(117),   2900.0*rpmMult);
+        scoreSpeedMap.put(Units.inchesToMeters(132),   3050.0*rpmMult);
+        scoreSpeedMap.put(Units.inchesToMeters(147),   3200.0*rpmMult);
+        scoreSpeedMap.put(Units.inchesToMeters(163),   3350.0*rpmMult);
+        scoreSpeedMap.put(Units.inchesToMeters(177),   3450.0*rpmMult);
+        scoreSpeedMap.put(Units.inchesToMeters(192),   3650.0*rpmMult);
+        scoreSpeedMap.put(Units.inchesToMeters(207),   3850.0*rpmMult);
+        scoreSpeedMap.put(Units.inchesToMeters(216),   4000.0*rpmMult);
 
         // TODO - determine real TOFs
         scoreTOFMap.put(0., 0.);
