@@ -66,13 +66,13 @@ public class HoodSubsystem extends SubsystemBase {
     public double getHoodPosition() {
         return interp1(
                 HoodConstants.LOWEST_SERVO_POSITION, HoodConstants.HIGHEST_SERVO_POSITION,
-                0.0,                                 1.0,
+                0.0, 1.0,
                 this.getServoSetpoint());
     }
 
     public void setHoodPosition(double hoodPosition) {
         double servoPosition = interp1(
-                0,                                   1,
+                0, 1,
                 HoodConstants.LOWEST_SERVO_POSITION, HoodConstants.HIGHEST_SERVO_POSITION,
                 hoodPosition);
         this.setServoPosition(servoPosition);
@@ -81,14 +81,14 @@ public class HoodSubsystem extends SubsystemBase {
     public double getHoodAngle() {
         return interp1(
                 HoodConstants.LOWEST_SERVO_POSITION, HoodConstants.HIGHEST_SERVO_POSITION,
-                HoodConstants.LOWEST_ANGLE_DEGREES,  HoodConstants.HIGHEST_ANGLE_DEGREES,
+                HoodConstants.LOWEST_ANGLE_DEGREES, HoodConstants.HIGHEST_ANGLE_DEGREES,
                 this.getServoSetpoint());
     }
 
     public void setHoodAngle(double hoodAngleDegrees) {
         var _T = new Timer("hood::setHoodAngle");
         double servoPosition = interp1(
-                HoodConstants.LOWEST_ANGLE_DEGREES,  HoodConstants.HIGHEST_ANGLE_DEGREES,
+                HoodConstants.LOWEST_ANGLE_DEGREES, HoodConstants.HIGHEST_ANGLE_DEGREES,
                 HoodConstants.LOWEST_SERVO_POSITION, HoodConstants.HIGHEST_SERVO_POSITION,
                 hoodAngleDegrees);
 
@@ -113,9 +113,15 @@ public class HoodSubsystem extends SubsystemBase {
     public double getNormalizedPosition() {
         double v = this.getVoltage();
         return interp1(
-                HoodConstants.SERVO_VOLTAGE_AT_REF0,HoodConstants.SERVO_VOLTAGE_AT_REF1,
-                HoodConstants.SERVO_VOLTAGE_REF0,   HoodConstants.SERVO_VOLTAGE_REF1,
+                HoodConstants.SERVO_VOLTAGE_AT_REF0, HoodConstants.SERVO_VOLTAGE_AT_REF1,
+                HoodConstants.SERVO_VOLTAGE_REF0, HoodConstants.SERVO_VOLTAGE_REF1,
                 v);
+    }
+
+    public double getNormalizedAngle() {
+        return interp1(HoodConstants.LOWEST_SERVO_POSITION, HoodConstants.HIGHEST_SERVO_POSITION,
+                HoodConstants.LOWEST_ANGLE_DEGREES, HoodConstants.HIGHEST_ANGLE_DEGREES,
+                getNormalizedPosition());
     }
 
     public void sendTelemetry() {
