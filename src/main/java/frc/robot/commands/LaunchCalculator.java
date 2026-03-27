@@ -57,25 +57,25 @@ public class LaunchCalculator {
         // this compensates for that
         double hoodTweakOffset = 1.0;
 
-        scoreHoodMap.put(Units.inchesToMeters(56),     8.0+hoodTweakOffset);
-        scoreHoodMap.put(Units.inchesToMeters(71.75), 15.0+hoodTweakOffset);
-        scoreHoodMap.put(Units.inchesToMeters(87.8),  15.0+hoodTweakOffset);
-        scoreHoodMap.put(Units.inchesToMeters(102.2), 20.0+hoodTweakOffset);
-        scoreHoodMap.put(Units.inchesToMeters(216),   20.0+hoodTweakOffset);
+        scoreHoodMap.put(Units.inchesToMeters(56), 8.0 + hoodTweakOffset);
+        scoreHoodMap.put(Units.inchesToMeters(71.75), 15.0 + hoodTweakOffset);
+        scoreHoodMap.put(Units.inchesToMeters(87.8), 15.0 + hoodTweakOffset);
+        scoreHoodMap.put(Units.inchesToMeters(102.2), 20.0 + hoodTweakOffset);
+        scoreHoodMap.put(Units.inchesToMeters(216), 20.0 + hoodTweakOffset);
 
         double rpmMult = 1.01;
-        scoreSpeedMap.put(Units.inchesToMeters(56),    2600.0*rpmMult);
-        scoreSpeedMap.put(Units.inchesToMeters(71.75), 2650.0*rpmMult);
-        scoreSpeedMap.put(Units.inchesToMeters(87.8),  2675.0*rpmMult);
-        scoreSpeedMap.put(Units.inchesToMeters(102.2), 2800.0*rpmMult);
-        scoreSpeedMap.put(Units.inchesToMeters(117),   2900.0*rpmMult);
-        scoreSpeedMap.put(Units.inchesToMeters(132),   3050.0*rpmMult);
-        scoreSpeedMap.put(Units.inchesToMeters(147),   3200.0*rpmMult);
-        scoreSpeedMap.put(Units.inchesToMeters(163),   3350.0*rpmMult);
-        scoreSpeedMap.put(Units.inchesToMeters(177),   3450.0*rpmMult);
-        scoreSpeedMap.put(Units.inchesToMeters(192),   3650.0*rpmMult);
-        scoreSpeedMap.put(Units.inchesToMeters(207),   3850.0*rpmMult);
-        scoreSpeedMap.put(Units.inchesToMeters(216),   4000.0*rpmMult);
+        scoreSpeedMap.put(Units.inchesToMeters(56), 2600.0 * rpmMult);
+        scoreSpeedMap.put(Units.inchesToMeters(71.75), 2650.0 * rpmMult);
+        scoreSpeedMap.put(Units.inchesToMeters(87.8), 2675.0 * rpmMult);
+        scoreSpeedMap.put(Units.inchesToMeters(102.2), 2800.0 * rpmMult);
+        scoreSpeedMap.put(Units.inchesToMeters(117), 2900.0 * rpmMult);
+        scoreSpeedMap.put(Units.inchesToMeters(132), 3050.0 * rpmMult);
+        scoreSpeedMap.put(Units.inchesToMeters(147), 3200.0 * rpmMult);
+        scoreSpeedMap.put(Units.inchesToMeters(163), 3350.0 * rpmMult);
+        scoreSpeedMap.put(Units.inchesToMeters(177), 3450.0 * rpmMult);
+        scoreSpeedMap.put(Units.inchesToMeters(192), 3650.0 * rpmMult);
+        scoreSpeedMap.put(Units.inchesToMeters(207), 3850.0 * rpmMult);
+        scoreSpeedMap.put(Units.inchesToMeters(216), 4000.0 * rpmMult);
 
         // TODO - determine real TOFs
         scoreTOFMap.put(0., 0.);
@@ -238,10 +238,11 @@ public class LaunchCalculator {
                 spindex.idle().until(() -> {
                     LaunchParams params = getCachedParams();
                     boolean hoodCheck = MathUtil.isNear(params.hoodAngle.in(Degrees),
-                                    hood.getHoodAngle(),
-                                    HoodConstants.DYNAMIC_TOLERANCE_DEGREES);
+                            hood.getHoodAngle(),
+                            HoodConstants.DYNAMIC_TOLERANCE_DEGREES);
                     SmartDashboard.putBoolean("launchCalc/hoodCheck", hoodCheck);
-                    boolean turretCheck = turret.isDynamicAimed() && !isInDeadZone(getCachedParams().turretAngle);
+                    boolean turretCheck = turret.isDynamicAimedAt(getCachedParams().turretAngle)
+                            && !isInDeadZone(getCachedParams().turretAngle);
                     SmartDashboard.putBoolean("launchCalc/turretCheck", turretCheck);
                     boolean launcherCheck = params.flywheelVelocity.in(RPM) < launcher.getRPM();
                     SmartDashboard.putBoolean("launchCalc/launcherCheck", launcherCheck);
@@ -250,8 +251,9 @@ public class LaunchCalculator {
                             && turretCheck
                             && launcherCheck
                             || override.getAsBoolean());
-                }).withTimeout(3).andThen(spindex.getInformedRun(() -> !TurretConstants.isInDeadZone(getCachedParams().turretAngle)
-                        || override.getAsBoolean())));
+                }).withTimeout(3).andThen(
+                        spindex.getInformedRun(() -> !TurretConstants.isInDeadZone(getCachedParams().turretAngle)
+                                || override.getAsBoolean())));
     }
 
     public static Command dynamicLaunchTeleop(CommandXboxController controller, LaunchGoal goal,

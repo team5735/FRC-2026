@@ -259,9 +259,9 @@ public class TurretSubsystem extends SubsystemBase {
                     double newVel = pid.getController().getSetpoint().velocity;
                     double ffOut = (!MathUtil.isNear(0, newVel, 0.075))
                             ? ff.calculate(newVel, (newVel - prevVel) / 0.05)
-                            : (MathUtil.isNear(0, pidOut, 0.75*KS)) 
-                                ? 0 
-                                : Math.copySign(0.5 * KS, pidOut);
+                            : (MathUtil.isNear(0, pidOut, 0.75 * KS))
+                                    ? 0
+                                    : Math.copySign(0.5 * KS, pidOut);
                     SmartDashboard.putNumber("turret/ffOut", ffOut);
                     double voltsToSet = (!isAtGoalPos()) ? pidOut + ffOut : 0;
                     kraken.setVoltage(voltsToSet);
@@ -405,8 +405,13 @@ public class TurretSubsystem extends SubsystemBase {
                 TOLERANCE.in(Rotations));
     }
 
-    public boolean isDynamicAimed(){
+    public boolean isDynamicAimed() {
         return MathUtil.isNear(pid.getController().getGoal().position, getAngleTurretRel().in(Rotations),
+                DYNAMIC_TOLERANCE.in(Rotations));
+    }
+
+    public boolean isDynamicAimedAt(Angle robotRelTarget) {
+        return MathUtil.isNear(formatInputPosRobotRel(robotRelTarget).in(Rotations), getAngleTurretRel().in(Rotations),
                 DYNAMIC_TOLERANCE.in(Rotations));
     }
 
