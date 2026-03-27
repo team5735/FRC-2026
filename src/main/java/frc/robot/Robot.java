@@ -237,7 +237,7 @@ public class Robot extends TimedRobot {
     }
 
     private void setupDriverBindings() {
-        driveController.y().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+        driveController.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
         Command unclogSpindex = spindex.getBackwards().withTimeout(0.5);
 
