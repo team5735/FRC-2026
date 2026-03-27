@@ -74,7 +74,11 @@ public class CompbotTunerConstants {
     // cannot be null.
     // Some configs will be overwritten; check the `with*InitialConfigs()` API
     // documentation.
-    private static final TalonFXConfiguration DRIVE_INITIAL_CONFIGS = new TalonFXConfiguration();
+    private static final TalonFXConfiguration DRIVE_INITIAL_CONFIGS = new TalonFXConfiguration()
+            .withCurrentLimits(
+                    new CurrentLimitsConfigs()
+                            .withSupplyCurrentLimit(Amps.of(35))
+                            .withSupplyCurrentLimitEnable(true));
     private static final TalonFXConfiguration STEER_INITIAL_CONFIGS = new TalonFXConfiguration()
             .withCurrentLimits(
                     new CurrentLimitsConfigs()

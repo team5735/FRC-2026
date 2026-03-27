@@ -9,7 +9,6 @@ import static edu.wpi.first.units.Units.Meters;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Supplier;
 
 import com.ctre.phoenix6.SignalLogger;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -29,8 +28,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.drivetrain.PIDToPose;
@@ -163,6 +160,7 @@ public class Robot extends TimedRobot {
 
     private void setupMiscTriggers() {
         new Trigger(() -> hood.isInExclusionZone()).whileTrue(hood.getExclusionZoneCommand());
+        turret.zeroTrigger.onTrue(turret.zeroCommand());
 
         MatchState.hubActiveTrigger
                 .onFalse(Commands.runOnce(() -> driveController.setRumble(RumbleType.kBothRumble, 0)));
@@ -228,30 +226,21 @@ public class Robot extends TimedRobot {
     }
 
     private void setupDriverBindings() {
-        driveController.y().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+        driveController.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
         Command unclogSpindex = spindex.getBackwards().withTimeout(0.5);
 
-        // @formatter:off
-        Supplier<Double> dist = () -> turret.getMechanismPose().getTranslation()
-                .getDistance(FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER));
+        driveController.a().whileTrue(new PIDToPose(drivetrain, () -> {
+            Translation2d drivetrainPos = drivetrain.getEstimatedPosition().getTranslation();
+            Rotation2d drivetrainToHub = FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER).minus(drivetrainPos).getAngle();
+            return new Pose2d(drivetrainPos, drivetrainToHub.plus(Rotation2d.kCCW_90deg));
+        }, "face hub (backup)"));
 
-        // ferry
-        driveController.x().whileTrue(makeShootCommand(
-            () -> FieldConstants.closestFerryTarget(drivetrain.getEstimatedPosition().getTranslation()),
-            () -> HoodConstants.FERRY_ANGLE,
-            () -> Math.max(3000.0, distanceToRpm.get(dist.get()))
-        ));
-        driveController.x().onFalse(unclogSpindex);
-
-        // shoot
-        driveController.b().whileTrue(makeShootCommand(
-            () -> FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER),
-            () -> distanceToAngle.get(dist.get()),
-            () -> distanceToRpm.get(dist.get())
-        ));
+        driveController.b().whileTrue(LaunchCalculator.dynamicLaunchTeleop(driveController, LaunchGoal.SCORE, () -> false, hood, turret, drivetrain, launcher, spindex));
         driveController.b().onFalse(unclogSpindex);
-        // @formatter:on
+
+        driveController.x().whileTrue(LaunchCalculator.dynamicLaunchTeleop(driveController, LaunchGoal.FERRY, () -> false, hood, turret, drivetrain, launcher, spindex));
+        driveController.x().onFalse(unclogSpindex);
 
         driveController.a().whileTrue(new PIDToPose(drivetrain, () -> {
             Translation2d drivetrainPos = drivetrain.getEstimatedPosition().getTranslation();
