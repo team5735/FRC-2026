@@ -231,10 +231,13 @@ public class LaunchCalculator {
             LauncherSubsystem launcher, SpinDexSubsystem spindex) {
         return Commands.parallel(
                 reCalcParams(goal, turret, drivetrain),
-                hood.getDynamicTracking(() -> getCachedParams().hoodAngle),
-                turret.trackRobotRelWithVelocity(() -> getCachedParams().turretAngle.plus(Degrees.of(2)),
+                hood.getDynamicTracking(
+                        () -> getCachedParams().hoodAngle),
+                turret.trackRobotRelWithVelocity(
+                        () -> getCachedParams().turretAngle.plus(Degrees.of(2)),
                         () -> getCachedParams().turretVelocity),
-                launcher.getDynamicLaunch(() -> getCachedParams().flywheelVelocity),
+                launcher.getDynamicLaunch(
+                        () -> getCachedParams().flywheelVelocity),
                 spindex.idle().until(() -> {
                     LaunchParams params = getCachedParams();
                     boolean hoodCheck = MathUtil.isNear(params.hoodAngle.in(Degrees),
@@ -273,7 +276,8 @@ public class LaunchCalculator {
     public static Command dryAimTurret(LaunchGoal goal, TurretSubsystem turret, DrivetrainSubsystem drivetrain) {
         return Commands.parallel(
                 reCalcParams(goal, turret, drivetrain),
-                turret.trackRobotRelWithVelocity(() -> getCachedParams().turretAngle,
+                turret.trackRobotRelWithVelocity(
+                        () -> getCachedParams().turretAngle,
                         () -> getCachedParams().turretVelocity));
     }
 }
