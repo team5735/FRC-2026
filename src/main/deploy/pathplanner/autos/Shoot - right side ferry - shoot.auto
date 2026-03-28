@@ -7,6 +7,12 @@
         {
           "type": "named",
           "data": {
+            "name": "run intake"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "drop intake"
           }
         },
@@ -61,12 +67,6 @@
                 "type": "path",
                 "data": {
                   "pathName": "Start bottom sweep - half length ferry"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "run intake"
                 }
               },
               {

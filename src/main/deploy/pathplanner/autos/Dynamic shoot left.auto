@@ -7,6 +7,12 @@
         {
           "type": "named",
           "data": {
+            "name": "run intake"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "drop intake"
           }
         },
