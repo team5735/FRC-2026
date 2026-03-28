@@ -318,9 +318,9 @@ public class Robot extends TimedRobot {
             limelight.setIMUMode(3);
         }
 
-        // if (!turret.getZeroStatus()) {
-        // CommandScheduler.getInstance().schedule(turret.zeroSequence());
-        // }
+        if (!turret.getZeroStatus()) {
+        CommandScheduler.getInstance().schedule(turret.zeroSequence());
+        }
 
         Command auto = autoChooser.getSelected();
         if (auto == null) {
