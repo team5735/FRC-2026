@@ -283,7 +283,7 @@ public class LimelightSubsystem extends SubsystemBase {
                 Centimeters.of(1).in(Meters),
                 stddevs.getData()[1]);
         stddevs.getData()[2] = Math.max(
-                Degrees.of(1).in(Radians),
+                Degrees.of(0.25).in(Radians),
                 stddevs.getData()[2]);
 
         double distPenalty = penalize(
