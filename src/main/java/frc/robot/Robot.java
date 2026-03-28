@@ -273,7 +273,6 @@ public class Robot extends TimedRobot {
     double angle = 20;
 
     private void setupSubsystemBindings() {
-        subsystemController.x().onTrue(turret.zeroSequence());
         subsystemController.b().whileTrue(hood.runOnce(() -> {
             hood.exzSaveServoPosition();
             hood.setHoodPosition(0);
