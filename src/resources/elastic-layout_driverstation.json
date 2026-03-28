@@ -105,7 +105,7 @@
             "x": 0.0,
             "y": 0.0,
             "width": 512.0,
-            "height": 512.0,
+            "height": 384.0,
             "type": "Boolean Box",
             "properties": {
               "topic": "/SmartDashboard/turret/canTurnTo",
@@ -194,8 +194,32 @@
               "true_icon": "None",
               "false_icon": "None"
             }
+          },
+          {
+            "title": "aimed at hub",
+            "x": 0.0,
+            "y": 384.0,
+            "width": 512.0,
+            "height": 128.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/turret/aimed",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
           }
         ]
+      }
+    },
+    {
+      "name": "Tab 2",
+      "grid_layout": {
+        "layouts": [],
+        "containers": []
       }
     }
   ]
