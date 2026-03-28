@@ -3,29 +3,45 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.644489048549106,
-        "y": 7.036891799200149
+        "x": 7.748384021577381,
+        "y": 3.9651589239211313
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.85849841889881,
-        "y": 5.222247314453125
+        "x": 6.836934751157408,
+        "y": 3.976606626157408
+      },
+      "isLocked": false,
+      "linkedName": "half sweep"
+    },
+    {
+      "anchor": {
+        "x": 5.330385706018519,
+        "y": 7.463872034143519
+      },
+      "prevControl": {
+        "x": 6.835884982638889,
+        "y": 6.898243634259258
+      },
+      "nextControl": {
+        "x": 3.251261844530101,
+        "y": 8.245015885354698
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 7.748384021577381,
-        "y": 3.9651589239211313
+        "x": 2.7092229352678574,
+        "y": 5.714142601376489
       },
       "prevControl": {
-        "x": 7.7826928129650295,
-        "y": 5.3378164527529774
+        "x": 2.605580295138889,
+        "y": 6.11170457175926
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "half sweep"
+      "linkedName": "left side arc"
     }
   ],
   "rotationTargets": [],
@@ -42,10 +58,10 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -90.0
+    "rotation": -136.77489750172754
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Comp half Sweep",
   "idealStartingState": {
     "velocity": 0,
     "rotation": -90.0

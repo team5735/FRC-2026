@@ -96,7 +96,9 @@ public class IntakeSubsystem extends SubsystemBase {
         return runEnd(() -> runSlapdown(IntakeConstants.SLAPDOWN_VEL), () -> intakeSlapdown.setVoltage(0))
                 .until(() -> getSlapdownPosition().lte(IntakeConstants.LOWER_RELEASE_POS));
     }
-
+    public Command getStopRollCommand() {
+        return Commands.runOnce(() -> stopRoll());
+    }
     public Command zeroSlapdownPosition() {
         return Commands.runOnce(() -> intakeSlapdown.setPosition(IntakeConstants.LIMIT_POS)).ignoringDisable(true);
     }
@@ -144,3 +146,5 @@ public class IntakeSubsystem extends SubsystemBase {
         }
     }
 }
+
+    

@@ -131,8 +131,12 @@ public class Robot extends TimedRobot {
                 climber.getFullyDetractCommand().alongWith(turret.holdRobotRel(TurretConstants.CLIMB_POS_BOT_REL)));
         commandsForAuto.put("drop intake", intake.getSlapdownCommand());
         commandsForAuto.put("run intake", intake.getIntakeForwardRollCommand());
+<<<<<<< HEAD
         commandsForAuto.put("start intake", intake.runOnce(() -> intake.forwardRoll()));
         commandsForAuto.put("stop intake", intake.runOnce(() -> intake.stopRoll()));
+=======
+        commandsForAuto.put("Stop Intake", intake.getStopRollCommand());
+>>>>>>> 064035b (delelted all autos - fixed them)
         commandsForAuto.put("Put up Intake", intake.getLiftCommand());
         commandsForAuto.put("run spindex", spindex.getRun());
         commandsForAuto.put("dynamic launch",
@@ -144,6 +148,7 @@ public class Robot extends TimedRobot {
                 turret.trackFieldPos(FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER)));
         commandsForAuto.put("Hood atZero", hood.runOnce(() -> hood.setHoodAngle(0)));
         commandsForAuto.put("hood 21", hood.runOnce(() -> hood.setHoodAngle(21)));
+
 
         NamedCommands.registerCommands(commandsForAuto);
 

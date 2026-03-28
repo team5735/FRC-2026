@@ -7,7 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "RIght Trench To Arc"
+            "pathName": "Right trench to arc"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "drop intake"
           }
         },
         {
@@ -36,77 +42,39 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "Hood atZero"
-          }
-        },
-        {
           "type": "path",
           "data": {
-            "pathName": "Right side arc to right trench"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Right trench too sweep"
+            "pathName": "Right Trench to half sweeep"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "drop intake"
-          }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "run intake"
-                }
-              },
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Half Sweep Bottom top and back"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "sequential",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Half To bottom"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Put up Intake"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Hood at20"
+            "name": "run intake"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "RIght Trench To Arc"
+            "pathName": "Half Sweep Bottom top and back"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Half To bottom"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Stop intake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Right trench to arc"
           }
         },
         {
@@ -132,6 +100,6 @@
     }
   },
   "resetOdom": true,
-  "folder": "Comp",
+  "folder": null,
   "choreoAuto": false
 }

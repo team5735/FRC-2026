@@ -5,6 +5,7 @@
     "data": {
       "commands": [
         {
+<<<<<<< HEAD:src/main/deploy/pathplanner/autos/Dynamic shoot right.auto
           "type": "named",
           "data": {
             "name": "drop intake"
@@ -18,6 +19,9 @@
         },
         {
           "type": "deadline",
+=======
+          "type": "parallel",
+>>>>>>> 064035b (delelted all autos - fixed them):src/main/deploy/pathplanner/autos/Left Trench to ARC.auto
           "data": {
             "commands": [
               {
@@ -29,13 +33,34 @@
               {
                 "type": "named",
                 "data": {
+<<<<<<< HEAD:src/main/deploy/pathplanner/autos/Dynamic shoot right.auto
                   "name": "dynamic launch"
+=======
+                  "name": "drop intake"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "run spindex"
+>>>>>>> 064035b (delelted all autos - fixed them):src/main/deploy/pathplanner/autos/Left Trench to ARC.auto
                 }
               },
               {
                 "type": "named",
                 "data": {
+<<<<<<< HEAD:src/main/deploy/pathplanner/autos/Dynamic shoot right.auto
                   "name": "run intake"
+=======
+                  "name": "launch at 3000 rpm"
+>>>>>>> 064035b (delelted all autos - fixed them):src/main/deploy/pathplanner/autos/Left Trench to ARC.auto
                 }
               }
             ]
@@ -45,6 +70,6 @@
     }
   },
   "resetOdom": true,
-  "folder": "Comp",
+  "folder": null,
   "choreoAuto": false
 }
