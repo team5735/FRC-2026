@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.640709170386905,
-        "y": 0.42100469680059516
+        "x": 3.641,
+        "y": 0.521
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.640709170386905,
-        "y": 0.42100469680059494
+        "x": 4.641,
+        "y": 0.5209999999999998
       },
       "isLocked": false,
       "linkedName": "Right Trench"
@@ -42,7 +42,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 90.0
   },
   "reversed": false,
   "folder": null,
