@@ -143,6 +143,9 @@ public class HoodSubsystem extends SubsystemBase {
     public Command getDynamicTracking(Supplier<Angle> angleSupplier) {
         return run(() -> setHoodAngle(angleSupplier.get().in(Degrees)));
     }
+    public Command setHoodPosition180(double hoodPosition) {
+        return runOnce(() -> setHoodPosition(hoodPosition));
+    }
 
     @Override
     public void periodic() {

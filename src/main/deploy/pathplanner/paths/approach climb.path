@@ -49,10 +49,10 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 4.0,
+    "maxVelocity": 3.0,
     "maxAcceleration": 3.0,
-    "maxAngularVelocity": 180.0,
-    "maxAngularAcceleration": 180.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },
@@ -61,7 +61,7 @@
     "rotation": 90.0
   },
   "reversed": false,
-  "folder": "Comp climb auto",
+  "folder": null,
   "idealStartingState": {
     "velocity": 0,
     "rotation": 90.0

@@ -131,12 +131,8 @@ public class Robot extends TimedRobot {
                 climber.getFullyDetractCommand().alongWith(turret.holdRobotRel(TurretConstants.CLIMB_POS_BOT_REL)));
         commandsForAuto.put("drop intake", intake.getSlapdownCommand());
         commandsForAuto.put("run intake", intake.getIntakeForwardRollCommand());
-<<<<<<< HEAD
         commandsForAuto.put("start intake", intake.runOnce(() -> intake.forwardRoll()));
         commandsForAuto.put("stop intake", intake.runOnce(() -> intake.stopRoll()));
-=======
-        commandsForAuto.put("Stop Intake", intake.getStopRollCommand());
->>>>>>> 064035b (delelted all autos - fixed them)
         commandsForAuto.put("Put up Intake", intake.getLiftCommand());
         commandsForAuto.put("run spindex", spindex.getRun());
         commandsForAuto.put("dynamic launch",
@@ -147,24 +143,8 @@ public class Robot extends TimedRobot {
         commandsForAuto.put("Turret track Blue Hub",
                 turret.trackFieldPos(FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER)));
         commandsForAuto.put("Hood atZero", hood.runOnce(() -> hood.setHoodAngle(0)));
-<<<<<<< HEAD
         commandsForAuto.put("hood 21", hood.runOnce(() -> hood.setHoodAngle(21)));
-
-=======
-        commandsForAuto.put("Hood at20", hood.runOnce(() -> hood.setHoodAngle(20)));
-        commandsForAuto.put("Ferry" , new SequentialCommandGroup(
-                new PIDToPose(drivetrain, () ->
-                        FieldConstants.closestFerryShootPos(drivetrain.getEstimatedPosition().getTranslation()),
-                        "drive to ferry shoot pos"),
-                new ParallelCommandGroup(
-                        turret.trackFieldPosDynamic(() -> FieldConstants.closestFerryTarget(
-                                drivetrain.getEstimatedPosition().getTranslation())),
-                        launcher.getLaunchFuel(RPM.of(3000)).until(launcher::atSetpoint).withTimeout(Seconds.of(2)),
-                        spindex.getRun()
-                )
-        ));
->>>>>>> 8c9f8a7 (Started ferry auto)
-
+        commandsForAuto.put("Ferry", LaunchCalculator.dynamicLaunchAuto(LaunchGoal.FERRY, hood, turret, drivetrain, launcher, spindex));
         NamedCommands.registerCommands(commandsForAuto);
 
         autoChooser = AutoBuilder.buildAutoChooser();

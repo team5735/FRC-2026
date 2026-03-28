@@ -13,7 +13,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "left"
+            "pathName": "Climber to slide on "
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "extend climber"
           }
         },
         {
@@ -23,7 +29,7 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 7.0
+                  "waitTime": 5.0
                 }
               },
               {
@@ -33,6 +39,18 @@
                 }
               }
             ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Climber slide on to climb"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "detract climber"
           }
         }
       ]
