@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
@@ -133,7 +134,8 @@ public class TurretSubsystem extends SubsystemBase {
         Angle isAngle = this.getMechanismPose().getRotation().getMeasure();
         table.set("is (deg)", isAngle.in(Degrees));
 
-        table.set("aimed", isAngle.isNear(shouldBeAngle, Degrees.of(2)));
+        double delta = shouldBeAngle.in(Radians) - isAngle.in(Radians);
+        table.set("aimed", Math.abs(MathUtil.angleModulus(delta)) < Degrees.of(2).in(Radians));
     }
 
     @Override
