@@ -5,15 +5,15 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "left"
+            "name": "drop intake"
           }
         },
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "wait for shooter"
+            "pathName": "left"
           }
         },
         {
@@ -23,25 +23,13 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 4.0
+                  "waitTime": 5.0
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "hood 21"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "run spindex"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "launch at 3000 rpm"
+                  "name": "dynamic launch"
                 }
               }
             ]

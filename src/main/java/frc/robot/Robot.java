@@ -30,7 +30,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.LaunchCalculator;
 import frc.robot.commands.LaunchCalculator.LaunchGoal;
@@ -38,7 +37,6 @@ import frc.robot.commands.drivetrain.PIDToPose;
 import frc.robot.constants.Constants;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.HoodConstants;
-import frc.robot.constants.LauncherConstants;
 import frc.robot.constants.TurretConstants;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.DrivetrainSubsystem;
@@ -144,16 +142,8 @@ public class Robot extends TimedRobot {
         commandsForAuto.put("wait for shooter", Commands.waitUntil(() -> launcher.atSetpoint()));
         commandsForAuto.put("Turret track Blue Hub",
                 turret.trackFieldPos(FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER)));
-        commandsForAuto.put("hood at zero", hood.runOnce(() -> hood.setHoodAngle(0)));
+        commandsForAuto.put("Hood atZero", hood.runOnce(() -> hood.setHoodAngle(0)));
         commandsForAuto.put("hood 21", hood.runOnce(() -> hood.setHoodAngle(21)));
-
-        commandsForAuto.put("static launch", new ParallelDeadlineGroup(
-                Commands.waitSeconds(6),
-                launcher.getLaunchFuel(LauncherConstants.DEFAULT_SETPOINT),
-                hood.runOnce(() -> hood.setHoodAngle(21)),
-                Commands.idle()
-                        .until(() -> launcher.atSetpoint()).withTimeout(3)
-                        .andThen(() -> spindex.getRun())));
 
         NamedCommands.registerCommands(commandsForAuto);
 
@@ -193,18 +183,17 @@ public class Robot extends TimedRobot {
     // any trigger that isn't a button goes here
     private void setupMiscTriggers() {
         turret.zeroTrigger.onTrue(turret.zeroCommand());
-        // hood.exclusionZoneTri/aagger.whileTrue(Commands.run(() ->
-        // hood.setHoodPosition(0)));
+        // hood.exclusionZoneTri/aagger.whileTrue(Commands.run(() -> hood.setHoodPosition(0)));
         // hood.exclusionZoneTrigger.onTrue(Commands.runOnce(() -> {
-        // SmartDashboard.putBoolean("in_exclusion_zone", true);
-        // // todo: add telemetry / debuglogging
-        // hood.exzSaveServoPosition();
+        //     SmartDashboard.putBoolean("in_exclusion_zone", true);
+        //     // todo: add telemetry / debuglogging
+        //     hood.exzSaveServoPosition();
         // }).withName("enter exclusion zone"));
         // hood.exclusionZoneTrigger.onFalse(Commands.runOnce(() -> {
-        // SmartDashboard.putBoolean("in_exclusion_zone", false);
-        // // todo: add telemetry / debug / logging
-        // double pos = hood.exzGetSavedServoPosition();
-        // hood.setServoPosition(pos);
+        //     SmartDashboard.putBoolean("in_exclusion_zone", false);
+        //     // todo: add telemetry / debug / logging
+        //     double pos = hood.exzGetSavedServoPosition();
+        //     hood.setServoPosition(pos);
         // }).withName("leave exclusion zone"));
 
         // turret.limitTrigger.onTrue(turret.zeroCommand());
@@ -257,17 +246,14 @@ public class Robot extends TimedRobot {
 
         driveController.a().whileTrue(new PIDToPose(drivetrain, () -> {
             Translation2d drivetrainPos = drivetrain.getEstimatedPosition().getTranslation();
-            Rotation2d drivetrainToHub = FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER).minus(drivetrainPos)
-                    .getAngle();
+            Rotation2d drivetrainToHub = FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER).minus(drivetrainPos).getAngle();
             return new Pose2d(drivetrainPos, drivetrainToHub.plus(Rotation2d.kCCW_90deg));
         }, "face hub (backup)"));
 
-        driveController.b().whileTrue(LaunchCalculator.dynamicLaunchTeleop(driveController, LaunchGoal.SCORE,
-                () -> false, hood, turret, drivetrain, launcher, spindex));
+        driveController.b().whileTrue(LaunchCalculator.dynamicLaunchTeleop(driveController, LaunchGoal.SCORE, () -> false, hood, turret, drivetrain, launcher, spindex));
         driveController.b().onFalse(unclogSpindex);
 
-        driveController.x().whileTrue(LaunchCalculator.dynamicLaunchTeleop(driveController, LaunchGoal.FERRY,
-                () -> false, hood, turret, drivetrain, launcher, spindex));
+        driveController.x().whileTrue(LaunchCalculator.dynamicLaunchTeleop(driveController, LaunchGoal.FERRY, () -> false, hood, turret, drivetrain, launcher, spindex));
         driveController.x().onFalse(unclogSpindex);
 
         driveController.rightBumper().whileTrue(intake.getIntakeForwardRollCommand());
