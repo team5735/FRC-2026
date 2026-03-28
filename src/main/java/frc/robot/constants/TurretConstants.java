@@ -49,7 +49,7 @@ public class TurretConstants {
     public static final Angle MAX_DECEL_PADDING = Rotations.of(MAX_VEL.in(RotationsPerSecond)
             * MAX_VEL.in(RotationsPerSecond) / (MAX_ACC.in(RotationsPerSecondPerSecond) * 2));
 
-    public static final Angle TOLERANCE = Degrees.of(2.5); // Maximum tolerance of +-2º (based on field geometry)
+    public static final Angle TOLERANCE = Degrees.of(2); // Maximum tolerance of +-2º (based on field geometry)
     public static final Angle DYNAMIC_TOLERANCE = Degrees.of(5);
 
     // Ideal robot-relative starting angle
