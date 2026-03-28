@@ -104,7 +104,7 @@ public class TurretSubsystem extends SubsystemBase {
                 .withForwardSoftLimitThreshold(FORWARD_LIMIT_TUR_REL)
                 .withReverseSoftLimitEnable(true)
                 .withReverseSoftLimitThreshold(REVERSE_LIMIT_TUR_REL));
-        kraken.getConfigurator().apply(new CurrentLimitsConfigs().withStatorCurrentLimit(Amps.of(35)));
+        kraken.getConfigurator().apply(new CurrentLimitsConfigs().withStatorCurrentLimit(Amps.of(45)));
         pid.setup(robotRelToTurretRel(START_POS_BOT_REL).in(Rotations));
         pid.reset(robotRelToTurretRel(START_POS_BOT_REL).in(Rotations));
         pid.setTolerance(Units.degreesToRotations(1));
