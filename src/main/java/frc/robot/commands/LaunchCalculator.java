@@ -3,6 +3,8 @@
 package frc.robot.commands;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Meter;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
@@ -19,7 +21,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -138,7 +139,10 @@ public class LaunchCalculator {
                 launchTarget = FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER);
                 break;
             case FERRY:
-                launchTarget = FieldConstants.closestFerryTarget(turretPose.getTranslation());
+                launchTarget = (FieldConstants.isRed())
+                        ? new Translation2d(FieldConstants.FIELD_LENGTH_X.in(Meters),
+                                drivetrain.getEstimatedPosition().getY())
+                        : new Translation2d(0, drivetrain.getEstimatedPosition().getY());
                 hoodMap = ferryHoodMap;
                 speedMap = ferrySpeedMap;
                 TOFMap = ferryTOFMap;
@@ -222,7 +226,11 @@ public class LaunchCalculator {
         SmartDashboard.putNumber("launchCalc/flywheel_vel_rpm", flywheelVel.in(RPM));
 
         cachedParams = new LaunchParams(
-                ((launchDist >= MIN_SCORE_DIST_M) && (launchDist <= MAX_SCORE_DIST_M)) || goal.equals(LaunchGoal.FERRY), // TODO - set exclusion zones
+                ((launchDist >= MIN_SCORE_DIST_M) && (launchDist <= MAX_SCORE_DIST_M)) || goal.equals(LaunchGoal.FERRY), // TODO
+                                                                                                                         // -
+                                                                                                                         // set
+                                                                                                                         // exclusion
+                                                                                                                         // zones
                 turretAngle,
                 turretVel,
                 hoodAngle,
@@ -267,8 +275,7 @@ public class LaunchCalculator {
                             && launcherCheck)
                             || override.getAsBoolean());
                 }).withTimeout(3).andThen(
-                        spindex.getInformedRun(() -> 
-                                !TurretConstants.isInDynamicDeadZone(getCachedParams().turretAngle)
+                        spindex.getInformedRun(() -> !TurretConstants.isInDynamicDeadZone(getCachedParams().turretAngle)
                                 || override.getAsBoolean())));
     }
 
@@ -287,14 +294,15 @@ public class LaunchCalculator {
     }
 
     private static Timer timeOut = new Timer();
+
     public static Command dynamicLaunchAuto(LaunchGoal goal,
             HoodSubsystem hood, TurretSubsystem turret, DrivetrainSubsystem drivetrain,
-            LauncherSubsystem launcher, SpinDexSubsystem spindex){
-                return dynamicLaunchCommand(goal, () -> {
-                    SmartDashboard.putNumber("launchCalc/timeOut", timeOut.get());
-                    return timeOut.get() > 2.;
-                }, hood, turret, drivetrain, launcher, spindex).beforeStarting(timeOut::restart);
-            }
+            LauncherSubsystem launcher, SpinDexSubsystem spindex) {
+        return dynamicLaunchCommand(goal, () -> {
+            SmartDashboard.putNumber("launchCalc/timeOut", timeOut.get());
+            return timeOut.get() > 2.;
+        }, hood, turret, drivetrain, launcher, spindex).beforeStarting(timeOut::restart);
+    }
 
     public static Command dryAimTurret(LaunchGoal goal, TurretSubsystem turret, DrivetrainSubsystem drivetrain) {
         return Commands.parallel(
