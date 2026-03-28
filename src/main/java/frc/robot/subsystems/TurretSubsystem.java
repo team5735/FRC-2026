@@ -257,8 +257,6 @@ public class TurretSubsystem extends SubsystemBase {
                     double pidOut = pid.calculate(getAngleTurretRel().in(Rotations));
                     SmartDashboard.putNumber("turret/pidOut", pidOut);
                     double newVel = pid.getController().getSetpoint().velocity;
-                    double voltsToSet = pid.calculate(getAngleTurretRel().in(Rotations))
-                            + ff.calculateWithVelocities(prevVel, newVel);
                     double ffOut = (!MathUtil.isNear(0, newVel, 0.075))
                             ? ff.calculateWithVelocities(prevVel, newVel)
                             : (MathUtil.isNear(0, pidOut, 0.75 * KS))
@@ -413,7 +411,7 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     public boolean isDynamicAimedAt(Angle robotRelTarget) {
-        return MathUtil.isNear(formatInputPosRobotRel(robotRelTarget).in(Rotations), getAngleTurretRel().in(Rotations),
+        return MathUtil.isNear(robotRelToTurretRel(robotRelTarget).in(Rotations), getAngleTurretRel().in(Rotations),
                 DYNAMIC_TOLERANCE.in(Rotations));
     }
 

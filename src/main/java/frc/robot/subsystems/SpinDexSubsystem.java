@@ -6,6 +6,7 @@ import java.util.function.Supplier;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.PartialRobot;
@@ -33,6 +34,11 @@ public class SpinDexSubsystem extends SubsystemBase {
         table.set("feed", -6);
         table.set("wheel: fwd", -4);
         table.set("wheel: bck", 5);
+    }
+
+    @Override
+    public void periodic(){
+        SmartDashboard.putNumber("spindex/wheel_output", wheelVortex.getAppliedOutput());
     }
 
     public void runFeeder() {

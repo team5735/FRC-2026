@@ -126,6 +126,12 @@ public class HoodSubsystem extends SubsystemBase {
                 v);
     }
 
+    public double getNormalizedAngle() {
+        return interp1(HoodConstants.LOWEST_SERVO_POSITION, HoodConstants.HIGHEST_SERVO_POSITION,
+                HoodConstants.LOWEST_ANGLE_DEGREES, HoodConstants.HIGHEST_ANGLE_DEGREES,
+                getNormalizedPosition());
+    }
+
     public void sendTelemetry() {
         SmartDashboard.putNumber("hood/hood_position", this.getHoodPosition());
         SmartDashboard.putNumber("hood/servo_position", this.getServoSetpoint());

@@ -31,6 +31,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.LaunchCalculator;
@@ -132,13 +133,27 @@ public class Robot extends TimedRobot {
                 climber.getFullyDetractCommand().alongWith(turret.holdRobotRel(TurretConstants.CLIMB_POS_BOT_REL)));
         commandsForAuto.put("drop intake", intake.getSlapdownCommand());
         commandsForAuto.put("run intake", intake.getIntakeForwardRollCommand());
+        commandsForAuto.put("start intake", intake.runOnce(() -> intake.forwardRoll()));
+        commandsForAuto.put("stop intake", intake.runOnce(() -> intake.stopRoll()));
         commandsForAuto.put("Put up Intake", intake.getLiftCommand());
         commandsForAuto.put("run spindex", spindex.getRun());
+        commandsForAuto.put("dynamic launch",
+                LaunchCalculator.dynamicLaunchCommand(LaunchGoal.SCORE, () -> false, hood, turret, drivetrain, launcher,
+                        spindex));
         commandsForAuto.put("launch at 3000 rpm", launcher.getLaunchFuel(LauncherConstants.DEFAULT_SETPOINT));
+        commandsForAuto.put("wait for shooter", Commands.waitUntil(() -> launcher.atSetpoint()));
         commandsForAuto.put("Turret track Blue Hub",
                 turret.trackFieldPos(FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER)));
-        commandsForAuto.put("Hood atZero", hood.runOnce(() -> hood.setHoodAngle(0)));
-        commandsForAuto.put("Hood at20", hood.runOnce(() -> hood.setHoodAngle(20)));
+        commandsForAuto.put("hood at zero", hood.runOnce(() -> hood.setHoodAngle(0)));
+        commandsForAuto.put("hood 21", hood.runOnce(() -> hood.setHoodAngle(21)));
+
+        commandsForAuto.put("static launch", new ParallelDeadlineGroup(
+                Commands.waitSeconds(6),
+                launcher.getLaunchFuel(LauncherConstants.DEFAULT_SETPOINT),
+                hood.runOnce(() -> hood.setHoodAngle(21)),
+                Commands.idle()
+                        .until(() -> launcher.atSetpoint()).withTimeout(3)
+                        .andThen(() -> spindex.getRun())));
 
         NamedCommands.registerCommands(commandsForAuto);
 
@@ -237,14 +252,17 @@ public class Robot extends TimedRobot {
 
         driveController.a().whileTrue(new PIDToPose(drivetrain, () -> {
             Translation2d drivetrainPos = drivetrain.getEstimatedPosition().getTranslation();
-            Rotation2d drivetrainToHub = FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER).minus(drivetrainPos).getAngle();
+            Rotation2d drivetrainToHub = FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER).minus(drivetrainPos)
+                    .getAngle();
             return new Pose2d(drivetrainPos, drivetrainToHub.plus(Rotation2d.kCCW_90deg));
         }, "face hub (backup)"));
 
-        driveController.b().whileTrue(LaunchCalculator.dynamicLaunchTeleop(driveController, LaunchGoal.SCORE, () -> false, hood, turret, drivetrain, launcher, spindex));
+        driveController.b().whileTrue(LaunchCalculator.dynamicLaunchTeleop(driveController, LaunchGoal.SCORE,
+                () -> false, hood, turret, drivetrain, launcher, spindex));
         driveController.b().onFalse(unclogSpindex);
 
-        driveController.x().whileTrue(LaunchCalculator.dynamicLaunchTeleop(driveController, LaunchGoal.FERRY, () -> false, hood, turret, drivetrain, launcher, spindex));
+        driveController.x().whileTrue(LaunchCalculator.dynamicLaunchTeleop(driveController, LaunchGoal.FERRY,
+                () -> false, hood, turret, drivetrain, launcher, spindex));
         driveController.x().onFalse(unclogSpindex);
 
         driveController.a().whileTrue(new PIDToPose(drivetrain, () -> {
