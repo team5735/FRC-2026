@@ -19,6 +19,8 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -259,13 +261,14 @@ public class LaunchCalculator {
                     SmartDashboard.putBoolean("launchCalc/turretCheck", turretCheck);
                     boolean launcherCheck = params.flywheelVelocity.in(RPM) < launcher.getRPM();
                     SmartDashboard.putBoolean("launchCalc/launcherCheck", launcherCheck);
-                    return (params.isValid
+                    return ((params.isValid
                             && hoodCheck
                             && turretCheck
-                            && launcherCheck
+                            && launcherCheck)
                             || override.getAsBoolean());
                 }).withTimeout(3).andThen(
-                        spindex.getInformedRun(() -> !TurretConstants.isInDynamicDeadZone(getCachedParams().turretAngle)
+                        spindex.getInformedRun(() -> 
+                                !TurretConstants.isInDynamicDeadZone(getCachedParams().turretAngle)
                                 || override.getAsBoolean())));
     }
 
@@ -282,6 +285,16 @@ public class LaunchCalculator {
                         () -> controller.getHID().getYButton(),
                         () -> controller.getHID().getStartButton()));
     }
+
+    private static Timer timeOut = new Timer();
+    public static Command dynamicLaunchAuto(LaunchGoal goal,
+            HoodSubsystem hood, TurretSubsystem turret, DrivetrainSubsystem drivetrain,
+            LauncherSubsystem launcher, SpinDexSubsystem spindex){
+                return dynamicLaunchCommand(goal, () -> {
+                    SmartDashboard.putNumber("launchCalc/timeOut", timeOut.get());
+                    return timeOut.get() > 2.;
+                }, hood, turret, drivetrain, launcher, spindex).beforeStarting(timeOut::restart);
+            }
 
     public static Command dryAimTurret(LaunchGoal goal, TurretSubsystem turret, DrivetrainSubsystem drivetrain) {
         return Commands.parallel(

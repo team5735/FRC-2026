@@ -136,7 +136,7 @@ public class Robot extends TimedRobot {
         commandsForAuto.put("Put up Intake", intake.getLiftCommand());
         commandsForAuto.put("run spindex", spindex.getRun());
         commandsForAuto.put("dynamic launch",
-                LaunchCalculator.dynamicLaunchCommand(LaunchGoal.SCORE, () -> false, hood, turret, drivetrain, launcher,
+                LaunchCalculator.dynamicLaunchAuto(LaunchGoal.SCORE, hood, turret, drivetrain, launcher,
                         spindex));
         commandsForAuto.put("launch at 3000 rpm", launcher.getLaunchFuel(RPM.of(3000)));
         commandsForAuto.put("wait for shooter", Commands.waitUntil(() -> launcher.atSetpoint()));
