@@ -134,8 +134,8 @@ public class TurretSubsystem extends SubsystemBase {
         Angle isAngle = this.getMechanismPose().getRotation().getMeasure();
         table.set("is (deg)", isAngle.in(Degrees));
 
-        double delta = shouldBeAngle.in(Radians) - isAngle.in(Radians);
-        table.set("aimed", Math.abs(MathUtil.angleModulus(delta)) < Degrees.of(2).in(Radians));
+        double delta = MathUtil.angleModulus(shouldBeAngle.in(Radians)) - MathUtil.angleModulus(isAngle.in(Radians));
+        table.set("aimed", Math.abs(delta) < Degrees.of(2).in(Radians));
     }
 
     @Override
