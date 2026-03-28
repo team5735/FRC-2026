@@ -93,15 +93,13 @@ public class SpinDexSubsystem extends SubsystemBase {
         return runEnd(() -> {
             if (isValid.getAsBoolean()) {
                 runWheel();
-                runFeeder();
             } else {
                 stopWheel();
-                stopFeeder();
             }
         }, () -> {
             stopWheel();
             stopFeeder();
-        });
+        }).beforeStarting(this::runFeeder);
     }
 
     public Command getBackwards() {
