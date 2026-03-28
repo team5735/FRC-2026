@@ -265,8 +265,9 @@ public class Robot extends TimedRobot {
 
         driveController.rightBumper().whileTrue(intake.getIntakeForwardRollCommand());
         driveController.leftBumper().whileTrue(intake.getIntakeReverseRollCommand());
-        driveController.povLeft().whileTrue(intake.getSlapdownCommand());
-        driveController.povRight().whileTrue(intake.getLiftCommand());
+        driveController.povDown().whileTrue(intake.getSlapdownCommand());
+        driveController.povUp().whileTrue(intake.getLiftCommand());
+        driveController.povRight().whileTrue(spindex.getBackwards());
     }
 
     double angle = 20;
