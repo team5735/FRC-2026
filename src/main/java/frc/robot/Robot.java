@@ -284,8 +284,8 @@ public class Robot extends TimedRobot {
                 turret.holdRobotRel(TurretConstants.CLIMB_POS_BOT_REL)));
         subsystemController.x().onTrue(turret.zeroSequence());
 
-        subsystemController.start().onTrue(Commands.runOnce(() -> turretEnabled = false));
-        subsystemController.back().onTrue(Commands.runOnce(() -> turretEnabled = true));
+        subsystemController.back().onTrue(Commands.runOnce(() -> turretEnabled = false));
+        subsystemController.start().onTrue(Commands.runOnce(() -> turretEnabled = true));
     }
 
     private void setupOtherBindings() {
@@ -341,6 +341,8 @@ public class Robot extends TimedRobot {
 
         storedAuto = auto;
         CommandScheduler.getInstance().schedule(storedAuto);
+        turretEnabled = true;
+
     }
 
     @Override
@@ -362,6 +364,7 @@ public class Robot extends TimedRobot {
         }
 
         launcher.stop();
+        turretEnabled = true;
     }
 
     @Override
