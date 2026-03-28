@@ -3,7 +3,6 @@
 package frc.robot.commands;
 
 import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Rotations;
@@ -279,21 +278,24 @@ public class LaunchCalculator {
                                 || override.getAsBoolean())));
     }
 
+    private static Timer timeOut = new Timer();
+
     public static Command dynamicLaunchTeleop(CommandXboxController controller, LaunchGoal goal,
             BooleanSupplier override,
             HoodSubsystem hood, TurretSubsystem turret, DrivetrainSubsystem drivetrain,
             LauncherSubsystem launcher, SpinDexSubsystem spindex) {
-        return dynamicLaunchCommand(goal, override, hood, turret, drivetrain, launcher, spindex)
+        return dynamicLaunchCommand(goal, () -> {
+            SmartDashboard.putNumber("launchCalc/timeOut", timeOut.get());
+            return timeOut.get() > 3.;
+        }, hood, turret, drivetrain, launcher, spindex)
                 .alongWith(drivetrain.joystickDriveCommand(
                         () -> controller.getLeftX() * DRIVETRAIN_VELOCITY_SCALING,
                         () -> controller.getLeftY() * DRIVETRAIN_VELOCITY_SCALING,
                         () -> controller.getLeftTriggerAxis() * DRIVETRAIN_VELOCITY_SCALING,
                         () -> controller.getRightTriggerAxis() * DRIVETRAIN_VELOCITY_SCALING,
                         () -> controller.getHID().getYButton(),
-                        () -> controller.getHID().getStartButton()));
+                        () -> controller.getHID().getStartButton())).beforeStarting(timeOut::restart);
     }
-
-    private static Timer timeOut = new Timer();
 
     public static Command dynamicLaunchAuto(LaunchGoal goal,
             HoodSubsystem hood, TurretSubsystem turret, DrivetrainSubsystem drivetrain,
