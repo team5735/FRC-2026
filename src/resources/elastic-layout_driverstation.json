@@ -30,9 +30,9 @@
           },
           {
             "title": "Turret Zeroed?",
-            "x": 896.0,
+            "x": 768.0,
             "y": 384.0,
-            "width": 384.0,
+            "width": 256.0,
             "height": 128.0,
             "type": "Boolean Box",
             "properties": {
@@ -136,7 +136,7 @@
             "x": 1280.0,
             "y": 0.0,
             "width": 256.0,
-            "height": 512.0,
+            "height": 256.0,
             "type": "Boolean Box",
             "properties": {
               "topic": "/drivetrain/shootAccuracy",
@@ -152,13 +152,47 @@
             "title": "Choose an Auto",
             "x": 512.0,
             "y": 384.0,
-            "width": 384.0,
+            "width": 256.0,
             "height": 128.0,
             "type": "ComboBox Chooser",
             "properties": {
               "topic": "/SmartDashboard/Choose an Auto",
               "period": 0.06,
               "sort_options": false
+            }
+          },
+          {
+            "title": "rotational confidence",
+            "x": 1280.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/drivetrain/rotational confidence",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "turret enabled",
+            "x": 1024.0,
+            "y": 384.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/turret enabled",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
             }
           }
         ]
