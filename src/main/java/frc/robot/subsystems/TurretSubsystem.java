@@ -221,7 +221,7 @@ public class TurretSubsystem extends SubsystemBase {
                     double newVel = pid.getController().getSetpoint().velocity;
                     double ffOut = (!MathUtil.isNear(0, newVel, 0.075))
                             ? ff.calculate(newVel, (newVel - prevVel) / 0.05)
-                            : Math.copySign(0.35 * KS, MathUtil.applyDeadband(pidOut, 0.5 * KS));
+                            : (!isAtGoalPos()) ? Math.copySign(KS, pidOut) : 0;
                     SmartDashboard.putNumber("turret/ffOut", ffOut);
                     double voltsToSet = (!isAtGoalPos()) ? pidOut + ffOut : 0;
                     kraken.setVoltage(voltsToSet);

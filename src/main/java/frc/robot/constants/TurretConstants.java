@@ -21,7 +21,7 @@ public class TurretConstants {
     public static final double KD = 0;
 
     // Simple Feedforward gains, all roughly tuned due to SysID misbehavior
-    public static final double KS = 0.28;
+    public static final double KS = 0.35;
     public static final double KV = 0.75;
     public static final double KA = 0.4;
 
