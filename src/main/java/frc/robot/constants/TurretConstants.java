@@ -55,7 +55,7 @@ public class TurretConstants {
     // Ideal robot-relative starting angle
     public static final Angle START_POS_BOT_REL = Rotations.of(0.25);
 
-    public static final Angle CLIMB_POS_BOT_REL = Rotations.of(0.30);
+    public static final Angle CLIMB_POS_BOT_REL = Rotations.of(0.92);
 
     /**
      * Clamps a goal angle and to the functional range of this subsystem, converting
