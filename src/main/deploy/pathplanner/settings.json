@@ -5,11 +5,15 @@
   "pathFolders": [
     "depot",
     "to neutral",
-    "to shoot"
+    "to shoot",
+    "ARC",
+    "Comp Depot",
+    "Comp climb auto",
+    "Comp half Sweep",
+    "Right side start - start bottom sweep - half ferry",
+    "Sweep"
   ],
-  "autoFolders": [
-    "Comp"
-  ],
+  "autoFolders": [],
   "defaultMaxVel": 4.0,
   "defaultMaxAccel": 3.0,
   "defaultMaxAngVel": 180.0,

@@ -3,45 +3,45 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.7092229352678574,
-        "y": 5.714142601376489
+        "x": 3.638651541023396,
+        "y": 4.00100003489189
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.2965506998697913,
-        "y": 6.506762346540179
+        "x": 3.3233545613916995,
+        "y": 2.8976924525816226
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Hub"
     },
     {
       "anchor": {
-        "x": 4.061618171049748,
-        "y": 7.355429688976548
+        "x": 3.5,
+        "y": 1.0130734979538694
       },
       "prevControl": {
-        "x": 3.327801642729435,
-        "y": 7.0247423895206325
+        "x": 3.3997829473586307,
+        "y": 2.186556512741815
       },
       "nextControl": {
-        "x": 4.795434699370061,
-        "y": 7.686116988432463
+        "x": 3.5782861104645822,
+        "y": 0.09638897668031765
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 7.644489048549106,
-        "y": 7.036891799200149
+        "x": 7.705612734840029,
+        "y": 1.1227290852864587
       },
       "prevControl": {
-        "x": 6.714022391183035,
-        "y": 7.178001360212054
+        "x": 6.705612734840029,
+        "y": 1.1227290852864584
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "start Sweep Bottom"
     }
   ],
   "rotationTargets": [],
@@ -58,13 +58,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -90.0
+    "rotation": 180.0
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -136.77489750172754
+    "rotation": 90.0
   },
   "useDefaultConstraints": true
 }

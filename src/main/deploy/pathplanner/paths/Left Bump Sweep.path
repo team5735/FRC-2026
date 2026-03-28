@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.7092229352678574,
-        "y": 5.714142601376489
+        "x": 3.546908017113095,
+        "y": 5.722758033389137
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.2965506998697913,
-        "y": 6.506762346540179
+        "x": 3.6362230282738093,
+        "y": 6.610147530691965
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Left Bump"
     },
     {
       "anchor": {
-        "x": 4.061618171049748,
-        "y": 7.355429688976548
+        "x": 4.546654982793899,
+        "y": 7.394253801618304
       },
       "prevControl": {
-        "x": 3.327801642729435,
-        "y": 7.0247423895206325
+        "x": 2.7156237057475803,
+        "y": 7.383818514462131
       },
       "nextControl": {
-        "x": 4.795434699370061,
-        "y": 7.686116988432463
+        "x": 6.353550676618303,
+        "y": 7.404551536923365
       },
       "isLocked": false,
       "linkedName": null
@@ -36,12 +36,12 @@
         "y": 7.036891799200149
       },
       "prevControl": {
-        "x": 6.714022391183035,
-        "y": 7.178001360212054
+        "x": 6.648718436104911,
+        "y": 7.3958851260230665
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Start Sweep Top"
     }
   ],
   "rotationTargets": [],
@@ -58,13 +58,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -90.0
+    "rotation": 0.0
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -136.77489750172754
+    "rotation": 0.0
   },
   "useDefaultConstraints": true
 }

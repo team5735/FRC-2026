@@ -144,7 +144,7 @@ public class Robot extends TimedRobot {
                 turret.trackFieldPos(FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER)));
         commandsForAuto.put("Hood atZero", hood.runOnce(() -> hood.setHoodAngle(0)));
         commandsForAuto.put("hood 21", hood.runOnce(() -> hood.setHoodAngle(21)));
-
+        commandsForAuto.put("Ferry", LaunchCalculator.dynamicLaunchAuto(LaunchGoal.FERRY, hood, turret, drivetrain, launcher, spindex));
         NamedCommands.registerCommands(commandsForAuto);
 
         autoChooser = AutoBuilder.buildAutoChooser();

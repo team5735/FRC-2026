@@ -3,45 +3,45 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.7092229352678574,
-        "y": 5.714142601376489
+        "x": 7.748384021577381,
+        "y": 3.9651589239211313
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.2965506998697913,
-        "y": 6.506762346540179
+        "x": 6.836934751157408,
+        "y": 3.976606626157408
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "half sweep"
     },
     {
       "anchor": {
-        "x": 4.061618171049748,
-        "y": 7.355429688976548
+        "x": 5.330385706018519,
+        "y": 7.463872034143519
       },
       "prevControl": {
-        "x": 3.327801642729435,
-        "y": 7.0247423895206325
+        "x": 6.835884982638889,
+        "y": 6.898243634259258
       },
       "nextControl": {
-        "x": 4.795434699370061,
-        "y": 7.686116988432463
+        "x": 3.2512618445301005,
+        "y": 8.245015885354698
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 7.644489048549106,
-        "y": 7.036891799200149
+        "x": 2.7092229352678574,
+        "y": 5.714142601376489
       },
       "prevControl": {
-        "x": 6.714022391183035,
-        "y": 7.178001360212054
+        "x": 2.605580295138889,
+        "y": 6.11170457175926
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "left side arc"
     }
   ],
   "rotationTargets": [],
@@ -58,13 +58,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -90.0
+    "rotation": -136.77489750172754
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -136.77489750172754
+    "rotation": -90.0
   },
   "useDefaultConstraints": true
 }

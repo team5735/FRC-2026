@@ -5,33 +5,28 @@
     "data": {
       "commands": [
         {
-          "type": "path",
-          "data": {
-            "pathName": "left"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "wait for shooter"
-          }
-        },
-        {
-          "type": "deadline",
+          "type": "parallel",
           "data": {
             "commands": [
               {
-                "type": "wait",
+                "type": "path",
                 "data": {
-                  "waitTime": 4.0
+                  "pathName": "Right trench to arc"
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "hood 21"
+                  "name": "drop intake"
                 }
-              },
+              }
+            ]
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
               {
                 "type": "named",
                 "data": {

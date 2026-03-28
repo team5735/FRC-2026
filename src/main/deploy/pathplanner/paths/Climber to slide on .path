@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.6195338522644604,
-        "y": 7.57
+        "x": 3.604749791873953,
+        "y": 4.0480832199001044
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.629599609375,
-        "y": 7.769791041826161
+        "x": 2.881243059190695,
+        "y": 4.16582587640556
       },
       "isLocked": false,
-      "linkedName": "left start"
+      "linkedName": "middle start"
     },
     {
       "anchor": {
-        "x": 7.6481433738425935,
-        "y": 7.480537109375
+        "x": 1.2117958317857154,
+        "y": 4.555790549781482
       },
       "prevControl": {
-        "x": 6.6481433738425935,
-        "y": 7.480537109375
+        "x": 2.335381253798025,
+        "y": 4.536109093858319
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Top "
     }
   ],
   "rotationTargets": [],
@@ -42,17 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -90.0
+    "rotation": 90.0
   },
   "reversed": false,
-  "folder": "to neutral",
+  "folder": null,
   "idealStartingState": {
     "velocity": 0,
-<<<<<<< HEAD:src/main/deploy/pathplanner/paths/from left.path
     "rotation": 180.0
-=======
-    "rotation": 178.54043434430162
->>>>>>> 8c9f8a7 (Started ferry auto):src/main/deploy/pathplanner/paths/Right Trench Sweep.path
   },
   "useDefaultConstraints": true
 }
