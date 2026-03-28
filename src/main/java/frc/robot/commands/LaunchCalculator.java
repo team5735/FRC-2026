@@ -64,7 +64,7 @@ public class LaunchCalculator {
         scoreHoodMap.put(Units.inchesToMeters(102.2), 20.0 + hoodTweakOffset);
         scoreHoodMap.put(Units.inchesToMeters(216), 20.0 + hoodTweakOffset);
 
-        double rpmMult = 1.01;
+        double rpmMult = 1.02;
         scoreSpeedMap.put(Units.inchesToMeters(56), 2600.0 * rpmMult);
         scoreSpeedMap.put(Units.inchesToMeters(71.75), 2650.0 * rpmMult);
         scoreSpeedMap.put(Units.inchesToMeters(87.8), 2675.0 * rpmMult);
@@ -286,7 +286,7 @@ public class LaunchCalculator {
             LauncherSubsystem launcher, SpinDexSubsystem spindex) {
         return dynamicLaunchCommand(goal, () -> {
             SmartDashboard.putNumber("launchCalc/timeOut", timeOut.get());
-            return timeOut.get() > 2.;
+            return timeOut.get() > 1.;
         }, hood, turret, drivetrain, launcher, spindex)
                 .alongWith(drivetrain.joystickDriveCommand(
                         () -> controller.getLeftX() * DRIVETRAIN_VELOCITY_SCALING,
