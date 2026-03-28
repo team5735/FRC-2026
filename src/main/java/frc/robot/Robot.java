@@ -364,6 +364,8 @@ public class Robot extends TimedRobot {
             CommandScheduler.getInstance().schedule(turret.zeroSequence());
         }
 
+        intake.stopRoll();
+
         launcher.stop();
         turretEnabled = true;
     }
