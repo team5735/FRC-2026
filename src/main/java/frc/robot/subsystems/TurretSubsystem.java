@@ -51,7 +51,6 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -89,9 +88,9 @@ public class TurretSubsystem extends SubsystemBase {
     private double prevVel = 0;
     private RobotConstants driveConstants;
 
-    private SendableChooser<Boolean> turretEnabledDropdown = new SendableChooser<>();
+    private Supplier<Boolean> turretEnabled;
 
-    public TurretSubsystem(Supplier<Pose2d> robotPoseSupplier, RobotConstants driveConstants) {
+    public TurretSubsystem(Supplier<Pose2d> robotPoseSupplier, RobotConstants driveConstants, Supplier<Boolean> turretEnabled) {
         super();
         this.driveConstants = driveConstants;
         kraken.getConfigurator().apply(new TalonFXConfiguration());
@@ -109,9 +108,7 @@ public class TurretSubsystem extends SubsystemBase {
         pid.reset(robotRelToTurretRel(START_POS_BOT_REL).in(Rotations));
         pid.setTolerance(Units.degreesToRotations(1));
         this.robotPoseSupplier = robotPoseSupplier;
-
-        turretEnabledDropdown.addOption("No", Boolean.FALSE);
-        turretEnabledDropdown.setDefaultOption("Yes", Boolean.TRUE);
+        this.turretEnabled = turretEnabled;
     }
 
     @Override
@@ -216,7 +213,7 @@ public class TurretSubsystem extends SubsystemBase {
                     prevVel = kraken.getVelocity().getValue().in(RotationsPerSecond);
                 },
                 () -> {
-                    if (turretEnabledDropdown.getSelected() == Boolean.FALSE) {
+                    if (!turretEnabled.get()) {
                         return;
                     }
                     double pidOut = pid.calculate(getAngleTurretRel().in(Rotations), goalSupplier.get());
@@ -250,7 +247,7 @@ public class TurretSubsystem extends SubsystemBase {
                     prevVel = kraken.getVelocity().getValue().in(RotationsPerSecond);
                 },
                 () -> {
-                    if (turretEnabledDropdown.getSelected() == Boolean.FALSE) {
+                    if (!turretEnabled.get()) {
                         return;
                     }
                     var _T = new frc.robot.util.Timer("");
@@ -467,7 +464,7 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     public static class Tester extends PartialRobot {
-        private final TurretSubsystem turret = new TurretSubsystem(() -> Pose2d.kZero, new CompbotConstants());
+        private final TurretSubsystem turret = new TurretSubsystem(() -> Pose2d.kZero, new CompbotConstants(), () -> true);
 
         public Tester() {
             super();
@@ -507,7 +504,7 @@ public class TurretSubsystem extends SubsystemBase {
     public static class AimingTest extends PartialRobot {
         private final DrivetrainSubsystem drivetrain = CompbotTunerConstants.createDrivetrain();
         private final TurretSubsystem turret = new TurretSubsystem(drivetrain::getEstimatedPosition,
-                drivetrain.constants);
+                drivetrain.constants, () -> true);
 
         public final Telemetry logger = new Telemetry(drivetrain, turret);
 

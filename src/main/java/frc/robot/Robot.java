@@ -74,9 +74,11 @@ public class Robot extends TimedRobot {
 
     public final Telemetry logger;
 
+    private boolean turretEnabled = true;
+
     public Robot(DrivetrainSubsystem drivetrain) {
         this.drivetrain = drivetrain;
-        turret = new TurretSubsystem(drivetrain::getEstimatedPosition, drivetrain.constants);
+        turret = new TurretSubsystem(drivetrain::getEstimatedPosition, drivetrain.constants, () -> turretEnabled);
         this.logger = new Telemetry(drivetrain, turret);
         limelights = new LimelightSubsystem[] {
                 new LimelightSubsystem(drivetrain, "limelight-fone"),
@@ -144,7 +146,8 @@ public class Robot extends TimedRobot {
                 turret.trackFieldPos(FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER)));
         commandsForAuto.put("Hood atZero", hood.runOnce(() -> hood.setHoodAngle(0)));
         commandsForAuto.put("hood 21", hood.runOnce(() -> hood.setHoodAngle(21)));
-        commandsForAuto.put("Ferry", LaunchCalculator.dynamicLaunchAuto(LaunchGoal.FERRY, hood, turret, drivetrain, launcher, spindex));
+        commandsForAuto.put("Ferry",
+                LaunchCalculator.dynamicLaunchAuto(LaunchGoal.FERRY, hood, turret, drivetrain, launcher, spindex));
         NamedCommands.registerCommands(commandsForAuto);
 
         autoChooser = AutoBuilder.buildAutoChooser();
@@ -183,17 +186,18 @@ public class Robot extends TimedRobot {
     // any trigger that isn't a button goes here
     private void setupMiscTriggers() {
         turret.zeroTrigger.onTrue(turret.zeroCommand());
-        // hood.exclusionZoneTri/aagger.whileTrue(Commands.run(() -> hood.setHoodPosition(0)));
+        // hood.exclusionZoneTri/aagger.whileTrue(Commands.run(() ->
+        // hood.setHoodPosition(0)));
         // hood.exclusionZoneTrigger.onTrue(Commands.runOnce(() -> {
-        //     SmartDashboard.putBoolean("in_exclusion_zone", true);
-        //     // todo: add telemetry / debuglogging
-        //     hood.exzSaveServoPosition();
+        // SmartDashboard.putBoolean("in_exclusion_zone", true);
+        // // todo: add telemetry / debuglogging
+        // hood.exzSaveServoPosition();
         // }).withName("enter exclusion zone"));
         // hood.exclusionZoneTrigger.onFalse(Commands.runOnce(() -> {
-        //     SmartDashboard.putBoolean("in_exclusion_zone", false);
-        //     // todo: add telemetry / debug / logging
-        //     double pos = hood.exzGetSavedServoPosition();
-        //     hood.setServoPosition(pos);
+        // SmartDashboard.putBoolean("in_exclusion_zone", false);
+        // // todo: add telemetry / debug / logging
+        // double pos = hood.exzGetSavedServoPosition();
+        // hood.setServoPosition(pos);
         // }).withName("leave exclusion zone"));
 
         // turret.limitTrigger.onTrue(turret.zeroCommand());
@@ -246,14 +250,17 @@ public class Robot extends TimedRobot {
 
         driveController.a().whileTrue(new PIDToPose(drivetrain, () -> {
             Translation2d drivetrainPos = drivetrain.getEstimatedPosition().getTranslation();
-            Rotation2d drivetrainToHub = FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER).minus(drivetrainPos).getAngle();
+            Rotation2d drivetrainToHub = FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER).minus(drivetrainPos)
+                    .getAngle();
             return new Pose2d(drivetrainPos, drivetrainToHub.plus(Rotation2d.kCCW_90deg));
         }, "face hub (backup)"));
 
-        driveController.b().whileTrue(LaunchCalculator.dynamicLaunchTeleop(driveController, LaunchGoal.SCORE, () -> false, hood, turret, drivetrain, launcher, spindex));
+        driveController.b().whileTrue(LaunchCalculator.dynamicLaunchTeleop(driveController, LaunchGoal.SCORE,
+                () -> false, hood, turret, drivetrain, launcher, spindex));
         driveController.b().onFalse(unclogSpindex);
 
-        driveController.x().whileTrue(LaunchCalculator.dynamicLaunchTeleop(driveController, LaunchGoal.FERRY, () -> false, hood, turret, drivetrain, launcher, spindex));
+        driveController.x().whileTrue(LaunchCalculator.dynamicLaunchTeleop(driveController, LaunchGoal.FERRY,
+                () -> false, hood, turret, drivetrain, launcher, spindex));
         driveController.x().onFalse(unclogSpindex);
 
         driveController.rightBumper().whileTrue(intake.getIntakeForwardRollCommand());
@@ -276,6 +283,9 @@ public class Robot extends TimedRobot {
         subsystemController.leftTrigger().whileTrue(climber.getRetractCommand().alongWith(
                 turret.holdRobotRel(TurretConstants.CLIMB_POS_BOT_REL)));
         subsystemController.x().onTrue(turret.zeroSequence());
+
+        subsystemController.start().onTrue(Commands.runOnce(() -> turretEnabled = false));
+        subsystemController.back().onTrue(Commands.runOnce(() -> turretEnabled = true));
     }
 
     private void setupOtherBindings() {
@@ -320,7 +330,7 @@ public class Robot extends TimedRobot {
         }
 
         if (!turret.getZeroStatus()) {
-        CommandScheduler.getInstance().schedule(turret.zeroSequence());
+            CommandScheduler.getInstance().schedule(turret.zeroSequence());
         }
 
         Command auto = autoChooser.getSelected();
@@ -356,6 +366,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopPeriodic() {
+        NTable.root().set("turret enabled", turretEnabled);
     }
 
     @Override

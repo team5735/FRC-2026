@@ -102,7 +102,7 @@ public class InterpolationRobot extends TimedRobot {
 
     LauncherSubsystem launcher = new LauncherSubsystem();
     SpinDexSubsystem spindex = new SpinDexSubsystem();
-    TurretSubsystem turret = new TurretSubsystem(drivetrain::getEstimatedPosition, drivetrain.constants);
+    TurretSubsystem turret = new TurretSubsystem(drivetrain::getEstimatedPosition, drivetrain.constants, () -> true);
     IntakeSubsystem intake = new IntakeSubsystem();
     HoodSubsystem hood = new HoodSubsystem(turret::getMechanismPose, FieldConstants.HOOD_EXCLUSION_ZONES);
 
