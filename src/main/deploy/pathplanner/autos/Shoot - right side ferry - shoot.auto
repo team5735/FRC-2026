@@ -23,7 +23,7 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 5.0
+                  "waitTime": 2.5
                 }
               },
               {
@@ -33,6 +33,12 @@
                 }
               }
             ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Hood atZero"
           }
         },
         {
@@ -54,7 +60,7 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 7.0
+                  "waitTime": 2.0
                 }
               },
               {
@@ -79,9 +85,33 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "Hood atZero"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "Half ferry - Right trench neutral- intaking"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Right side neutral to right trench"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Right trench to arc"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "dynamic launch"
           }
         }
       ]
