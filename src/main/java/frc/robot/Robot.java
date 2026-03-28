@@ -275,6 +275,7 @@ public class Robot extends TimedRobot {
         subsystemController.rightTrigger().whileTrue(climber.getExtendCommand());
         subsystemController.leftTrigger().whileTrue(climber.getRetractCommand().alongWith(
                 turret.holdRobotRel(TurretConstants.CLIMB_POS_BOT_REL)));
+        subsystemController.x().onTrue(turret.zeroSequence());
     }
 
     private void setupOtherBindings() {
