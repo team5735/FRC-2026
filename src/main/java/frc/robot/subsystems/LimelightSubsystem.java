@@ -275,7 +275,7 @@ public class LimelightSubsystem extends SubsystemBase {
                 estimate.stddevs.getY(),
                 estimate.stddevs.getRotation().getMeasureZ().in(Radians));
 
-        // ensure reasonable minimums (x, y: 5cm, theta: 5°)
+        // ensure reasonable minimums
         stddevs.getData()[0] = Math.max(
                 Centimeters.of(1).in(Meters),
                 stddevs.getData()[0]);
@@ -283,7 +283,7 @@ public class LimelightSubsystem extends SubsystemBase {
                 Centimeters.of(1).in(Meters),
                 stddevs.getData()[1]);
         stddevs.getData()[2] = Math.max(
-                Degrees.of(5).in(Radians),
+                Degrees.of(1).in(Radians),
                 stddevs.getData()[2]);
 
         double distPenalty = penalize(
