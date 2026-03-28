@@ -21,6 +21,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Telemetry;
@@ -253,6 +254,33 @@ public class LimelightSubsystem extends SubsystemBase {
         return penalty;
     }
 
+    private double applyPenalties(PoseEstimate estimate) {
+        double distPenalty = penalize(
+                estimate.distToCamera,
+                "distance");
+
+        double speedPenalty = penalize(
+                Math.hypot(
+                        drivetrain.getState().Speeds.vxMetersPerSecond,
+                        drivetrain.getState().Speeds.vyMetersPerSecond) * 5,
+                "speed");
+
+        double omegaPenalty = penalize(Math.abs(drivetrain.getState().Speeds.omegaRadiansPerSecond), "omega");
+
+        double ambiguityPenalty = penalize(
+                Arrays.stream(estimate.fiducials)
+                        .mapToDouble(fiducial -> fiducial.ambiguity)
+                        .sum(),
+                "ambiguity");
+        ambiguityPenalty *= ambiguityPenalty;
+
+        double singleTagPenalty = penalize(
+                estimate.fiducials.length == 1 ? 1 : 0,
+                "single tag");
+
+        return distPenalty * speedPenalty * omegaPenalty * ambiguityPenalty * singleTagPenalty;
+    }
+
     private void updateVisionMeasurement(PoseEstimate estimate) {
         // completely reset the pose estimator if it's not having a good time
         if (drivetrainIsNaNOrInf()) {
@@ -286,42 +314,16 @@ public class LimelightSubsystem extends SubsystemBase {
                 Degrees.of(0.25).in(Radians),
                 stddevs.getData()[2]);
 
-        double distPenalty = penalize(
-                estimate.distToCamera,
-                "distance");
-
-        double speedPenalty = penalize(
-                Math.hypot(
-                        drivetrain.getState().Speeds.vxMetersPerSecond,
-                        drivetrain.getState().Speeds.vyMetersPerSecond) * 5,
-                "speed");
-
-        double omegaPenalty = penalize(Math.abs(drivetrain.getState().Speeds.omegaRadiansPerSecond), "omega");
-
-        double ambiguityPenalty = penalize(
-                Arrays.stream(estimate.fiducials)
-                        .mapToDouble(fiducial -> fiducial.ambiguity)
-                        .sum(),
-                "ambiguity");
-        ambiguityPenalty *= ambiguityPenalty;
-
-        double singleTagPenalty = penalize(
-                estimate.fiducials.length == 1 ? 1 : 0,
-                "single tag");
-
-        double totalPenalty = distPenalty *
-                speedPenalty *
-                omegaPenalty *
-                ambiguityPenalty *
-                singleTagPenalty;
+        double totalPenalty = 1;
+        if (Math.hypot(drivetrain.getState().Speeds.vxMetersPerSecond,
+                drivetrain.getState().Speeds.vxMetersPerSecond) > 0.02 ||
+                Math.abs(drivetrain.getState().Speeds.omegaRadiansPerSecond) > Units.degreesToRadians(2)) {
+            totalPenalty = applyPenalties(estimate);
+        }
         estimateTable.sub("penalties").set("total", totalPenalty);
 
         stddevs = stddevs.times(totalPenalty);
-        if (!check(
-                drivetrain
-                        .getPigeon2()
-                        .getAngularVelocityZWorld()
-                        .getValueAsDouble(),
+        if (!check(drivetrain.getPigeon2().getAngularVelocityZWorld().getValueAsDouble(),
                 "(stddevs) angular velocity")) {
             stddevs.getData()[2] = 99999;
         }
