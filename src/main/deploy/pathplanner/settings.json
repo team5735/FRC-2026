@@ -3,18 +3,15 @@
   "robotLength": 0.813,
   "holonomicMode": true,
   "pathFolders": [
-<<<<<<< HEAD
     "depot",
     "to neutral",
-    "to shoot"
-=======
+    "to shoot",
     "ARC",
     "Comp Depot",
     "Comp climb auto",
     "Comp half Sweep",
     "Right side start - start bottom sweep - half ferry",
     "Sweep"
->>>>>>> 8c9f8a7 (Started ferry auto)
   ],
   "autoFolders": [],
   "defaultMaxVel": 4.0,
@@ -42,19 +39,11 @@
   "bumperOffsetX": 0.0,
   "bumperOffsetY": 0.0,
   "robotFeatures": [
-<<<<<<< HEAD
     "{\"name\":\"Climber Hook\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":-0.288575,\"y\":0.0},\"size\":{\"width\":0.0889,\"length\":0.032},\"borderRadius\":0.0,\"strokeWidth\":0.02,\"filled\":true}}",
     "{\"name\":\"Turret\",\"type\":\"circle\",\"data\":{\"center\":{\"x\":-0.10795,\"y\":0.1651},\"radius\":0.07874,\"strokeWidth\":0.02,\"filled\":true}}",
     "{\"name\":\"Frame\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":0.0,\"y\":0.0},\"size\":{\"width\":0.7493,\"length\":0.635},\"borderRadius\":0.0,\"strokeWidth\":0.02,\"filled\":false}}",
     "{\"name\":\"Intake\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":0.457,\"y\":0.0},\"size\":{\"width\":0.749,\"length\":0.2794},\"borderRadius\":0.0,\"strokeWidth\":0.0,\"filled\":false}}",
     "{\"name\":\"Climber Upright\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":-0.26,\"y\":-0.0319},\"size\":{\"width\":0.0256,\"length\":0.025},\"borderRadius\":0.0,\"strokeWidth\":0.02,\"filled\":true}}",
     "{\"name\":\"Fixed Launch Trajectory\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":-0.108,\"y\":2.665},\"size\":{\"width\":5.0,\"length\":0.005},\"borderRadius\":0.0,\"strokeWidth\":0.0,\"filled\":true}}"
-=======
-    "{\"name\":\"Climber\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":-0.2,\"y\":0.0},\"size\":{\"width\":0.2,\"length\":0.2},\"borderRadius\":0.05,\"strokeWidth\":0.02,\"filled\":false}}",
-    "{\"name\":\"Intake\",\"type\":\"circle\",\"data\":{\"center\":{\"x\":0.2,\"y\":0.0},\"radius\":0.1,\"strokeWidth\":0.02,\"filled\":false}}",
-    "{\"name\":\"Shooter\",\"type\":\"line\",\"data\":{\"start\":{\"x\":-0.25,\"y\":0.25},\"end\":{\"x\":-0.25,\"y\":3.0},\"strokeWidth\":0.02}}",
-    "{\"name\":\"Limelight 1\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":-0.25,\"y\":-0.25},\"size\":{\"width\":0.12,\"length\":0.12},\"borderRadius\":0.005,\"strokeWidth\":0.02,\"filled\":true}}",
-    "{\"name\":\"Limelight 2\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":-0.25,\"y\":0.25},\"size\":{\"width\":0.12,\"length\":0.12},\"borderRadius\":0.01,\"strokeWidth\":0.02,\"filled\":true}}"
->>>>>>> 064035b (delelted all autos - fixed them)
   ]
 }
