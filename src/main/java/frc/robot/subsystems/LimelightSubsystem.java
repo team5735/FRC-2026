@@ -76,12 +76,11 @@ public class LimelightSubsystem extends SubsystemBase {
         NTable.root("vision").ensure("enabled", true);
 
         NTable limits = this.table.sub("limits");
-        limits.ensure("distance from ground", Centimeters.of(25).in(Meters));
-        limits.ensure("angular velocity", DegreesPerSecond.of(10).in(RadiansPerSecond));
-        limits.ensure("single tag ambiguity", 0.2);
-        limits.ensure("multi tag ambiguity", 0.5);
-        limits.ensure("(stddevs) angular velocity", DegreesPerSecond.of(1).in(RadiansPerSecond));
-        limits.ensure("drivetrain distance from estimate", 1);
+        limits.set("distance from ground", Centimeters.of(25).in(Meters));
+        limits.set("angular velocity", DegreesPerSecond.of(10).in(RadiansPerSecond));
+        limits.set("single tag ambiguity", 0.2);
+        limits.set("multi tag ambiguity", 0.5);
+        limits.set("(stddevs) angular velocity", DegreesPerSecond.of(1).in(RadiansPerSecond));
 
         lltable = NTable.root(limelightName);
     }
@@ -265,11 +264,11 @@ public class LimelightSubsystem extends SubsystemBase {
         NTable estimateTable = table.sub("estimate");
         NTable coefficients = estimateTable.sub("coefficients");
 
-        coefficients.ensure("distance", 3);
-        coefficients.ensure("speed", 5);
-        coefficients.ensure("omega", 10);
-        coefficients.ensure("ambiguity", 1);
-        coefficients.ensure("single tag", 3.33);
+        coefficients.set("distance", 2);
+        coefficients.set("speed", 0);
+        coefficients.set("omega", 0);
+        coefficients.set("ambiguity", 1);
+        coefficients.set("single tag", 3.33);
 
         Vector<N3> stddevs = VecBuilder.fill(
                 estimate.stddevs.getX(),
