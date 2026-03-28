@@ -286,7 +286,7 @@ public class LaunchCalculator {
             LauncherSubsystem launcher, SpinDexSubsystem spindex) {
         return dynamicLaunchCommand(goal, () -> {
             SmartDashboard.putNumber("launchCalc/timeOut", timeOut.get());
-            return timeOut.get() > 3.;
+            return timeOut.get() > 2.;
         }, hood, turret, drivetrain, launcher, spindex)
                 .alongWith(drivetrain.joystickDriveCommand(
                         () -> controller.getLeftX() * DRIVETRAIN_VELOCITY_SCALING,
