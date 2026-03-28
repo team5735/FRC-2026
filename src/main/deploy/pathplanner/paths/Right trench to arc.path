@@ -48,7 +48,7 @@
   "folder": "ARC",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 90.0
+    "rotation": 178.54043434430162
   },
   "useDefaultConstraints": true
 }

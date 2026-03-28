@@ -147,8 +147,23 @@ public class Robot extends TimedRobot {
         commandsForAuto.put("Turret track Blue Hub",
                 turret.trackFieldPos(FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER)));
         commandsForAuto.put("Hood atZero", hood.runOnce(() -> hood.setHoodAngle(0)));
+<<<<<<< HEAD
         commandsForAuto.put("hood 21", hood.runOnce(() -> hood.setHoodAngle(21)));
 
+=======
+        commandsForAuto.put("Hood at20", hood.runOnce(() -> hood.setHoodAngle(20)));
+        commandsForAuto.put("Ferry" , new SequentialCommandGroup(
+                new PIDToPose(drivetrain, () ->
+                        FieldConstants.closestFerryShootPos(drivetrain.getEstimatedPosition().getTranslation()),
+                        "drive to ferry shoot pos"),
+                new ParallelCommandGroup(
+                        turret.trackFieldPosDynamic(() -> FieldConstants.closestFerryTarget(
+                                drivetrain.getEstimatedPosition().getTranslation())),
+                        launcher.getLaunchFuel(RPM.of(3000)).until(launcher::atSetpoint).withTimeout(Seconds.of(2)),
+                        spindex.getRun()
+                )
+        ));
+>>>>>>> 8c9f8a7 (Started ferry auto)
 
         NamedCommands.registerCommands(commandsForAuto);
 

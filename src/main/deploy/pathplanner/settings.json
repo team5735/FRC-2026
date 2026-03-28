@@ -3,9 +3,18 @@
   "robotLength": 0.813,
   "holonomicMode": true,
   "pathFolders": [
+<<<<<<< HEAD
     "depot",
     "to neutral",
     "to shoot"
+=======
+    "ARC",
+    "Comp Depot",
+    "Comp climb auto",
+    "Comp half Sweep",
+    "Right side start - start bottom sweep - half ferry",
+    "Sweep"
+>>>>>>> 8c9f8a7 (Started ferry auto)
   ],
   "autoFolders": [],
   "defaultMaxVel": 4.0,
