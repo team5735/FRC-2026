@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
@@ -70,6 +71,7 @@ import frc.robot.constants.FieldConstants;
 import frc.robot.constants.robot.CompbotConstants;
 import frc.robot.constants.robot.CompbotTunerConstants;
 import frc.robot.constants.robot.RobotConstants;
+import frc.robot.util.NTable;
 import frc.robot.util.TunableProfiledPIDController;
 
 public class TurretSubsystem extends SubsystemBase {
@@ -90,7 +92,8 @@ public class TurretSubsystem extends SubsystemBase {
 
     private Supplier<Boolean> turretEnabled;
 
-    public TurretSubsystem(Supplier<Pose2d> robotPoseSupplier, RobotConstants driveConstants, Supplier<Boolean> turretEnabled) {
+    public TurretSubsystem(Supplier<Pose2d> robotPoseSupplier, RobotConstants driveConstants,
+            Supplier<Boolean> turretEnabled) {
         super();
         this.driveConstants = driveConstants;
         kraken.getConfigurator().apply(new TalonFXConfiguration());
@@ -109,6 +112,28 @@ public class TurretSubsystem extends SubsystemBase {
         pid.setTolerance(Units.degreesToRotations(1));
         this.robotPoseSupplier = robotPoseSupplier;
         this.turretEnabled = turretEnabled;
+    }
+
+    private void aimedAtHubTelemetry() {
+        NTable table = NTable.root("turret");
+
+        Translation2d turret = getMechanismPose().getTranslation();
+
+        Translation2d blue = FieldConstants.BLUE_HUB_CENTER;
+        Translation2d red = FieldConstants.redElement(FieldConstants.BLUE_HUB_CENTER);
+        Translation2d closer = blue.getDistance(turret) < red.getDistance(turret) ? blue : red;
+        table.set("closer hub", closer);
+
+        Translation2d turretToHub = closer.minus(turret);
+        table.set("turret to hub", turretToHub);
+
+        Angle shouldBeAngle = turretToHub.getAngle().getMeasure();
+        table.set("should be (deg)", shouldBeAngle.in(Degrees));
+
+        Angle isAngle = this.getMechanismPose().getRotation().getMeasure();
+        table.set("is (deg)", isAngle.in(Degrees));
+
+        table.set("aimed", isAngle.isNear(shouldBeAngle, Degrees.of(2)));
     }
 
     @Override
@@ -132,6 +157,7 @@ public class TurretSubsystem extends SubsystemBase {
                 canTurnTo(FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER)));
         Telemetry.field.getObject("turret_pose").setPose(getMechanismPose());
         SmartDashboard.putNumber("turret/statorCurrent", kraken.getStatorCurrent().getValueAsDouble());
+        aimedAtHubTelemetry();
     }
 
     public Command hardRunForward() {
@@ -464,7 +490,8 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     public static class Tester extends PartialRobot {
-        private final TurretSubsystem turret = new TurretSubsystem(() -> Pose2d.kZero, new CompbotConstants(), () -> true);
+        private final TurretSubsystem turret = new TurretSubsystem(() -> Pose2d.kZero, new CompbotConstants(),
+                () -> true);
 
         public Tester() {
             super();
