@@ -58,21 +58,15 @@
           "data": {
             "commands": [
               {
-                "type": "wait",
+                "type": "path",
                 "data": {
-                  "waitTime": 2.0
+                  "pathName": "Start bottom sweep - half length ferry"
                 }
               },
               {
                 "type": "named",
                 "data": {
                   "name": "run intake"
-                }
-              },
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Start bottom sweep - half length ferry"
                 }
               },
               {
