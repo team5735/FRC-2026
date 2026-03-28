@@ -222,7 +222,7 @@ public class LaunchCalculator {
         SmartDashboard.putNumber("launchCalc/flywheel_vel_rpm", flywheelVel.in(RPM));
 
         cachedParams = new LaunchParams(
-                (launchDist >= MIN_SCORE_DIST_M) && (launchDist <= MAX_SCORE_DIST_M), // TODO - set exclusion zones
+                ((launchDist >= MIN_SCORE_DIST_M) && (launchDist <= MAX_SCORE_DIST_M)) || goal.equals(LaunchGoal.FERRY), // TODO - set exclusion zones
                 turretAngle,
                 turretVel,
                 hoodAngle,
