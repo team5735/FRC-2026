@@ -1,4 +1,4 @@
-from typing import List, Union, Dict
+sfrom typing import List, Union, Dict
 from typing import Tuple
 from dataclasses import dataclass
 
