@@ -1,0 +1,130 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "start intake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left trench to arc"
+          }
+        },
+        {
+          "type": "deadline",
+          "data": {
+            "commands": [
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 4.0
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "drop intake"
+                }
+              },
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 1.0
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "dynamic launch"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Hood atZero"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left side arc to left trench"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left Trench to half sweeep"
+          }
+        },
+        {
+          "type": "deadline",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Start top sweep - half length ferry"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Ferry"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Hood atZero"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Half ferry - Left trench neutral- intaking"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left side neutral to left trench"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left trench to arc"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "dynamic launch"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}
