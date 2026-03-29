@@ -135,7 +135,7 @@ public class TurretSubsystem extends SubsystemBase {
         table.set("is (deg)", isAngle.in(Degrees));
 
         double delta = MathUtil.angleModulus(shouldBeAngle.in(Radians)) - MathUtil.angleModulus(isAngle.in(Radians));
-        table.set("aimed", Math.abs(delta) < Degrees.of(2).in(Radians));
+        table.set("aimed", Math.abs(delta) < Degrees.of(4).in(Radians));
     }
 
     @Override
