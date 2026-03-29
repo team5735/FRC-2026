@@ -302,7 +302,7 @@ public class LaunchCalculator {
             LauncherSubsystem launcher, SpinDexSubsystem spindex) {
         return dynamicLaunchCommand(goal, () -> {
             SmartDashboard.putNumber("launchCalc/timeOut", timeOut.get());
-            return timeOut.get() > 2.;
+            return timeOut.get() > 1.;
         }, hood, turret, drivetrain, launcher, spindex).beforeStarting(timeOut::restart);
     }
 
