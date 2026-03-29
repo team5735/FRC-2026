@@ -16,16 +16,32 @@
     },
     {
       "anchor": {
-        "x": 6.874249035063245,
-        "y": 1.134760102771578
+        "x": 6.499710843373493,
+        "y": 2.9640843373493975
       },
       "prevControl": {
-        "x": 7.073725371446015,
-        "y": 1.7310419526151621
+        "x": 6.708587449295736,
+        "y": 3.1704625339705514
       },
       "nextControl": {
-        "x": 6.680070452008929,
-        "y": 0.5543144880022328
+        "x": 6.29083423745125,
+        "y": 2.7577061407282435
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 6.499710843373493,
+        "y": 0.6
+      },
+      "prevControl": {
+        "x": 6.749704136099128,
+        "y": 0.6018312815717386
+      },
+      "nextControl": {
+        "x": 5.854728148141355,
+        "y": 0.5952752935449143
       },
       "isLocked": false,
       "linkedName": null
@@ -36,15 +52,24 @@
         "y": 0.521
       },
       "prevControl": {
-        "x": 6.795588611421131,
-        "y": 0.8174675060453875
+        "x": 5.641,
+        "y": 0.5209999999999999
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": "right trench neutral zone"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 1,
+      "rotationDegrees": -90.0
+    },
+    {
+      "waypointRelativePos": 2,
+      "rotationDegrees": 180.0
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
