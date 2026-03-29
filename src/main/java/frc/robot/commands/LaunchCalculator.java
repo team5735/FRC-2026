@@ -142,6 +142,12 @@ public class LaunchCalculator {
                         ? new Translation2d(FieldConstants.FIELD_LENGTH_X.in(Meters),
                                 drivetrain.getEstimatedPosition().getY())
                         : new Translation2d(0, drivetrain.getEstimatedPosition().getY());
+                double y = launchTarget.getY();
+                y += (FieldConstants.BLUE_HUB_CENTER.getY()-y)/2.0;
+                launchTarget = new Translation2d(launchTarget.getX(), y);
+                Telemetry.field.getObject("ferry_target").setPose(new Pose2d(launchTarget, Rotation2d.kZero));
+
+
                 hoodMap = ferryHoodMap;
                 speedMap = ferrySpeedMap;
                 TOFMap = ferryTOFMap;
