@@ -122,6 +122,7 @@ public class LaunchCalculator {
     public enum LaunchGoal {
         SCORE,
         FERRY,
+        DEMO, // for low-powered demo shots //TODO
         LOOP // for fun/in-pit testing
     }
 

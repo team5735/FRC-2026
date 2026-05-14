@@ -74,9 +74,12 @@ public class Robot extends TimedRobot {
 
     public final Telemetry logger;
 
-    private boolean turretEnabled = true;
+    public final Command unclogSpindex = spindex.getBackwards().withTimeout(0.5);
 
-    public Robot(DrivetrainSubsystem drivetrain) {
+    private boolean turretEnabled = true;
+    private boolean isDemo = false;
+
+    public Robot(DrivetrainSubsystem drivetrain, boolean isDemo) {
         this.drivetrain = drivetrain;
         turret = new TurretSubsystem(drivetrain::getEstimatedPosition, drivetrain.constants, () -> turretEnabled);
         this.logger = new Telemetry(drivetrain, turret);
@@ -85,6 +88,8 @@ public class Robot extends TimedRobot {
                 new LimelightSubsystem(drivetrain, "limelight-ftwo"),
         };
         hood = new HoodSubsystem(turret::getMechanismPose, FieldConstants.HOOD_EXCLUSION_ZONES);
+
+        this.isDemo = isDemo;
 
         NTable.root().set("current robot", switch (Constants.CURRENT_ROBOT) {
             case FULL_COMPBOT -> "compbot";
@@ -161,7 +166,10 @@ public class Robot extends TimedRobot {
 
         setDefaultCommands();
         setupMiscTriggers();
-        setupDriverBindings();
+        if(!isDemo)
+            setupDriverBindings();
+        else
+            setupDemoDriverBindings();
         setupSubsystemBindings();
         setupOtherBindings();
     }
@@ -246,8 +254,6 @@ public class Robot extends TimedRobot {
     private void setupDriverBindings() {
         driveController.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
-        Command unclogSpindex = spindex.getBackwards().withTimeout(0.5);
-
         driveController.a().whileTrue(new PIDToPose(drivetrain, () -> {
             Translation2d drivetrainPos = drivetrain.getEstimatedPosition().getTranslation();
             Rotation2d drivetrainToHub = FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER).minus(drivetrainPos)
@@ -256,6 +262,27 @@ public class Robot extends TimedRobot {
         }, "face hub (backup)"));
 
         driveController.b().whileTrue(LaunchCalculator.dynamicLaunchTeleop(driveController, LaunchGoal.SCORE,
+                () -> false, hood, turret, drivetrain, launcher, spindex));
+        driveController.b().onFalse(unclogSpindex);
+
+        driveController.x().whileTrue(LaunchCalculator.dynamicLaunchTeleop(driveController, LaunchGoal.FERRY,
+                () -> false, hood, turret, drivetrain, launcher, spindex));
+        driveController.x().onFalse(unclogSpindex);
+
+        driveController.rightBumper().whileTrue(intake.getIntakeForwardRollCommand());
+        driveController.leftBumper().whileTrue(intake.getIntakeReverseRollCommand());
+        driveController.povDown().whileTrue(intake.getSlapdownCommand());
+        driveController.povUp().whileTrue(intake.getLiftCommand());
+        driveController.povLeft().whileTrue(spindex.getBackwards());
+    }
+
+    private void setupDemoDriverBindings() {
+        driveController.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+
+        driveController.a().whileTrue(LaunchCalculator.dynamicLaunchTeleop(driveController, LaunchGoal.LOOP,
+                () -> false, hood, turret, drivetrain, launcher, spindex));
+
+        driveController.b().whileTrue(LaunchCalculator.dynamicLaunchTeleop(driveController, LaunchGoal.DEMO,
                 () -> false, hood, turret, drivetrain, launcher, spindex));
         driveController.b().onFalse(unclogSpindex);
 

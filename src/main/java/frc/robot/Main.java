@@ -28,8 +28,8 @@ public final class Main {
         SignalLogger.enableAutoLogging(false);
         StatusLogger.disableAutoLogging();
         RobotBase.startRobot(() -> switch (Constants.CURRENT_ROBOT) {
-            case FULL_DEVBOT -> new Robot(DevbotTunerConstants.createDrivetrain());
-            case FULL_COMPBOT -> new Robot(CompbotTunerConstants.createDrivetrain());
+            case FULL_DEVBOT -> new Robot(DevbotTunerConstants.createDrivetrain(), false);
+            case FULL_COMPBOT -> new Robot(CompbotTunerConstants.createDrivetrain(), false);
             case HOOD -> new HoodSubsystem.Tester();
             case INTAKE -> new IntakeSubsystem.Tester();
             case CLIMBER -> new ClimberSubsystem.Tester();
@@ -39,6 +39,7 @@ public final class Main {
             case LAUNCHER -> new LauncherSubsystem.Tester();
             case CANDLE -> new CANdleSubsystem.Tester();
             case INTERPOLATION -> new InterpolationRobot();
+            case DEMO -> new Robot(DevbotTunerConstants.createDrivetrain(), true);
         });
     }
 }
