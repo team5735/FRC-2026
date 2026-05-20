@@ -153,6 +153,15 @@ public class LaunchCalculator {
                 speedMap = ferrySpeedMap;
                 TOFMap = ferryTOFMap;
                 break;
+            case DEMO:
+                cachedParams = new LaunchParams(
+                    true,
+                    Rotations.of(0),
+                    RotationsPerSecond.of(0),
+                    Degrees.of(25),
+                    RPM.of(2500)
+                );
+                return;
             case LOOP:
             default:
                 cachedParams = new LaunchParams(
@@ -160,7 +169,7 @@ public class LaunchCalculator {
                         Rotations.of(0.875), // Roughly face the robot's center
                         RotationsPerSecond.of(0), // Hold the pose
                         Degrees.of(HoodConstants.LOWEST_ANGLE_DEGREES), // Minimum horizontal velocity component
-                        RPM.of(1000)); // TODO find appropriate speed
+                        RPM.of(750)); // TODO find appropriate speed
                 return;
         }
 

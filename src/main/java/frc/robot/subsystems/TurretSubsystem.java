@@ -167,7 +167,7 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     public Command softRunForward() {
-        return startEnd(() -> kraken.setVoltage(0.5), () -> kraken.setVoltage(0));
+        return startEnd(() -> kraken.setVoltage(0.65), () -> kraken.setVoltage(0));
     }
 
     public Command softRunReverse() {

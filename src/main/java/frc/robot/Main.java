@@ -39,7 +39,7 @@ public final class Main {
             case LAUNCHER -> new LauncherSubsystem.Tester();
             case CANDLE -> new CANdleSubsystem.Tester();
             case INTERPOLATION -> new InterpolationRobot();
-            case DEMO -> new Robot(DevbotTunerConstants.createDrivetrain(), true);
+            case DEMO -> new Robot(CompbotTunerConstants.createDrivetrain(), true);
         });
     }
 }
