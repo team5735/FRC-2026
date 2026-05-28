@@ -159,7 +159,7 @@ public class LaunchCalculator {
                     Rotations.of(0),
                     RotationsPerSecond.of(0),
                     Degrees.of(25),
-                    RPM.of(2500)
+                    RPM.of(3500)
                 );
                 return;
             case LOOP:
