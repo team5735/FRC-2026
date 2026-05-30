@@ -19,7 +19,7 @@ public class Constants {
         DEMO, // for demos where we cannot access field elements and want low-powered launches
     }
 
-    public static final BotConfiguration CURRENT_ROBOT = BotConfiguration.DEMO;
+    public static final BotConfiguration CURRENT_ROBOT = BotConfiguration.FULL_COMPBOT;
 
     // set this to true to enable Timer()'s to publish their profiling times to network tables
     // this should be false during competition

@@ -91,7 +91,7 @@ public class LaunchCalculator {
         ferrySpeedMap.put(50., 4000.);
 
         ferryTOFMap.put(0., 0.);
-        ferryTOFMap.put(0., 0.);
+        ferryTOFMap.put(50., 0.);
     }
 
     private static final LinearFilter turretVelFiler = LinearFilter.movingAverage(50);

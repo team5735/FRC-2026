@@ -266,7 +266,8 @@ public class Robot extends TimedRobot {
         driveController.b().onFalse(unclogSpindex);
 
         driveController.x().whileTrue(LaunchCalculator.dynamicLaunchTeleop(driveController, LaunchGoal.FERRY,
-                () -> false, hood, turret, drivetrain, launcher, spindex));
+                () -> false, hood, turret, drivetrain, launcher, spindex).alongWith(intake.getIntakeForwardRollCommand()));
+
         driveController.x().onFalse(unclogSpindex);
 
         driveController.rightBumper().whileTrue(intake.getIntakeForwardRollCommand());
