@@ -81,12 +81,6 @@
                 "data": {
                   "pathName": "Start top sweep - half length ferry"
                 }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Ferry"
-                }
               }
             ]
           }
