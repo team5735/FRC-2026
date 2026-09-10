@@ -110,6 +110,31 @@ public class Robot extends TimedRobot {
         Map<String, Command> commandsForAuto = new HashMap<>();
         NamedCommands.registerCommands(commandsForAuto);
         autoChooser = AutoBuilder.buildAutoChooser();
+        
+        commandsForAuto.put("extend climber", climber.getFullyExtendCommand());
+        commandsForAuto.put("detract climber",
+                climber.getFullyDetractCommand().alongWith(turret.holdRobotRel(TurretConstants.CLIMB_POS_BOT_REL)));
+        commandsForAuto.put("drop intake", intake.getSlapdownCommand());
+        commandsForAuto.put("run intake", intake.getIntakeForwardRollCommand());
+        commandsForAuto.put("start intake", intake.runOnce(() -> intake.forwardRoll()));
+        commandsForAuto.put("stop intake", intake.runOnce(() -> intake.stopRoll()));
+        commandsForAuto.put("Put up Intake", intake.getLiftCommand());
+        commandsForAuto.put("run spindex", spindex.getRun());
+        commandsForAuto.put("dynamic launch",
+                LaunchCalculator.dynamicLaunchAuto(LaunchGoal.SCORE, hood, turret, drivetrain, launcher,
+                        spindex));
+        commandsForAuto.put("launch at 3000 rpm", launcher.getLaunchFuel(RPM.of(3000)));
+        commandsForAuto.put("wait for shooter", Commands.waitUntil(() -> launcher.atSetpoint()));
+        commandsForAuto.put("Turret track Blue Hub",
+                turret.trackFieldPos(FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER)));
+        commandsForAuto.put("Hood atZero", hood.runOnce(() -> hood.setHoodAngle(0)));
+        commandsForAuto.put("hood 21", hood.runOnce(() -> hood.setHoodAngle(21)));
+        commandsForAuto.put("Ferry",
+                LaunchCalculator.dynamicLaunchAuto(LaunchGoal.FERRY, hood, turret, drivetrain, launcher, spindex));
+        NamedCommands.registerCommands(commandsForAuto);
+
+        autoChooser = AutoBuilder.buildAutoChooser();
+
         SmartDashboard.putData("Choose an Auto", autoChooser);
     }
 

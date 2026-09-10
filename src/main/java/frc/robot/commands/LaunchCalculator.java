@@ -263,6 +263,10 @@ public class LaunchCalculator {
     private static NTable table = NTable.root("shooter");
 
     static {
+        table.ensure("angle", 0);
+        table.ensure("turret angle", 0);
+        table.ensure("turret RPM", 0);
+        table.ensure("launcher RPM", 0);
         table.makePersistent("angle");
     }
 
