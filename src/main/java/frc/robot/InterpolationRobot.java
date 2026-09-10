@@ -27,7 +27,6 @@ import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.HoodSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LauncherSubsystem;
-import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.SpinDexSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.util.NTable;
@@ -95,11 +94,6 @@ public class InterpolationRobot extends TimedRobot {
 
     DrivetrainSubsystem drivetrain = CompbotTunerConstants.createDrivetrain();
 
-    LimelightSubsystem limelights[] = new LimelightSubsystem[] {
-            new LimelightSubsystem(drivetrain, "limelight-fone"),
-            new LimelightSubsystem(drivetrain, "limelight-ftwo"),
-    };
-
     LauncherSubsystem launcher = new LauncherSubsystem();
     SpinDexSubsystem spindex = new SpinDexSubsystem();
     TurretSubsystem turret = new TurretSubsystem(drivetrain::getEstimatedPosition, drivetrain.constants, () -> true);
@@ -117,10 +111,6 @@ public class InterpolationRobot extends TimedRobot {
 
         NTable.root().set("current robot", "interpolation");
         NTable.root().set("scheduler", CommandScheduler.getInstance());
-
-        for (LimelightSubsystem limelight : limelights) {
-            limelight.setIMUToPigeon();
-        }
 
         DriverStation.silenceJoystickConnectionWarning(true);
         SignalLogger.enableAutoLogging(false);
@@ -231,9 +221,6 @@ public class InterpolationRobot extends TimedRobot {
 
     @Override
     public void teleopInit() {
-        for (LimelightSubsystem limelight : limelights) {
-            limelight.setIMUMode(3);
-        }
     }
 
     @Override

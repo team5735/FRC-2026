@@ -537,9 +537,6 @@ public class TurretSubsystem extends SubsystemBase {
 
         public final Telemetry logger = new Telemetry(drivetrain, turret);
 
-        private final LimelightSubsystem[] limelights = { new LimelightSubsystem(drivetrain, "limelight-fone"),
-                new LimelightSubsystem(drivetrain, "limelight-ftwo") };
-
         public AimingTest() {
             super();
 
@@ -569,10 +566,6 @@ public class TurretSubsystem extends SubsystemBase {
             controller.x().whileTrue(turret.zeroSequence());
             controller.povUp().whileTrue(turret.sysId());
             controller.povDown().onTrue(Commands.runOnce(turret::remakePID, turret));
-
-            for (LimelightSubsystem limelight : limelights) {
-                limelight.setIMUToPigeon();
-            }
         }
 
         @Override
@@ -581,9 +574,6 @@ public class TurretSubsystem extends SubsystemBase {
                 CommandScheduler.getInstance().schedule(turret.zeroSequence());
             }
 
-            for (LimelightSubsystem limelight : limelights) {
-                limelight.setIMUMode(3);
-            }
         }
 
         @Override
@@ -592,9 +582,6 @@ public class TurretSubsystem extends SubsystemBase {
                 CommandScheduler.getInstance().schedule(turret.zeroSequence());
             }
 
-            for (LimelightSubsystem limelight : limelights) {
-                limelight.setIMUMode(3);
-            }
         }
     }
 
