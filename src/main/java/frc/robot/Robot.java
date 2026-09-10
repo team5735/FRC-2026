@@ -257,12 +257,12 @@ public class Robot extends TimedRobot {
     private void setupDemoDriverBindings() {
         driveController.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
-        driveController.a().whileTrue(LaunchCalculator.staticLaunchCommand(LaunchGoal.SCORE,
-                () -> false, hood, turret, launcher, spindex));
-        driveController.a().onFalse(unclogSpindex);
+        driveController.x().whileTrue(LaunchCalculator.staticLaunchCommand(LaunchGoal.SCORE,
+                () -> true, hood, turret, launcher, spindex));
+        driveController.x().onFalse(unclogSpindex);
 
         driveController.b().whileTrue(LaunchCalculator.staticLaunchCommand(LaunchGoal.FERRY,
-                () -> false, hood, turret, launcher, spindex));
+                () -> true, hood, turret, launcher, spindex));
         driveController.b().onFalse(unclogSpindex);
 
         driveController.rightBumper().whileTrue(intake.getIntakeForwardRollCommand());
