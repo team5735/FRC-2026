@@ -34,6 +34,7 @@ import frc.robot.subsystems.HoodSubsystem;
 import frc.robot.subsystems.LauncherSubsystem;
 import frc.robot.subsystems.SpinDexSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
+import frc.robot.util.NTable;
 
 public class LaunchCalculator {
     // key: distance (m) value: angle(deg)
@@ -144,10 +145,9 @@ public class LaunchCalculator {
                                 drivetrain.getEstimatedPosition().getY())
                         : new Translation2d(0, drivetrain.getEstimatedPosition().getY());
                 double y = launchTarget.getY();
-                y += (FieldConstants.BLUE_HUB_CENTER.getY()-y)/2.0;
+                y += (FieldConstants.BLUE_HUB_CENTER.getY() - y) / 2.0;
                 launchTarget = new Translation2d(launchTarget.getX(), y);
                 Telemetry.field.getObject("ferry_target").setPose(new Pose2d(launchTarget, Rotation2d.kZero));
-
 
                 hoodMap = ferryHoodMap;
                 speedMap = ferrySpeedMap;
@@ -155,12 +155,11 @@ public class LaunchCalculator {
                 break;
             case DEMO:
                 cachedParams = new LaunchParams(
-                    true,
-                    Rotations.of(0),
-                    RotationsPerSecond.of(0),
-                    Degrees.of(25),
-                    RPM.of(3500)
-                );
+                        true,
+                        Rotations.of(0),
+                        RotationsPerSecond.of(0),
+                        Degrees.of(25),
+                        RPM.of(3500));
                 return;
             case LOOP:
             default:
@@ -261,6 +260,46 @@ public class LaunchCalculator {
                 turret.getMechanismPose()));
     }
 
+    private static NTable table = NTable.root("shooter");
+
+    static {
+        table.ensure("hood angle", 0);
+        table.ensure("turret angle", 0);
+        table.ensure("turret RPM", 0);
+        table.ensure("launcher RPM", 0);
+        table.makePersistent("hood angle", "turret angle", "turret RPM", "launcher RPM");
+    }
+
+    public static Command staticLaunchCommand(LaunchGoal goal, BooleanSupplier override,
+            HoodSubsystem hood, TurretSubsystem turret, LauncherSubsystem launcher, SpinDexSubsystem spindex) {
+        return Commands.parallel(
+                hood.getDynamicTracking(
+                        () -> Degrees.of(table.getDouble("hood angle"))),
+                turret.trackRobotRelWithVelocity(
+                        () -> Degrees.of(table.getDouble("turret angle")),
+                        () -> RPM.of(table.getDouble("turret RPM"))),
+                launcher.getDynamicLaunch(
+                        () -> RPM.of(table.getDouble("launcher RPM"))),
+                spindex.idle().until(() -> {
+                    boolean hoodCheck = MathUtil.isNear(table.getDouble("hood angle"),
+                            hood.getNormalizedAngle(),
+                            HoodConstants.DYNAMIC_TOLERANCE_DEGREES);
+                    table.set("hoodCheck", hoodCheck);
+                    boolean turretCheck = turret.isDynamicAimedAt(getCachedParams().turretAngle)
+                            && !TurretConstants.isInDynamicDeadZone(getCachedParams().turretAngle);
+                    table.set("turretCheck", turretCheck);
+                    boolean launcherCheck = table.getDouble("launcher RPM") < launcher.getRPM();
+                    table.set("launcherCheck", launcherCheck);
+                    return ((hoodCheck
+                            && turretCheck
+                            && launcherCheck)
+                            || override.getAsBoolean());
+                }).withTimeout(3).andThen(
+                        spindex.getInformedRun(
+                                () -> !TurretConstants.isInDynamicDeadZone(Degrees.of(table.getDouble("turret angle")))
+                                        || override.getAsBoolean())));
+    }
+
     public static Command dynamicLaunchCommand(LaunchGoal goal, BooleanSupplier override,
             HoodSubsystem hood, TurretSubsystem turret, DrivetrainSubsystem drivetrain,
             LauncherSubsystem launcher, SpinDexSubsystem spindex) {
@@ -310,7 +349,8 @@ public class LaunchCalculator {
                         () -> controller.getLeftTriggerAxis() * DRIVETRAIN_VELOCITY_SCALING,
                         () -> controller.getRightTriggerAxis() * DRIVETRAIN_VELOCITY_SCALING,
                         () -> controller.getHID().getYButton(),
-                        () -> controller.getHID().getStartButton())).beforeStarting(timeOut::restart);
+                        () -> controller.getHID().getStartButton()))
+                .beforeStarting(timeOut::restart);
     }
 
     public static Command dynamicLaunchAuto(LaunchGoal goal,
