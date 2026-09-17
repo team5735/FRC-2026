@@ -43,7 +43,6 @@ import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.HoodSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LauncherSubsystem;
-import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.SpinDexSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.util.MatchState;
@@ -63,8 +62,6 @@ public class Robot extends TimedRobot {
 
     public final DrivetrainSubsystem drivetrain;
 
-    public final LimelightSubsystem limelights[];
-
     public final LauncherSubsystem launcher = new LauncherSubsystem();
     public final ClimberSubsystem climber = new ClimberSubsystem();
     public final SpinDexSubsystem spindex = new SpinDexSubsystem();
@@ -83,10 +80,6 @@ public class Robot extends TimedRobot {
         this.drivetrain = drivetrain;
         turret = new TurretSubsystem(drivetrain::getEstimatedPosition, drivetrain.constants, () -> turretEnabled);
         this.logger = new Telemetry(drivetrain, turret);
-        limelights = new LimelightSubsystem[] {
-                new LimelightSubsystem(drivetrain, "limelight-fone"),
-                new LimelightSubsystem(drivetrain, "limelight-ftwo"),
-        };
         hood = new HoodSubsystem(turret::getMechanismPose, FieldConstants.HOOD_EXCLUSION_ZONES);
 
         this.isDemo = isDemo;
@@ -108,10 +101,6 @@ public class Robot extends TimedRobot {
         StatusLogger.disableAutoLogging();
 
         DriverStation.silenceJoystickConnectionWarning(true);
-
-        for (LimelightSubsystem limelight : limelights) {
-            limelight.setIMUToPigeon();
-        }
     }
 
     private SendableChooser<Command> autoChooser;
@@ -119,44 +108,8 @@ public class Robot extends TimedRobot {
 
     private void setupAutoChooser() {
         Map<String, Command> commandsForAuto = new HashMap<>();
-
-        // we disable the requirements so that the pid to pose command can control the
-        // robot during the auto
-        commandsForAuto.put("pid adjust", new PIDToPose(drivetrain, () -> {
-            var pos = drivetrain.getEstimatedPosition();
-            Pose2d pose = limelights[0].getPoseEstimate();
-            if (pos == null) {
-                pos = limelights[1].getPoseEstimate();
-            }
-            if (pos != null) {
-                drivetrain.resetPose(pose);
-            }
-            return pos;
-        }, "stay in place !", true));
-        commandsForAuto.put("extend climber", climber.getFullyExtendCommand());
-        commandsForAuto.put("detract climber",
-                climber.getFullyDetractCommand().alongWith(turret.holdRobotRel(TurretConstants.CLIMB_POS_BOT_REL)));
-        commandsForAuto.put("drop intake", intake.getSlapdownCommand());
-        commandsForAuto.put("run intake", intake.getIntakeForwardRollCommand());
-        commandsForAuto.put("start intake", intake.runOnce(() -> intake.forwardRoll()));
-        commandsForAuto.put("stop intake", intake.runOnce(() -> intake.stopRoll()));
-        commandsForAuto.put("Put up Intake", intake.getLiftCommand());
-        commandsForAuto.put("run spindex", spindex.getRun());
-        commandsForAuto.put("dynamic launch",
-                LaunchCalculator.dynamicLaunchAuto(LaunchGoal.SCORE, hood, turret, drivetrain, launcher,
-                        spindex));
-        commandsForAuto.put("launch at 3000 rpm", launcher.getLaunchFuel(RPM.of(3000)));
-        commandsForAuto.put("wait for shooter", Commands.waitUntil(() -> launcher.atSetpoint()));
-        commandsForAuto.put("Turret track Blue Hub",
-                turret.trackFieldPos(FieldConstants.alliance(FieldConstants.BLUE_HUB_CENTER)));
-        commandsForAuto.put("Hood atZero", hood.runOnce(() -> hood.setHoodAngle(0)));
-        commandsForAuto.put("hood 21", hood.runOnce(() -> hood.setHoodAngle(21)));
-        commandsForAuto.put("Ferry",
-                LaunchCalculator.dynamicLaunchAuto(LaunchGoal.FERRY, hood, turret, drivetrain, launcher, spindex));
         NamedCommands.registerCommands(commandsForAuto);
-
         autoChooser = AutoBuilder.buildAutoChooser();
-
         SmartDashboard.putData("Choose an Auto", autoChooser);
     }
 
@@ -279,16 +232,13 @@ public class Robot extends TimedRobot {
     private void setupDemoDriverBindings() {
         driveController.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
-        driveController.a().whileTrue(LaunchCalculator.dynamicLaunchTeleop(driveController, LaunchGoal.LOOP,
-                () -> false, hood, turret, drivetrain, launcher, spindex));
+        driveController.a().whileTrue(LaunchCalculator.staticLaunchCommand(LaunchGoal.SCORE,
+                () -> false, hood, turret, launcher, spindex));
+        driveController.a().onFalse(unclogSpindex);
 
-        driveController.b().whileTrue(LaunchCalculator.dynamicLaunchTeleop(driveController, LaunchGoal.DEMO,
-                () -> false, hood, turret, drivetrain, launcher, spindex));
+        driveController.b().whileTrue(LaunchCalculator.staticLaunchCommand(LaunchGoal.FERRY,
+                () -> false, hood, turret, launcher, spindex));
         driveController.b().onFalse(unclogSpindex);
-
-        // driveController.x().whileTrue(LaunchCalculator.dynamicLaunchTeleop(driveController, LaunchGoal.FERRY,
-        //         () -> false, hood, turret, drivetrain, launcher, spindex));
-        // driveController.x().onFalse(unclogSpindex);
 
         driveController.rightBumper().whileTrue(intake.getIntakeForwardRollCommand());
         driveController.leftBumper().whileTrue(intake.getIntakeReverseRollCommand());
@@ -321,8 +271,6 @@ public class Robot extends TimedRobot {
                 .until(() -> driveController.getHID().getBackButton() || launcher.atSetpoint())
                 .withTimeout(Seconds.of(2)));
         testController.x().onTrue(hood.runOnce(() -> hood.setHoodAngle(HoodConstants.ANGLE_AT_ARC)));
-        testController.y()
-                .onTrue(drivetrain.runOnce(() -> drivetrain.resetPose(limelights[0].getPoseEstimate())));
 
         testController.povUp().onTrue(Commands.runOnce(() -> hood.setHoodAngle(HoodConstants.HIGHEST_ANGLE_DEGREES)));
         testController.povDown().onTrue(Commands.runOnce(() -> hood.setHoodAngle(HoodConstants.LOWEST_ANGLE_DEGREES)));
@@ -346,17 +294,10 @@ public class Robot extends TimedRobot {
 
     @Override
     public void disabledPeriodic() {
-        for (LimelightSubsystem limelight : limelights) {
-            limelight.setIMUToPigeon();
-        }
     }
 
     @Override
     public void autonomousInit() {
-        for (LimelightSubsystem limelight : limelights) {
-            limelight.setIMUMode(3);
-        }
-
         if (!turret.getZeroStatus()) {
             CommandScheduler.getInstance().schedule(turret.zeroSequence());
         }
@@ -381,10 +322,6 @@ public class Robot extends TimedRobot {
     public void teleopInit() {
         if (storedAuto != null) {
             storedAuto.cancel();
-        }
-
-        for (LimelightSubsystem limelight : limelights) {
-            limelight.setIMUMode(3);
         }
 
         if (!turret.getZeroStatus()) {
