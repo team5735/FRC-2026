@@ -263,41 +263,41 @@ public class LaunchCalculator {
     private static NTable table = NTable.root("shooter");
 
     static {
-        table.ensure("angle", 0);
+        table.ensure("hood angle", 0);
         table.ensure("turret angle", 0);
         table.ensure("turret RPM", 0);
         table.ensure("launcher RPM", 0);
-        table.makePersistent("angle");
+        table.makePersistent("hood angle", "turret angle", "turret RPM", "launcher RPM");
     }
 
     public static Command staticLaunchCommand(LaunchGoal goal, BooleanSupplier override,
             HoodSubsystem hood, TurretSubsystem turret, LauncherSubsystem launcher, SpinDexSubsystem spindex) {
         return Commands.parallel(
                 hood.getDynamicTracking(
-                        () -> Degrees.of(table.getDouble("angle"))),
+                        () -> Degrees.of(table.getDouble("hood angle"))),
                 turret.trackRobotRelWithVelocity(
                         () -> Degrees.of(table.getDouble("turret angle")),
                         () -> RPM.of(table.getDouble("turret RPM"))),
                 launcher.getDynamicLaunch(
                         () -> RPM.of(table.getDouble("launcher RPM"))),
                 spindex.idle().until(() -> {
-                    LaunchParams params = getCachedParams();
-                    boolean hoodCheck = MathUtil.isNear(params.hoodAngle.in(Degrees),
+                    boolean hoodCheck = MathUtil.isNear(table.getDouble("hood angle"),
                             hood.getNormalizedAngle(),
                             HoodConstants.DYNAMIC_TOLERANCE_DEGREES);
                     table.set("hoodCheck", hoodCheck);
                     boolean turretCheck = turret.isDynamicAimedAt(getCachedParams().turretAngle)
                             && !TurretConstants.isInDynamicDeadZone(getCachedParams().turretAngle);
                     table.set("turretCheck", turretCheck);
-                    boolean launcherCheck = params.flywheelVelocity.in(RPM) < launcher.getRPM();
+                    boolean launcherCheck = table.getDouble("launcher RPM") < launcher.getRPM();
                     table.set("launcherCheck", launcherCheck);
                     return ((hoodCheck
                             && turretCheck
                             && launcherCheck)
                             || override.getAsBoolean());
                 }).withTimeout(3).andThen(
-                        spindex.getInformedRun(() -> !TurretConstants.isInDynamicDeadZone(getCachedParams().turretAngle)
-                                || override.getAsBoolean())));
+                        spindex.getInformedRun(
+                                () -> !TurretConstants.isInDynamicDeadZone(Degrees.of(table.getDouble("turret angle")))
+                                        || override.getAsBoolean())));
     }
 
     public static Command dynamicLaunchCommand(LaunchGoal goal, BooleanSupplier override,
