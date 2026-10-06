@@ -4,44 +4,44 @@
     {
       "anchor": {
         "x": 3.641,
-        "y": 0.521
+        "y": 7.521999999999999
       },
       "prevControl": null,
       "nextControl": {
         "x": 4.501031353339948,
-        "y": 0.7165553437086645
+        "y": 7.717555343708664
       },
       "isLocked": false,
       "linkedName": "Right Trench"
     },
     {
       "anchor": {
-        "x": 6.171963878813244,
-        "y": 0.6463313802083337
+        "x": 6.328115699404763,
+        "y": 7.0651981988916255
       },
       "prevControl": {
-        "x": 5.634442487444196,
-        "y": 0.6920594424293153
+        "x": 5.790594308035715,
+        "y": 7.110926261112607
       },
       "nextControl": {
-        "x": 6.726986010038384,
-        "y": 0.5991144936653762
+        "x": 6.883137830629902,
+        "y": 7.017981312348668
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 7.705612734840029,
-        "y": 1.1227290852864587
+        "x": 7.7326788279967165,
+        "y": 6.705025464388341
       },
       "prevControl": {
-        "x": 6.657639741443452,
-        "y": 1.08582037062872
+        "x": 7.7326788279967165,
+        "y": 6.455025464388342
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Start right top sweep"
     }
   ],
   "rotationTargets": [
@@ -63,13 +63,13 @@
   },
   "goalEndState": {
     "velocity": 1.0,
-    "rotation": 90.0
+    "rotation": -90.0
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 1.0,
-    "rotation": 178.54043434430162
+    "rotation": -178.54043434430162
   },
   "useDefaultConstraints": true
 }

@@ -4,12 +4,12 @@
     {
       "anchor": {
         "x": 3.638651541023396,
-        "y": 4.00100003489189
+        "y": 4.0419999651081095
       },
       "prevControl": null,
       "nextControl": {
         "x": 3.3233545613916995,
-        "y": 2.8976924525816226
+        "y": 2.9386923827978424
       },
       "isLocked": false,
       "linkedName": "Hub"
@@ -64,7 +64,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 90.0
+    "rotation": -90.0
   },
   "useDefaultConstraints": true
 }

@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.705612734840029,
-        "y": 6.920270914713541
+        "x": 7.7326788279967165,
+        "y": 6.705025464388341
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.718635949803149,
-        "y": 6.053101993110237
+        "x": 7.745702042959836,
+        "y": 7.572194385991645
       },
       "isLocked": false,
-      "linkedName": "start Sweep Bottom"
+      "linkedName": "Start right top sweep"
     },
     {
       "anchor": {
-        "x": 7.766685442243302,
-        "y": 4.75993859281994
+        "x": 7.7326788279967165,
+        "y": 3.511350382286534
       },
       "prevControl": {
-        "x": 7.7429084262671575,
-        "y": 6.290515101390704
+        "x": 7.732057000657919,
+        "y": 3.2613511556262087
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "end bottom ferry"
+      "linkedName": "end top sweep half"
     }
   ],
   "rotationTargets": [],
