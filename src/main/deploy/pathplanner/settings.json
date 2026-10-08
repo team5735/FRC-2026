@@ -40,10 +40,9 @@
   "bumperOffsetY": 0.0,
   "robotFeatures": [
     "{\"name\":\"Climber Hook\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":-0.288575,\"y\":0.0},\"size\":{\"width\":0.0889,\"length\":0.032},\"borderRadius\":0.0,\"strokeWidth\":0.02,\"filled\":true}}",
-    "{\"name\":\"Turret\",\"type\":\"circle\",\"data\":{\"center\":{\"x\":-0.10795,\"y\":0.1651},\"radius\":0.07874,\"strokeWidth\":0.02,\"filled\":true}}",
+    "{\"name\":\"Turret\",\"type\":\"circle\",\"data\":{\"center\":{\"x\":-0.10795,\"y\":-0.165},\"radius\":0.07874,\"strokeWidth\":0.02,\"filled\":true}}",
     "{\"name\":\"Frame\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":0.0,\"y\":0.0},\"size\":{\"width\":0.7493,\"length\":0.635},\"borderRadius\":0.0,\"strokeWidth\":0.02,\"filled\":false}}",
     "{\"name\":\"Intake\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":0.457,\"y\":0.0},\"size\":{\"width\":0.749,\"length\":0.2794},\"borderRadius\":0.0,\"strokeWidth\":0.0,\"filled\":false}}",
-    "{\"name\":\"Climber Upright\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":-0.26,\"y\":-0.0319},\"size\":{\"width\":0.0256,\"length\":0.025},\"borderRadius\":0.0,\"strokeWidth\":0.02,\"filled\":true}}",
-    "{\"name\":\"Fixed Launch Trajectory\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":-0.108,\"y\":2.665},\"size\":{\"width\":5.0,\"length\":0.005},\"borderRadius\":0.0,\"strokeWidth\":0.0,\"filled\":true}}"
+    "{\"name\":\"Fixed Launch Trajectory\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":-0.108,\"y\":-2.665},\"size\":{\"width\":5.0,\"length\":0.005},\"borderRadius\":0.0,\"strokeWidth\":0.0,\"filled\":true}}"
   ]
 }

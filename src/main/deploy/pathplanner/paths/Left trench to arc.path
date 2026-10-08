@@ -16,16 +16,16 @@
     },
     {
       "anchor": {
-        "x": 2.7430729166666663,
-        "y": 6.009838960193451
+        "x": 2.4546786849285667,
+        "y": 5.438554454428245
       },
       "prevControl": {
-        "x": 3.033346702938988,
-        "y": 6.94642308407738
+        "x": 2.744952471200888,
+        "y": 6.375138578312174
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "ZXcZ"
+      "linkedName": "left shoot pos"
     }
   ],
   "rotationTargets": [],
@@ -33,16 +33,16 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.0,
+    "maxVelocity": 4.0,
     "maxAcceleration": 3.0,
-    "maxAngularVelocity": 540.0,
-    "maxAngularAcceleration": 720.0,
+    "maxAngularVelocity": 180.0,
+    "maxAngularAcceleration": 180.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -131.697
+    "rotation": 59.99999999999999
   },
   "reversed": false,
   "folder": null,

@@ -45,7 +45,7 @@
                     {
                       "type": "named",
                       "data": {
-                        "name": "dynamic launch"
+                        "name": "launch with 4500 rpm"
                       }
                     }
                   ]
@@ -79,7 +79,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Start bottom sweep - half length ferry"
+                  "pathName": "Start Top sweep - half length ferry"
                 }
               },
               {
@@ -104,21 +104,21 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "dynamic launch"
+          }
+        },
+        {
           "type": "path",
           "data": {
-            "pathName": "Right side neutral to right trench"
+            "pathName": "right trench neutral to right trench"
           }
         },
         {
           "type": "path",
           "data": {
             "pathName": "Right trench to arc"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "dynamic launch"
           }
         }
       ]

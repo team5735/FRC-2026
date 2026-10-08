@@ -133,6 +133,7 @@ public class Robot extends TimedRobot {
             }
             return pos;
         }, "stay in place !", true));
+        commandsForAuto.put("launch with 4500 rpm", launcher.getLaunchFuel(RPM.of(4500)));
         commandsForAuto.put("extend climber", climber.getFullyExtendCommand());
         commandsForAuto.put("detract climber",
                 climber.getFullyDetractCommand().alongWith(turret.holdRobotRel(TurretConstants.CLIMB_POS_BOT_REL)));
@@ -154,7 +155,7 @@ public class Robot extends TimedRobot {
         commandsForAuto.put("Ferry",
                 LaunchCalculator.dynamicLaunchAuto(LaunchGoal.FERRY, hood, turret, drivetrain, launcher, spindex));
         NamedCommands.registerCommands(commandsForAuto);
-
+        commandsForAuto.put("Delay Hood shoot", )
         autoChooser = AutoBuilder.buildAutoChooser();
 
         SmartDashboard.putData("Choose an Auto", autoChooser);

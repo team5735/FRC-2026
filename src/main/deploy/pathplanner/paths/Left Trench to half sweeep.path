@@ -32,16 +32,16 @@
     },
     {
       "anchor": {
-        "x": 7.705612734840029,
-        "y": 6.920270914713541
+        "x": 7.644489048549106,
+        "y": 7.036891799200149
       },
       "prevControl": {
-        "x": 6.657639741443452,
-        "y": 6.9571796293712795
+        "x": 6.596516055152529,
+        "y": 7.073800513857888
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Start Sweep Top"
     }
   ],
   "rotationTargets": [
@@ -54,10 +54,10 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.0,
+    "maxVelocity": 4.0,
     "maxAcceleration": 3.0,
-    "maxAngularVelocity": 540.0,
-    "maxAngularAcceleration": 720.0,
+    "maxAngularVelocity": 180.0,
+    "maxAngularAcceleration": 180.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },
