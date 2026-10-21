@@ -64,7 +64,7 @@ public class LaunchCalculator {
         scoreHoodMap.put(Units.inchesToMeters(102.2), 20.0 + hoodTweakOffset);
         scoreHoodMap.put(Units.inchesToMeters(216), 20.0 + hoodTweakOffset);
 
-        double rpmMult = 1.02;
+        double rpmMult = 1.12;
         scoreSpeedMap.put(Units.inchesToMeters(56), 2600.0 * rpmMult);
         scoreSpeedMap.put(Units.inchesToMeters(71.75), 2650.0 * rpmMult);
         scoreSpeedMap.put(Units.inchesToMeters(87.8), 2675.0 * rpmMult);
@@ -91,7 +91,7 @@ public class LaunchCalculator {
         ferrySpeedMap.put(50., 4000.);
 
         ferryTOFMap.put(0., 0.);
-        ferryTOFMap.put(0., 0.);
+        ferryTOFMap.put(50., 0.);
     }
 
     private static final LinearFilter turretVelFiler = LinearFilter.movingAverage(50);
@@ -122,6 +122,7 @@ public class LaunchCalculator {
     public enum LaunchGoal {
         SCORE,
         FERRY,
+        DEMO, // for low-powered demo shots //TODO
         LOOP // for fun/in-pit testing
     }
 
@@ -152,6 +153,15 @@ public class LaunchCalculator {
                 speedMap = ferrySpeedMap;
                 TOFMap = ferryTOFMap;
                 break;
+            case DEMO:
+                cachedParams = new LaunchParams(
+                    true,
+                    Rotations.of(0),
+                    RotationsPerSecond.of(0),
+                    Degrees.of(25),
+                    RPM.of(3500)
+                );
+                return;
             case LOOP:
             default:
                 cachedParams = new LaunchParams(
@@ -159,7 +169,7 @@ public class LaunchCalculator {
                         Rotations.of(0.875), // Roughly face the robot's center
                         RotationsPerSecond.of(0), // Hold the pose
                         Degrees.of(HoodConstants.LOWEST_ANGLE_DEGREES), // Minimum horizontal velocity component
-                        RPM.of(1000)); // TODO find appropriate speed
+                        RPM.of(750)); // TODO find appropriate speed
                 return;
         }
 

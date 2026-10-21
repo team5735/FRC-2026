@@ -16,6 +16,7 @@ public class Constants {
         LAUNCHER,
         CANDLE,
         INTERPOLATION,
+        DEMO, // for demos where we cannot access field elements and want low-powered launches
     }
 
     public static final BotConfiguration CURRENT_ROBOT = BotConfiguration.FULL_COMPBOT;
