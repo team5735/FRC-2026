@@ -154,7 +154,7 @@ public class Robot extends TimedRobot {
         commandsForAuto.put("Ferry",
                 LaunchCalculator.dynamicLaunchAuto(LaunchGoal.FERRY, hood, turret, drivetrain, launcher, spindex));
         NamedCommands.registerCommands(commandsForAuto);
-
+        commandsForAuto.put("Stop Shoot", launcher.getLaunchFuel(RPM.of(0)));
         autoChooser = AutoBuilder.buildAutoChooser();
 
         SmartDashboard.putData("Choose an Auto", autoChooser);

@@ -4,12 +4,12 @@
     {
       "anchor": {
         "x": 7.766685442243302,
-        "y": 3.2830614071800595
+        "y": 4.75993859281994
       },
       "prevControl": null,
       "nextControl": {
         "x": 7.840827257280095,
-        "y": 2.5825997027471175
+        "y": 4.059476888386998
       },
       "isLocked": false,
       "linkedName": "end bottom ferry"
@@ -89,7 +89,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 1.0,
-    "rotation": 90.0
+    "rotation": -90.0
   },
   "useDefaultConstraints": true
 }

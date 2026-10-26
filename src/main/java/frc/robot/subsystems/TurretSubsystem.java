@@ -450,7 +450,7 @@ public class TurretSubsystem extends SubsystemBase {
      */
     public Command zeroSequence() {
         return hardRunForward().until(limitTrigger::getAsBoolean)
-                .andThen(softRunReverse().until(() -> !limitTrigger.getAsBoolean()))
+                    .andThen(softRunReverse().until(() -> !limitTrigger.getAsBoolean()))
                 .andThen(softRunForward().until(limitTrigger::getAsBoolean))
                 .andThen(zeroCommand()).withName("zero sequence")
                 .beforeStarting(() -> kraken.getConfigurator().apply(new SoftwareLimitSwitchConfigs()

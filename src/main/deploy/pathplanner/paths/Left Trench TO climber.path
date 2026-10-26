@@ -4,12 +4,12 @@
     {
       "anchor": {
         "x": 3.641,
-        "y": 7.521999999999999
+        "y": 0.521
       },
       "prevControl": null,
       "nextControl": {
         "x": 1.4036409884034273,
-        "y": 7.34769998889411
+        "y": 0.3466999888941107
       },
       "isLocked": false,
       "linkedName": "Right Trench"
@@ -17,11 +17,11 @@
     {
       "anchor": {
         "x": 2.0534676649305563,
-        "y": 3.753956018518518
+        "y": 4.289043981481481
       },
       "prevControl": {
         "x": 1.8280580610343056,
-        "y": 5.069885710738577
+        "y": 5.60497367370154
       },
       "nextControl": null,
       "isLocked": false,
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -90.0
+    "rotation": 90.0
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -178.54043434430162
+    "rotation": 178.54043434430162
   },
   "useDefaultConstraints": true
 }

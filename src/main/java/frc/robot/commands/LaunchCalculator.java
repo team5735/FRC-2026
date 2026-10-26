@@ -10,6 +10,8 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import java.util.function.BooleanSupplier;
 
+import javax.xml.stream.events.EndDocument;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -18,6 +20,8 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.NetworkTableType;
+import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.Timer;
@@ -34,6 +38,7 @@ import frc.robot.subsystems.HoodSubsystem;
 import frc.robot.subsystems.LauncherSubsystem;
 import frc.robot.subsystems.SpinDexSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
+import frc.robot.util.NTable;
 
 public class LaunchCalculator {
     // key: distance (m) value: angle(deg)
@@ -260,10 +265,16 @@ public class LaunchCalculator {
         return Commands.run(() -> calculate(goal, drivetrain, drivetrain.getChassisSpeedsFieldRel(),
                 turret.getMechanismPose()));
     }
+        public static NTable staticlaunchfor2700rpm = NTable.root("Launcher");
+
+
+        
+            
 
     public static Command dynamicLaunchCommand(LaunchGoal goal, BooleanSupplier override,
             HoodSubsystem hood, TurretSubsystem turret, DrivetrainSubsystem drivetrain,
             LauncherSubsystem launcher, SpinDexSubsystem spindex) {
+                staticlaunchfor2700rpm.set("RPM", 2700.0);
         return Commands.parallel(
                 reCalcParams(goal, turret, drivetrain),
                 hood.getDynamicTracking(
@@ -272,7 +283,7 @@ public class LaunchCalculator {
                         () -> getCachedParams().turretAngle,
                         () -> getCachedParams().turretVelocity),
                 launcher.getDynamicLaunch(
-                        () -> getCachedParams().flywheelVelocity),
+                        ()->RPM.of(staticlaunchfor2700rpm.get("RPM", 2700.0))),
                 spindex.idle().until(() -> {
                     LaunchParams params = getCachedParams();
                     boolean hoodCheck = MathUtil.isNear(params.hoodAngle.in(Degrees),

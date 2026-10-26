@@ -153,7 +153,7 @@ public class LauncherSubsystem extends SubsystemBase {
     public Command sysIdQuasistatic(Direction direction) {
         return routine.quasistatic(direction);
     }
-
+   
     public Command runAtSpeed(AngularVelocity speed) {
         return startRun(() -> bangbang.setSetpoint(speed.in(RPM)), this::usePID);
     }
