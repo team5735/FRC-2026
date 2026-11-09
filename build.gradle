@@ -126,6 +126,6 @@ tasks.register("run", JavaExec) {
     mainClass = findProperty("target") ?: "inkly.Nothing"
 }
 
-// Driver-Sim driver-training game (sim only). Adds simulateDriverSim / selfTestDriverSim / testDriverSim when the
-// sibling ../Driver-Sim checkout exists; no effect otherwise.
-if (file('../Driver-Sim/gradle/driversim.gradle').exists()) { apply from: '../Driver-Sim/gradle/driversim.gradle' }
+// Fieldrunner driver-training game (sim only). Adds simulateDriverSim / selfTestDriverSim / testDriverSim when the
+// sibling ../Fieldrunner checkout exists; no effect otherwise.
+if (file('../Fieldrunner/gradle/driversim.gradle').exists()) { apply from: '../Fieldrunner/gradle/driversim.gradle' }
