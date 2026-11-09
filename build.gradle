@@ -125,3 +125,7 @@ tasks.register("run", JavaExec) {
     classpath = sourceSets.main.runtimeClasspath + sourceSets.test.runtimeClasspath + sourceSets.sandbox.runtimeClasspath
     mainClass = findProperty("target") ?: "inkly.Nothing"
 }
+
+// Driver-Sim driver-training game (sim only). Adds simulateDriverSim / selfTestDriverSim / testDriverSim when the
+// sibling ../Driver-Sim checkout exists; no effect otherwise.
+if (file('../Driver-Sim/gradle/driversim.gradle').exists()) { apply from: '../Driver-Sim/gradle/driversim.gradle' }

@@ -113,7 +113,8 @@ public class CompbotTunerConstants {
 
     // These are only used for simulation
     private static final MomentOfInertia STEER_INERTIA = KilogramSquareMeters.of(0.01);
-    private static final MomentOfInertia DRIVE_INERTIA = KilogramSquareMeters.of(0.01);
+    // Each wheel carries a quarter of the robot's mass: m * r^2 / 4 = 56.85 kg * (2 in)^2 / 4
+    private static final MomentOfInertia DRIVE_INERTIA = KilogramSquareMeters.of(0.0367);
     // Simulated voltage necessary to overcome friction
     private static final Voltage STEER_FRICTION_VOLTAGE = Volts.of(0.2);
     private static final Voltage DRIVE_FRICTION_VOLTAGE = Volts.of(0.2);
