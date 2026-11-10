@@ -18,10 +18,19 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.sim.TalonFXSimState;
 
 import edu.wpi.first.math.controller.BangBangController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.system.LinearSystem;
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -45,6 +54,11 @@ public class LauncherSubsystem extends SubsystemBase {
     private final NTable table = NTable.root("launcher");
 
     private double setpoint = 0;
+
+    // simulation: flywheel rotations, after the pulley step-up
+    private final TalonFXSimState krakenLeftSim = krakenLeft.getSimState();
+    private final FlywheelSim flywheelSim = new FlywheelSim(makeSimFlywheelPlant(), DCMotor.getKrakenX60(2));
+    private double simRotorRotations = 0; // rotor position, counted from the start
 
     public LauncherSubsystem() {
         super();
@@ -160,6 +174,46 @@ public class LauncherSubsystem extends SubsystemBase {
 
     public boolean atSetpoint() {
         return getRPM() > bangbang.getSetpoint();
+    }
+
+    // ---- simulation
+
+    @Override
+    public void simulationPeriodic() {
+        // static friction as a dead band: the flywheel needs kS volts before it moves, then the rest drives it
+        krakenLeftSim.setSupplyVoltage(RobotController.getBatteryVoltage());
+        double volts = krakenLeftSim.getMotorVoltage();
+        double drivingVolts = 0;
+        if (Math.abs(volts) > LauncherConstants.KS) {
+            drivingVolts = volts - Math.copySign(LauncherConstants.KS, volts);
+        }
+        flywheelSim.setInputVoltage(drivingVolts);
+        flywheelSim.update(TimedRobot.kDefaultPeriod);
+
+        // the rotor turns slower than the flywheel by the pulley ratio; only its speed matters, so count its position
+        double flywheelRps = Units.radiansToRotations(flywheelSim.getAngularVelocityRadPerSec());
+        double rotorRps = flywheelRps / LauncherConstants.GEARING;
+        simRotorRotations += rotorRps * TimedRobot.kDefaultPeriod;
+        krakenLeftSim.setRawRotorPosition(simRotorRotations);
+        krakenLeftSim.setRotorVelocity(rotorRps);
+    }
+
+    // for the Fieldrunner game bridge: the flywheel's true speed, RPM
+    public double frGetSimRpm() {
+        return flywheelSim.getAngularVelocityRPM();
+    }
+
+    // for the Fieldrunner game bridge: slows the flywheel as if a ball had just been launched through it
+    public void frSimBallLaunched() {
+        double speedRadPerSec = flywheelSim.getAngularVelocityRadPerSec();
+        flywheelSim.setAngularVelocity(speedRadPerSec * (1 - 0.06)); // each ball takes 6% of the flywheel's speed
+    }
+
+    // makes the flywheel's velocity plant from the launcher's own kV and the estimated spin-up time constant
+    private static LinearSystem<N1, N1, N1> makeSimFlywheelPlant() {
+        double kVPerRps = LauncherConstants.KV * 60; // the robot's kV is per RPM of flywheel
+        double kAPerRps2 = kVPerRps * 0.4; // 0.4 s open-loop spin-up time constant
+        return LinearSystemId.identifyVelocitySystem(kVPerRps / (2 * Math.PI), kAPerRps2 / (2 * Math.PI));
     }
 
     public static class Tester extends PartialRobot {

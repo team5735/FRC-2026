@@ -24,7 +24,9 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
@@ -33,10 +35,12 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.sysid.SysIdRoutineLog;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Telemetry;
 import frc.robot.constants.Constants;
 import frc.robot.constants.robot.RobotConstants;
 import frc.robot.util.NTable;
@@ -55,6 +59,10 @@ public class DrivetrainSubsystem extends SwerveDrivetrain<TalonFX, TalonFX, CANc
     private double lastSimTime;
 
     private NTable table = NTable.root("drivetrain");
+
+    private final NTable simTable = NTable.root("sim");
+    private Pose2d simTruthPose = new Pose2d(2.0, 4.03, Rotation2d.kZero); // where the robot really is, field frame;
+                                                                           // starts in front of the blue hub
 
     /* Swerve requests to apply during SysId characterization */
     public final SwerveRequest.SysIdSwerveTranslation translationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
@@ -364,6 +372,44 @@ public class DrivetrainSubsystem extends SwerveDrivetrain<TalonFX, TalonFX, CANc
             updateSimState(deltaTime, RobotController.getBatteryVoltage());
         });
         simNotifier.startPeriodic(simLoopPeriod);
+    }
+
+    // ---- simulation
+
+    @Override
+    public void simulationPeriodic() {
+        // adds up the chassis speeds the simulated modules produce into a pose; the twist is in the robot frame and
+        // exp() turns it into the new field pose
+        ChassisSpeeds speedsRobot = getState().Speeds;
+        double dt = TimedRobot.kDefaultPeriod;
+        Twist2d twist = new Twist2d(
+                speedsRobot.vxMetersPerSecond * dt,
+                speedsRobot.vyMetersPerSecond * dt,
+                speedsRobot.omegaRadiansPerSecond * dt);
+        simTruthPose = simTruthPose.exp(twist);
+
+        simTable.set("truth x m", simTruthPose.getX());
+        simTable.set("truth y m", simTruthPose.getY());
+        simTable.set("truth deg", simTruthPose.getRotation().getDegrees());
+        Telemetry.field.getObject("SimTruth").setPose(simTruthPose);
+    }
+
+    // for the Fieldrunner game bridge: where the robot really is, field frame
+    public Pose2d frGetSimTruthPose() {
+        return simTruthPose;
+    }
+
+    // for the Fieldrunner game bridge: puts the robot somewhere (start of a practice or match), field frame
+    public void frSimPlace(Pose2d poseField) {
+        simTruthPose = poseField;
+    }
+
+    // for the Fieldrunner game bridge: moves (field frame, meters) and turns (counter-clockwise positive) the robot,
+    // as a collision or wheel slip would
+    public void frSimPush(Translation2d translationField, Rotation2d rotation) {
+        Translation2d newPosition = simTruthPose.getTranslation().plus(translationField);
+        Rotation2d newHeading = simTruthPose.getRotation().plus(rotation);
+        simTruthPose = new Pose2d(newPosition, newHeading);
     }
 
     public static double deadband(double input) {

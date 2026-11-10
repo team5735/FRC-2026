@@ -10,6 +10,8 @@ import edu.wpi.first.math.geometry.Rectangle2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Servo;
+import edu.wpi.first.wpilibj.simulation.AnalogInputSim;
+import edu.wpi.first.wpilibj.simulation.PWMSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -22,6 +24,10 @@ import frc.robot.util.Timer;
 public class HoodSubsystem extends SubsystemBase {
     private final Servo servo = new Servo(Constants.HOOD_SERVO_PIN);
     private final AnalogInput feedback = new AnalogInput(Constants.HOOD_FEEDBACK_PIN);
+
+    // simulation: a servo has no sim, so its feedback wire just follows the commanded position
+    private final PWMSim servoSim = new PWMSim(Constants.HOOD_SERVO_PIN);
+    private final AnalogInputSim feedbackSim = new AnalogInputSim(feedback);
 
     private Supplier<Pose2d> turretPoseSupplier;
     private Rectangle2d[] exclusionZones;
@@ -150,6 +156,26 @@ public class HoodSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         this.sendTelemetry();
+    }
+
+    // ---- simulation
+
+    @Override
+    public void simulationPeriodic() {
+        // the feedback wire's voltage at the servo's position, from the robot code's calibration points
+        double servoPosition = servoSim.getPosition();
+        double feedbackVolts = interp1(
+                HoodConstants.SERVO_VOLTAGE_REF0, HoodConstants.SERVO_VOLTAGE_REF1,
+                HoodConstants.SERVO_VOLTAGE_AT_REF0, HoodConstants.SERVO_VOLTAGE_AT_REF1, servoPosition);
+        feedbackSim.setVoltage(feedbackVolts);
+    }
+
+    // for the Fieldrunner game bridge: the hood's true launch angle, degrees, from where the servo actually is
+    public Angle frGetSimAngle() {
+        double angleDegrees = interp1(
+                HoodConstants.LOWEST_SERVO_POSITION, HoodConstants.HIGHEST_SERVO_POSITION,
+                HoodConstants.LOWEST_ANGLE_DEGREES, HoodConstants.HIGHEST_ANGLE_DEGREES, servoSim.getPosition());
+        return Degrees.of(angleDegrees);
     }
 
     // This is a full robot config for testing the hood subsystem

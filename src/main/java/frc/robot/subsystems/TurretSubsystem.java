@@ -10,6 +10,7 @@ import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 import static frc.robot.constants.TurretConstants.DYNAMIC_TOLERANCE;
 import static frc.robot.constants.TurretConstants.FORWARD_LIMIT_TUR_REL;
+import static frc.robot.constants.TurretConstants.GEAR_REDUCTION;
 import static frc.robot.constants.TurretConstants.HALL_LIMIT_POS_BOT_REL;
 import static frc.robot.constants.TurretConstants.KA;
 import static frc.robot.constants.TurretConstants.KD;
@@ -28,6 +29,7 @@ import static frc.robot.constants.TurretConstants.formatInputStateRobotRel;
 import static frc.robot.constants.TurretConstants.isInDeadZone;
 import static frc.robot.constants.TurretConstants.robotRelToTurretRel;
 import static frc.robot.constants.TurretConstants.turretRelToRobotRel;
+import static frc.robot.constants.TurretConstants.ZERO_OFFSET;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
@@ -40,6 +42,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.sim.TalonFXSimState;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -47,12 +50,18 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import edu.wpi.first.wpilibj.simulation.DIOSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -93,6 +102,21 @@ public class TurretSubsystem extends SubsystemBase {
 
     private Supplier<Boolean> turretEnabled;
 
+    // simulation: turret-relative rotations, as the turret TalonFX reports them
+    private static final double SIM_START_ROTATIONS = robotRelToTurretRel(START_POS_BOT_REL).in(Rotations);
+    private static final double SIM_HALL_EDGE_ROTATIONS = robotRelToTurretRel(HALL_LIMIT_POS_BOT_REL)
+            .in(Rotations); // the hall switch is on at and past this angle
+    private static final double SIM_HARD_STOP_PADDING_ROTATIONS = 0.01; // hard stops this far past each soft limit
+    private static final double SIM_MIN_ROTATIONS = REVERSE_LIMIT_TUR_REL.in(Rotations)
+            - SIM_HARD_STOP_PADDING_ROTATIONS;
+    private static final double SIM_MAX_ROTATIONS = FORWARD_LIMIT_TUR_REL.in(Rotations)
+            + SIM_HARD_STOP_PADDING_ROTATIONS;
+
+    private final TalonFXSimState krakenSim = kraken.getSimState();
+    private final DCMotorSim turretSim = new DCMotorSim(
+            LinearSystemId.createDCMotorSystem(KV / (2 * Math.PI), KA / (2 * Math.PI)), DCMotor.getKrakenX60(1));
+    private final DIOSim hallLimitSim = new DIOSim(hallLimit);
+
     public TurretSubsystem(Supplier<Pose2d> robotPoseSupplier, RobotConstants driveConstants,
             Supplier<Boolean> turretEnabled) {
         super();
@@ -113,6 +137,8 @@ public class TurretSubsystem extends SubsystemBase {
         pid.setTolerance(Units.degreesToRotations(1));
         this.robotPoseSupplier = robotPoseSupplier;
         this.turretEnabled = turretEnabled;
+
+        turretSim.setState(Units.rotationsToRadians(SIM_START_ROTATIONS), 0);
     }
 
     private void aimedAtHubTelemetry() {
@@ -489,6 +515,50 @@ public class TurretSubsystem extends SubsystemBase {
     public boolean canTurnTo(Translation2d target) {
         return !isInDeadZone(target.minus(getMechanismPose().getTranslation()).getAngle().getMeasure()
                 .minus(robotPoseSupplier.get().getRotation().getMeasure()));
+    }
+
+    // ---- simulation
+
+    @Override
+    public void simulationPeriodic() {
+        // the turret Talon is Clockwise_Positive, so the voltage that moves the turret is the Talon's, flipped
+        krakenSim.setSupplyVoltage(RobotController.getBatteryVoltage());
+        double volts = -krakenSim.getMotorVoltage();
+
+        // static friction as a dead band: the turret needs kS volts before it moves, then the rest drives it
+        double drivingVolts = 0;
+        if (Math.abs(volts) > KS) {
+            drivingVolts = volts - Math.copySign(KS, volts);
+        }
+        turretSim.setInputVoltage(drivingVolts);
+        turretSim.update(TimedRobot.kDefaultPeriod);
+
+        // hard stops just past the soft limits
+        double rotations = turretSim.getAngularPositionRotations();
+        if (rotations < SIM_MIN_ROTATIONS) {
+            turretSim.setState(Units.rotationsToRadians(SIM_MIN_ROTATIONS), 0);
+        }
+        if (rotations > SIM_MAX_ROTATIONS) {
+            turretSim.setState(Units.rotationsToRadians(SIM_MAX_ROTATIONS), 0);
+        }
+
+        // the rotor counts from where the turret started, and turns the opposite way (Clockwise_Positive)
+        double movedRotations = turretSim.getAngularPositionRotations() - SIM_START_ROTATIONS;
+        double speedRps = Units.radiansToRotations(turretSim.getAngularVelocityRadPerSec());
+        krakenSim.setRawRotorPosition(-GEAR_REDUCTION * movedRotations);
+        krakenSim.setRotorVelocity(-GEAR_REDUCTION * speedRps);
+
+        // the hall switch reads false when engaged
+        boolean isHallOn = Units.radiansToRotations(turretSim.getAngularPositionRad()) >= SIM_HALL_EDGE_ROTATIONS;
+        hallLimitSim.setValue(!isHallOn);
+    }
+
+    // for the Fieldrunner game bridge: the turret's true angle relative to the robot's front, counter-clockwise
+    // positive
+    public Angle frGetSimAngleRobotRel() {
+        double turretRelRotations = Units.radiansToRotations(turretSim.getAngularPositionRad());
+        double robotRelRotations = turretRelRotations + ZERO_OFFSET.in(Rotations);
+        return Rotations.of(MathUtil.inputModulus(robotRelRotations, 0, 1));
     }
 
     public static class Tester extends PartialRobot {

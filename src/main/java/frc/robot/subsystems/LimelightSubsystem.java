@@ -12,6 +12,7 @@ import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 
 import java.util.Arrays;
+import java.util.Random;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
@@ -64,6 +65,8 @@ public class LimelightSubsystem extends SubsystemBase {
     private final NTable table;
 
     private final NTable lltable;
+
+    private final Random simRandom = new Random(); // Gaussian noise source
 
     public LimelightSubsystem(
             DrivetrainSubsystem drivetrain,
@@ -342,5 +345,36 @@ public class LimelightSubsystem extends SubsystemBase {
                 estimate.pose2d,
                 estimate.timestamp,
                 stddevs);
+    }
+
+    // ---- simulation
+
+    @Override
+    public void simulationPeriodic() {
+        // the pose the camera measured: the robot's true pose plus noise
+        double sigmaXyM = 0.03; // meters, Gaussian noise on x and y
+        double sigmaYawDeg = 1.0; // degrees, Gaussian noise on yaw
+        double tagDistanceM = 3; // meters from the camera to the fake tag
+        double tagArea = 1.0; // percent of the image the fake tag covers
+        Pose2d truthPose = drivetrain.frGetSimTruthPose();
+        double x = truthPose.getX() + simRandom.nextGaussian() * sigmaXyM;
+        double y = truthPose.getY() + simRandom.nextGaussian() * sigmaXyM;
+        double yawDeg = truthPose.getRotation().getDegrees() + simRandom.nextGaussian() * sigmaYawDeg;
+
+        // botpose_wpiblue: pose (x, y, z, roll, pitch, yaw), latency, tag count, tag span, average distance, average
+        // area, then seven numbers per tag
+        double[] botpose = {
+                x, y, 0, 0, 0, yawDeg,
+                30, 1, 0, tagDistanceM, tagArea, // 30 ms latency, one tag
+                1, 0, 0, tagArea, tagDistanceM, tagDistanceM, 0.1 // tag id 1, ambiguity 0.1
+        };
+        lltable.getEntry("botpose_wpiblue").setDoubleArray(botpose);
+
+        // standard deviations: x, y, z, roll, pitch, yaw (MegaTag1), then the same six for MegaTag2
+        double[] stddevs = new double[12];
+        stddevs[0] = sigmaXyM;
+        stddevs[1] = sigmaXyM;
+        stddevs[5] = sigmaYawDeg;
+        lltable.getEntry("stddevs").setDoubleArray(stddevs);
     }
 }
