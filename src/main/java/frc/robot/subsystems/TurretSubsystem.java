@@ -114,7 +114,10 @@ public class TurretSubsystem extends SubsystemBase {
 
     private final TalonFXSimState krakenSim = kraken.getSimState();
     private final DCMotorSim turretSim = new DCMotorSim(
-            LinearSystemId.createDCMotorSystem(KV / (2 * Math.PI), KA / (2 * Math.PI)), DCMotor.getKrakenX60(1));
+            LinearSystemId.createDCMotorSystem(
+                    KV / (2 * Math.PI),
+                    0.15 / (2 * Math.PI)), // kA, V per (rotation/s^2): a 10:1 Kraken turret; KA (0.4) is a rough tune
+            DCMotor.getKrakenX60(1));
     private final DIOSim hallLimitSim = new DIOSim(hallLimit);
 
     public TurretSubsystem(Supplier<Pose2d> robotPoseSupplier, RobotConstants driveConstants,
@@ -525,13 +528,25 @@ public class TurretSubsystem extends SubsystemBase {
         krakenSim.setSupplyVoltage(RobotController.getBatteryVoltage());
         double volts = -krakenSim.getMotorVoltage();
 
-        // static friction as a dead band: the turret needs kS volts before it moves, then the rest drives it
+        // friction (KS volts' worth) opposes the motion while the turret turns; at rest it holds the turret until the
+        // voltage beats it
+        double speedBeforeRps = turretSim.getAngularVelocityRPM() / 60;
+        boolean isTurning = Math.abs(speedBeforeRps) > 1e-3;
         double drivingVolts = 0;
-        if (Math.abs(volts) > KS) {
+        if (isTurning) {
+            drivingVolts = volts - Math.copySign(KS, speedBeforeRps);
+        } else if (Math.abs(volts) > KS) {
             drivingVolts = volts - Math.copySign(KS, volts);
         }
         turretSim.setInputVoltage(drivingVolts);
         turretSim.update(TimedRobot.kDefaultPeriod);
+
+        // friction stops the turret rather than turning it around
+        double speedAfterRps = turretSim.getAngularVelocityRPM() / 60;
+        boolean hasReversed = isTurning && speedAfterRps * speedBeforeRps < 0;
+        if (hasReversed && Math.abs(volts) <= KS) {
+            turretSim.setState(turretSim.getAngularPositionRad(), 0);
+        }
 
         // hard stops just past the soft limits
         double rotations = turretSim.getAngularPositionRotations();
